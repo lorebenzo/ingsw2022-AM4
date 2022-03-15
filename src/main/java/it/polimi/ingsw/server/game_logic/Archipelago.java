@@ -14,8 +14,8 @@ import java.util.stream.Stream;
  * multiple arhipelagos merge into a single archipelago
  */
 public class Archipelago {
-    private List<Integer> islandCodes;
-    private Map<Color, Integer> studentToNumber;
+    private final List<Integer> islandCodes;
+    private final Map<Color, Integer> studentToNumber;
     private TowerColor towerColor;
 
     public Archipelago() {
@@ -51,12 +51,13 @@ public class Archipelago {
     }
 
     /**
-     *
+     * @requires a1 != null && a2 != null && a1.towerColor == a2.towerColor
      * @param a1 first archipelago to merge
      * @param a2 second archipelago
      * @return an Archipelago that has first islandCodes + second islandCodes
      */
     public static Archipelago merge(Archipelago a1, Archipelago a2) throws NonMergeableArchipelagosException {
+        if(a1 == null || a2 == null) throw new IllegalArgumentException();
         if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE))
             throw new NonMergeableArchipelagosException();
 
@@ -65,6 +66,32 @@ public class Archipelago {
                 a1.studentToNumber, a2.studentToNumber,
                 a1.towerColor
         );
+    }
+
+    /**
+     * Adds a student to the archipelago
+     * @requires student != null
+     * @param student any student
+     */
+    public void addStudent(Color student) {
+        if(student == null) throw new IllegalArgumentException();
+        this.studentToNumber.put(student, this.studentToNumber.get(student) + 1);
+    }
+
+    /**
+     * @requires playerProfessors != null && playerTowerColor != null && playerTowerColor != TowerColor.NONE
+     * @param playerProfessors a set containing all the color of the professors owned by the player
+     * @param playerTowerColor the color of the towers owned by the player
+     * @return the influence of the player on this archipelago
+     */
+    public /* pure */ int getInfluence(Set<Color> playerProfessors, TowerColor playerTowerColor) {
+        if(playerProfessors == null || playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE))
+            throw new IllegalArgumentException();
+        return studentToNumber.keySet().stream()
+                .filter(playerProfessors::contains)
+                .mapToInt(this.studentToNumber::get)
+                .sum()
+                + ((playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0);
     }
 
     public List<Integer> getIslandCodes() {
