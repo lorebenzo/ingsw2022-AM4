@@ -17,11 +17,12 @@ public class ArchipelagoTest {
         firstArchipelago.setTowerColor(TowerColor.BLACK);
         secondArchipelago.setTowerColor(TowerColor.BLACK);
 
+        // Act
         Archipelago newArchipelago = Archipelago.merge(firstArchipelago, secondArchipelago);
 
+        // Assert
         assertTrue(newArchipelago.getIslandCodes().containsAll(firstArchipelago.getIslandCodes()));
         assertTrue(newArchipelago.getIslandCodes().containsAll(secondArchipelago.getIslandCodes()));
-
         assertEquals(2, firstArchipelago.getIslandCodes().size() + secondArchipelago.getIslandCodes().size());
     }
 }
