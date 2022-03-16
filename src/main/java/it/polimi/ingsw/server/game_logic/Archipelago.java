@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 /**
  * This class generalizes the concept of island:
  * an island is an archipelago with a single island and
- * multiple arhipelagos merge into a single archipelago
+ * multiple archipelagos merge into a single archipelago
  */
 public class Archipelago {
     private final List<Integer> islandCodes;

@@ -42,6 +42,7 @@ public class GameState {
         for(int i = 0; i < numberOfPlayers; i++) {
             List<Color> cloud = new ArrayList<>(numberOfPlayers == 3 ? 4 : 3);
             cloud.addAll(this.studentFactory.getNStudents(numberOfPlayers == 3 ? 4 : 3));
+            clouds.add(cloud);
         }
 
         return clouds;

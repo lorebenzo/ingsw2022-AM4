@@ -1,5 +1,5 @@
 package it.polimi.ingsw.server.game_logic.enums;
 
 public enum Color {
-    GREEN, YELLOW, RED, PURPLE, CYAN, NUMBER_OF_COLORS
+    GREEN, YELLOW, RED, PURPLE, CYAN
 }

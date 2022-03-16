@@ -30,7 +30,7 @@ public class StudentFactoryTest {
     }
 
     private boolean checkColor(Color c) {
-        return Arrays.stream(Color.values()).collect(Collectors.toSet()).contains(c) && !c.equals(Color.NUMBER_OF_COLORS);
+        return Arrays.stream(Color.values()).collect(Collectors.toSet()).contains(c);
     }
 
     @Test
