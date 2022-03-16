@@ -18,7 +18,7 @@ public class Archipelago {
     private final Map<Color, Integer> studentToNumber;
     private TowerColor towerColor;
 
-    public Archipelago() {
+    private Archipelago() {
         this.islandCodes = new ArrayList<>();
         this.studentToNumber = new HashMap<>(Color.values().length);
 
