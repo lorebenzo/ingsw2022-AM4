@@ -53,7 +53,7 @@ public class SchoolBoard implements Cloneable {
     }
 
     @Override
-    protected Object clone() {
+    public Object clone() {
         return new SchoolBoard(
                 this.id,
                 new HashMap<>(this.diningRoomLaneColorToNumberOfStudents),
