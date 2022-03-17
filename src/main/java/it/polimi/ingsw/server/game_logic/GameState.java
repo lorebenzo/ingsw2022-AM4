@@ -14,7 +14,10 @@ public class GameState {
     private final List<SchoolBoard> schoolBoards;
     private final List<List<Color>> clouds;
     private final StudentFactory studentFactory;
+    private Archipelago motherNaturePosition;
     private final int numberOfPlayers;
+    private final int numberOfStudentsInEachCloud;
+    private final int numberOfStudentsInTheEntrance;
 
     /**
      *
@@ -24,55 +27,61 @@ public class GameState {
         if(numberOfPlayers < 2 || numberOfPlayers > 4) throw new IllegalArgumentException();
 
         this.numberOfPlayers = numberOfPlayers;
-        this.archipelagos = this.initializeArchipelagos();
+        this.numberOfStudentsInEachCloud = numberOfPlayers == 3 ? 4 : 3;
+        this.numberOfStudentsInTheEntrance = numberOfPlayers == 3 ? 9 : 7;
         this.studentFactory = new StudentFactory();
         try {
-            this.schoolBoards = this.initializeSchoolBoards(numberOfPlayers);
-            this.clouds = this.initializeClouds(numberOfPlayers);
+            this.archipelagos = this.initializeArchipelagos();
+            this.schoolBoards = this.initializeSchoolBoards();
+            this.clouds = this.initializeClouds();
         } catch (EmptyStudentSupplyException e) {
             e.printStackTrace();
             throw new GameStateInitializationFailureException();
         }
     }
 
-    private List<List<Color>> initializeClouds(int numberOfPlayers) throws EmptyStudentSupplyException {
-        List<List<Color>> clouds = new ArrayList<>(numberOfPlayers);
+    private List<List<Color>> initializeClouds() throws EmptyStudentSupplyException {
+        List<List<Color>> clouds = new ArrayList<>(this.numberOfPlayers);
 
         // Create a cloud for each player
-        for(int i = 0; i < numberOfPlayers; i++) {
-            List<Color> cloud = new ArrayList<>(numberOfPlayers == 3 ? 4 : 3);
-            cloud.addAll(this.studentFactory.getNStudents(numberOfPlayers == 3 ? 4 : 3));
+        for(int i = 0; i < this.numberOfPlayers; i++) {
+            List<Color> cloud = new ArrayList<>(this.numberOfStudentsInEachCloud);
+            cloud.addAll(this.studentFactory.getNStudents(this.numberOfStudentsInEachCloud));
             clouds.add(cloud);
         }
 
         return clouds;
     }
 
-    private List<Archipelago> initializeArchipelagos() {
+    private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         List<Archipelago> archipelagos = new LinkedList<>();
-        for(int i = 1; i <= 12; i++)
-            archipelagos.add(new Archipelago(i));
+        for(int i = 1; i <= 12; i++) {
+            Archipelago newArchipelago = new Archipelago(i);
+            if(i == 1) this.motherNaturePosition = newArchipelago;
+            if(i != 1 && i != 6) newArchipelago.addStudent(this.studentFactory.getStudent());
+            archipelagos.add(newArchipelago);
+        }
         return archipelagos;
     }
 
-    private List<SchoolBoard> initializeSchoolBoards(int numberOfPlayers) throws EmptyStudentSupplyException {
+    private List<SchoolBoard> initializeSchoolBoards() throws EmptyStudentSupplyException {
         List<SchoolBoard> schoolBoards = new ArrayList<>(numberOfPlayers);
         schoolBoards.add(
-                new SchoolBoard(0, this.studentFactory.getNStudents((numberOfPlayers == 3) ? 9 : 7), TowerColor.WHITE)
+                new SchoolBoard(0, this.studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.WHITE)
         );
         schoolBoards.add(
-                new SchoolBoard(1, this.studentFactory.getNStudents((numberOfPlayers == 3) ? 9 : 7), TowerColor.BLACK)
+                new SchoolBoard(1, this.studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.BLACK)
         );
-        if(numberOfPlayers == 3)
+        if(this.numberOfPlayers == 3)
             schoolBoards.add(
-                    new SchoolBoard(2, this.studentFactory.getNStudents(9), TowerColor.GRAY)
+                    new SchoolBoard(2, this.studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.GRAY)
             );
-        if(numberOfPlayers == 4) {
+        if(this.numberOfPlayers == 4) {
             schoolBoards.add(
-                    new SchoolBoard(2, this.studentFactory.getNStudents(7), TowerColor.WHITE)
+                    new SchoolBoard(2, this.studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.WHITE)
             );
             schoolBoards.add(
-                    new SchoolBoard(3, this.studentFactory.getNStudents(7), TowerColor.BLACK)
+                    new SchoolBoard(3, this.studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.BLACK)
             );
         }
 
