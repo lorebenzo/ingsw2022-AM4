@@ -1,6 +1,6 @@
 package it.polimi.ingsw.server.game_logic;
 
-import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.exceptions.CardIsNotInTheDeckException;
 import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.game_logic.exceptions.FullCloudException;

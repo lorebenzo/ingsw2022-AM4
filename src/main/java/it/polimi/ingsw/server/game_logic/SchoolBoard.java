@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.game_logic;
 
+import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.CardIsNotInTheDeckException;
@@ -74,11 +75,36 @@ public class SchoolBoard implements Cloneable {
      * @requires student is in the entrance && diningRoomLane is not full
      */
     public void moveFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
-        if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
-        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= 10) throw new FullDiningRoomLaneException();
-        this.studentsInTheEntrance.remove(student);
+        this.removeStudentFromEntrance(student);
         this.diningRoomLaneColorToNumberOfStudents.put(student,
                 this.diningRoomLaneColorToNumberOfStudents.get(student) + 1);
+    }
+
+    /**
+     *
+     * @requires student is in the entrance
+     */
+    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
+        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
+            throw new FullDiningRoomLaneException();
+        this.studentsInTheEntrance.remove(student);
+    }
+
+    /**
+     * Students are put in the entrance
+     * @param studentsGrabbed students grabbed from the cloud
+     */
+    public void grabStudentsFromCloud(List<Color> studentsGrabbed) {
+        this.studentsInTheEntrance.addAll(studentsGrabbed);
+    }
+
+    public Set<Color> getProfessors() {
+        return new HashSet<>(this.professorsTable);
+    }
+
+    public TowerColor getTowerColor() {
+        return towerColor;
     }
 
     @Override
