@@ -8,3 +8,9 @@ pre-commit:
 test:
 			docker build --tag maven-test --target test .
 			docker run maven-test
+
+up:
+			docker-compose up
+
+shell:
+			docker-compose run db bash
