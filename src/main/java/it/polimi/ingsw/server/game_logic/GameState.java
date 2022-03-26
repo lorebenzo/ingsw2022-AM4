@@ -70,6 +70,10 @@ public class GameState {
             throw new GameStateInitializationFailureException();
         }
     }
+    /**
+     * This method initializes the List<List<Color>> representing the clouds
+     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
+     */
 
     /**
      * This method initializes the List<List<Color>> representing the clouds
@@ -85,6 +89,11 @@ public class GameState {
 
         return clouds;
     }
+    /**
+    * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
+     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
+     * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
+    */
 
     /**
      * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
@@ -111,6 +120,11 @@ public class GameState {
         }
         return archipelagos;
     }
+    /**
+     * This method initializes the schoolBoards according to the appropriate strategy depending from the number of players.
+     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
+     * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
+     */
 
     /**
      * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
