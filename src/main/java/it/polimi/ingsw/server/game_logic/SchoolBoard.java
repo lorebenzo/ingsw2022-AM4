@@ -9,7 +9,7 @@ import it.polimi.ingsw.server.game_logic.exceptions.StudentNotInTheEntranceExcep
 
 import java.util.*;
 
-public class SchoolBoard {
+public class SchoolBoard implements Cloneable {
     private final int id; // must be unique for each GameState
     private final Map<Color, Integer> diningRoomLaneColorToNumberOfStudents;
     private final TowerColor towerColor;
@@ -20,15 +20,7 @@ public class SchoolBoard {
     public final static int maximumNumberOfCardsInTheDeck = 10;
     public final static int maximumNumberOfStudentsInDiningRoomLanes = 10;
 
-    /**
-     *
-     * @param id
-     * @param studentsInTheEntrance
-     * @param towerColor
-     * @throws IllegalArgumentException if studentsInTheEntrance is null or contains null
-     */
     public SchoolBoard(int id, List<Color> studentsInTheEntrance, TowerColor towerColor) {
-        if(studentsInTheEntrance == null || studentsInTheEntrance.contains(null)) throw new IllegalArgumentException();
         this.id = id;
         this.studentsInTheEntrance = studentsInTheEntrance;
         this.towerColor = towerColor;
@@ -50,9 +42,6 @@ public class SchoolBoard {
                         List<Color> studentsInTheEntrance,
                         Set<Color> professorsTable,
                         List<Card> deck) {
-        if(studentsInTheEntrance == null || studentsInTheEntrance.contains(null) ||
-           professorsTable == null || professorsTable.contains(null) ||
-           deck == null || deck.contains(null)) throw new IllegalArgumentException();
         this.id = id;
         this.diningRoomLaneColorToNumberOfStudents = diningRoomLaneColorToNumberOfStudents;
         this.towerColor = towerColor;
@@ -62,7 +51,7 @@ public class SchoolBoard {
     }
 
     /**
-     * This method receives an argument of type Card and proceeds removing the corresponding card from the player's deck of playable cards.
+     * This method receives an argument of type Card and procedes removing the corresponding card from the player's deck of playable cards.
      * @throws IllegalArgumentException if(card == null)
      * @throws CardIsNotInTheDeckException if the card is not contained in the deck if(!this.deck.contains(card))
      * @param card the card to be played, and hence removed from the deck
@@ -101,21 +90,36 @@ public class SchoolBoard {
     /**
      * @throws IllegalArgumentException if(student == null)
      * @throws StudentNotInTheEntranceException if the student is not contained in the list representing the students in the entrance
+     * @throws FullDiningRoomLaneException if the corresponding diningRoomLane is full
      */
-    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException {
+    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
         if(student == null) throw new IllegalArgumentException();
         if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
+        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
+            throw new FullDiningRoomLaneException();
         this.studentsInTheEntrance.remove(student);
     }
 
     /**
      * Students are put in the entrance
-     * @throws IllegalArgumentException if(studentsGrabbed == null || studentsGrabbed.contains(null))
+     * @throws IllegalArgumentException if(studentsGrabbed == null)
      * @param studentsGrabbed students grabbed from the cloud
      */
     public void grabStudentsFromCloud(List<Color> studentsGrabbed) {
-        if(studentsGrabbed == null || studentsGrabbed.contains(null)) throw new IllegalArgumentException();
+        if(studentsGrabbed == null) throw new IllegalArgumentException();
         this.studentsInTheEntrance.addAll(studentsGrabbed);
+    }
+
+    @Override
+    public Object clone() {
+        return new SchoolBoard(
+                this.id,
+                new HashMap<>(this.diningRoomLaneColorToNumberOfStudents),
+                this.towerColor,
+                new ArrayList<>(this.studentsInTheEntrance),
+                new HashSet<>(professorsTable),
+                new LinkedList<>(this.deck)
+        );
     }
 
     // Getters
