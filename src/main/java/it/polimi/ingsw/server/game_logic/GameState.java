@@ -34,7 +34,10 @@ public class GameState {
     private int currentPlayerSchoolBoardId;
 
     /**
-     *
+     * @throws IllegalArgumentException if the argument representing the number of players is not between 2 and 4
+     * @throws GameStateInitializationFailureException if there is a problem in the initialization of the archipelagos
+     *                                                                                             or the schoolBoards,
+     *                                                                                             or the clouds.
      * @param numberOfPlayers number of players in the game, must be between 2 (inclusive) and 4 (inclusive)
      */
     public GameState(int numberOfPlayers) throws GameStateInitializationFailureException {
@@ -61,6 +64,10 @@ public class GameState {
             throw new GameStateInitializationFailureException();
         }
     }
+    /**
+     * This method initializes the List<List<Color>> representing the clouds
+     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
+     */
 
     private List<List<Color>> initializeClouds() throws EmptyStudentSupplyException {
         List<List<Color>> clouds = new ArrayList<>(this.numberOfPlayers);
@@ -73,6 +80,11 @@ public class GameState {
 
         return clouds;
     }
+    /**
+    * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
+     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
+     * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
+    */
 
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         List<Archipelago> archipelagos = new LinkedList<>();
@@ -85,6 +97,11 @@ public class GameState {
         }
         return archipelagos;
     }
+    /**
+     * This method initializes the schoolBoards according to the appropriate strategy depending from the number of players.
+     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
+     * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
+     */
 
     private List<SchoolBoard> initializeSchoolBoards() throws EmptyStudentSupplyException {
         return this.strategy.initializeSchoolBoards(this.studentFactory);
@@ -93,13 +110,17 @@ public class GameState {
     // Game flow methods
 
     /**
+     * This method sets the current phase of the turn
+     * @throws IllegalArgumentException if(currentPhase == null)
      */
     public void setCurrentPhase(Phase currentPhase) {
+        if(currentPhase == null) throw new IllegalArgumentException();
         this.currentPhase = currentPhase;
     }
 
     /**
      * @requires schoolBoardId is a valid id of an existing school board in this game
+     * @param schoolBoardId has to be a valid id of an existing schoolBoard
      */
     public void setCurrentPlayerSchoolBoardId(int schoolBoardId) {
         this.currentPlayerSchoolBoardId = schoolBoardId;
@@ -108,9 +129,11 @@ public class GameState {
     // Planning phase methods
 
     /**
-     * @requires (cloudIndex >= this.numberOfPlayers || cloudIndex < 0)
-     *            && \* the cloud at cloudIndex doesn't contain any student *\
-     * @param cloudIndex the index of the cloud to fill with students
+     * This method gets int cloudIndex in input identifying a cloud and fills the cloud with students taken from the studentSupply
+     * @throws IllegalArgumentException if the cloudIndex parameter is not valid
+     * @throws FullCloudException if the cloud identified through cloudIndex is not completely empty
+     * @throws EmptyStudentSupplyException if the student supply representing the bag cannot fulfill the request for students
+     * @param cloudIndex is the index of the cloud to fill with students
      */
     public void fillCloud(int cloudIndex) throws FullCloudException, EmptyStudentSupplyException {
         if(cloudIndex >= this.numberOfPlayers || cloudIndex < 0) throw new IllegalArgumentException();
@@ -121,6 +144,8 @@ public class GameState {
 
     /**
      * Fills every cloud with students
+     * @throws FullCloudException if one or more of the clouds are not completely empty before being refilled
+     * @throws EmptyStudentSupplyException if the studentSupply cannot fulfill the demand for students to refill all the clouds
      */
     public void fillClouds() throws FullCloudException, EmptyStudentSupplyException {
         for(int cloudIndex = 0; cloudIndex < this.numberOfPlayers; cloudIndex++)
@@ -129,6 +154,7 @@ public class GameState {
 
     /**
      * The current player grabs all the students from a cloud and puts them in the entrance
+     * @param cloudIndex is the index of the cloud to pick the students from
      */
     public void grabStudentsFromCloud(int cloudIndex) {
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
@@ -142,7 +168,9 @@ public class GameState {
 
     /**
      * The current player plays the given card
-     * @requires the current player actually owns that card && card != null && school board ID exists
+     * @requires school board ID exists
+     * @throws IllegalArgumentException if the card parameter is null
+     * @throws CardIsNotInTheDeckException if the current player does not actually own the card to be played
      * @param card the card to be played by the current player
      */
     public void playCard(Card card) throws CardIsNotInTheDeckException {
@@ -158,9 +186,12 @@ public class GameState {
 
     /**
      * The current player moves a student from the entrance to the dining room
-     * @requires student is in the current player's entrance && dining room is not full
+     * @throws IllegalArgumentException if(student == null)
+     * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
+     * @param student represents a student that the player wants to move from the entrance to the diningRoom
      */
     public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        if(student == null) throw new IllegalArgumentException();
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
                 .collect(Collectors.toList())
@@ -171,9 +202,14 @@ public class GameState {
 
     /**
      * The current player moves a student from the entrance to an archipelago
-     * @requires student is the current player's entrance
+     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null)
+     * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
+     * @param student represents a student of a certain color that the player wants to move from the entrance to an archipelago
+     * @param archipelagoIslandCodes represents the islandCodes of the archipelago into which the student is being moved
      */
     public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        if(student == null || archipelagoIslandCodes == null) throw new IllegalArgumentException();
+
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
                 .collect(Collectors.toList())
@@ -203,7 +239,6 @@ public class GameState {
     }
 
     /**
-     *
      * @return the influence on the archipelago mother nature is currently in
      */
     public int getInfluence() {
