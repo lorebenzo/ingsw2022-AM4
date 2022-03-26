@@ -22,9 +22,13 @@ public class ArchipelagoTest {
         Archipelago secondArchipelago = new Archipelago(2);
         Archipelago thirdArchipelago = new Archipelago(-445);
 
+        Archipelago fourthArchipelago = new Archipelago(20);
+
         firstArchipelago.setTowerColor(TowerColor.BLACK);
         secondArchipelago.setTowerColor(TowerColor.BLACK);
         thirdArchipelago.setTowerColor(TowerColor.BLACK);
+
+        fourthArchipelago.setTowerColor(TowerColor.WHITE);
 
         // Act
         Archipelago newArchipelago1 = null;
@@ -37,6 +41,14 @@ public class ArchipelagoTest {
             fail();
         }
 
+        Archipelago newArchipelago3 = null;
+
+        try{
+            newArchipelago3 = Archipelago.merge(fourthArchipelago,fourthArchipelago);
+        }catch (NonMergeableArchipelagosException e){
+            e.printStackTrace();
+        }
+
         // Assert
         assertTrue(newArchipelago1.getIslandCodes().containsAll(firstArchipelago.getIslandCodes()));
         assertTrue(newArchipelago1.getIslandCodes().containsAll(secondArchipelago.getIslandCodes()));
@@ -45,6 +57,8 @@ public class ArchipelagoTest {
         assertTrue(newArchipelago2.getIslandCodes().containsAll(newArchipelago1.getIslandCodes()));
         assertTrue(newArchipelago2.getIslandCodes().containsAll(thirdArchipelago.getIslandCodes()));
         assertEquals(3, newArchipelago2.getIslandCodes().size());
+
+        assertNull(newArchipelago3);
     }
 
     @Test

@@ -19,8 +19,8 @@ public class StudentFactory {
     }
 
     /**
-     *
-     * @return a random student drawn from the supply, the student is finally removed from the supply. If the supply is empty throws an exception.
+     * @throws EmptyStudentSupplyException if the student supply (representing the bag) is empty.
+     * @return a random student drawn from the supply, the student is finally removed from the supply.
      */
     public Color getStudent() throws EmptyStudentSupplyException {
         int supplySize = studentSupply.keySet().stream()
@@ -40,7 +40,6 @@ public class StudentFactory {
     }
 
     /**
-     *
      * @return a random student, each color is equally likely to spawn, this method DOES NOT update the studentSupply
      */
     public Color generateStudent() {
@@ -48,7 +47,8 @@ public class StudentFactory {
     }
 
     /**
-     * @requires n >= 0
+     * @throws IllegalArgumentException if(n < 0)
+     * @throws EmptyStudentSupplyException if the student supply (representing the bag) is empty.
      * @param n number of students to extract from the supply
      * @return a list containing the n students that are randomly extracted from the supply
      */

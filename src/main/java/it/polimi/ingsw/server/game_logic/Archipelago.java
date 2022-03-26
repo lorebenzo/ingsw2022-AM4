@@ -51,14 +51,16 @@ public class Archipelago {
     }
 
     /**
-     * @requires a1 != null && a2 != null && a1.towerColor == a2.towerColor
+     * @throws  IllegalArgumentException if(a1 == null || a2 == null)
+     * @throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
+     *                                              if the two archipelagos are actually the same archipelago (a1.equals(a2))
      * @param a1 first archipelago to merge
      * @param a2 second archipelago
      * @return an Archipelago that has first islandCodes + second islandCodes
      */
     public static Archipelago merge(Archipelago a1, Archipelago a2) throws NonMergeableArchipelagosException {
         if(a1 == null || a2 == null) throw new IllegalArgumentException();
-        if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE))
+        if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE) || a1.islandCodes.equals(a2.islandCodes))
             throw new NonMergeableArchipelagosException();
 
         return new Archipelago(
@@ -70,7 +72,7 @@ public class Archipelago {
 
     /**
      * Adds a student to the archipelago
-     * @requires student != null
+     * @throws IllegalArgumentException if(student == null)
      * @param student any student
      */
     public void addStudent(Color student) {
@@ -79,10 +81,12 @@ public class Archipelago {
     }
 
     /**
-     * @requires playerProfessors != null && playerTowerColor != null && playerTowerColor != TowerColor.NONE
-     * @param playerProfessors a set containing all the color of the professors owned by the player
-     * @param playerTowerColor the color of the towers owned by the player
-     * @return the influence of the player on this archipelago
+     * @throws IllegalArgumentException if the arguments representing the set of professors owned by the player is null or
+     *                                        the argument representing the color of the player's tower is null or
+     *                                        the argument representing the color of the player's tower is TowerColor.NONE
+     * @param   playerProfessors a set containing all the color of the professors owned by the player
+     * @param   playerTowerColor the color of the towers owned by the player
+     * @return  an int representing the value of the player's influence on this archipelago
      */
     public /* pure */ int getInfluence(Set<Color> playerProfessors, TowerColor playerTowerColor) {
         if(playerProfessors == null || playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE))
@@ -98,7 +102,12 @@ public class Archipelago {
         return new ArrayList<>(this.islandCodes);
     }
 
+    /**
+     * Sets the towerColor of this archipelago
+     * @throws IllegalArgumentException if(towerColor == null)
+     */
     public void setTowerColor(TowerColor towerColor) {
+        if(towerColor == null) throw new IllegalArgumentException();
         this.towerColor = towerColor;
     }
 }
