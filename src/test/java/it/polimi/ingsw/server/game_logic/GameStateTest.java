@@ -21,6 +21,10 @@ public class GameStateTest {
         GameState g3 = new GameState(3);
         GameState g4 = new GameState(4);
 
+        g2.clearClouds();
+        g3.clearClouds();
+        g4.clearClouds();
+
         int cloudsCount, cloudCapacity;
 
         // 2 players
