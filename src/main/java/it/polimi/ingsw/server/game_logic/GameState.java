@@ -59,7 +59,9 @@ public class GameState {
             this.archipelagos = this.initializeArchipelagos();
             this.schoolBoards = this.initializeSchoolBoards();
             this.clouds = this.initializeClouds();
-        } catch (EmptyStudentSupplyException e) {
+            // Fill the clouds with students
+            this.fillClouds();
+        } catch (EmptyStudentSupplyException | FullCloudException e) {
             e.printStackTrace();
             throw new GameStateInitializationFailureException();
         }
@@ -69,7 +71,7 @@ public class GameState {
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
      */
 
-    private List<List<Color>> initializeClouds() throws EmptyStudentSupplyException {
+    private List<List<Color>> initializeClouds() {
         List<List<Color>> clouds = new ArrayList<>(this.numberOfPlayers);
 
         // Create a cloud for each player
@@ -150,6 +152,14 @@ public class GameState {
     public void fillClouds() throws FullCloudException, EmptyStudentSupplyException {
         for(int cloudIndex = 0; cloudIndex < this.numberOfPlayers; cloudIndex++)
             fillCloud(cloudIndex);
+    }
+
+    /**
+     * Destroys in an irreversible way all the students in the clouds
+     */
+    public void clearClouds() {
+        for(List<Color> cloud : this.clouds)
+            cloud.clear();
     }
 
     /**
