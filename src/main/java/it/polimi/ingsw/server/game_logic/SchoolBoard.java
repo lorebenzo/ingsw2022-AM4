@@ -9,7 +9,7 @@ import it.polimi.ingsw.server.game_logic.exceptions.StudentNotInTheEntranceExcep
 
 import java.util.*;
 
-public class SchoolBoard implements Cloneable {
+public class SchoolBoard {
     private final int id; // must be unique for each GameState
     private final Map<Color, Integer> diningRoomLaneColorToNumberOfStudents;
     private final TowerColor towerColor;
@@ -110,16 +110,12 @@ public class SchoolBoard implements Cloneable {
         this.studentsInTheEntrance.addAll(studentsGrabbed);
     }
 
-    @Override
-    public Object clone() {
-        return new SchoolBoard(
-                this.id,
-                new HashMap<>(this.diningRoomLaneColorToNumberOfStudents),
-                this.towerColor,
-                new ArrayList<>(this.studentsInTheEntrance),
-                new HashSet<>(professorsTable),
-                new LinkedList<>(this.deck)
-        );
+    public Set<Color> getProfessors() {
+        return new HashSet<>(this.professorsTable);
+    }
+
+    public TowerColor getTowerColor() {
+        return towerColor;
     }
 
     // Getters
