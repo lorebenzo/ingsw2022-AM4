@@ -157,9 +157,13 @@ public class GameState {
         this.schoolBoardIdToCardPlayedThisRound.put(currentPlayerSchoolBoardId, card);
     }
 
+
     /**
      * The current player moves a student from the entrance to the dining room
-     * @requires student is in the current player's entrance && dining room is not full
+     *
+     * @param student any student in the entrance of the current player
+     * @throws StudentNotInTheEntranceException if the current player does not have a student of that color in the entrance
+     * @throws FullDiningRoomLaneException if the lane of the current player's dining room corresponding to that student color is already full
      */
     public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
@@ -172,9 +176,12 @@ public class GameState {
 
     /**
      * The current player moves a student from the entrance to an archipelago
-     * @requires student is the current player's entrance
+     *
+     * @param student any student in the entrance of the current player
+     * @param archipelagoIslandCodes the identifier of the archipelago the current player wants to move his student in
+     * @throws StudentNotInTheEntranceException if the current player does not have a student of that color in the entrance
      */
-    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException {
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
                 .collect(Collectors.toList())

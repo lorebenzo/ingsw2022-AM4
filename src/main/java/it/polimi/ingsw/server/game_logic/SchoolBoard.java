@@ -9,7 +9,7 @@ import it.polimi.ingsw.server.game_logic.exceptions.StudentNotInTheEntranceExcep
 
 import java.util.*;
 
-public class SchoolBoard implements Cloneable {
+public class SchoolBoard {
     private final int id; // must be unique for each GameState
     private final Map<Color, Integer> diningRoomLaneColorToNumberOfStudents;
     private final TowerColor towerColor;
@@ -72,9 +72,14 @@ public class SchoolBoard implements Cloneable {
     }
 
     /**
-     * @requires student is in the entrance && diningRoomLane is not full
+     *
+     * @param student any student in the entrance
+     * @throws StudentNotInTheEntranceException if there is not a student of that color in the entrance
+     * @throws FullDiningRoomLaneException if the dining room lane corresponding to that student color is already full
      */
     public void moveFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
+            throw new FullDiningRoomLaneException();
         this.removeStudentFromEntrance(student);
         this.diningRoomLaneColorToNumberOfStudents.put(student,
                 this.diningRoomLaneColorToNumberOfStudents.get(student) + 1);
@@ -82,12 +87,11 @@ public class SchoolBoard implements Cloneable {
 
     /**
      *
-     * @requires student is in the entrance
+     * @param student any student in the entrance
+     * @throws StudentNotInTheEntranceException if there is not a student of that color in the entrance
      */
-    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException {
         if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
-        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
-            throw new FullDiningRoomLaneException();
         this.studentsInTheEntrance.remove(student);
     }
 
@@ -105,18 +109,6 @@ public class SchoolBoard implements Cloneable {
 
     public TowerColor getTowerColor() {
         return towerColor;
-    }
-
-    @Override
-    public Object clone() {
-        return new SchoolBoard(
-                this.id,
-                new HashMap<>(this.diningRoomLaneColorToNumberOfStudents),
-                this.towerColor,
-                new ArrayList<>(this.studentsInTheEntrance),
-                new HashSet<>(professorsTable),
-                new LinkedList<>(this.deck)
-        );
     }
 
     // Getters
