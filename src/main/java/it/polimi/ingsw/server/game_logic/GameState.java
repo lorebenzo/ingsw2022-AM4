@@ -199,8 +199,6 @@ public class GameState {
         currentPlayerSchoolBoard.grabStudentsFromCloud(studentsGrabbed);
     }
 
-
-
     /**
      * The current player plays the given card
      * @requires school board ID exists
