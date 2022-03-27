@@ -205,10 +205,27 @@ public class GameState {
 
     /**
      *
-     * @return the influence on the archipelago mother nature is currently in
+     * @return the influence of the current player on the archipelago mother nature is currently in
      */
     public int getInfluence() {
         return this.strategy.getInfluence(this.schoolBoards, this.motherNaturePosition, this.currentPlayerSchoolBoardId);
+    }
+
+    /**
+     *
+     * @param islandCodes the identifier of the archipelago, which consists in a list containing all the IDs of the islands contained into the archipelago
+     * @param currentPlayerSchoolBoardId the identifier of the school board owned by the player we are calculating the influence of
+     * @throws InvalidArchipelagoIdException if the islandCodes do not match any archipelago in this game
+     * @return the influence of the desired player on the archipelago identified by the islandCodes
+     */
+    public int getInfluenceOnArchipelago(List<Integer> islandCodes, int currentPlayerSchoolBoardId) throws InvalidArchipelagoIdException {
+        Archipelago archipelago = this.archipelagos.stream()
+                .filter(arch -> arch.getIslandCodes().equals(islandCodes))
+                .findFirst()
+                .orElse(null);
+        if(archipelago == null) throw new InvalidArchipelagoIdException();
+
+        return this.strategy.getInfluence(this.schoolBoards, archipelago, currentPlayerSchoolBoardId);
     }
 
     // Getters
