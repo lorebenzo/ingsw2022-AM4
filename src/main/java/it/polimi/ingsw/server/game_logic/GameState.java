@@ -89,10 +89,11 @@ public class GameState {
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         List<Archipelago> archipelagos = new LinkedList<>();
         final int numberOfArchipelagos = 12;
+        final Queue<Color> randomStudents = this.studentFactory.getStudentsForArchipelagosInitialization();
         for(int i = 1; i <= numberOfArchipelagos; i++) {
             Archipelago newArchipelago = new Archipelago(i);
             if(i == 1) this.motherNaturePosition = newArchipelago;
-            if(i != 1 && i != numberOfArchipelagos / 2) newArchipelago.addStudent(this.studentFactory.getStudent());
+            if(i != 1 && i != numberOfArchipelagos / 2) newArchipelago.addStudent(randomStudents.poll());
             archipelagos.add(newArchipelago);
         }
         return archipelagos;

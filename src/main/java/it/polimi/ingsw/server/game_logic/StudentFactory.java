@@ -12,7 +12,7 @@ public class StudentFactory {
 
     public StudentFactory() {
         this.studentSupply = new HashMap<>();
-        int initialStudentsPerColor = 26;
+        final int initialStudentsPerColor = 26;
         for(Color color : Color.values())
             studentSupply.put(color, initialStudentsPerColor);
         this.randomizer = new Random();
@@ -62,5 +62,30 @@ public class StudentFactory {
         for(int i = 0; i < n; i++)
             result.add(this.getStudent());
         return result;
+    }
+
+    /**
+     * @throws EmptyStudentSupplyException if there aren't 2 students for each color available in the supply
+     * @return a list containing the students extracted for the initialization of the archipelagos according to the rulebook
+     */
+    public Queue<Color> getStudentsForArchipelagosInitialization() throws EmptyStudentSupplyException {
+        final int studentsToExtract = 10;
+        final int studentsPerColor = 2;
+        LinkedList<Color> colors = new LinkedList<>();
+        for(Color color : Color.values()) {
+            if(this.studentSupply.get(color) < 2) throw new EmptyStudentSupplyException();
+
+            // Remove the students from the supply
+            this.studentSupply.put(color, this.studentSupply.get(color) - studentsPerColor);
+
+            // Add two students of the same color to the list
+            colors.add(color);
+            colors.add(color);
+        }
+
+        // Randomly sort the queue
+        Collections.shuffle(colors);
+
+        return colors;
     }
 }
