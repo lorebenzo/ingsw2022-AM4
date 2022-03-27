@@ -9,7 +9,7 @@ import it.polimi.ingsw.server.game_logic.exceptions.StudentNotInTheEntranceExcep
 
 import java.util.*;
 
-public class SchoolBoard implements Cloneable {
+public class SchoolBoard {
     private final int id; // must be unique for each GameState
     private final Map<Color, Integer> diningRoomLaneColorToNumberOfStudents;
     private final TowerColor towerColor;
@@ -51,13 +51,10 @@ public class SchoolBoard implements Cloneable {
     }
 
     /**
-     * This method receives an argument of type Card and procedes removing the corresponding card from the player's deck of playable cards.
-     * @throws IllegalArgumentException if(card == null)
-     * @throws CardIsNotInTheDeckException if the card is not contained in the deck if(!this.deck.contains(card))
+     *
      * @param card the card to be played, and hence removed from the deck
      */
     public void playCard(Card card) throws CardIsNotInTheDeckException {
-        if(card == null) throw new IllegalArgumentException();
         if(!this.deck.contains(card)) throw new CardIsNotInTheDeckException();
         this.deck.remove(card);
     }
@@ -67,62 +64,45 @@ public class SchoolBoard implements Cloneable {
     }
 
     /**
-     * @throws IllegalArgumentException if(student == null)
-     * @return true if at least a student of the given color is in the entrance of the school board, false otherwise
+     *
+     * @return true if a student of the given color is in the entrance of the school board, false otherwise
      */
     public boolean isInTheEntrance(Color student) {
-        if(student == null) throw new IllegalArgumentException();
         return this.studentsInTheEntrance.contains(student);
     }
 
     /**
-     * @throws IllegalArgumentException if(student == null)
-     * @throws StudentNotInTheEntranceException if the student is not in the entrance
-     * @throws FullDiningRoomLaneException if the diningRoomLane is full
+     *
+     * @param student any student in the entrance
+     * @throws StudentNotInTheEntranceException if there is not a student of that color in the entrance
+     * @throws FullDiningRoomLaneException if the dining room lane corresponding to that student color is already full
      */
     public void moveFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
-        if(student == null) throw new IllegalArgumentException();
+        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
+            throw new FullDiningRoomLaneException();
         this.removeStudentFromEntrance(student);
         this.diningRoomLaneColorToNumberOfStudents.put(student,
                 this.diningRoomLaneColorToNumberOfStudents.get(student) + 1);
     }
 
     /**
-     * @throws IllegalArgumentException if(student == null)
-     * @throws StudentNotInTheEntranceException if the student is not contained in the list representing the students in the entrance
-     * @throws FullDiningRoomLaneException if the corresponding diningRoomLane is full
+     *
+     * @param student any student in the entrance
+     * @throws StudentNotInTheEntranceException if there is not a student of that color in the entrance
      */
-    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
-        if(student == null) throw new IllegalArgumentException();
+    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException {
         if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
-        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
-            throw new FullDiningRoomLaneException();
         this.studentsInTheEntrance.remove(student);
     }
 
     /**
      * Students are put in the entrance
-     * @throws IllegalArgumentException if(studentsGrabbed == null)
      * @param studentsGrabbed students grabbed from the cloud
      */
     public void grabStudentsFromCloud(List<Color> studentsGrabbed) {
-        if(studentsGrabbed == null) throw new IllegalArgumentException();
         this.studentsInTheEntrance.addAll(studentsGrabbed);
     }
 
-    @Override
-    public Object clone() {
-        return new SchoolBoard(
-                this.id,
-                new HashMap<>(this.diningRoomLaneColorToNumberOfStudents),
-                this.towerColor,
-                new ArrayList<>(this.studentsInTheEntrance),
-                new HashSet<>(professorsTable),
-                new LinkedList<>(this.deck)
-        );
-    }
-
-    // Getters
     public Set<Color> getProfessors() {
         return new HashSet<>(this.professorsTable);
     }
@@ -130,6 +110,8 @@ public class SchoolBoard implements Cloneable {
     public TowerColor getTowerColor() {
         return towerColor;
     }
+
+    // Getters
 
     public List<Card> getDeck() {
         return new LinkedList<>(this.deck);
