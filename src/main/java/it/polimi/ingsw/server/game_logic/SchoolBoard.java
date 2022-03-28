@@ -110,14 +110,6 @@ public class SchoolBoard {
         this.studentsInTheEntrance.addAll(studentsGrabbed);
     }
 
-    public Set<Color> getProfessors() {
-        return new HashSet<>(this.professorsTable);
-    }
-
-    public TowerColor getTowerColor() {
-        return towerColor;
-    }
-
     // Getters
     public Set<Color> getProfessors() {
         return new HashSet<>(this.professorsTable);
