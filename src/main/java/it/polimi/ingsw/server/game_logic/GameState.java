@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
@@ -235,6 +236,15 @@ public class GameState {
         return this.archipelagos.get(next);
     }
 
+    private Archipelago getPreviousArchipelago() {
+        int previous = -1;
+        for(int i = 0; i < this.archipelagos.size() && previous == -1; i++) {
+            if(this.archipelagos.get(i).equals(this.motherNaturePosition))
+                previous = i == 0 ? this.archipelagos.size() - 1 : i - 1;
+        }
+        return this.archipelagos.get(previous);
+    }
+
     /**
      * @return the influence on the archipelago mother nature is currently in
      */
@@ -257,6 +267,48 @@ public class GameState {
         if(archipelago == null) throw new InvalidArchipelagoIdException();
 
         return this.numberOfPlayersStrategy.getInfluence(this.schoolBoards, archipelago, currentPlayerSchoolBoardId);
+    }
+
+    /**
+     * Merges the archipelago mother nature is currently in with the archipelago on the left (one step counter-clockwise with respect to mother nature's position)
+     * @throws NonMergeableArchipelagosException if the two archipelagos cannot be merged, see Archipelago documentation
+     */
+    public void mergeLeft() throws NonMergeableArchipelagosException {
+        Archipelago left = getPreviousArchipelago();
+
+        // Substitute current archipelago with the merged archipelago
+        this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, left);
+
+        // Remove left archipelago from the list
+        this.archipelagos.remove(left);
+    }
+
+    /**
+     * Merges the archipelago mother nature is currently in with the archipelago on the right (one step clockwise with respect to mother nature's position)
+     * @throws NonMergeableArchipelagosException if the two archipelagos cannot be merged, see Archipelago documentation
+     */
+    public void mergeRight() throws NonMergeableArchipelagosException {
+        Archipelago right = getPreviousArchipelago();
+
+        // Substitute current archipelago with the merged archipelago
+        this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, right);
+
+        // Remove right archipelago from the list
+        this.archipelagos.remove(right);
+    }
+
+    /**
+     * The current player conquests the archipelago mother nature is currently in, placing a tower of his own color
+     * and substituting any tower that was previously placed on that archipelago
+     */
+    public void conquestArchipelago() {
+        TowerColor currentPlayerTowerColor = Objects.requireNonNull(this.schoolBoards.stream()
+                        .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
+                        .findFirst()
+                        .orElse(null))
+                        .getTowerColor();
+
+        this.motherNaturePosition.setTowerColor(currentPlayerTowerColor);
     }
 
     // Getters
