@@ -51,7 +51,7 @@ public class SchoolBoard {
     }
 
     /**
-     * This method receives an argument of type Card and procedes removing the corresponding card from the player's deck of playable cards.
+     * This method receives an argument of type Card and proceeds removing the corresponding card from the player's deck of playable cards.
      * @throws IllegalArgumentException if(card == null)
      * @throws CardIsNotInTheDeckException if the card is not contained in the deck if(!this.deck.contains(card))
      * @param card the card to be played, and hence removed from the deck
