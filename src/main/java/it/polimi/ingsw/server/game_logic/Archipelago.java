@@ -83,7 +83,8 @@ public class Archipelago {
     /**
      * @throws IllegalArgumentException if the arguments representing the set of professors owned by the player is null or
      *                                        the argument representing the color of the player's tower is null or
-     *                                        the argument representing the color of the player's tower is TowerColor.NONE
+     *                                        the argument representing the color of the player's tower is TowerColor.NONE or
+     *                                        playerProfessors contains null
      * @param   playerProfessors a set containing all the color of the professors owned by the player
      * @param   playerTowerColor the color of the towers owned by the player
      * @return  an int representing the value of the player's influence on this archipelago
@@ -91,6 +92,7 @@ public class Archipelago {
     public /* pure */ int getInfluence(Set<Color> playerProfessors, TowerColor playerTowerColor) {
         if(playerProfessors == null || playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE))
             throw new IllegalArgumentException();
+        if(playerProfessors.contains(null)) throw new IllegalArgumentException();
         return studentToNumber.keySet().stream()
                 .filter(playerProfessors::contains)
                 .mapToInt(this.studentToNumber::get)

@@ -65,11 +65,10 @@ public class GameState {
             throw new GameStateInitializationFailureException();
         }
     }
+
     /**
      * This method initializes the List<List<Color>> representing the clouds
-     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
      */
-
     private List<List<Color>> initializeClouds() {
         List<List<Color>> clouds = new ArrayList<>(this.numberOfPlayers);
 
@@ -81,12 +80,12 @@ public class GameState {
 
         return clouds;
     }
+
     /**
     * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
      * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
     */
-
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         List<Archipelago> archipelagos = new LinkedList<>();
         final int numberOfArchipelagos = 12;
@@ -206,13 +205,14 @@ public class GameState {
 
     /**
      * The current player moves a student from the entrance to an archipelago
-     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null)
+     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes contains null)
      * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
      * @param student represents a student of a certain color that the player wants to move from the entrance to an archipelago
      * @param archipelagoIslandCodes represents the islandCodes of the archipelago into which the student is being moved
      */
-    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException {
         if(student == null || archipelagoIslandCodes == null) throw new IllegalArgumentException();
+        if(archipelagoIslandCodes.contains(null)) throw new IllegalArgumentException();
 
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
@@ -273,9 +273,11 @@ public class GameState {
      * @param islandCodes the identifier of the archipelago, which consists in a list containing all the IDs of the islands contained into the archipelago
      * @param currentPlayerSchoolBoardId the identifier of the school board owned by the player we are calculating the influence of
      * @throws InvalidArchipelagoIdException if the islandCodes do not match any archipelago in this game
+     * @throws IllegalArgumentException if islandCodes is null or islandCodes contains null
      * @return the influence of the desired player on the archipelago identified by the islandCodes
      */
     public int getInfluenceOnArchipelago(List<Integer> islandCodes, int currentPlayerSchoolBoardId) throws InvalidArchipelagoIdException {
+        if(islandCodes == null || islandCodes.contains(null)) throw new IllegalArgumentException();
         Archipelago archipelago = this.archipelagos.stream()
                 .filter(arch -> arch.getIslandCodes().equals(islandCodes))
                 .findFirst()
