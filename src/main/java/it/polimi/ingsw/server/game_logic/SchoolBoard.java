@@ -90,13 +90,10 @@ public class SchoolBoard {
     /**
      * @throws IllegalArgumentException if(student == null)
      * @throws StudentNotInTheEntranceException if the student is not contained in the list representing the students in the entrance
-     * @throws FullDiningRoomLaneException if the corresponding diningRoomLane is full
      */
-    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException {
         if(student == null) throw new IllegalArgumentException();
         if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
-        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
-            throw new FullDiningRoomLaneException();
         this.studentsInTheEntrance.remove(student);
     }
 
