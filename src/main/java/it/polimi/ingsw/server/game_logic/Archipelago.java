@@ -53,14 +53,14 @@ public class Archipelago {
     /**
      * @throws  IllegalArgumentException if(a1 == null || a2 == null)
      * @throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
-     *                                              if the two archipelagos are actually the same archipelago (a1.equals(a2))
+     *                                              if the two archipelagos have intersecting islandCodes
      * @param a1 first archipelago to merge
      * @param a2 second archipelago
      * @return an Archipelago that has first islandCodes + second islandCodes
      */
     public static Archipelago merge(Archipelago a1, Archipelago a2) throws NonMergeableArchipelagosException {
         if(a1 == null || a2 == null) throw new IllegalArgumentException();
-        if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE) || a1.islandCodes.equals(a2.islandCodes))
+        if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE) || a1.islandCodes.stream().anyMatch(a2.islandCodes::contains))
             throw new NonMergeableArchipelagosException();
 
         return new Archipelago(
