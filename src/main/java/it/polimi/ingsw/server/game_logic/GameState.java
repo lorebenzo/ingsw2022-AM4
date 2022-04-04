@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class GameState {
     private final int numberOfPlayers;
-    private final NumberOfPlayersStrategy numberOfPlayersStrategy;
+    private final NumberOfPlayersStrategy strategy;
     private final int numberOfStudentsInEachCloud;
     private final int numberOfStudentsInTheEntrance;
 
@@ -45,10 +45,10 @@ public class GameState {
         if(numberOfPlayers < 2 || numberOfPlayers > 4) throw new IllegalArgumentException();
 
         this.numberOfPlayers = numberOfPlayers;
-        this.numberOfPlayersStrategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
+        this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
 
-        this.numberOfStudentsInEachCloud = this.numberOfPlayersStrategy.getNumberOfStudentsInEachCloud();
-        this.numberOfStudentsInTheEntrance = this.numberOfPlayersStrategy.getNumberOfStudentsInTheEntrance();
+        this.numberOfStudentsInEachCloud = this.strategy.getNumberOfStudentsInEachCloud();
+        this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
 
         this.currentRound = 0;
         this.currentTurn = 0;
@@ -97,14 +97,15 @@ public class GameState {
         }
         return archipelagos;
     }
+
     /**
-     * This method initializes the schoolBoards according to the appropriate strategy depending from the number of players.
+     * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
      * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
      */
 
     private List<SchoolBoard> initializeSchoolBoards() throws EmptyStudentSupplyException {
-        return this.numberOfPlayersStrategy.initializeSchoolBoards(this.studentFactory);
+        return this.strategy.initializeSchoolBoards(this.studentFactory);
     }
 
     // Game flow methods
@@ -156,9 +157,7 @@ public class GameState {
      * The current player grabs all the students from a cloud and puts them in the entrance
      * @param cloudIndex is the index of the cloud to pick the students from
      */
-    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException {
-        if(cloudIndex < 0 || cloudIndex >= this.numberOfPlayers) throw new IllegalArgumentException();
-        if(this.clouds.get(cloudIndex).isEmpty()) throw new EmptyCloudException();
+    public void grabStudentsFromCloud(int cloudIndex) {
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
                 .collect(Collectors.toList())
@@ -167,6 +166,8 @@ public class GameState {
         this.clouds.get(cloudIndex).clear(); // Reset the cloud
         currentPlayerSchoolBoard.grabStudentsFromCloud(studentsGrabbed);
     }
+
+
 
     /**
      * The current player plays the given card
@@ -186,7 +187,6 @@ public class GameState {
         this.schoolBoardIdToCardPlayedThisRound.put(currentPlayerSchoolBoardId, card);
     }
 
-
     /**
      * The current player moves a student from the entrance to the dining room
      * @throws IllegalArgumentException if(student == null)
@@ -205,14 +205,13 @@ public class GameState {
 
     /**
      * The current player moves a student from the entrance to an archipelago
-     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes contains null)
+     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null)
      * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
      * @param student represents a student of a certain color that the player wants to move from the entrance to an archipelago
      * @param archipelagoIslandCodes represents the islandCodes of the archipelago into which the student is being moved
      */
-    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException {
+    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
         if(student == null || archipelagoIslandCodes == null) throw new IllegalArgumentException();
-        if(archipelagoIslandCodes.contains(null)) throw new IllegalArgumentException();
 
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
@@ -233,19 +232,9 @@ public class GameState {
         this.motherNaturePosition = this.getNextArchipelago();
     }
 
-    /**
-     * Shifts mother nature's position n steps clockwise
-     *
-     * @param steps number of steps mother nature must do
-     */
-    public void moveMotherNatureNStepsClockwise(int steps) {
-        for(int i = 0; i < steps; i++)
-            moveMotherNatureOneStepClockwise();
-    }
-
     private Archipelago getNextArchipelago() {
         int next = -1;
-        for(int i = 0; i < this.archipelagos.size() && next == -1; i++) {
+        for(int i = 0; i < this.archipelagos.size(); i++) {
             if(this.archipelagos.get(i).equals(this.motherNaturePosition))
                 next = (i + 1) % this.archipelagos.size();
         }
@@ -259,32 +248,6 @@ public class GameState {
                 previous = i == 0 ? this.archipelagos.size() - 1 : i - 1;
         }
         return this.archipelagos.get(previous);
-    }
-
-    /**
-     * @return the influence on the archipelago mother nature is currently in
-     */
-    public int getInfluence() {
-        return this.numberOfPlayersStrategy.getInfluence(this.schoolBoards, this.motherNaturePosition, this.currentPlayerSchoolBoardId);
-    }
-
-    /**
-     *
-     * @param islandCodes the identifier of the archipelago, which consists in a list containing all the IDs of the islands contained into the archipelago
-     * @param currentPlayerSchoolBoardId the identifier of the school board owned by the player we are calculating the influence of
-     * @throws InvalidArchipelagoIdException if the islandCodes do not match any archipelago in this game
-     * @throws IllegalArgumentException if islandCodes is null or islandCodes contains null
-     * @return the influence of the desired player on the archipelago identified by the islandCodes
-     */
-    public int getInfluenceOnArchipelago(List<Integer> islandCodes, int currentPlayerSchoolBoardId) throws InvalidArchipelagoIdException {
-        if(islandCodes == null || islandCodes.contains(null)) throw new IllegalArgumentException();
-        Archipelago archipelago = this.archipelagos.stream()
-                .filter(arch -> arch.getIslandCodes().equals(islandCodes))
-                .findFirst()
-                .orElse(null);
-        if(archipelago == null) throw new InvalidArchipelagoIdException();
-
-        return this.numberOfPlayersStrategy.getInfluence(this.schoolBoards, archipelago, currentPlayerSchoolBoardId);
     }
 
     /**
@@ -327,6 +290,13 @@ public class GameState {
                         .getTowerColor();
 
         this.motherNaturePosition.setTowerColor(currentPlayerTowerColor);
+    }
+
+    /**
+     * @return the influence on the archipelago mother nature is currently in
+     */
+    public int getInfluence() {
+        return this.strategy.getInfluence(this.schoolBoards, this.motherNaturePosition, this.currentPlayerSchoolBoardId);
     }
 
     // Getters
