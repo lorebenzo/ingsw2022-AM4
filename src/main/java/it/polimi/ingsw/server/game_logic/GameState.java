@@ -143,7 +143,9 @@ public class GameState {
      * The current player grabs all the students from a cloud and puts them in the entrance
      * @param cloudIndex is the index of the cloud to pick the students from
      */
-    public void grabStudentsFromCloud(int cloudIndex) {
+    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException {
+        if(cloudIndex < 0 || cloudIndex >= this.numberOfPlayers) throw new IllegalArgumentException();
+        if(this.clouds.get(cloudIndex).isEmpty()) throw new EmptyCloudException();
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
                 .collect(Collectors.toList())
