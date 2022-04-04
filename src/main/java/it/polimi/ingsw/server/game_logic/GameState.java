@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
@@ -64,11 +65,10 @@ public class GameState {
             throw new GameStateInitializationFailureException();
         }
     }
+
     /**
      * This method initializes the List<List<Color>> representing the clouds
-     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
      */
-
     private List<List<Color>> initializeClouds() {
         List<List<Color>> clouds = new ArrayList<>(this.numberOfPlayers);
 
@@ -80,12 +80,12 @@ public class GameState {
 
         return clouds;
     }
+
     /**
     * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
      * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
     */
-
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         List<Archipelago> archipelagos = new LinkedList<>();
         final int numberOfArchipelagos = 12;
@@ -97,8 +97,9 @@ public class GameState {
         }
         return archipelagos;
     }
+
     /**
-     * This method initializes the schoolBoards according to the appropriate strategy depending from the number of players.
+     * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
      * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
      */
@@ -165,6 +166,8 @@ public class GameState {
         this.clouds.get(cloudIndex).clear(); // Reset the cloud
         currentPlayerSchoolBoard.grabStudentsFromCloud(studentsGrabbed);
     }
+
+
 
     /**
      * The current player plays the given card
@@ -236,6 +239,57 @@ public class GameState {
                 next = (i + 1) % this.archipelagos.size();
         }
         return this.archipelagos.get(next);
+    }
+
+    private Archipelago getPreviousArchipelago() {
+        int previous = -1;
+        for(int i = 0; i < this.archipelagos.size() && previous == -1; i++) {
+            if(this.archipelagos.get(i).equals(this.motherNaturePosition))
+                previous = i == 0 ? this.archipelagos.size() - 1 : i - 1;
+        }
+        return this.archipelagos.get(previous);
+    }
+
+    /**
+     * Merges the archipelago mother nature is currently in with the archipelago on the left (one step counter-clockwise with respect to mother nature's position)
+     * @throws NonMergeableArchipelagosException if the two archipelagos cannot be merged, see Archipelago documentation
+     */
+    public void mergeLeft() throws NonMergeableArchipelagosException {
+        Archipelago left = getPreviousArchipelago();
+
+        // Substitute current archipelago with the merged archipelago
+        this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, left);
+
+        // Remove left archipelago from the list
+        this.archipelagos.remove(left);
+    }
+
+    /**
+     * Merges the archipelago mother nature is currently in with the archipelago on the right (one step clockwise with respect to mother nature's position)
+     * @throws NonMergeableArchipelagosException if the two archipelagos cannot be merged, see Archipelago documentation
+     */
+    public void mergeRight() throws NonMergeableArchipelagosException {
+        Archipelago right = getPreviousArchipelago();
+
+        // Substitute current archipelago with the merged archipelago
+        this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, right);
+
+        // Remove right archipelago from the list
+        this.archipelagos.remove(right);
+    }
+
+    /**
+     * The current player conquests the archipelago mother nature is currently in, placing a tower of his own color
+     * and substituting any tower that was previously placed on that archipelago
+     */
+    public void conquestArchipelago() {
+        TowerColor currentPlayerTowerColor = Objects.requireNonNull(this.schoolBoards.stream()
+                        .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
+                        .findFirst()
+                        .orElse(null))
+                        .getTowerColor();
+
+        this.motherNaturePosition.setTowerColor(currentPlayerTowerColor);
     }
 
     /**
