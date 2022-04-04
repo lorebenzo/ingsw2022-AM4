@@ -7,15 +7,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class StudentFactory {
-    private final Map<Color, Integer> studentSupply;
-    private final Random randomizer;
+    public final Map<Color, Integer> studentSupply;
 
     public StudentFactory() {
         this.studentSupply = new HashMap<>();
         int initialStudentsPerColor = 26;
         for(Color color : Color.values())
             studentSupply.put(color, initialStudentsPerColor);
-        this.randomizer = new Random();
     }
 
     /**
@@ -34,7 +32,7 @@ public class StudentFactory {
             for(int i = 0; i < studentSupply.get(color); i++) students.add(color);
         });
 
-        Color chosen = students.get(this.randomizer.nextInt(students.size()));
+        Color chosen = students.get(0);
         studentSupply.put(chosen, studentSupply.get(chosen) - 1);
         return chosen;
     }
@@ -44,7 +42,8 @@ public class StudentFactory {
      * @return a random student, each color is equally likely to spawn, this method DOES NOT update the studentSupply
      */
     public Color generateStudent() {
-        return Color.values()[this.randomizer.nextInt(Color.values().length)];
+        Random randomizer = new Random();
+        return Color.values()[randomizer.nextInt(Color.values().length)];
     }
 
     /**

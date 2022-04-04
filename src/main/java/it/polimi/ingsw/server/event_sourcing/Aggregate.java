@@ -14,11 +14,13 @@ public abstract class Aggregate {
 
      static {
           try {
-               repository = new EventStore();
-          } catch (ClassNotFoundException | SQLException e) {
+               repository = EventStore.getInstance();
+          } catch (SQLException | ClassNotFoundException e) {
                e.printStackTrace();
           }
      }
+
+     public int version = 0;
 
      public Aggregate() {
 
@@ -35,18 +37,30 @@ public abstract class Aggregate {
           Constructor<?> constructor = aggregateClass.getConstructor(UUID.class);
           Aggregate aggregate = (Aggregate) constructor.newInstance(uuid);
 
-          aggregate.getCurrentState();
+          aggregate = aggregate.getCurrentState();
 
           return aggregate;
      }
 
-     public void getCurrentState() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, SQLException, ClassNotFoundException {
-          for(Event event: repository.getEvents(this.id)) {
-               Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
-               handler.invoke(this, event);
+     public Aggregate getCurrentState() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, SQLException, ClassNotFoundException {
+          Aggregate lastSnap = repository.getSnapshot(this.id);
+          if(lastSnap == null) {
+               lastSnap = this;
           }
+          for(Event event: repository.getEvents(this.id, this.version)) {
+               Method handler = lastSnap.getClass().getMethod(event.handlerName, event.getClass());
+               handler.invoke(lastSnap, event);
+          }
+          return lastSnap;
      }
 
-     // TODO: IMPLEMENTARE CREATE SNAPSHOT
-     public void createSnapshot() {};
+     public void apply(Event event) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+          Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
+          handler.invoke(this, event);
+     }
+
+     public void createSnapshot() throws SQLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+          this.getCurrentState();
+          repository.generateSnapshot(this);
+     };
 }

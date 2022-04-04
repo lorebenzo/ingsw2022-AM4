@@ -1,39 +1,82 @@
 package it.polimi.ingsw.server.game_logic;
 
+import it.polimi.ingsw.server.event_sourcing.Aggregate;
+import it.polimi.ingsw.server.event_sourcing.Event;
 import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
+import it.polimi.ingsw.server.game_logic.events.CreateGameStateEvent;
+import it.polimi.ingsw.server.game_logic.events.CreateStudentFactoryEvent;
+import it.polimi.ingsw.server.game_logic.events.InitializeSchoolBoardsAndCloudsEvent;
+import it.polimi.ingsw.server.game_logic.events.ModifyNumberOfPlayersEvent;
 import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.game_logic.exceptions.GameStateInitializationFailureException;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
-public class GameState {
-    private final List<Archipelago> archipelagos;
-    private final List<SchoolBoard> schoolBoards;
-    private final List<List<Color>> clouds;
-    private final StudentFactory studentFactory;
-    private final int numberOfPlayers;
+public class GameState extends Aggregate {
+    public List<Archipelago> archipelagos;
+    public List<SchoolBoard> schoolBoards;
+    public List<List<Color>> clouds;
+    public StudentFactory studentFactory;
+    public int numberOfPlayers;
 
+    public GameState(UUID uuid) {
+        this.id = uuid;
+    }
     /**
      *
      * @param numberOfPlayers number of players in the game, must be between 2 (inclusive) and 4 (inclusive)
      */
-    public GameState(int numberOfPlayers) throws GameStateInitializationFailureException {
-        if(numberOfPlayers < 2 || numberOfPlayers > 4) throw new IllegalArgumentException();
+    public GameState(int numberOfPlayers) throws GameStateInitializationFailureException, SQLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        UUID parentUuid = UUID.randomUUID();
 
-        this.numberOfPlayers = numberOfPlayers;
-        this.archipelagos = this.initializeArchipelagos();
-        this.studentFactory = new StudentFactory();
-        try {
-            this.schoolBoards = this.initializeSchoolBoards(numberOfPlayers);
-            this.clouds = this.initializeClouds(numberOfPlayers);
-        } catch (EmptyStudentSupplyException e) {
-            e.printStackTrace();
-            throw new GameStateInitializationFailureException();
+        repository.storeAggregate(this.id, this.getClass().getName());
+        List<Event> eventsToApply = new LinkedList<>();
+        eventsToApply.add(new CreateGameStateEvent(numberOfPlayers, parentUuid));
+        eventsToApply.add(new CreateStudentFactoryEvent(new StudentFactory(), parentUuid));
+        eventsToApply.add(new InitializeSchoolBoardsAndCloudsEvent(numberOfPlayers, parentUuid));
+
+        for(Event eventToApply: eventsToApply) {
+            this.version++;
+            repository.addEvent(this.id, eventToApply, this.version);
+            this.apply(eventToApply);
         }
+
     }
+
+    public void createNewGameStateHandler(CreateGameStateEvent event) throws GameStateInitializationFailureException {
+        if(event.getNumberOfPlayers() < 2 || event.getNumberOfPlayers() > 4) throw new IllegalArgumentException();
+
+        this.numberOfPlayers = event.getNumberOfPlayers();
+        this.archipelagos = this.initializeArchipelagos();
+    }
+
+    public void createStudentFactoryHandler(CreateStudentFactoryEvent event) {
+        this.studentFactory = event.getStudentFactory();
+    }
+
+    public void initializeSchoolBoardAndCloudsEvent(InitializeSchoolBoardsAndCloudsEvent event) throws EmptyStudentSupplyException {
+        this.schoolBoards = this.initializeSchoolBoards(event.getNumberOfPlayers());
+        this.clouds = this.initializeClouds(event.getNumberOfPlayers());
+    }
+
+    public void modifyPlayers() throws SQLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        UUID parentUuid = UUID.randomUUID();
+        Event eventToApply = new ModifyNumberOfPlayersEvent(parentUuid, 2);
+        this.version++;
+        repository.addEvent(this.id, eventToApply, this.version);
+        this.apply(eventToApply);
+    }
+
+    public void modifyPlayersHandler(ModifyNumberOfPlayersEvent event) {
+        this.numberOfPlayers = event.getPlayers();
+    }
+
 
     private List<List<Color>> initializeClouds(int numberOfPlayers) throws EmptyStudentSupplyException {
         List<List<Color>> clouds = new ArrayList<>(numberOfPlayers);

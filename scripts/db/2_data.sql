@@ -1,0 +1,1 @@
+insert into event.aggregate_type(aggregate_name, aggregate_id) values ('prova232342', 1)
