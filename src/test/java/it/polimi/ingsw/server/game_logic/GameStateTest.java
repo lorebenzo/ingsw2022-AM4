@@ -15,7 +15,10 @@ public class GameStateTest {
     @Test
     public void fillCloud() throws GameStateInitializationFailureException {
         GameState g2 = new GameState(2);
+        GameState g21 = new GameState(2);
+
         GameState g3 = new GameState(3);
+
         GameState g4 = new GameState(4);
 
         int cloudsCount, cloudCapacity;
@@ -31,6 +34,16 @@ public class GameStateTest {
                 assertEquals(cloudCapacity, g2.getClouds().get(i).size());
         } catch (FullCloudException | EmptyStudentSupplyException e) {
             fail();
+        }
+
+        // 2 players - should throw FullCloudException
+        try {
+            g21.fillCloud(0);
+            g21.fillCloud(0);
+
+            fail();
+        } catch (FullCloudException | EmptyStudentSupplyException e) {
+            e.printStackTrace();
         }
 
         // 3 players
