@@ -85,7 +85,7 @@ public class SchoolBoardTest {
 
         try{
             schoolBoard.removeStudentFromEntrance(Color.RED);
-        }catch (StudentNotInTheEntranceException | FullDiningRoomLaneException e)
+        }catch (StudentNotInTheEntranceException e)
         {
             fail();
         }
@@ -106,7 +106,7 @@ public class SchoolBoardTest {
         try{
             schoolBoard.removeStudentFromEntrance(Color.RED);
             fail();
-        }catch (StudentNotInTheEntranceException | FullDiningRoomLaneException e)
+        }catch (StudentNotInTheEntranceException e)
         {
             e.printStackTrace();
         }
