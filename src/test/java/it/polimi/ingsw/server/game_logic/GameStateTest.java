@@ -77,7 +77,187 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud() {
+    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(2);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        gameState.grabStudentsFromCloud(1);
+        assertTrue(gameState.getClouds().get(1).isEmpty());
+    }
+
+    @Test
+    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(2);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(1);
+        assertTrue(gameState.getClouds().get(1).isEmpty());
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+    }
+
+    @Test
+    public void grabStudentsFromCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(3);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        gameState.grabStudentsFromCloud(1);
+        assertTrue(gameState.getClouds().get(1).isEmpty());
+
+        gameState.grabStudentsFromCloud(2);
+        assertTrue(gameState.getClouds().get(2).isEmpty());
+    }
+
+    @Test
+    public void grabStudentsFromCloud4() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(3);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(2);
+        assertTrue(gameState.getClouds().get(2).isEmpty());
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        gameState.grabStudentsFromCloud(1);
+        assertTrue(gameState.getClouds().get(1).isEmpty());
+
+    }
+
+    @Test
+    public void grabStudentsFromCloud5() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(4);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        gameState.grabStudentsFromCloud(1);
+        assertTrue(gameState.getClouds().get(1).isEmpty());
+
+        gameState.grabStudentsFromCloud(2);
+        assertTrue(gameState.getClouds().get(2).isEmpty());
+
+        gameState.grabStudentsFromCloud(3);
+        assertTrue(gameState.getClouds().get(3).isEmpty());
+    }
+
+    @Test
+    public void grabStudentsFromCloud6() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(4);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(2);
+        assertTrue(gameState.getClouds().get(2).isEmpty());
+
+        gameState.grabStudentsFromCloud(1);
+        assertTrue(gameState.getClouds().get(1).isEmpty());
+
+        gameState.grabStudentsFromCloud(3);
+        assertTrue(gameState.getClouds().get(3).isEmpty());
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+
+    }
+
+    //THIS TEST SHOULD THROW AN EXCEPTION
+    @Test
+    public void grabStudentsFromCloudEmptyCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(2);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        try {
+            gameState.grabStudentsFromCloud(0);
+            fail();
+        }catch (EmptyCloudException e){
+            e.printStackTrace();
+        }
+    }
+
+    //THIS TEST SHOULD THROW AN EXCEPTION
+    @Test
+    public void grabStudentsFromCloudEmptyCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(3);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        gameState.grabStudentsFromCloud(2);
+        assertTrue(gameState.getClouds().get(2).isEmpty());
+
+        try {
+            gameState.grabStudentsFromCloud(0);
+            fail();
+        }catch (EmptyCloudException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    //THIS TEST SHOULD THROW AN EXCEPTION
+    @Test
+    public void grabStudentsFromCloudEmptyCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(4);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        gameState.grabStudentsFromCloud(2);
+        assertTrue(gameState.getClouds().get(2).isEmpty());
+
+        gameState.grabStudentsFromCloud(3);
+        assertTrue(gameState.getClouds().get(3).isEmpty());
+
+        try {
+            gameState.grabStudentsFromCloud(0);
+            fail();
+        }catch (EmptyCloudException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    //THIS TEST SHOULD THROW AN EXCEPTION
+    @Test
+    public void grabStudentsFromCloudIllegalArgument() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+        GameState gameState = new GameState(2);
+
+        gameState.fillClouds();
+
+        gameState.grabStudentsFromCloud(0);
+        assertTrue(gameState.getClouds().get(0).isEmpty());
+
+        try {
+            gameState.grabStudentsFromCloud(2);
+            fail();
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+
     }
 
     @Test
@@ -110,6 +290,7 @@ public class GameStateTest {
     public void moveStudentFromEntranceToArchipelago() {
     }
 
+    //2 PLAYERS
     @Test
     public void getInfluence1() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
         GameState gameState = new GameState(2);
@@ -197,6 +378,225 @@ public class GameStateTest {
     @Test
     public void getInfluence5() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
         GameState gameState = new GameState(2);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.PURPLE);
+        motherNaturePosition.addStudent(Color.YELLOW);
+
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+        gameState.conquestArchipelago();
+
+        assertEquals(4,gameState.getInfluence());
+
+    }
+
+
+    //3 PLAYERS
+    @Test
+    public void getInfluence6() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(3);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+
+        assertEquals(1,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence7() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(3);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.GREEN);
+        motherNaturePosition.addStudent(Color.PURPLE);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+
+        assertEquals(1,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence8() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(3);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.GREEN);
+        motherNaturePosition.addStudent(Color.PURPLE);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+
+        assertEquals(2,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence9() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(3);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.PURPLE);
+        motherNaturePosition.addStudent(Color.YELLOW);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+
+        assertEquals(3,gameState.getInfluence());
+
+    }
+
+    @Test
+    public void getInfluence10() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(3);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.PURPLE);
+        motherNaturePosition.addStudent(Color.YELLOW);
+
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+        gameState.conquestArchipelago();
+
+        assertEquals(4,gameState.getInfluence());
+
+    }
+
+    //4 PLAYERS
+    @Test
+    public void getInfluence11() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(4);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+
+        assertEquals(1,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence12() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(4);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.GREEN);
+        motherNaturePosition.addStudent(Color.PURPLE);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+
+        assertEquals(1,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence13() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(4);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.GREEN);
+        motherNaturePosition.addStudent(Color.PURPLE);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+
+        assertEquals(2,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence14() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(4);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.PURPLE);
+        motherNaturePosition.addStudent(Color.YELLOW);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+
+        assertEquals(3,gameState.getInfluence());
+
+    }
+
+    @Test
+    public void getInfluence15() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(4);
         Set<Color> playerProfessors = Stream.of(Color.RED)
                 .collect(Collectors.toSet());
         Archipelago motherNaturePosition = new Archipelago(0);
