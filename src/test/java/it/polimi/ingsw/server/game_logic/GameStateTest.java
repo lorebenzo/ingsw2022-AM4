@@ -1,10 +1,12 @@
 package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Card;
+import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,6 +77,10 @@ public class GameStateTest {
     }
 
     @Test
+    public void grabStudentsFromCloud() {
+    }
+
+    @Test
     public void playCard() throws GameStateInitializationFailureException {
         List<GameState> gameStates = Stream.of(
                 new GameState(2), new GameState(3), new GameState(4)
@@ -97,5 +103,119 @@ public class GameStateTest {
 
     @Test
     public void moveStudentFromEntranceToDiningRoom() {
+
     }
+
+    @Test
+    public void moveStudentFromEntranceToArchipelago() {
+    }
+
+    @Test
+    public void getInfluence1() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(2);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+
+        assertEquals(1,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence2() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(2);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.GREEN);
+        motherNaturePosition.addStudent(Color.PURPLE);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+
+        assertEquals(1,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence3() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(2);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.GREEN);
+        motherNaturePosition.addStudent(Color.PURPLE);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+
+        assertEquals(2,gameState.getInfluence());
+
+
+    }
+
+    @Test
+    public void getInfluence4() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(2);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.PURPLE);
+        motherNaturePosition.addStudent(Color.YELLOW);
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+
+        assertEquals(3,gameState.getInfluence());
+
+    }
+
+    @Test
+    public void getInfluence5() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+        GameState gameState = new GameState(2);
+        Set<Color> playerProfessors = Stream.of(Color.RED)
+                .collect(Collectors.toSet());
+        Archipelago motherNaturePosition = new Archipelago(0);
+
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.RED);
+        motherNaturePosition.addStudent(Color.PURPLE);
+        motherNaturePosition.addStudent(Color.YELLOW);
+
+
+        gameState.setMotherNaturePosition(motherNaturePosition);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+        gameState.conquestArchipelago();
+
+        assertEquals(4,gameState.getInfluence());
+
+    }
+
 }

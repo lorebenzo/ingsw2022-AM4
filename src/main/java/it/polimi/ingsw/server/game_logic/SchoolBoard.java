@@ -134,4 +134,9 @@ public class SchoolBoard {
     public List<Color> getStudentsInTheEntrance() {
         return new LinkedList<>(this.studentsInTheEntrance);
     }
+
+    //Created for testing - could be useful or dangerous
+    public void addProfessor(Color professor){
+        this.professorsTable.add(professor);
+    }
 }
