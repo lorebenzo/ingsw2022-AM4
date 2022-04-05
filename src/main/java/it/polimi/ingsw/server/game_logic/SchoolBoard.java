@@ -20,7 +20,18 @@ public class SchoolBoard {
     public final static int maximumNumberOfCardsInTheDeck = 10;
     public final static int maximumNumberOfStudentsInDiningRoomLanes = 10;
 
+    /**
+     *
+     * @param id must be a unique id for this schoolboard in this game
+     * @param studentsInTheEntrance students to put in the entrance of the schoolboard
+     * @param towerColor tower color of this schoolboard
+     * @throws IllegalArgumentException if studentsInTheEntrance == null or studentsInTheEntrance contains null
+     *
+     */
     public SchoolBoard(int id, List<Color> studentsInTheEntrance, TowerColor towerColor) {
+        if(
+                studentsInTheEntrance == null || studentsInTheEntrance.contains(null)
+        ) throw new IllegalArgumentException();
         this.id = id;
         this.studentsInTheEntrance = studentsInTheEntrance;
         this.towerColor = towerColor;
@@ -102,11 +113,11 @@ public class SchoolBoard {
 
     /**
      * Students are put in the entrance
-     * @throws IllegalArgumentException if(studentsGrabbed == null)
+     * @throws IllegalArgumentException if(studentsGrabbed == null or studentsGrabbed contains null)
      * @param studentsGrabbed students grabbed from the cloud
      */
     public void grabStudentsFromCloud(List<Color> studentsGrabbed) {
-        if(studentsGrabbed == null) throw new IllegalArgumentException();
+        if(studentsGrabbed == null || studentsGrabbed.contains(null)) throw new IllegalArgumentException();
         this.studentsInTheEntrance.addAll(studentsGrabbed);
     }
 
