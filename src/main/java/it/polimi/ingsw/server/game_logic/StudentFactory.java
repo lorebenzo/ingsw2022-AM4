@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 
 import java.util.*;
@@ -12,9 +13,8 @@ public class StudentFactory {
 
     public StudentFactory() {
         this.studentSupply = new HashMap<>();
-        final int initialStudentsPerColor = 26;
         for(Color color : Color.values())
-            studentSupply.put(color, initialStudentsPerColor);
+            studentSupply.put(color, GameConstants.INITIAL_STUDENTS_PER_COLOR.value);
         this.randomizer = new Random();
     }
 
@@ -73,7 +73,7 @@ public class StudentFactory {
         final int studentsPerColor = 2;
         LinkedList<Color> colors = new LinkedList<>();
         for(Color color : Color.values()) {
-            if(this.studentSupply.get(color) < 2) throw new EmptyStudentSupplyException();
+            if(this.studentSupply.get(color) < studentsPerColor) throw new EmptyStudentSupplyException();
 
             // Remove the students from the supply
             this.studentSupply.put(color, this.studentSupply.get(color) - studentsPerColor);

@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.CardIsNotInTheDeckException;
 import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
@@ -23,7 +24,7 @@ public class SchoolBoardTest {
         StudentFactory s = new StudentFactory();
         SchoolBoard schoolBoard = new SchoolBoard(0, s.getNStudents(7), TowerColor.BLACK);
 
-        int expectedDeckSize = SchoolBoard.maximumNumberOfCardsInTheDeck;
+        int expectedDeckSize = GameConstants.MAX_NUMBER_OF_CARDS.value;
 
         List<Card> deck = schoolBoard.getDeck();
         assertEquals(expectedDeckSize, deck.size());
@@ -61,7 +62,7 @@ public class SchoolBoardTest {
                 entrance.size() > 0 &&
                 diningRoom.keySet().stream()
                         .map(diningRoom::get)
-                        .noneMatch(i -> i >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
+                        .noneMatch(i -> i >= GameConstants.DINING_ROOM_LANE_SIZE.value)
         ) {
             assertEquals(expectedEntranceSize, entrance.size());
             try {

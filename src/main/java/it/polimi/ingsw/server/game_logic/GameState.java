@@ -2,12 +2,14 @@ package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GameState {
@@ -42,7 +44,10 @@ public class GameState {
      * @param numberOfPlayers number of players in the game, must be between 2 (inclusive) and 4 (inclusive)
      */
     public GameState(int numberOfPlayers) throws GameStateInitializationFailureException {
-        if(numberOfPlayers < 2 || numberOfPlayers > 4) throw new IllegalArgumentException();
+        if(
+                numberOfPlayers < GameConstants.MIN_NUMBER_OF_PLAYERS.value ||
+                numberOfPlayers > GameConstants.MAX_NUMBER_OF_PLAYERS.value
+        ) throw new IllegalArgumentException();
 
         this.numberOfPlayers = numberOfPlayers;
         this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
@@ -87,12 +92,21 @@ public class GameState {
      * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
      */
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
+        // TODO: randomize initial mother nature position
+        int motherNatureIndex = 0;
+
+        // lambda to get, given an island index, the index of the opposite island
+        Function<Integer, Integer> getOppositeIslandIndex =
+                (islandIndex) -> (islandIndex + GameConstants.NUMBER_OF_ISLANDS.value / 2) % GameConstants.NUMBER_OF_ISLANDS.value;
+
         List<Archipelago> archipelagos = new LinkedList<>();
-        final int numberOfArchipelagos = 12;
-        for(int i = 1; i <= numberOfArchipelagos; i++) {
+        for(int i = 0; i < GameConstants.NUMBER_OF_ISLANDS.value; i++) {
             Archipelago newArchipelago = new Archipelago(i);
-            if(i == 1) this.motherNaturePosition = newArchipelago;
-            if(i != 1 && i != numberOfArchipelagos / 2) newArchipelago.addStudent(this.studentFactory.getStudent());
+            if(i == motherNatureIndex)
+                this.motherNaturePosition = newArchipelago; // put mother nature in the first island
+            if(i != motherNatureIndex && i != getOppositeIslandIndex.apply(motherNatureIndex))
+                // Put a student into each island except for mother nature's island and mother nature's opposite island
+                newArchipelago.addStudent(this.studentFactory.getStudent());
             archipelagos.add(newArchipelago);
         }
         return archipelagos;
@@ -153,17 +167,33 @@ public class GameState {
             fillCloud(cloudIndex);
     }
 
+    private SchoolBoard getCurrentPlayerSchoolBoard() throws InvalidSchoolBoardIdException {
+        SchoolBoard currentPlayerSchoolBoard =
+                // get all school boards
+                this.schoolBoards.stream()
+                // filter out the ones that don't match currentPlayerSchoolBoardId
+                .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
+                // get the first result
+                .findFirst()
+                // if there is no result, set null
+                .orElse(null);
+
+        if(currentPlayerSchoolBoard == null)
+            throw new InvalidSchoolBoardIdException("Could not find a schoolboard that matches the current player's SchoolBoard ID");
+
+        return currentPlayerSchoolBoard;
+    }
+
     /**
      * The current player grabs all the students from a cloud and puts them in the entrance
      * @param cloudIndex is the index of the cloud to pick the students from
+     * @throws EmptyCloudException if the cloud is empty
+     * @throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      */
-    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException {
+    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException, InvalidSchoolBoardIdException {
         if(cloudIndex < 0 || cloudIndex >= this.numberOfPlayers) throw new IllegalArgumentException();
         if(this.clouds.get(cloudIndex).isEmpty()) throw new EmptyCloudException();
-        SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
-                .collect(Collectors.toList())
-                .get(0);
+        SchoolBoard currentPlayerSchoolBoard = this.getCurrentPlayerSchoolBoard();
         List<Color> studentsGrabbed = new LinkedList<>(this.clouds.get(cloudIndex));
         this.clouds.get(cloudIndex).clear(); // Reset the cloud
         currentPlayerSchoolBoard.grabStudentsFromCloud(studentsGrabbed);
@@ -176,16 +206,12 @@ public class GameState {
      * @requires school board ID exists
      * @throws IllegalArgumentException if the card parameter is null
      * @throws CardIsNotInTheDeckException if the current player does not actually own the card to be played
+     * @throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      * @param card the card to be played by the current player
      */
-    public void playCard(Card card) throws CardIsNotInTheDeckException {
+    public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidSchoolBoardIdException {
         if(card == null) throw new IllegalArgumentException();
-
-        this.schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getId() == currentPlayerSchoolBoardId)
-                .collect(Collectors.toList())
-                .get(0)
-                .playCard(card);
+        this.getCurrentPlayerSchoolBoard().playCard(card);
         this.schoolBoardIdToCardPlayedThisRound.put(currentPlayerSchoolBoardId, card);
     }
 
@@ -193,39 +219,36 @@ public class GameState {
      * The current player moves a student from the entrance to the dining room
      * @throws IllegalArgumentException if(student == null)
      * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
+     * @throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      * @param student represents a student that the player wants to move from the entrance to the diningRoom
      */
-    public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException, InvalidSchoolBoardIdException {
         if(student == null) throw new IllegalArgumentException();
-        SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
-                .collect(Collectors.toList())
-                .get(0);
-
-        currentPlayerSchoolBoard.moveFromEntranceToDiningRoom(student);
+        this.getCurrentPlayerSchoolBoard().moveFromEntranceToDiningRoom(student);
     }
 
     /**
      * The current player moves a student from the entrance to an archipelago
-     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes contains null)
+     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes contains null || archipelagoIslandCodes is not an identifier of an actual archipelago)
      * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
+     * @throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      * @param student represents a student of a certain color that the player wants to move from the entrance to an archipelago
      * @param archipelagoIslandCodes represents the islandCodes of the archipelago into which the student is being moved
      */
-    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, InvalidSchoolBoardIdException {
         if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes.contains(null))
             throw new IllegalArgumentException();
 
-        SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
-                .collect(Collectors.toList())
-                .get(0);
-        currentPlayerSchoolBoard.removeStudentFromEntrance(student);
-        this.archipelagos.stream()
+        this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);
+        Archipelago chosenArchipelago = this.archipelagos.stream()
+                // Filter out archipelagos that don't match archipelagoIslandCodes
                 .filter(archipelago -> archipelago.getIslandCodes().equals(archipelagoIslandCodes))
-                .collect(Collectors.toList())
-                .get(0)
-                .addStudent(student);
+                .findFirst()
+                .orElse(null);
+
+        if(chosenArchipelago == null) throw new IllegalArgumentException("Invalid archipelago island codes given");
+
+        chosenArchipelago.addStudent(student);
     }
 
     /**
@@ -278,14 +301,10 @@ public class GameState {
     /**
      * The current player conquests the archipelago mother nature is currently in, placing a tower of his own color
      * and substituting any tower that was previously placed on that archipelago
+     * @throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      */
-    public void conquestArchipelago() {
-        TowerColor currentPlayerTowerColor = Objects.requireNonNull(this.schoolBoards.stream()
-                        .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
-                        .findFirst()
-                        .orElse(null))
-                .getTowerColor();
-
+    public void conquestArchipelago() throws InvalidSchoolBoardIdException {
+        TowerColor currentPlayerTowerColor = this.getCurrentPlayerSchoolBoard().getTowerColor();
         this.motherNaturePosition.setTowerColor(currentPlayerTowerColor);
     }
 

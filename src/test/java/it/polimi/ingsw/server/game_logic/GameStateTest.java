@@ -1,10 +1,7 @@
 package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Card;
-import it.polimi.ingsw.server.game_logic.exceptions.CardIsNotInTheDeckException;
-import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
-import it.polimi.ingsw.server.game_logic.exceptions.FullCloudException;
-import it.polimi.ingsw.server.game_logic.exceptions.GameStateInitializationFailureException;
+import it.polimi.ingsw.server.game_logic.exceptions.*;
 import org.junit.Test;
 
 import java.util.List;
@@ -77,7 +74,7 @@ public class GameStateTest {
                     try {
                         g.playCard(card);
                         assertEquals(card, g.getSchoolBoardIdToCardPlayedThisRound().get(id));
-                    } catch (CardIsNotInTheDeckException e) {
+                    } catch (CardIsNotInTheDeckException | InvalidSchoolBoardIdException e) {
                         fail();
                     }
                 }
