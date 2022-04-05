@@ -82,7 +82,7 @@ public class Archipelago {
 
     /**
      * @throws IllegalArgumentException if the arguments representing the set of professors owned by the player is null or
-     *                                              playerProfessors contains null
+     *                                        playerProfessors contains null or
      *                                        the argument representing the color of the player's tower is null or
      *                                        the argument representing the color of the player's tower is TowerColor.NONE
      * @param   playerProfessors a set containing all the color of the professors owned by the player
@@ -92,13 +92,13 @@ public class Archipelago {
     public /* pure */ int getInfluence(Set<Color> playerProfessors, TowerColor playerTowerColor) {
         if(
                 playerProfessors == null || playerProfessors.contains(null) ||
-                        playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE)
+                playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE)
         ) throw new IllegalArgumentException();
-        return studentToNumber.keySet().stream()
-                .filter(playerProfessors::contains)
-                .mapToInt(this.studentToNumber::get)
-                .sum()
-                + ((playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0);
+        return studentToNumber.keySet().stream()        // get student colors
+                .filter(playerProfessors::contains)     // filter the ones that match given professors colors
+                .mapToInt(this.studentToNumber::get)    // map each student to the number of occurrences in this archipelago
+                .sum()                                  // sum the occurrences
+                + ((playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0); // add tower score
     }
 
     public List<Integer> getIslandCodes() {

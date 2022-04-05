@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.CardIsNotInTheDeckException;
 import it.polimi.ingsw.server.game_logic.exceptions.FullDiningRoomLaneException;
@@ -16,9 +17,6 @@ public class SchoolBoard {
     private final List<Color> studentsInTheEntrance;
     private final Set<Color> professorsTable;
     private final List<Card> deck;
-
-    public final static int maximumNumberOfCardsInTheDeck = 10;
-    public final static int maximumNumberOfStudentsInDiningRoomLanes = 10;
 
     /**
      *
@@ -44,7 +42,7 @@ public class SchoolBoard {
             this.diningRoomLaneColorToNumberOfStudents.put(color, 0);
 
         // Push all the 10 cards into the deck
-        this.deck.addAll(Arrays.asList(Card.values()).subList(0, 10));
+        this.deck.addAll(List.of(Card.values()));
     }
 
     private SchoolBoard(int id,
@@ -94,6 +92,8 @@ public class SchoolBoard {
     public void moveFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
         if(student == null) throw new IllegalArgumentException();
         this.removeStudentFromEntrance(student);
+        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= GameConstants.DINING_ROOM_LANE_SIZE.value)
+            throw new FullDiningRoomLaneException();
         this.diningRoomLaneColorToNumberOfStudents.put(student,
                 this.diningRoomLaneColorToNumberOfStudents.get(student) + 1);
     }
@@ -101,13 +101,10 @@ public class SchoolBoard {
     /**
      * @throws IllegalArgumentException if(student == null)
      * @throws StudentNotInTheEntranceException if the student is not contained in the list representing the students in the entrance
-     * @throws FullDiningRoomLaneException if the corresponding diningRoomLane is full
      */
-    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void removeStudentFromEntrance(Color student) throws StudentNotInTheEntranceException {
         if(student == null) throw new IllegalArgumentException();
         if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
-        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= SchoolBoard.maximumNumberOfStudentsInDiningRoomLanes)
-            throw new FullDiningRoomLaneException();
         this.studentsInTheEntrance.remove(student);
     }
 
