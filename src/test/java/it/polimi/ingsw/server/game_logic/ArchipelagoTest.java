@@ -114,20 +114,6 @@ public class ArchipelagoTest {
 
         //A2
 
-        //A2 A1
-        try{
-            unmerged2 = Archipelago.merge(unmergeableA2,unmergeableA1);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A2 A2
-        try{
-            unmerged2 = Archipelago.merge(unmergeableA2,unmergeableA2);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
         //A2 A3
         try{
             unmerged2 = Archipelago.merge(unmergeableA2,unmergeableA3);
@@ -151,27 +137,6 @@ public class ArchipelagoTest {
 
         //A3
 
-        //A3 A1
-        try{
-            unmerged3 = Archipelago.merge(unmergeableA3,unmergeableA1);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A3 A1
-        try{
-            unmerged3 = Archipelago.merge(unmergeableA3,unmergeableA2);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A3 A3
-        try{
-            unmerged3 = Archipelago.merge(unmergeableA3,unmergeableA3);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
         //A3 A4
         try{
             unmerged3 = Archipelago.merge(unmergeableA3,unmergeableA4);
@@ -188,34 +153,6 @@ public class ArchipelagoTest {
 
         //A4
 
-        //A4 A1
-        try{
-            unmerged4 = Archipelago.merge(unmergeableA4,unmergeableA1);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A4 A2
-        try{
-            unmerged4 = Archipelago.merge(unmergeableA4,unmergeableA2);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A4 A3
-        try{
-            unmerged4 = Archipelago.merge(unmergeableA4,unmergeableA3);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A4 A4
-        try{
-            unmerged4 = Archipelago.merge(unmergeableA4,unmergeableA4);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
         //A4 A5
         try{
             unmerged4 = Archipelago.merge(unmergeableA4,unmergeableA5);
@@ -224,33 +161,6 @@ public class ArchipelagoTest {
         }
 
         //A5
-        //A5 A1
-        try{
-            unmerged5 = Archipelago.merge(unmergeableA1,unmergeableA1);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A5 A2
-        try{
-            unmerged5 = Archipelago.merge(unmergeableA1,unmergeableA2);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A5 A3
-        try{
-            unmerged5 = Archipelago.merge(unmergeableA1,unmergeableA3);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A5 A4
-        try{
-            unmerged5 = Archipelago.merge(unmergeableA1,unmergeableA4);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
 
         //A5 A5
         try{
@@ -262,13 +172,6 @@ public class ArchipelagoTest {
         //A5 A6
         try{
             unmerged5 = Archipelago.merge(unmergeableA5,unmergeableA6);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A6 A5
-        try{
-            unmerged5 = Archipelago.merge(unmergeableA6,unmergeableA5);
         }catch (NonMergeableArchipelagosException e){
             e.printStackTrace();
         }
