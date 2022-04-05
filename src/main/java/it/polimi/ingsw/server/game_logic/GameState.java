@@ -82,10 +82,10 @@ public class GameState {
     }
 
     /**
-    * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
+     * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
      * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
-    */
+     */
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         List<Archipelago> archipelagos = new LinkedList<>();
         final int numberOfArchipelagos = 12;
@@ -205,13 +205,14 @@ public class GameState {
 
     /**
      * The current player moves a student from the entrance to an archipelago
-     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null)
+     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes contains null)
      * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
      * @param student represents a student of a certain color that the player wants to move from the entrance to an archipelago
      * @param archipelagoIslandCodes represents the islandCodes of the archipelago into which the student is being moved
      */
     public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
-        if(student == null || archipelagoIslandCodes == null) throw new IllegalArgumentException();
+        if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes.contains(null))
+            throw new IllegalArgumentException();
 
         SchoolBoard currentPlayerSchoolBoard = this.schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
@@ -287,7 +288,7 @@ public class GameState {
                         .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
                         .findFirst()
                         .orElse(null))
-                        .getTowerColor();
+                .getTowerColor();
 
         this.motherNaturePosition.setTowerColor(currentPlayerTowerColor);
     }
