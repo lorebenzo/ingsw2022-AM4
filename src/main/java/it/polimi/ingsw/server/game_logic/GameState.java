@@ -233,22 +233,16 @@ public class GameState {
         this.motherNaturePosition = this.getNextArchipelago();
     }
 
-    private Archipelago getNextArchipelago() {
-        int next = -1;
-        for(int i = 0; i < this.archipelagos.size(); i++) {
-            if(this.archipelagos.get(i).equals(this.motherNaturePosition))
-                next = (i + 1) % this.archipelagos.size();
-        }
-        return this.archipelagos.get(next);
+    private Archipelago getPreviousArchipelago() {
+        int pos =  this.archipelagos.indexOf(this.motherNaturePosition);
+        int previous = pos == 0 ? this.archipelagos.size() - 1 : pos - 1;
+
+        return this.archipelagos.get(previous);
     }
 
-    private Archipelago getPreviousArchipelago() {
-        int previous = -1;
-        for(int i = 0; i < this.archipelagos.size() && previous == -1; i++) {
-            if(this.archipelagos.get(i).equals(this.motherNaturePosition))
-                previous = i == 0 ? this.archipelagos.size() - 1 : i - 1;
-        }
-        return this.archipelagos.get(previous);
+    private Archipelago getNextArchipelago() {
+        int next = (this.archipelagos.indexOf(this.motherNaturePosition) + 1) % this.archipelagos.size();
+        return this.archipelagos.get(next);
     }
 
     /**
