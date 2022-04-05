@@ -130,4 +130,8 @@ public class SchoolBoard {
     public List<Card> getDeck() {
         return new LinkedList<>(this.deck);
     }
+
+    public List<Color> getStudentsInTheEntrance() {
+        return new LinkedList<>(this.studentsInTheEntrance);
+    }
 }
