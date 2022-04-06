@@ -342,4 +342,21 @@ public class GameState {
         this.getCurrentPlayerSchoolBoard().addProfessor(professor);
     }
 
+    public SchoolBoard getCurrentPlayerSchoolBoardForTesting() throws InvalidSchoolBoardIdException {
+        SchoolBoard currentPlayerSchoolBoard =
+                // get all school boards
+                this.schoolBoards.stream()
+                        // filter out the ones that don't match currentPlayerSchoolBoardId
+                        .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
+                        // get the first result
+                        .findFirst()
+                        // if there is no result, set null
+                        .orElse(null);
+
+        if(currentPlayerSchoolBoard == null)
+            throw new InvalidSchoolBoardIdException("Could not find a schoolboard that matches the current player's SchoolBoard ID");
+
+        return currentPlayerSchoolBoard;
+    }
+
 }

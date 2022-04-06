@@ -5,6 +5,7 @@ import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import org.junit.Test;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -281,13 +282,177 @@ public class GameStateTest {
         }
     }
 
+    //2 PLAYERS
     @Test
-    public void moveStudentFromEntranceToDiningRoom() {
+    public void moveStudentFromEntranceToArchipelago1() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException{
+        GameState gameState = new GameState(2);
+        gameState.setCurrentPlayerSchoolBoardId(0);
 
+
+        List<Integer> islandCodes = Stream.of(0).collect(Collectors.toList());
+
+        List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
+
+        int movedStudentsCount = 0;
+
+        for (Color c:Color.values()) {
+            try{
+                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
+                    movedStudentsCount++;
+                }
+                assertTrue(entrance.containsAll(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()));
+            }
+            catch(StudentNotInTheEntranceException e){
+                fail();
+            }
+        }
+        assertEquals(entrance.size(), gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().size() + movedStudentsCount);
     }
 
+    //3 PLAYERS
     @Test
-    public void moveStudentFromEntranceToArchipelago() {
+    public void moveStudentFromEntranceToArchipelago2() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException{
+        GameState gameState = new GameState(3);
+        gameState.setCurrentPlayerSchoolBoardId(0);
+
+
+        List<Integer> islandCodes = Stream.of(0).collect(Collectors.toList());
+
+        List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
+
+        int movedStudentsCount = 0;
+
+        for (Color c:Color.values()) {
+            try{
+                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
+                    movedStudentsCount++;
+                }
+                assertTrue(entrance.containsAll(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()));
+            }
+            catch(StudentNotInTheEntranceException e){
+                fail();
+            }
+        }
+        assertEquals(entrance.size(), gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().size() + movedStudentsCount);
+    }
+
+    //4 PLAYERS
+    @Test
+    public void moveStudentFromEntranceToArchipelago3() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException{
+        GameState gameState = new GameState(4);
+        gameState.setCurrentPlayerSchoolBoardId(0);
+
+
+        List<Integer> islandCodes = Stream.of(0).collect(Collectors.toList());
+
+        List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
+
+        int movedStudentsCount = 0;
+
+        for (Color c:Color.values()) {
+            try{
+                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
+                    movedStudentsCount++;
+                }
+                assertTrue(entrance.containsAll(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()));
+            }
+            catch(StudentNotInTheEntranceException e){
+                fail();
+            }
+        }
+        assertEquals(entrance.size(), gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().size() + movedStudentsCount);
+    }
+
+    //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES PROVIDED IS NOT VALID
+    @Test
+    public void moveStudentFromEntranceToArchipelago4() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+        GameState gameState = new GameState(2);
+        gameState.setCurrentPlayerSchoolBoardId(0);
+
+
+        List<Integer> islandCodes = Stream.of(13).collect(Collectors.toList());
+
+        List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
+
+        for (Color c:Color.values()) {
+            try{
+                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
+                    fail();
+                }
+            }
+            catch(IllegalArgumentException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES CONTAINS NULL ARGUMENT
+    @Test
+    public void moveStudentFromEntranceToArchipelago5() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+        GameState gameState = new GameState(2);
+        gameState.setCurrentPlayerSchoolBoardId(0);
+
+        List<Integer> islandCodes = Stream.of((Integer)null).collect(Collectors.toList());
+
+        List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
+
+        for (Color c:Color.values()) {
+            try{
+                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
+                    fail();
+                }
+            }
+            catch(IllegalArgumentException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES REFERENCE IS NULL
+    @Test
+    public void moveStudentFromEntranceToArchipelago6() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+        GameState gameState = new GameState(2);
+        gameState.setCurrentPlayerSchoolBoardId(0);
+
+        List<Integer> islandCodes = null;
+
+        List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
+
+        for (Color c:Color.values()) {
+            try{
+                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
+                    fail();
+                }
+            }
+            catch(IllegalArgumentException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //THIS METHOD SHOULD THROW AN EXCEPTION - STUDENT ARGUMENT IS NULL
+    @Test
+    public void moveStudentFromEntranceToArchipelago7() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+        GameState gameState = new GameState(2);
+        gameState.setCurrentPlayerSchoolBoardId(0);
+
+        List<Integer> islandCodes = Stream.of((Integer)null).collect(Collectors.toList());
+
+        List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
+
+        try{
+            gameState.moveStudentFromEntranceToArchipelago(null,islandCodes);
+            fail();
+        }
+        catch(IllegalArgumentException e){
+            e.printStackTrace();
+        }
     }
 
     //2 PLAYERS
@@ -309,6 +474,7 @@ public class GameStateTest {
 
 
     }
+
 
     @Test
     public void getInfluence2() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
