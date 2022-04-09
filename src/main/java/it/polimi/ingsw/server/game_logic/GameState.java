@@ -117,7 +117,6 @@ public class GameState {
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
      * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
      */
-
     private List<SchoolBoard> initializeSchoolBoards() throws EmptyStudentSupplyException {
         return this.strategy.initializeSchoolBoards(this.studentFactory);
     }
@@ -198,8 +197,6 @@ public class GameState {
         this.clouds.get(cloudIndex).clear(); // Reset the cloud
         currentPlayerSchoolBoard.grabStudentsFromCloud(studentsGrabbed);
     }
-
-
 
     /**
      * The current player plays the given card
@@ -309,7 +306,7 @@ public class GameState {
     }
 
     /**
-     * @return the influence on the archipelago mother nature is currently in
+     * @return the influence on the archipelago mother nature is currently on
      */
     public int getInfluence() {
         return this.strategy.getInfluence(this.schoolBoards, this.motherNaturePosition, this.currentPlayerSchoolBoardId);
@@ -334,4 +331,32 @@ public class GameState {
     public Map<Integer, Card> getSchoolBoardIdToCardPlayedThisRound() {
         return new HashMap<>(this.schoolBoardIdToCardPlayedThisRound);
     }
+
+    //Created for testing - could be useful or dangerous
+
+    public void setMotherNaturePosition(Archipelago motherNaturePosition) {
+        this.motherNaturePosition = motherNaturePosition;
+    }
+
+    public void setCurrentPlayerProfessor(Color professor) throws InvalidSchoolBoardIdException {
+        this.getCurrentPlayerSchoolBoard().addProfessor(professor);
+    }
+
+    public SchoolBoard getCurrentPlayerSchoolBoardForTesting() throws InvalidSchoolBoardIdException {
+        SchoolBoard currentPlayerSchoolBoard =
+                // get all school boards
+                this.schoolBoards.stream()
+                        // filter out the ones that don't match currentPlayerSchoolBoardId
+                        .filter(schoolBoard -> schoolBoard.getId() == this.currentPlayerSchoolBoardId)
+                        // get the first result
+                        .findFirst()
+                        // if there is no result, set null
+                        .orElse(null);
+
+        if(currentPlayerSchoolBoard == null)
+            throw new InvalidSchoolBoardIdException("Could not find a schoolboard that matches the current player's SchoolBoard ID");
+
+        return currentPlayerSchoolBoard;
+    }
+
 }

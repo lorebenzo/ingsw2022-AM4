@@ -5,7 +5,9 @@ import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -60,6 +62,37 @@ public class StudentFactoryTest {
             fail();
         } catch (EmptyStudentSupplyException e) {
             assertTrue(true);
+        }
+    }
+
+    @Test
+    public void getStudentsForArchipelagosInitialization() {
+        StudentFactory sf = new StudentFactory();
+
+        int studentsToExtract = 10;
+        int studentsPerColor = 2;
+
+        int numberOfTests = 10; // Make sure numberOfTests * 10 < total student supply size
+
+        try {
+            List<Queue<Color>> studentsQueues = new LinkedList<>();
+            for(int i = 0; i < numberOfTests; i++)
+                studentsQueues.add(sf.getStudentsForArchipelagosInitialization());
+
+            for(Queue<Color> students : studentsQueues) {
+                // Test each result
+                boolean noMoreThanTwoStudentsPerColor = students.stream()
+                        .allMatch(color -> students.stream()
+                                            .filter(col -> col.equals(color))
+                                            .count() <= studentsPerColor
+                        );
+                boolean exactlyTenStudents = students.size() == studentsToExtract;
+
+                assertTrue(noMoreThanTwoStudentsPerColor);
+                assertTrue(exactlyTenStudents);
+            }
+        } catch (EmptyStudentSupplyException e) {
+            fail();
         }
     }
 }

@@ -4,16 +4,12 @@ import it.polimi.ingsw.server.game_logic.enums.Card;
 import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
-import it.polimi.ingsw.server.game_logic.exceptions.CardIsNotInTheDeckException;
-import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
-import it.polimi.ingsw.server.game_logic.exceptions.FullDiningRoomLaneException;
-import it.polimi.ingsw.server.game_logic.exceptions.StudentNotInTheEntranceException;
+import it.polimi.ingsw.server.game_logic.exceptions.*;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -74,5 +70,148 @@ public class SchoolBoardTest {
                 fail();
             }
         }
+    }
+
+    @Test
+    public void removeStudentFromEntrance1() {
+        List<Color> entrance = Stream.of(Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.PURPLE, Color.CYAN, Color.PURPLE).collect(Collectors.toList());
+
+        int initialEntranceSize = entrance.size();
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+
+        try{
+            schoolBoard.removeStudentFromEntrance(Color.RED);
+        }catch (StudentNotInTheEntranceException e)
+        {
+            fail();
+        }
+
+        assertTrue(entrance.containsAll(schoolBoard.getStudentsInTheEntrance()));
+        assertEquals(initialEntranceSize -1, schoolBoard.getStudentsInTheEntrance().size());
+    }
+
+    //Should throw StudentNotInTheEntranceException because the required Student Color isn't in the entrance
+    @Test
+    public void removeStudentFromEntrance2() {
+        List<Color> entrance = Stream.of(Color.GREEN, Color.YELLOW, Color.CYAN, Color.PURPLE, Color.CYAN, Color.PURPLE).collect(Collectors.toList());
+
+        int initialEntranceSize = entrance.size();
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+
+        try{
+            schoolBoard.removeStudentFromEntrance(Color.RED);
+            fail();
+        }catch (StudentNotInTheEntranceException e)
+        {
+            e.printStackTrace();
+        }
+
+        assertTrue(entrance.containsAll(schoolBoard.getStudentsInTheEntrance()));
+        assertTrue(schoolBoard.getStudentsInTheEntrance().containsAll(entrance));
+        assertEquals(initialEntranceSize, schoolBoard.getStudentsInTheEntrance().size());
+    }
+
+    @Test
+    public void removeStudentFromEntrance3() {
+        List<Color> entrance = Stream.of(Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.PURPLE, Color.CYAN, Color.PURPLE).collect(Collectors.toList());
+
+        int initialEntranceSize = entrance.size();
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+
+        try{
+            schoolBoard.removeStudentFromEntrance(Color.RED);
+            schoolBoard.removeStudentFromEntrance(Color.GREEN);
+            schoolBoard.removeStudentFromEntrance(Color.YELLOW);
+            schoolBoard.removeStudentFromEntrance(Color.PURPLE);
+        }catch (StudentNotInTheEntranceException e)
+        {
+            fail();
+        }
+
+        assertTrue(entrance.containsAll(schoolBoard.getStudentsInTheEntrance()));
+        assertEquals(initialEntranceSize -4, schoolBoard.getStudentsInTheEntrance().size());
+    }
+
+    //Should throw an exception, since the test is trying to remove a color that is not present
+    @Test
+    public void removeStudentFromEntrance4() {
+        List<Color> entrance = Stream.of(Color.RED).collect(Collectors.toList());
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+
+        try{
+            schoolBoard.removeStudentFromEntrance(Color.PURPLE);
+            fail();
+        }catch (StudentNotInTheEntranceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void removeStudentFromEntrance5() throws StudentNotInTheEntranceException{
+        List<Color> entrance = Stream.of(Color.RED).collect(Collectors.toList());
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+
+        try{
+            schoolBoard.removeStudentFromEntrance(null);
+            fail();
+        }catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void grabStudentsFromCloud1() {
+        List<Color> entrance = Stream.of(Color.CYAN, Color.PURPLE).collect(Collectors.toList());
+        List<Color> cloud = Stream.of(Color.RED, Color.GREEN, Color.YELLOW).collect(Collectors.toList());
+
+        int initialEntranceSize = entrance.size();
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+        schoolBoard.grabStudentsFromCloud(cloud);
+
+        assertTrue(schoolBoard.getStudentsInTheEntrance().containsAll(cloud));
+        assertEquals(initialEntranceSize + cloud.size(), schoolBoard.getStudentsInTheEntrance().size());
+
+    }
+
+    @Test
+    public void grabStudentsFromCloud2() {
+        List<Color> entrance = Stream.of(Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.PURPLE, Color.CYAN, Color.PURPLE).collect(Collectors.toList());
+        List<Color> cloud = Stream.of(Color.RED, Color.GREEN, Color.YELLOW).collect(Collectors.toList());
+
+        int initialEntranceSize = entrance.size();
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+        schoolBoard.grabStudentsFromCloud(cloud);
+
+        assertTrue(schoolBoard.getStudentsInTheEntrance().containsAll(cloud));
+        assertEquals(initialEntranceSize + cloud.size(), schoolBoard.getStudentsInTheEntrance().size());
+
+    }
+
+    //Should throw an exception, since the cloud reference is null
+    @Test
+    public void grabStudentsFromCloud4() {
+        List<Color> entrance = Stream.of(Color.PURPLE).collect(Collectors.toList());
+        List<Color> cloud = new LinkedList<>();
+        cloud.add(Color.PURPLE);
+        cloud.add(null);
+        cloud.add(Color.RED);
+
+        SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
+
+        try{
+            schoolBoard.grabStudentsFromCloud(cloud);
+            fail();
+        }
+        catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
     }
 }
