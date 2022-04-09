@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.game_logic;
 
 import it.polimi.ingsw.server.game_logic.enums.Color;
+import it.polimi.ingsw.server.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 
 import java.util.*;
@@ -12,15 +13,14 @@ public class StudentFactory {
 
     public StudentFactory() {
         this.studentSupply = new HashMap<>();
-        int initialStudentsPerColor = 26;
         for(Color color : Color.values())
-            studentSupply.put(color, initialStudentsPerColor);
+            studentSupply.put(color, GameConstants.INITIAL_STUDENTS_PER_COLOR.value);
         this.randomizer = new Random();
     }
 
     /**
-     *
-     * @return a random student drawn from the supply, the student is finally removed from the supply. If the supply is empty throws an exception.
+     * @throws EmptyStudentSupplyException if the student supply (representing the bag) is empty.
+     * @return a random student drawn from the supply, the student is finally removed from the supply.
      */
     public Color getStudent() throws EmptyStudentSupplyException {
         int supplySize = studentSupply.keySet().stream()
@@ -40,7 +40,6 @@ public class StudentFactory {
     }
 
     /**
-     *
      * @return a random student, each color is equally likely to spawn, this method DOES NOT update the studentSupply
      */
     public Color generateStudent() {
@@ -48,7 +47,8 @@ public class StudentFactory {
     }
 
     /**
-     * @requires n >= 0
+     * @throws IllegalArgumentException if(n < 0)
+     * @throws EmptyStudentSupplyException if the student supply (representing the bag) is empty.
      * @param n number of students to extract from the supply
      * @return a list containing the n students that are randomly extracted from the supply
      */
@@ -62,5 +62,30 @@ public class StudentFactory {
         for(int i = 0; i < n; i++)
             result.add(this.getStudent());
         return result;
+    }
+
+    /**
+     * @throws EmptyStudentSupplyException if there aren't 2 students for each color available in the supply
+     * @return a list containing the students extracted for the initialization of the archipelagos according to the rulebook
+     */
+    public Queue<Color> getStudentsForArchipelagosInitialization() throws EmptyStudentSupplyException {
+        final int studentsToExtract = 10;
+        final int studentsPerColor = 2;
+        LinkedList<Color> colors = new LinkedList<>();
+        for(Color color : Color.values()) {
+            if(this.studentSupply.get(color) < studentsPerColor) throw new EmptyStudentSupplyException();
+
+            // Remove the students from the supply
+            this.studentSupply.put(color, this.studentSupply.get(color) - studentsPerColor);
+
+            // Add two students of the same color to the list
+            colors.add(color);
+            colors.add(color);
+        }
+
+        // Randomly sort the queue
+        Collections.shuffle(colors);
+
+        return colors;
     }
 }

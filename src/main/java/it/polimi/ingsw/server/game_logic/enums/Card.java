@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.game_logic;
+package it.polimi.ingsw.server.game_logic.enums;
 
 /**
  * This class represents each one of the 10 cards provided to each player at the start of a game.
