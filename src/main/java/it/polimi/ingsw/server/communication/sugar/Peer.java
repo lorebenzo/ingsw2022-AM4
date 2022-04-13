@@ -28,4 +28,12 @@ public class Peer {
     public int hashCode() {
         return Objects.hash(upi);
     }
+
+    @Override
+    public String toString() {
+        return "Peer{" +
+                "upi=" + upi +
+                ", peerSocket=" + peerSocket +
+                '}';
+    }
 }

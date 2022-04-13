@@ -1,88 +1,133 @@
 package it.polimi.ingsw.server.communication.sugar;
 
-import it.polimi.ingsw.server.communication.tcp_server.Server;
-import it.polimi.ingsw.server.communication.exceptions.ServerCreationException;
-import it.polimi.ingsw.server.communication.sugar.messages.*;
+import it.polimi.ingsw.server.communication.sugar.exceptions.MessageSerializationException;
+import it.polimi.ingsw.server.communication.sugar.exceptions.MessageDeserializationException;
+import it.polimi.ingsw.server.communication.tcp_server.TcpServer;
 import it.polimi.ingsw.utils.multilist.MultiList;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SugarServer implements Runnable {
-    private final Server                            sugarServer;
+public class SugarServer extends TcpServer {
     private final static int                        port = 33400;
 
     protected final static UUID                     hallId = new UUID(0,0);
-    protected final List<Room>                      rooms = new LinkedList<>();
+    private final Room                              hall;
+    private final Set<Room>                         rooms = new HashSet<>();
 
     private final MultiList<UUID, Instant, Peer>    heartbeatsToWait = new MultiList<>();
 
-    public SugarServer() throws ServerCreationException {
-        // Create hall room
-        rooms.add(new Room(hallId));
+    public SugarServer() throws IOException {
+        super(port);
 
-        this.sugarServer = new Server(port)
-                // Tell the server to add a client to the hall whenever it connects to this server
-                .onConnect((client) -> Objects.requireNonNull(getHall()).addPeer(new Peer(client)))
-                // Tell the server to forward any message received to the handleMessage function
-                .onMessage(this::handleMessage);
+        // Set custom log header
+        this.setLogHeader("[Sugar] : ");
 
-        // Start heartbeat daemon
-        this.heartBeatDaemon();
+        // Create hall
+        this.hall = new Room(hallId);
+        this.rooms.add(this.hall);
     }
 
     @Override
-    public void run() {
-        this.sugarServer.run();
+    protected void beforeStart() {
+        this.startHeartbeatDaemon();
     }
 
-    /**
-     * Calls the correct handler basing on the type of message received
-     * @param client any client socket
-     * @param message any message string
-     */
-    private void handleMessage(Socket client, String message) {
-        Message msg = Message.deserialize(message);
-        switch (msg.messageType) {
-            case JOIN:
-                joinHandler(client, JoinMsg.deserialize(message));
-                break;
-            case CONTROL:
-                controlHandler(client, ControlMsg.deserialize(message));
-                break;
-            case ACTION:
-                actionHandler(client, ActionMsg.deserialize(message));
-                break;
-            case NOTIFY:
-                notifyHandler(client, NotifyMsg.deserialize(message));
-                break;
-            case HEARTBEAT:
-                heartbeatHandler(client, HeartbeatMsg.deserialize(message));
-                break;
+    @Override
+    protected void onConnect(Socket client) {
+        super.onConnect(client);
+
+        var peer = new Peer(client);  // create the new peer
+        synchronized (this.rooms) {
+            this.hall.addPeer(peer);  // add it to the hall
+        }
+        try {
+            this.sendUPI(peer);  // send it its upi
+        } catch (MessageSerializationException e) {
+            log("Message could not be serialized, delivery failed");
+            this.disconnectPeer(peer);  // disconnect the peer
+        } catch (IOException e) {
+            log("Message could not be sent to the peer, delivery failed");
+            this.disconnectPeer(peer);  // disconnect the peer
         }
     }
 
-    protected void joinHandler(Socket client, JoinMsg msg) {}
-    protected void controlHandler(Socket client, ControlMsg msg) {}
-    protected void actionHandler(Socket client, ActionMsg msg) {}
-    protected void notifyHandler(Socket client, NotifyMsg msg) {}
+    @Override
+    protected void onDisconnect(Socket client) {
+        super.onDisconnect(client);
 
-    private void heartbeatHandler(Socket client, HeartbeatMsg msg) {
+        var peer = this.getPeerFromClient(client);
+
+        // Log the disconnection
+        this.log("Peer disconnected: " + peer);
+
+        // Remove the peer from any room
+        synchronized (this.rooms) {
+            if (peer.isPresent())
+                for (var room : this.rooms) {
+                    room.remove(peer.get());
+                }
+        }
+    }
+
+    @Override
+    protected final void onMessage(Socket client, String message) {
+        super.onMessage(client, message);
+        try {
+            var msg = Message.deserialize(message);
+            // If msg is a heartbeat, send it to the heartbeat handler
+            if(msg.messageType.equals(MessageType.HEARTBEAT))
+                heartbeatHandler(msg);
+                // Otherwise, send it to the normal message handler
+            else {
+                // Find the peer who sent the message
+                var peer = this.getPeerFromClient(client);
+                if(peer.isPresent())
+                    onPeerMessage(peer.get(), msg);
+                else
+                    this.log("Received a message, but the peer does not exist, dropping message\n\t" + message);
+            }
+        } catch (MessageDeserializationException e) {
+            this.log("Message deserialization error, dropping message:\n\t" + message);
+        }
+    }
+
+    /**
+     * The server calls this function any time it receives a message from a peer.
+     * Subclasses can override this function to handle messages according to their needs.
+     * @param peer the peer who sent the message
+     * @param message the message received from the peer
+     */
+    protected void onPeerMessage(Peer peer, Message message) {
+        this.log("Message received from peer: " + peer + ", message:\n\t" + message);
+    }
+
+
+    /* ************************ Heartbeat System *************************** */
+
+    /**
+     * Removes the message with that id from the heartbeatsToWait list
+     * @param message the message received
+     */
+    private void heartbeatHandler(Message message) {
         synchronized (this.heartbeatsToWait) {
-            this.heartbeatsToWait.remove(msg.messageID);
+            this.heartbeatsToWait.remove(message.messageID);
         }
     }
 
     /**
      * This function is responsible for the heartbeat system
      */
-    private void heartBeatDaemon() {
+    private void startHeartbeatDaemon() {
         final int heartBeatPeriod = 5;  // seconds
         final int heartBeatTimeoutCheck = 5; // seconds
 
@@ -108,8 +153,9 @@ public class SugarServer implements Runnable {
 
         peers.stream().parallel().forEach(peer -> {
             UUID msgId = UUID.randomUUID();
-            HeartbeatMsg msg = new HeartbeatMsg(msgId);
-            if(this.send(msg, peer))
+            Message msg = new Message(MessageType.HEARTBEAT, msgId);
+            try {
+                this.send(msg, peer);
                 synchronized (this.heartbeatsToWait) {
                     this.heartbeatsToWait.add(
                             msgId,
@@ -117,7 +163,10 @@ public class SugarServer implements Runnable {
                             peer
                     );
                 }
-            else {
+            } catch (MessageSerializationException e) {
+                log("Message could not be serialized, delivery failed");
+            } catch (IOException e) {
+                log("Message could not be sent to the peer, delivery failed");
                 this.disconnectPeer(peer);
             }
         });
@@ -144,53 +193,17 @@ public class SugarServer implements Runnable {
         }
     }
 
-    /**
-     *
-     * @return the hall, as specified in the Sugar protocol
-     */
-    protected Room getHall() {
-        synchronized (this.rooms) {
-            for(var room : this.rooms)
-                if(this.isHall(room)) return room;
-        }
-        return null;
-    }
 
-    /**
-     *
-     * @param room any room
-     * @return true if the room is the hall, false otherwise
-     */
-    protected boolean isHall(Room room) {
-        return room.getRoomId().equals(hallId);
-    }
-
-    /**
-     * Delivers the message to the peer
-     * @param msg any Sugar message
-     * @param peer any peer
-     * @return true if the message was sent successfully, false otherwise
-     */
-    protected boolean send(Message msg, Peer peer) {
-        try {
-            this.sugarServer.send(msg.serialize(), peer.peerSocket);
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
+    /* *************************** Rooms Handling ****************************** */
 
     /**
      * Disconnects the peer from the server
      * @param peer any connected peer
      */
     protected void disconnectPeer(Peer peer) {
-        for(var room : this.rooms) {
-            room.remove(peer);
-            try {
-                this.sugarServer.disconnectClient(peer.peerSocket);
-            } catch (IOException ignored) { }
-        }
+        try {
+            this.disconnectClient(peer.peerSocket);
+        } catch (IOException ignored) { }
     }
 
     /**
@@ -199,7 +212,70 @@ public class SugarServer implements Runnable {
      */
     protected UUID createRoom() {
         var room = new Room();
-        this.rooms.add(room);
-        return room.getRoomId();
+        synchronized (this.rooms) {
+            this.rooms.add(room);
+            return room.getRoomId();
+        }
+    }
+
+    /**
+     * Deletes the room with the specified id (hall cannot be deleted), and puts all the peers in that room back into the hall
+     * @param roomId the id of the room to be deleted
+     */
+    protected void deleteRoom(UUID roomId) {
+        if(!roomId.equals(hallId)) {
+            this.rooms.stream()
+                    .filter(_room -> _room.getRoomId().equals(roomId))  // find the room with the specified id
+                    .findFirst()  // get the first occurrence
+                    .ifPresent(_room -> {
+                        synchronized (this.rooms) {
+                            // Put all peers into the hall
+                            this.hall.addPeers(_room.getPeers());
+                            // Delete the room
+                            this.rooms.remove(_room);
+                        }
+                    });
+        }
+    }
+
+
+    /* ***************************** Message Delivery ***************************** */
+
+    /**
+     * Delivers the message to the peer
+     * @param msg any Sugar message
+     * @param peer any peer
+     * @throws MessageSerializationException if the message could not be serialized
+     * @throws IOException if the message could not be sent through the socket
+     */
+    protected void send(Message msg, Peer peer) throws MessageSerializationException, IOException {
+        this.send(msg.serialize(), peer.peerSocket);
+    }
+
+    /**
+     * Send the UPI initial message to the peer
+     * @param peer any peer
+     * @throws MessageSerializationException if the message could not be serialized
+     * @throws IOException if the message could not be sent through the socket
+     */
+    private void sendUPI(Peer peer) throws MessageSerializationException, IOException {
+        this.send(new PeerUPIMessage(peer.upi), peer);
+    }
+
+
+    /* ****************************** Helper Functions *****************************/
+
+    /**
+     *
+     * @param client any connected client
+     * @return the peer associated to that client
+     */
+    private Optional<Peer> getPeerFromClient(Socket client) {
+        synchronized (this.rooms) {
+            return this.rooms.stream()
+                    .flatMap(room -> room.getPeers().stream())
+                    .filter(peer -> peer.peerSocket.equals(client))
+                    .findFirst();
+        }
     }
 }

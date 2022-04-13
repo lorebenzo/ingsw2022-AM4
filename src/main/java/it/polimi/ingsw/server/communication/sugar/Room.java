@@ -1,22 +1,21 @@
 package it.polimi.ingsw.server.communication.sugar;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Represents a room in the Sugar communication protocol
  */
 public class Room {
     private final UUID roomId;  // Unique identifier for this room
-    private final Set<Peer> peers;  // Set of peers that joined this room
+    private final Set<Peer> peers = new CopyOnWriteArraySet<>();  // thread-safe set of peers that joined this room
 
     public Room() {
         this.roomId = UUID.randomUUID();
-        this.peers = new HashSet<>();
     }
 
     public Room(UUID roomId) {
         this.roomId = roomId;
-        this.peers = new HashSet<>();
     }
 
     /**
@@ -28,6 +27,13 @@ public class Room {
         this.peers.add(peer);
     }
 
+    /**
+     * Adds all peers to the room
+     * @param peers a collection of Peer(s)
+     */
+    public void addPeers(Collection<Peer> peers) {
+        this.peers.addAll(peers);
+    }
 
     public UUID getRoomId() {
         return roomId;
@@ -43,5 +49,19 @@ public class Room {
      */
     public void remove(Peer peer) {
         this.peers.remove(peer);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Room room = (Room) o;
+        return Objects.equals(roomId, room.roomId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(roomId);
     }
 }
