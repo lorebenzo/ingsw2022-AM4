@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.communication.tcp_server;
+package it.polimi.ingsw.communication.tcp_server;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TcpServer implements Runnable {
+public abstract class TcpServer implements Runnable {
     private final int           port;
     private final ServerSocket  socket;
     private final Set<Socket>   clients = new HashSet<>();
@@ -81,7 +81,7 @@ public class TcpServer implements Runnable {
     /* *************************** Start Up methods **************************** */
 
     @Override
-    public void run() {
+    public final void run() {
         this.log("Started listening for incoming connections");
         ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -94,9 +94,6 @@ public class TcpServer implements Runnable {
 
                 // Call the onConnect callback on a separate thread
                 executorService.submit(() -> this.onConnect(client));
-
-                // Get input stream reader
-                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
                 // Call the input handler on a new thread
                 executorService.submit(() -> this.inputHandler(client, executorService));
@@ -122,10 +119,14 @@ public class TcpServer implements Runnable {
                     // Try to read a line
                     String input = in.readLine();
 
-                    // Call the onMessage callback on a separate thread
-                    executorService.submit(() -> this.onMessage(client, input));
+                    // If input != null, call the onMessage callback on a separate thread
+                    if(input != null)
+                        executorService.submit(() -> this.onMessage(client, input));
 
-                } catch (IOException ignored) {}
+                } catch (IOException e) {
+                    this.disconnectClient(client);
+                    break;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

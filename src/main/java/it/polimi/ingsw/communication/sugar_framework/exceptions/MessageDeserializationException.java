@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.communication.sugar.exceptions;
+package it.polimi.ingsw.communication.sugar_framework.exceptions;
 
 public class MessageDeserializationException extends Exception {
     public MessageDeserializationException(String message) {

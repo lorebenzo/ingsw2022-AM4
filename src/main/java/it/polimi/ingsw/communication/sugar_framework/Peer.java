@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.communication.sugar;
+package it.polimi.ingsw.communication.sugar_framework;
 
 import java.net.Socket;
 import java.util.Objects;

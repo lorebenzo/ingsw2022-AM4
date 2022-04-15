@@ -1,4 +1,4 @@
-package it.polimi.ingsw.server.communication.sugar;
+package it.polimi.ingsw.communication.sugar_framework;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,8 +8,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import it.polimi.ingsw.server.communication.sugar.exceptions.MessageSerializationException;
-import it.polimi.ingsw.server.communication.sugar.exceptions.MessageDeserializationException;
+import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
+import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,19 +27,15 @@ public class SerDes {
         gson = gsonBuilder.create();
     }
 
-    public static String serialize(Message message) throws MessageSerializationException {
-        try {
-            return gson.toJson(message)
+    public static String serialize(SugarMessage message) {
+        return gson.toJson(message)
                     .replaceAll("\\s", "")  // Remove all newlines, spaces, tabs
                     + "\n";  // Adds a newline to the end
-        } catch (Exception e) {
-            throw new MessageSerializationException(e.getMessage());
-        }
     }
 
-    public static Message deserialize(String message) throws MessageDeserializationException {
+    public static SugarMessage deserialize(String message) throws MessageDeserializationException {
         try {
-            var msg = gson.fromJson(message, Message.class);
+            var msg = gson.fromJson(message, SugarMessage.class);
             return gson.fromJson(message, (Type) msg.messageClass);
         } catch (Exception e) {
             throw new MessageDeserializationException(e.getMessage());

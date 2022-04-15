@@ -22,7 +22,7 @@ will start a new session.
 Session Initiation
 
 A session always starts with a TCP connection from the peer to the server.
-When the server accepts the connection the peer joins the hall and is granted with a UPI.
+When the server accepts the connection the peer joins the hall and is granted with a UPI (which is private).
 The TCP connection is kept alive until the peer disconnects (the server never drops the connection from its side otherwise).
 
 
@@ -50,7 +50,7 @@ Message
 Messages are JSON strings like this:
 
 {
-	"messageType": <one of: "JOIN", "CONTROL", "ACTION", "NOTIFY", "HEARTBEAT">,
+	"sugarMethod": <one of: "JOIN", "CONTROL", "ACTION", "NOTIFY", "HEARTBEAT">,
 	"messageID": <UUID>,
 	<other fields depending on the message type and not specified by the protocol>
 }
