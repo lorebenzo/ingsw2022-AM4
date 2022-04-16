@@ -10,4 +10,4 @@ FROM build as test
 CMD mvn -f /home/app/pom.xml clean test
 
 FROM build as run
-CMD mvn compile
+CMD mvn compilev

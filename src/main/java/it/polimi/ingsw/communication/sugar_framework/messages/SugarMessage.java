@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * A Sugar Message, all Sugar messages extend from this base class
  */
-public abstract class SugarMessage {
+public class SugarMessage {
     /* ****************** Header *********************** */
     public final Class<?> messageClass;
     public final SugarMethod sugarMethod;

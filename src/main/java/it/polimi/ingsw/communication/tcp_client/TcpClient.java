@@ -58,20 +58,20 @@ public abstract class TcpClient {
     }
 
     /**
-     * Subclasses may override this method to make it behave as they wish.
+     * Subclasses override this method to make it behave as they wish.
      */
-    protected void onConnect() { }
+    protected abstract void onConnect();
 
     /**
-     * Subclasses may override this method to make it behave as they wish.
+     * Subclasses override this method to make it behave as they wish.
      */
-    protected void onDisconnect() { }
+    protected abstract void onDisconnect();
 
     /**
-     * Subclasses may override this method to make it behave as they wish.
+     * Subclasses override this method to make it behave as they wish.
      * @param input a string received from the socket
      */
-    protected void onMessage(String input) { }
+    protected abstract void onMessage(String input);
 
     /**
      * Delivers message to the server

@@ -10,8 +10,9 @@ import java.util.stream.Collectors;
 
 public abstract class SugarMessageProcessor {
     /**
-     * vfvExecutes all @SugarMessageHandler(s) annotated methods in this class, if none is found, executes the "base()" method (if it exists)
+     * Executes all @SugarMessageHandler(s) annotated methods in this class that match this method's signature, if none is found, executes the "base()" method (if it exists)
      * @param message any Message object
+     * @param sender the Peer that sent the message
      */
     public final void process(SugarMessage message, Peer sender) {
         // Get the methods of this class marked with the @Process annotation
@@ -28,10 +29,11 @@ public abstract class SugarMessageProcessor {
         for(var method : methods) {
             if(
                     method.getName().equalsIgnoreCase(
-                            message.getClass().getSimpleName().toLowerCase()
+                            message.getClass().getSimpleName()
                     )
             ) {
                 try {
+                    method.setAccessible(true);
                     method.invoke(this, message, sender);
                     invoked = true;
                 } catch (Exception e) {
@@ -48,7 +50,56 @@ public abstract class SugarMessageProcessor {
 
             if (baseMethod.isPresent()) {
                 try {
+                    baseMethod.get().setAccessible(true);
                     baseMethod.get().invoke(this, message, sender);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Executes all @SugarMessageHandler(s) annotated methods in this class that match this method's signature, if none is found, executes the "base()" method (if it exists)
+     * @param message any Message object
+     */
+    public final void process(SugarMessage message) {
+        // Get the methods of this class marked with the @Process annotation
+        List<Method> methods = Arrays.stream(this.getClass().getMethods())
+                .filter(method -> method.isAnnotationPresent(SugarMessageHandler.class))  // Get annotated methods
+                .filter(method -> method.getParameterCount() == 1)  // Get methods that take exactly one parameter
+                .filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a SugarMessage as parameter
+                .collect(Collectors.toList());
+
+
+        // Invoke the methods whose annotation parameter matches message type
+        boolean invoked = false;
+        for(var method : methods) {
+            if(
+                    method.getName().equalsIgnoreCase(
+                            message.getClass().getSimpleName()
+                    )
+            ) {
+                try {
+                    method.setAccessible(true);
+                    method.invoke(this, message);
+                    invoked = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if(!invoked) {
+            // Try to invoke base method
+            var baseMethod = methods.stream()
+                    .filter(method -> method.getName().equalsIgnoreCase("base"))
+                    .findFirst();
+
+            if (baseMethod.isPresent()) {
+                try {
+                    baseMethod.get().setAccessible(true);
+                    baseMethod.get().invoke(this, message);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -78,18 +78,19 @@ public abstract class SugarServer extends TcpServer {
 
         var peer = this.getPeerFromClient(client);
 
-        // Log the disconnection
-        this.log("Peer disconnected: " + peer);
+        if(peer.isPresent()) {
+            // Log the disconnection
+            this.log("Peer disconnected: " + peer.get());
 
-        // Remove the peer from any room
-        synchronized (this.rooms) {
-            if (peer.isPresent())
+            // Remove the peer from any room
+            synchronized (this.rooms) {
                 for (var room : this.rooms) {
                     room.remove(peer.get());
                 }
-        }
+            }
 
-        peer.ifPresent(this::onPeerDisconnect);
+            peer.ifPresent(this::onPeerDisconnect);
+        }
     }
 
     /**
