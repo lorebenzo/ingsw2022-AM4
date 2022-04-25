@@ -26,11 +26,13 @@ public class GameState {
         PLANNING, ACTION
     }
     private Phase currentPhase;
-    private final Map<Integer, Card> schoolBoardIdToCardPlayedThisRound;
+    private final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
+    //private final Map<Integer, Card> schoolBoardIdsToCardsPlayedPreviousRound;
 
     private final List<Archipelago> archipelagos;
     private final List<SchoolBoard> schoolBoards;
     private final List<List<Color>> clouds;
+
     private final StudentFactory studentFactory;
     private Archipelago motherNaturePosition;
 
@@ -58,7 +60,8 @@ public class GameState {
         this.currentRound = 0;
         this.currentTurn = 0;
         this.currentSubTurn = 0;
-        this.schoolBoardIdToCardPlayedThisRound = new HashMap<>();
+        this.schoolBoardIdsToCardsPlayedThisRound = new HashMap<>();
+        //this.schoolBoardIdsToCardsPlayedPreviousRound = new HashMap<>();
 
         this.studentFactory = new StudentFactory();
         try {
@@ -183,6 +186,24 @@ public class GameState {
         return currentPlayerSchoolBoard;
     }
 
+    private SchoolBoard getPlayerSchoolBoardFromSchoolBoardId(int schoolBoardId) throws InvalidSchoolBoardIdException {
+        SchoolBoard currentPlayerSchoolBoard =
+                // get all school boards
+                this.schoolBoards.stream()
+                        // filter out the ones that don't match currentPlayerSchoolBoardId
+                        .filter(schoolBoard -> schoolBoard.getId() == schoolBoardId)
+                        // get the first result
+                        .findFirst()
+                        // if there is no result, set null
+                        .orElse(null);
+
+        if(currentPlayerSchoolBoard == null)
+            throw new InvalidSchoolBoardIdException("Could not find a schoolboard that matches the current player's SchoolBoard ID");
+
+        return currentPlayerSchoolBoard;
+    }
+
+
     /**
      * The current player grabs all the students from a cloud and puts them in the entrance
      * @param cloudIndex is the index of the cloud to pick the students from
@@ -209,7 +230,7 @@ public class GameState {
     public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidSchoolBoardIdException {
         if(card == null) throw new IllegalArgumentException();
         this.getCurrentPlayerSchoolBoard().playCard(card);
-        this.schoolBoardIdToCardPlayedThisRound.put(currentPlayerSchoolBoardId, card);
+        this.schoolBoardIdsToCardsPlayedThisRound.put(currentPlayerSchoolBoardId, card);
     }
 
     /**
@@ -237,11 +258,7 @@ public class GameState {
             throw new IllegalArgumentException();
 
         this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);
-        Archipelago chosenArchipelago = this.archipelagos.stream()
-                // Filter out archipelagos that don't match archipelagoIslandCodes
-                .filter(archipelago -> archipelago.getIslandCodes().equals(archipelagoIslandCodes))
-                .findFirst()
-                .orElse(null);
+        Archipelago chosenArchipelago = getArchipelagoFromIslandCodes(archipelagoIslandCodes);
 
         if(chosenArchipelago == null) throw new IllegalArgumentException("Invalid archipelago island codes given");
 
@@ -253,6 +270,22 @@ public class GameState {
      */
     public void moveMotherNatureOneStepClockwise() {
         this.motherNaturePosition = this.getNextArchipelago();
+    }
+
+    /**
+     * Shifts mother nature's position by the provided numberOfSteps
+     * @throws InvalidNumberOfStepsException if (numberOfSteps <= 0 || numberOfSteps > maxStepsAllowed) where maxStepsAllowed depends on the card played in the round
+     * @param numberOfSteps has to be a positive integer
+     */
+    public void moveMotherNatureNStepsClockwise(int numberOfSteps) throws InvalidNumberOfStepsException {
+        int maxStepsAllowed = this.schoolBoardIdsToCardsPlayedThisRound.get(this.currentPlayerSchoolBoardId).getValue();
+
+        if(numberOfSteps <= 0 || numberOfSteps > maxStepsAllowed)
+            throw new InvalidNumberOfStepsException();
+        for (int i = 0; i < numberOfSteps; i++)
+            moveMotherNatureOneStepClockwise();
+
+
     }
 
     private Archipelago getPreviousArchipelago() {
@@ -300,19 +333,45 @@ public class GameState {
      * and substituting any tower that was previously placed on that archipelago
      * @throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      */
-    public void conquestArchipelago() throws InvalidSchoolBoardIdException {
-        TowerColor currentPlayerTowerColor = this.getCurrentPlayerSchoolBoard().getTowerColor();
-        this.motherNaturePosition.setTowerColor(currentPlayerTowerColor);
+    public void conquestArchipelago(int schoolBoardId) throws InvalidSchoolBoardIdException {
+
+        TowerColor playerTowerColor = this.getPlayerSchoolBoardFromSchoolBoardId(schoolBoardId).getTowerColor();
+        this.motherNaturePosition.setTowerColor(playerTowerColor);
     }
+
+/*    *//**
+     * @return the influence on the archipelago mother nature is currently on
+     *//*
+    public int getPlayersInfluenceOnMotherNaturePosition(int playerSchoolBoardId) {
+        return this.strategy.getInfluence(this.schoolBoards, this.motherNaturePosition, this.currentPlayerSchoolBoardId);
+    }*/
+
+    private Archipelago getArchipelagoFromIslandCodes(List<Integer> archipelagoIslandCodes){
+        return this.archipelagos.stream()
+                // Filter out archipelagos that don't match archipelagoIslandCodes
+                .filter(archipelago -> archipelago.getIslandCodes().equals(archipelagoIslandCodes))
+                .findFirst()
+                .orElse(null);
+    }
+
 
     /**
-     * @return the influence on the archipelago mother nature is currently on
+     * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputed archipelago
+     * @param archipelagoIslandCodes is a List<Integer> uniquely identifying an archipelago
+     * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
      */
-    public int getInfluence() {
-        return this.strategy.getInfluence(this.schoolBoards, this.motherNaturePosition, this.currentPlayerSchoolBoardId);
+    public Map<Integer, Integer> getInfluence(List<Integer> archipelagoIslandCodes){
+        return this.strategy.getInfluence(this.schoolBoards,this.getArchipelagoFromIslandCodes(archipelagoIslandCodes));
     }
 
+
+
+
     // Getters
+
+    public List<Integer> getMotherNaturePositionIslandCodes() {
+        return motherNaturePosition.getIslandCodes();
+    }
 
     public List<List<Color>> getClouds() {
         return new LinkedList<>(this.clouds);
@@ -328,8 +387,16 @@ public class GameState {
                 .collect(Collectors.toSet());
     }
 
-    public Map<Integer, Card> getSchoolBoardIdToCardPlayedThisRound() {
-        return new HashMap<>(this.schoolBoardIdToCardPlayedThisRound);
+    public Map<Integer, Card> getSchoolBoardIdsToCardsPlayedThisRound() {
+        return new HashMap<>(this.schoolBoardIdsToCardsPlayedThisRound);
+    }
+
+    public List<Card> getDeck() throws InvalidSchoolBoardIdException {
+        return this.getCurrentPlayerSchoolBoard().getDeck();
+    }
+
+    public int getCurrentPlayerSchoolBoardId() {
+        return currentPlayerSchoolBoardId;
     }
 
     //Created for testing - could be useful or dangerous
@@ -338,9 +405,70 @@ public class GameState {
         this.motherNaturePosition = motherNaturePosition;
     }
 
-    public void setCurrentPlayerProfessor(Color professor) throws InvalidSchoolBoardIdException {
-        this.getCurrentPlayerSchoolBoard().addProfessor(professor);
+    /**
+     * The method gets a color in input and checks if the current player should get the professor corresponding to the inputed color and if another player should loose the corresponding professor
+     * @param professor indicates the color of the professor the player should get and/or remove from another player
+     * @throws InvalidSchoolBoardIdException when there is an error with the schoolBoardId
+     */
+    public void assignProfessor(Color professor) throws InvalidSchoolBoardIdException {
+
+        if(professor == null) throw new IllegalArgumentException();
+
+        //If the current player doesn't have the imputed professor in his professorsTable
+        if(!this.getCurrentPlayerSchoolBoard().getProfessorsTable().contains(professor)){
+
+            //Get another schoolBoard from schoolBoards that isn't the currentPlayerSchoolbard
+            Optional<SchoolBoard> otherSchoolBoardMaxOptional = this.schoolBoards.stream().filter(schoolBoard -> schoolBoard.getId() != this.currentPlayerSchoolBoardId).findFirst();
+
+
+            if(otherSchoolBoardMaxOptional.isPresent()){
+                SchoolBoard otherSchoolBoardMax = otherSchoolBoardMaxOptional.get();
+                //Find the schoolBoard that has the max number of students in the diningRoomLane corresponding to the inputed professor, apart from the currentPlayerSchoolBoard
+                for (SchoolBoard schoolBoard : schoolBoards) {
+                    if (!this.getCurrentPlayerSchoolBoard().equals(schoolBoard)) {
+                        if(schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(professor) > otherSchoolBoardMax.getDiningRoomLaneColorToNumberOfStudents().get(professor))
+                            otherSchoolBoardMax = schoolBoard;
+                    }
+                }
+
+                int currentPlayerNumberOfStudentsInDiningRoomLane = this.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().get(professor);
+                int otherSchoolBoardsMaxStudentsInDiningRoomLane = otherSchoolBoardMax.getDiningRoomLaneColorToNumberOfStudents().get(professor);
+
+                //Compare the current player's number of students in the dining room lane corresponding to the inputed professor's color with the other schoolBoard's max number of students in the dining room lane
+                //If the current player has more students in the dining room lane, then he will get the professor.
+                //If the current player has the same number of students in the dining room lane as the other's schoolBoard's max, then the professor will be removed from the other's schoolBoard's max.
+                if(currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane)
+                    this.getCurrentPlayerSchoolBoard().addProfessor(professor);
+                    //this.setCurrentPlayerProfessor(professor);
+                else if(currentPlayerNumberOfStudentsInDiningRoomLane == otherSchoolBoardsMaxStudentsInDiningRoomLane)
+                    otherSchoolBoardMax.removeProfessor(professor);
+            }
+
+        }
+
     }
+
+    //TODO verificare l'utilità del metodo setCurrentPlayerProfessor, dato che assignProfessor ha già tutta la logica necessaria
+
+    /**
+     *
+     * //@param professor indicates the professor a player should get
+     * // @throws InvalidSchoolBoardIdException when there is an error with the schoolBoardId
+     */
+
+    private void setCurrentPlayerProfessor(Color professor) throws InvalidSchoolBoardIdException{
+
+        for (SchoolBoard schoolBoard : schoolBoards) {
+            if(!schoolBoard.equals(this.getCurrentPlayerSchoolBoard())){
+                if(schoolBoard.getProfessorsTable().contains(professor))
+                    schoolBoard.removeProfessor(professor);
+            }
+        }
+
+        this.getCurrentPlayerSchoolBoard().addProfessor(professor);
+
+    }
+
 
     public SchoolBoard getCurrentPlayerSchoolBoardForTesting() throws InvalidSchoolBoardIdException {
         SchoolBoard currentPlayerSchoolBoard =

@@ -6,6 +6,7 @@ import it.polimi.ingsw.server.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.CardIsNotInTheDeckException;
 import it.polimi.ingsw.server.game_logic.exceptions.FullDiningRoomLaneException;
+import it.polimi.ingsw.server.game_logic.exceptions.ProfessorNotPresentException;
 import it.polimi.ingsw.server.game_logic.exceptions.StudentNotInTheEntranceException;
 
 import java.util.*;
@@ -94,8 +95,7 @@ public class SchoolBoard {
         this.removeStudentFromEntrance(student);
         if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= GameConstants.DINING_ROOM_LANE_SIZE.value)
             throw new FullDiningRoomLaneException();
-        this.diningRoomLaneColorToNumberOfStudents.put(student,
-                this.diningRoomLaneColorToNumberOfStudents.get(student) + 1);
+        this.diningRoomLaneColorToNumberOfStudents.put(student, this.diningRoomLaneColorToNumberOfStudents.get(student) + 1);
     }
 
     /**
@@ -137,6 +137,27 @@ public class SchoolBoard {
 
     //Created for testing - could be useful or dangerous
     public void addProfessor(Color professor){
+        if(professor == null)
+            throw new IllegalArgumentException();
         this.professorsTable.add(professor);
     }
+
+    public void removeProfessor(Color professor)/* throws ProfessorNotPresentException*/ {
+        if(professor == null)
+            throw new IllegalArgumentException();
+        //if(!this.professorsTable.contains(professor))
+       //     throw new ProfessorNotPresentException();
+
+        this.professorsTable.remove(professor);
+    }
+
+    //TODO riferimento diretto esposto, da controllare, ma potenzialmente indispensabile
+    public Set<Color> getProfessorsTable() {
+        return professorsTable;
+    }
+
+    public Map<Color, Integer> getDiningRoomLaneColorToNumberOfStudents() {
+        return new HashMap<>(diningRoomLaneColorToNumberOfStudents);
+    }
+
 }

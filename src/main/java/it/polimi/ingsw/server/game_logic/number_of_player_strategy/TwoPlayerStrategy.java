@@ -7,7 +7,9 @@ import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TwoPlayerStrategy implements NumberOfPlayersStrategy {
@@ -37,12 +39,31 @@ public class TwoPlayerStrategy implements NumberOfPlayersStrategy {
         return schoolBoards;
     }
 
-    @Override
+/*    @Override
     public int getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago, int currentPlayerSchoolBoardId) {
         SchoolBoard currentPlayerSchoolBoard = schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == currentPlayerSchoolBoardId)
                 .collect(Collectors.toList())
                 .get(0);
         return archipelago.getInfluence(currentPlayerSchoolBoard.getProfessors(), currentPlayerSchoolBoard.getTowerColor());
+    }*/
+
+    /**
+     * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
+     * @param schoolBoards is a List<SchoolBoard> containing the list of all schoolBoards
+     * @param archipelago is the Archipelago on which the influence  calculated
+     * */
+    public Map<Integer, Integer> getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago){
+        if(schoolBoards == null || schoolBoards.contains(null) || archipelago == null)
+            throw new IllegalArgumentException();
+
+        Map<Integer,Integer> schoolBoardIdsToInfluenceMap = new HashMap<>();
+
+        for (SchoolBoard schoolBoard: schoolBoards) {
+            schoolBoardIdsToInfluenceMap.put(schoolBoard.getId(), archipelago.getInfluence(schoolBoard.getProfessors(), schoolBoard.getTowerColor()));
+        }
+
+        return schoolBoardIdsToInfluenceMap;
+
     }
 }

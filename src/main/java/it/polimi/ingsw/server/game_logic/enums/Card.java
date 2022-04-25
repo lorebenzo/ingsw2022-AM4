@@ -3,7 +3,7 @@ package it.polimi.ingsw.server.game_logic.enums;
 /**
  * This class represents each one of the 10 cards provided to each player at the start of a game.
  */
-public enum Card {
+public enum Card implements Comparable<Card>{
     DOG(1, 1),
     GOOSE(2, 1),
     CAT(3, 2),
@@ -30,4 +30,5 @@ public enum Card {
     public int getSteps() {
         return steps;
     }
+
 }

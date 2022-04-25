@@ -5,9 +5,7 @@ import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -273,7 +271,7 @@ public class GameStateTest {
                 for(Card card : Card.values()) {
                     try {
                         g.playCard(card);
-                        assertEquals(card, g.getSchoolBoardIdToCardPlayedThisRound().get(id));
+                        assertEquals(card, g.getSchoolBoardIdsToCardsPlayedThisRound().get(id));
                     } catch (CardIsNotInTheDeckException | InvalidSchoolBoardIdException e) {
                         fail();
                     }
@@ -454,27 +452,52 @@ public class GameStateTest {
             e.printStackTrace();
         }
     }
+    @Test
+    public void assignProfessor1() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        GameState gameState = new GameState(2);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        Color studentToBeMoved = null;
+
+        for (Color c: Color.values()) {
+           if(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().contains(c)){
+               studentToBeMoved = c;
+           }
+
+        }
+
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+    }
 
     //2 PLAYERS
+    /*
     @Test
     public void getInfluence1() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
         GameState gameState = new GameState(2);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
+        Set<Color> playerProfessors = Stream.of(Color.RED).collect(Collectors.toSet());
         Archipelago motherNaturePosition = new Archipelago(0);
 
         motherNaturePosition.addStudent(Color.RED);
 
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        //gameState.setMotherNaturePosition(motherNaturePosition);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
 
-        assertEquals(1,gameState.getInfluence());
+        gameState.assignProfessor(Color.RED);
+
+        Map<Integer,Integer> expectedInfluences = new HashMap<>();
+
+        expectedInfluences.put(gameState.getCurrentPlayerSchoolBoardId(),1);
+        expectedInfluences.put(1,0);
+        assertEquals(expectedInfluences,gameState.getInfluence(motherNaturePosition.getIslandCodes()));
 
 
     }
-
+/*
 
     @Test
     public void getInfluence2() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
@@ -487,12 +510,12 @@ public class GameStateTest {
         motherNaturePosition.addStudent(Color.GREEN);
         motherNaturePosition.addStudent(Color.PURPLE);
 
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        //gameState.setMotherNaturePosition(motherNaturePosition);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
+        gameState.assignProfessor(Color.RED);
 
-        assertEquals(1,gameState.getInfluence());
+        assertEquals(1,gameState.getInfluence(motherNaturePosition.getIslandCodes()));
 
 
     }
@@ -514,7 +537,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.RED);
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(2,gameState.getInfluence());
+        assertEquals(2,gameState.getInfluenceOfMotherNaturePosition());
 
 
     }
@@ -537,7 +560,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.RED);
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(3,gameState.getInfluence());
+        assertEquals(3,gameState.getInfluenceOfMotherNaturePosition());
 
     }
 
@@ -559,7 +582,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerSchoolBoardId(0);
         gameState.setCurrentPlayerProfessor(Color.RED);
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
-        gameState.conquestArchipelago();
+        gameState.conquestArchipelago(gameState.getCurrentPlayerSchoolBoardId());
 
         assertEquals(4,gameState.getInfluence());
 
@@ -581,7 +604,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerSchoolBoardId(0);
         gameState.setCurrentPlayerProfessor(Color.RED);
 
-        assertEquals(1,gameState.getInfluence());
+        assertEquals(1,gameState.getInfluenceOfMotherNaturePosition());
 
 
     }
@@ -602,7 +625,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerSchoolBoardId(0);
         gameState.setCurrentPlayerProfessor(Color.RED);
 
-        assertEquals(1,gameState.getInfluence());
+        assertEquals(1,gameState.getInfluenceOfMotherNaturePosition());
 
 
     }
@@ -624,7 +647,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.RED);
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(2,gameState.getInfluence());
+        assertEquals(2,gameState.getInfluenceOfMotherNaturePosition());
 
 
     }
@@ -647,7 +670,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.RED);
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(3,gameState.getInfluence());
+        assertEquals(3,gameState.getInfluenceOfMotherNaturePosition());
 
     }
 
@@ -671,7 +694,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
         gameState.conquestArchipelago();
 
-        assertEquals(4,gameState.getInfluence());
+        assertEquals(4,gameState.getInfluenceOfMotherNaturePosition());
 
     }
 
@@ -690,7 +713,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerSchoolBoardId(0);
         gameState.setCurrentPlayerProfessor(Color.RED);
 
-        assertEquals(1,gameState.getInfluence());
+        assertEquals(1,gameState.getInfluenceOfMotherNaturePosition());
 
 
     }
@@ -711,7 +734,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerSchoolBoardId(0);
         gameState.setCurrentPlayerProfessor(Color.RED);
 
-        assertEquals(1,gameState.getInfluence());
+        assertEquals(1,gameState.getInfluenceOfMotherNaturePosition());
 
 
     }
@@ -733,7 +756,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.RED);
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(2,gameState.getInfluence());
+        assertEquals(2,gameState.getInfluenceOfMotherNaturePosition());
 
 
     }
@@ -756,7 +779,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.RED);
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(3,gameState.getInfluence());
+        assertEquals(3,gameState.getInfluenceOfMotherNaturePosition());
 
     }
 
@@ -780,8 +803,7 @@ public class GameStateTest {
         gameState.setCurrentPlayerProfessor(Color.PURPLE);
         gameState.conquestArchipelago();
 
-        assertEquals(4,gameState.getInfluence());
+        assertEquals(4,gameState.getInfluenceOfMotherNaturePosition());
 
-    }
-
+    }*/
 }

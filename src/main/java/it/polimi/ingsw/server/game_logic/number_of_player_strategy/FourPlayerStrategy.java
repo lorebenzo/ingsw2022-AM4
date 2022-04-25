@@ -7,10 +7,7 @@ import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FourPlayerStrategy implements NumberOfPlayersStrategy {
@@ -47,7 +44,7 @@ public class FourPlayerStrategy implements NumberOfPlayersStrategy {
         return schoolBoards;
     }
 
-    @Override
+/*    @Override
     public int getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago, int currentPlayerSchoolBoardId) {
         SchoolBoard currentPlayerSchoolBoard = schoolBoards.stream()
                 .filter(schoolBoard -> schoolBoard.getId() == currentPlayerSchoolBoardId)
@@ -63,5 +60,45 @@ public class FourPlayerStrategy implements NumberOfPlayersStrategy {
         totalProfessors.addAll(currentPlayerPartnerSchoolBoard.getProfessors());
 
         return archipelago.getInfluence(totalProfessors, currentPlayerSchoolBoard.getTowerColor());
+    }*/
+
+    //TODO da migliorare
+    /**
+     * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
+     * @param schoolBoards is a List<SchoolBoard> containing the list of all schoolBoards
+     * @param archipelago is the Archipelago on which the influence  calculated
+     * */
+    public Map<Integer, Integer> getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago){
+        if(schoolBoards == null || schoolBoards.contains(null) || archipelago == null)
+            throw new IllegalArgumentException();
+
+        Map<SchoolBoard,Integer> schoolBoardsToInfluenceMap = new HashMap<>();
+        Map<Integer, Integer> teamsInfluences = new HashMap<>();
+
+        for (SchoolBoard schoolBoard: schoolBoards) {
+            schoolBoardsToInfluenceMap.put(schoolBoard, archipelago.getInfluence(schoolBoard.getProfessors(), schoolBoard.getTowerColor()));
+        }
+
+        List<Map.Entry<SchoolBoard, Integer>> tmp = schoolBoardsToInfluenceMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(SchoolBoard::getTowerColor)))
+                .collect(Collectors.toList());
+
+        int influenceSum = 0;
+
+        for (int i = 0; i < 2; i++) {
+            influenceSum += tmp.get(i).getValue();
+        }
+        teamsInfluences.put(tmp.get(0).getKey().getId(), influenceSum);
+
+        influenceSum = 0;
+
+        for (int i = 2; i < 4; i++) {
+            influenceSum += tmp.get(i).getValue();
+        }
+        teamsInfluences.put(tmp.get(2).getKey().getId(), influenceSum);
+
+        return teamsInfluences;
+
     }
 }
