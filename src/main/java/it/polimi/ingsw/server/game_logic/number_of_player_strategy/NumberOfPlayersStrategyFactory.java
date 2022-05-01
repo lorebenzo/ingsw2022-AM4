@@ -6,10 +6,11 @@ public class NumberOfPlayersStrategyFactory {
      * @return the correct strategy according to the numberOfPlayer provided
      */
     public static NumberOfPlayersStrategy getCorrectStrategy(int numberOfPlayers) {
-        if(numberOfPlayers < 2 || numberOfPlayers > 4) throw new IllegalArgumentException();
-
-        if (numberOfPlayers == 2) return new TwoPlayerStrategy();
-        else if (numberOfPlayers == 3) return new ThreePlayerStrategy();
-        else return new FourPlayerStrategy();
+        return switch (numberOfPlayers) {
+            case 2 -> new TwoPlayerStrategy();
+            case 3 -> new ThreePlayerStrategy();
+            case 4 -> new FourPlayerStrategy();
+            default -> throw new IllegalArgumentException();
+        };
     }
 }

@@ -9,6 +9,7 @@ import it.polimi.ingsw.server.game_logic.exceptions.EmptyStudentSupplyException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FourPlayerStrategy implements NumberOfPlayersStrategy {
     private final int numberOfPlayers = 4;
@@ -79,24 +80,24 @@ public class FourPlayerStrategy implements NumberOfPlayersStrategy {
             schoolBoardsToInfluenceMap.put(schoolBoard, archipelago.getInfluence(schoolBoard.getProfessors(), schoolBoard.getTowerColor()));
         }
 
-        List<Map.Entry<SchoolBoard, Integer>> tmp = schoolBoardsToInfluenceMap.entrySet()
+        int whiteTowerInfluence = schoolBoardsToInfluenceMap.entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.comparing(SchoolBoard::getTowerColor)))
-                .collect(Collectors.toList());
+                .filter(entry -> entry.getKey().getTowerColor() == TowerColor.WHITE)
+                .mapToInt(Map.Entry::getValue)
+                .sum();
 
-        int influenceSum = 0;
+        int blackTowerInfluence = schoolBoardsToInfluenceMap.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().getTowerColor() == TowerColor.BLACK)
+                .mapToInt(Map.Entry::getValue)
+                .sum();
 
-        for (int i = 0; i < 2; i++) {
-            influenceSum += tmp.get(i).getValue();
+        for (SchoolBoard schoolBoard: schoolBoards) {
+            if(schoolBoard.getTowerColor() == TowerColor.WHITE)
+                teamsInfluences.put(schoolBoard.getId(), whiteTowerInfluence);
+            else if(schoolBoard.getTowerColor() == TowerColor.BLACK)
+                teamsInfluences.put(schoolBoard.getId(), blackTowerInfluence);
         }
-        teamsInfluences.put(tmp.get(0).getKey().getId(), influenceSum);
-
-        influenceSum = 0;
-
-        for (int i = 2; i < 4; i++) {
-            influenceSum += tmp.get(i).getValue();
-        }
-        teamsInfluences.put(tmp.get(2).getKey().getId(), influenceSum);
 
         return teamsInfluences;
 

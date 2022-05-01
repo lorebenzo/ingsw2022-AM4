@@ -52,7 +52,7 @@ public class Archipelago {
 
     /**
      * @throws  IllegalArgumentException if(a1 == null || a2 == null)
-     * @throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
+     * //@throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
      *                                              if the two archipelagos have intersecting islandCodes
      * @param a1 first archipelago to merge
      * @param a2 second archipelago
