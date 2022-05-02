@@ -16,7 +16,7 @@ public class GameStateController {
 
     private Map<Peer,Integer> peersToSchoolBoardIdsMap;
 
-    public GameStateController(List<Peer> peers) throws GameStateInitializationFailureException {
+    public GameStateController(List<Peer> peers) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
 
         //Create a new gameState
         this.gameState = new GameState(peers.size());
@@ -34,7 +34,9 @@ public class GameStateController {
 
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
+        this.gameState.fillClouds();
         this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getRoundIterator().next());
+
 
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
 
@@ -46,7 +48,7 @@ public class GameStateController {
      * ONLY FOR TESTING!
      * Creates a GameStateController for a game with 2 players
      */
-    public GameStateController() throws GameStateInitializationFailureException {
+    public GameStateController() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
 
         //Create a new gameState
         this.gameState = new GameState(2);
@@ -59,6 +61,7 @@ public class GameStateController {
 
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
+        this.gameState.fillClouds();
         this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getRoundIterator().next());
 
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);

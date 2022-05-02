@@ -15,7 +15,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
     private final GameStateController gameStateController;
 
-    public CommunicationController(List<Peer> peers) throws GameStateInitializationFailureException {
+    public CommunicationController(List<Peer> peers) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
 
         this.gameStateController = new GameStateController(peers);
     }

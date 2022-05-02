@@ -28,7 +28,7 @@ public class GameStateControllerTest {
 
     //WrongPhaseExcepion
     @Test
-    public void moveStudentFromEntranceToDiningRoom1() throws GameStateInitializationFailureException {
+    public void moveStudentFromEntranceToDiningRoom1() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
         gameStateController.setCurrentPhaseForTesting(Phase.PLANNING);
 
@@ -41,7 +41,7 @@ public class GameStateControllerTest {
 
     //TooManyStudentsMovedExcepion
     @Test
-    public void moveStudentFromEntranceToDiningRoom2() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException {
+    public void moveStudentFromEntranceToDiningRoom2() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
         Color student;
 
@@ -60,7 +60,7 @@ public class GameStateControllerTest {
 
     //TooManyStudentsMovedExcepion - MotherNatureToBeMoved
     @Test
-    public void moveStudentFromEntranceToDiningRoom3() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException {
+    public void moveStudentFromEntranceToDiningRoom3() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
         Color student;
 
@@ -83,7 +83,7 @@ public class GameStateControllerTest {
 
     //WrongPhaseExcepion
     @Test
-    public void moveStudentFromEntranceToArchipelago1() throws GameStateInitializationFailureException {
+    public void moveStudentFromEntranceToArchipelago1() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
         gameStateController.setCurrentPhaseForTesting(Phase.PLANNING);
 
@@ -99,7 +99,7 @@ public class GameStateControllerTest {
 
     //TooManyStudentsMovedExcepion
     @Test
-    public void moveStudentFromEntranceToArchipelago2() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException {
+    public void moveStudentFromEntranceToArchipelago2() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
         Color student;
 
@@ -120,7 +120,7 @@ public class GameStateControllerTest {
 
     //TooManyStudentsMovedExcepion - MotherNatureToBeMoved
     @Test
-    public void moveStudentFromEntranceToArchipelago3() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException {
+    public void moveStudentFromEntranceToArchipelago3() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
         Color student;
 
@@ -144,7 +144,7 @@ public class GameStateControllerTest {
 
     //WrongPhaseExeption
     @Test
-    public void moveMotherNature1() throws GameStateInitializationFailureException {
+    public void moveMotherNature1() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.setCurrentPhaseForTesting(Phase.PLANNING);
@@ -156,7 +156,7 @@ public class GameStateControllerTest {
 
     //MoreStudentsToBeMovedException
     @Test
-    public void moveMotherNature2() throws GameStateInitializationFailureException {
+    public void moveMotherNature2() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
@@ -169,7 +169,7 @@ public class GameStateControllerTest {
 
     //MoveAlreadyPlayedExcepion
     @Test
-    public void moveMotherNature3() throws GameStateInitializationFailureException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException, WrongPhaseException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+    public void moveMotherNature3() throws GameStateInitializationFailureException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException, WrongPhaseException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
@@ -186,7 +186,7 @@ public class GameStateControllerTest {
     }
 
     @Test
-    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException {
+    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
@@ -206,7 +206,7 @@ public class GameStateControllerTest {
     }
 
     @Test
-    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException {
+    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
@@ -227,7 +227,7 @@ public class GameStateControllerTest {
     public void grabStudentsFromCloud3() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException, MotherNatureToBeMovedException, EmptyCloudException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
-        gameStateController.getGameStateForTesting().fillClouds();
+        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);
@@ -249,7 +249,7 @@ public class GameStateControllerTest {
     public void endActionTurn1() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException, MotherNatureToBeMovedException, EmptyCloudException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
-        gameStateController.getGameStateForTesting().fillClouds();
+        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);
@@ -271,7 +271,7 @@ public class GameStateControllerTest {
     public void endActionTurn2() throws GameStateInitializationFailureException, EmptyStudentSupplyException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException {
         GameStateController gameStateController = new GameStateController();
 
-        gameStateController.getGameStateForTesting().fillClouds();
+        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);
@@ -292,7 +292,7 @@ public class GameStateControllerTest {
     public void endActionTurn3() throws GameStateInitializationFailureException, EmptyStudentSupplyException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException {
         GameStateController gameStateController = new GameStateController();
 
-        gameStateController.getGameStateForTesting().fillClouds();
+        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);
@@ -312,7 +312,7 @@ public class GameStateControllerTest {
     public void endActionTurn4() throws GameStateInitializationFailureException, EmptyStudentSupplyException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException {
         GameStateController gameStateController = new GameStateController();
 
-        gameStateController.getGameStateForTesting().fillClouds();
+        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);
@@ -331,7 +331,7 @@ public class GameStateControllerTest {
     public void endActionTurn5() throws GameStateInitializationFailureException, EmptyStudentSupplyException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException {
         GameStateController gameStateController = new GameStateController();
 
-        gameStateController.getGameStateForTesting().fillClouds();
+        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);
@@ -348,7 +348,7 @@ public class GameStateControllerTest {
     public void endActionTurn6() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
-        gameStateController.getGameStateForTesting().fillClouds();
+        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);
@@ -360,7 +360,7 @@ public class GameStateControllerTest {
     }
 
     @Test
-    public void gameFlow1() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+    public void gameFlow1() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.playCard(Card.DOG);
@@ -368,7 +368,7 @@ public class GameStateControllerTest {
     }
 
     @Test
-    public void gameFlow2() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+    public void gameFlow2() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.playCard(Card.DOG);
@@ -379,7 +379,7 @@ public class GameStateControllerTest {
     }
 
     @Test
-    public void gameFlow3() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException,  InvalidCardPlayedException, CardIsNotInTheDeckException {
+    public void gameFlow3() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.playCard(Card.GOOSE);
@@ -389,14 +389,121 @@ public class GameStateControllerTest {
 
     }
 
+
     @Test
-    public void gameFlow4() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+    public void oneCompleteRound() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.playCard(Card.DOG);
         gameStateController.playCard(Card.GOOSE);
 
         assertEquals(0, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(0);
+        gameStateController.endActionTurn();
+
+        assertEquals(1, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(1);
+        gameStateController.endActionTurn();
+
+
+    }
+
+    //Should throw CardIsNotInTheDeckException
+    @Test
+    public void twoCompleteRoundsFail() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException {
+        GameStateController gameStateController = new GameStateController();
+
+        gameStateController.playCard(Card.DOG);
+        gameStateController.playCard(Card.GOOSE);
+
+        assertEquals(0, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(0);
+        gameStateController.endActionTurn();
+
+        assertEquals(1, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(1);
+        gameStateController.endActionTurn();
+
+        assertThrows(CardIsNotInTheDeckException.class, () -> gameStateController.playCard(Card.DOG));
+
+    }
+
+    @Test
+    public void twoCompleteRoundsSuccess() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException {
+        GameStateController gameStateController = new GameStateController();
+
+        gameStateController.playCard(Card.DOG);
+        gameStateController.playCard(Card.GOOSE);
+
+        assertEquals(0, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(0);
+        gameStateController.endActionTurn();
+
+        assertEquals(1, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(1);
+        gameStateController.endActionTurn();
+
+
+        gameStateController.playCard(Card.GOOSE);
+        gameStateController.playCard(Card.DOG);
+
+        assertEquals(1, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(0);
+        gameStateController.endActionTurn();
+
+        assertEquals(0, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(1);
+        gameStateController.endActionTurn();
+
+
     }
 
 }
