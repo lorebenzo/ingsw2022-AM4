@@ -39,8 +39,6 @@ public class CommunicationController extends SugarMessageProcessor {
                 return new KOMsg(ReturnMessage.INVALID_CARD_PLAYED.text);
             } catch (MoveAlreadyPlayedException e) {
                 return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
-            } catch (EmptyStudentSupplyException e) {
-                return new KOMsg("Empty student supply");
             }
         }
         else
@@ -155,6 +153,10 @@ public class CommunicationController extends SugarMessageProcessor {
                 return new KOMsg(ReturnMessage.STUDENTS_TO_BE_GRABBED_FROM_CLOUD.text);
             } catch (CardNotPlayedException e){
                 return new KOMsg(ReturnMessage.CARD_NOT_PLAYED.text);
+            } catch (EmptyStudentSupplyException e) {
+                return new KOMsg("Empty student supply"); //TODO transform this message in a GameOver condition
+            } catch (WrongPhaseException e) {
+                return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
             }
 
             return new OKMsg();

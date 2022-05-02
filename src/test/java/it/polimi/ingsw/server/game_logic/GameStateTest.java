@@ -589,134 +589,6 @@ public class GameStateTest {
         assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
     }
 
-    //Contended professor
-    @Test
-    public void assignProfessor5() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
-        GameState gameState = new GameState(2);
-        Color studentToBeMoved;
-
-        int count = 0;
-
-        do{
-            if(count >= 7){
-                gameState = new GameState(2);
-                count = 0;
-            }
-
-            //Currentplayer 0
-            gameState.setCurrentPlayerSchoolBoardId(0);
-            //studentToBeMoved is a student that the player 0 has in his entrance
-            studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(count);
-
-
-            //CurrentPlayer 1
-            gameState.setCurrentPlayerSchoolBoardId(1);
-            //Increase the count of times this while cycle was performed. If it exceedes the number of students in the entrance, it means that the 2 players
-            //don't share any students of the same color in their entrance.
-            count++;
-        }while (!gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(studentToBeMoved)); //Repeat the cycle if the player 1 doesn't have the studentToBeMoved in his entrance
-
-
-        //schoolBoardId 1 is the current player
-        gameState.setCurrentPlayerSchoolBoardId(1);
-        //Player 1 shouldn't have the professor before assigning it to him
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-        //Move the student from the entrance to the diningrom
-        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
-        //Assign the professor to the player 1. He should get it since no other player have a student in the corresponding diningRoom.
-        gameState.assignProfessor(studentToBeMoved);
-        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-
-        //schoolBoard 0 is now the current player
-        gameState.setCurrentPlayerSchoolBoardId(0);
-        //Player 0 shouldn't have the professor before assignProfessor()
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-        //Move the student from the entrance to the diningrom
-        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
-        //AssignProfessor should remove the professor from player 1, since the professor is now contended.
-        gameState.assignProfessor(studentToBeMoved);
-
-        //Neither of the 2 players should now have the professor, because it is contended
-        //SchoolBoardId 0 shouldn't have it
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-
-        gameState.setCurrentPlayerSchoolBoardId(1);
-        //SchoolBoardId 1 shouldn't have it
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-    }
-
-    @Test
-    public void assignProfessor6() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
-        GameState gameState = new GameState(3);
-        Color studentToBeMoved;
-
-        int count = 0;
-
-        do{
-            if(count >= 9){
-                gameState = new GameState(3);
-                count = 0;
-            }
-
-            //Currentplayer 0
-            gameState.setCurrentPlayerSchoolBoardId(0);
-            //studentToBeMoved is a student that the player 0 has in his entrance
-            studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(count);
-
-
-            //CurrentPlayer 1
-            gameState.setCurrentPlayerSchoolBoardId(1);
-            //Increase the count of times this while cycle was performed. If it exceedes the number of students in the entrance, it means that the 2 players
-            //don't share any students of the same color in their entrance.
-            count++;
-        }while (!gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(studentToBeMoved)); //Repeat the cycle if the player 1 doesn't have the studentToBeMoved in his entrance
-
-
-        gameState.setCurrentPlayerSchoolBoardId(2);
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-        //schoolBoardId 1 is the current player
-        gameState.setCurrentPlayerSchoolBoardId(1);
-        //Player 1 shouldn't have the professor before assigning it to him
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-        //Move the student from the entrance to the diningrom
-        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
-        //Assign the professor to the player 1. He should get it since no other player have a student in the corresponding diningRoom.
-        gameState.assignProfessor(studentToBeMoved);
-        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-
-        gameState.setCurrentPlayerSchoolBoardId(2);
-        gameState.assignProfessor(studentToBeMoved);
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-        //schoolBoard 0 is now the current player
-        gameState.setCurrentPlayerSchoolBoardId(0);
-        //Player 0 shouldn't have the professor before assignProfessor()
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-        //Move the student from the entrance to the diningrom
-        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
-        //AssignProfessor should remove the professor from player 1, since the professor is now contended.
-        gameState.assignProfessor(studentToBeMoved);
-
-        //Neither of the 3 players should now have the professor, because it is contended
-        //SchoolBoardId 0 shouldn't have it
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-
-        gameState.setCurrentPlayerSchoolBoardId(1);
-        //SchoolBoardId 1 shouldn't have it
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-        gameState.setCurrentPlayerSchoolBoardId(2);
-        assertFalse(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
-
-    }
-
-
     //2 PLAYERS
     @Test
     public void getInfluence1() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
@@ -1090,44 +962,6 @@ public class GameStateTest {
         assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
 
     }
-
-   /* @Test
-    public void getInfluence13() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
-        GameState gameState = new GameState(4);
-        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
-        Color student = null;
-
-        gameState.setCurrentPlayerSchoolBoardId(0);
-        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
-
-
-        gameState.moveStudentFromEntranceToDiningRoom(student);
-
-        gameState.assignProfessor(student);
-
-        motherNaturePosition.addStudent(student);
-
-        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
-
-        gameState.setCurrentPlayerSchoolBoardId(2);
-        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
-
-
-        gameState.moveStudentFromEntranceToDiningRoom(student);
-
-        gameState.assignProfessor(student);
-
-        motherNaturePosition.addStudent(student);
-
-        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
-    }
-*/
     @Test
     public void mergeWithPrevious1() throws GameStateInitializationFailureException {
         GameState gameState = new GameState(2);
@@ -1159,9 +993,6 @@ public class GameStateTest {
 
         assertTrue(gameState.getMotherNaturePositionIslandCodes().contains(0));
         assertTrue(gameState.getMotherNaturePositionIslandCodes().contains(1));
-
     }
-
-
 }
 

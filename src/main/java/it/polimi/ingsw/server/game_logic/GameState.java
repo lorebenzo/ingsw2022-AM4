@@ -1,9 +1,6 @@
 package it.polimi.ingsw.server.game_logic;
 
-import it.polimi.ingsw.server.game_logic.enums.Card;
-import it.polimi.ingsw.server.game_logic.enums.Color;
-import it.polimi.ingsw.server.game_logic.enums.GameConstants;
-import it.polimi.ingsw.server.game_logic.enums.TowerColor;
+import it.polimi.ingsw.server.game_logic.enums.*;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
 import it.polimi.ingsw.server.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
@@ -20,12 +17,9 @@ public class GameState {
 
     // Game flow attributes
     private int currentRound; // rounds start at 0, and get incremented when all players play a turn
-    //private int currentTurn; // the id of the school board owned by the current player
-    //private int currentSubTurn; // the sub-turn resets at the start of each turn and gets incremented when the current player makes a move
-
-    public enum Phase {
-        PLANNING, ACTION
-    }
+    private List<Integer> roundOrder;
+    private Iterator<Integer> roundIterator;
+    private ActionPhaseSubTurn actionPhaseSubTurn;
 
     private Phase currentPhase;
     private final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
@@ -59,6 +53,10 @@ public class GameState {
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
 
         this.currentRound = 0;
+        this.actionPhaseSubTurn = ActionPhaseSubTurn.STUDENTS_TO_MOVE;
+
+
+
         //this.currentTurn = 0;
         //this.currentSubTurn = 0;
         this.schoolBoardIdsToCardsPlayedThisRound = new HashMap<>();
@@ -72,6 +70,11 @@ public class GameState {
             e.printStackTrace();
             throw new GameStateInitializationFailureException();
         }
+
+        //Preparation of the roundOrder that will support the turns
+        this.roundOrder = this.schoolBoards.stream().map(SchoolBoard::getId).toList();
+        this.roundIterator = this.getRoundOrder().listIterator();
+
     }
 
     /**
@@ -243,15 +246,12 @@ public class GameState {
                 //If the current player has the same number of students in the dining room lane as the other's schoolBoard's max, then the professor will be removed from the other's schoolBoard's max.
                 if(currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane)
                     this.getCurrentPlayerSchoolBoard().addProfessor(professor);
-                else if(currentPlayerNumberOfStudentsInDiningRoomLane == otherSchoolBoardsMaxStudentsInDiningRoomLane){
-                    otherSchoolBoardMax.removeProfessor(professor);
-                }
+                //Rules interpretation established that the professor remains of the original possessor if contended.
             }
 
         }
 
     }
-
 
     /**
      * The current player moves a student from the entrance to an archipelago
@@ -346,15 +346,16 @@ public class GameState {
         return mergePerformed;
     }
 
-
-/*    *//**
-     * //@return the influence on the archipelago mother nature is currently on
-     *//*
-    public int getPlayersInfluenceOnMotherNaturePosition(int playerSchoolBoardId) {
-        return this.strategy.getInfluence(this.schoolBoards, this.motherNaturePosition, this.currentPlayerSchoolBoardId);
-    }*/
-
     //Setters
+
+
+    public void setRoundOrder(List<Integer> roundOrder) {
+        this.roundOrder = roundOrder;
+    }
+
+    public void setRoundIterator(Iterator<Integer> roundIterator) {
+        this.roundIterator = roundIterator;
+    }
 
     public void increaseRoundCount(){
         this.currentRound++;
@@ -445,6 +446,15 @@ public class GameState {
         return this.strategy.getInfluence(this.schoolBoards,this.getArchipelagoFromIslandCodes(archipelagoIslandCodes));
     }
 
+    public List<Integer> getRoundOrder() {
+        return new LinkedList<>(roundOrder);
+    }
+
+    //TODO check exposed reference
+    public Iterator<Integer> getRoundIterator() {
+        return roundIterator;
+    }
+
     public int getNumberOfStudentsInTheEntrance(){
         return this.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size();
     }
@@ -491,8 +501,13 @@ public class GameState {
         return this.currentPlayerSchoolBoardId;
     }
 
+    public void setActionPhaseSubTurn(ActionPhaseSubTurn actionPhaseSubTurn) {
+        this.actionPhaseSubTurn = actionPhaseSubTurn;
+    }
 
-
+    public ActionPhaseSubTurn getActionPhaseSubTurn() {
+        return this.actionPhaseSubTurn;
+    }
 
     //Created for testing - could be useful or dangerous
 
@@ -524,19 +539,4 @@ public class GameState {
     public Map<Integer, Card> getSchoolBoardIdsToCardsPlayedThisRoundForTesting() {
         return this.schoolBoardIdsToCardsPlayedThisRound;
     }
-
-
-    /*private void setCurrentPlayerProfessor(Color professor) *//*throws InvalidSchoolBoardIdException*//*{
-
-        for (SchoolBoard schoolBoard : schoolBoards) {
-            if(!schoolBoard.equals(this.getCurrentPlayerSchoolBoard())){
-                if(schoolBoard.getProfessorsTable().contains(professor))
-                    schoolBoard.removeProfessor(professor);
-            }
-        }
-
-        this.getCurrentPlayerSchoolBoard().addProfessor(professor);
-
-    }*/
-
 }
