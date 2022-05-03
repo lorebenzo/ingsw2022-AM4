@@ -1,6 +1,8 @@
 package it.polimi.ingsw.communication.sugar_framework;
 
 import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
+import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
+import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.HeartBeatMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod;
@@ -9,27 +11,27 @@ import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionExc
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class SugarClient extends TcpClient {
     private static final int                port = 33400;
     private UUID                            upi = null;
-    private Consumer<SugarMessage>          onMessage;
+    private final SugarMessageProcessor     messageProcessor = new SugarMessageProcessor() {
+        @SugarMessageHandler
+        public void base(SugarMessage message) {
+            System.out.println("Unhandled message received from server: " + message.serialize());
+        }
+    };
 
-    public SugarClient(String hostname, Consumer<SugarMessage> onMessage) {
+    public SugarClient(String hostname) {
         super(hostname, port);
         this.setLogHeader("[Sugar Client] : ");
-        this.onMessage = onMessage;
     }
 
     @Override
     protected void onConnect() {}
 
     @Override
-    protected void onDisconnect() {
-
-    }
+    protected void onDisconnect() {}
 
     @Override
     protected final void onMessage(String input) {
@@ -40,7 +42,7 @@ public class SugarClient extends TcpClient {
                 this.send(new HeartBeatMessage(message.messageID));
             }
             else {
-                this.onMessage.accept(message);
+                messageProcessor.process(message);
             }
         } catch (MessageDeserializationException e) {
             this.log("error in message deserialization, dropping message : " + input);
