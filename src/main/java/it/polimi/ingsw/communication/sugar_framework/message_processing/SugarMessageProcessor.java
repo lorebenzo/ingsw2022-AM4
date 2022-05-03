@@ -60,7 +60,7 @@ public abstract class SugarMessageProcessor {
      * Executes all @SugarMessageHandler(s) annotated methods in this class that match this method's signature, if none is found, executes the "base()" method (if it exists)
      * @param message any Message object
      */
-    public final void process(SugarMessage message) {
+    public synchronized final void process(SugarMessage message) {
         // Get the methods of this class marked with the @Process annotation
         List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(SugarMessageHandler.class))  // Get annotated methods

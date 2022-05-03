@@ -5,8 +5,6 @@ import it.polimi.ingsw.server.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.game_logic.exceptions.NonMergeableArchipelagosException;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This class generalizes the concept of island:
@@ -52,7 +50,7 @@ public class Archipelago {
 
     /**
      * @throws  IllegalArgumentException if(a1 == null || a2 == null)
-     * @throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
+     * //@throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
      *                                              if the two archipelagos have intersecting islandCodes
      * @param a1 first archipelago to merge
      * @param a2 second archipelago

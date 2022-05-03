@@ -66,128 +66,63 @@ public class ArchipelagoTest {
         try {
             merged2 = Archipelago.merge(merged1, mergeableA3);
         } catch (NonMergeableArchipelagosException e) {
-            e.printStackTrace();
             fail();
-        }
-
-        Archipelago unmerged1 = null;
-        Archipelago unmerged2 = null;
-        Archipelago unmerged3 = null;
-        Archipelago unmerged4 = null;
-        Archipelago unmerged5 = null;
-        Archipelago unmerged6 = null;
-
-        //A1 A1
-        try{
-            unmerged1 = Archipelago.merge(unmergeableA1,unmergeableA1);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A1 A2
-        try{
-            unmerged1 = Archipelago.merge(unmergeableA1,unmergeableA2);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A1 A3
-        try{
-            unmerged1 = Archipelago.merge(unmergeableA1,unmergeableA3);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A1 A4
-        try{
-            unmerged1 = Archipelago.merge(unmergeableA1,unmergeableA4);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A1 A5
-        try{
-            unmerged1 = Archipelago.merge(unmergeableA1,unmergeableA5);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A2
-
-        //A2 A3
-        try{
-            unmerged2 = Archipelago.merge(unmergeableA2,unmergeableA3);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A2 A4
-        try{
-            unmerged2 = Archipelago.merge(unmergeableA2,unmergeableA4);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A2 A5
-        try{
-            unmerged2 = Archipelago.merge(unmergeableA2,unmergeableA5);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A3
-
-        //A3 A4
-        try{
-            unmerged3 = Archipelago.merge(unmergeableA3,unmergeableA4);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A3 A5
-        try{
-            unmerged3 = Archipelago.merge(unmergeableA3,unmergeableA5);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A4
-
-        //A4 A5
-        try{
-            unmerged4 = Archipelago.merge(unmergeableA4,unmergeableA5);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A5
-
-        //A5 A5
-        try{
-            unmerged5 = Archipelago.merge(unmergeableA1,unmergeableA5);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
-
-        //A5 A6
-        try{
-            unmerged5 = Archipelago.merge(unmergeableA5,unmergeableA6);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
         }
 
         try {
             merged3 = Archipelago.merge(mergeableA7, mergeableA8);
         } catch (NonMergeableArchipelagosException e) {
-            e.printStackTrace();
             fail();
         }
 
-        try {
-            unmerged6 = Archipelago.merge(merged3, unmergeableA9);
-        }catch (NonMergeableArchipelagosException e){
-            e.printStackTrace();
-        }
+        //A1 A1
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA1));
+
+        //A1 A2
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA2));
+
+        //A1 A3
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA3));
+
+        //A1 A4
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA4));
+
+        //A1 A5
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA5));
+
+        //A2
+
+        //A2 A3
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA2,unmergeableA3));
+
+        //A2 A4
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA2,unmergeableA4));
+
+        //A2 A5
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA2,unmergeableA5));
+
+        //A3
+
+        //A3 A4
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA3,unmergeableA4));
+
+        //A3 A5
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA3,unmergeableA5));
+
+        //A4
+
+        //A4 A5
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA4,unmergeableA5));
+
+        //A5
+
+        //A5 A5
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA5,unmergeableA5));
+
+        //A5 A6
+        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA5,unmergeableA6));
+
+
 
 
         // Assert
@@ -200,12 +135,10 @@ public class ArchipelagoTest {
         assertTrue(merged2.getIslandCodes().containsAll(mergeableA3.getIslandCodes()));
         assertEquals(3, merged2.getIslandCodes().size());
 
-        assertNull(unmerged1);
-        assertNull(unmerged2);
-        assertNull(unmerged3);
-        assertNull(unmerged4);
-        assertNull(unmerged5);
-        assertNull(unmerged6);
+        assertTrue(merged3.getIslandCodes().containsAll(mergeableA7.getIslandCodes()));
+        assertTrue(merged3.getIslandCodes().containsAll(mergeableA8.getIslandCodes()));
+        assertEquals(2, merged3.getIslandCodes().size());
+        
 
     }
 

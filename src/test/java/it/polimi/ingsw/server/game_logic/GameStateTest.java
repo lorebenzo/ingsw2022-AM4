@@ -5,9 +5,7 @@ import it.polimi.ingsw.server.game_logic.enums.Color;
 import it.polimi.ingsw.server.game_logic.exceptions.*;
 import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,7 +14,7 @@ import static org.junit.Assert.*;
 public class GameStateTest {
 
     @Test
-    public void fillCloud() throws GameStateInitializationFailureException {
+    public void fillCloud() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         GameState g2 = new GameState(2);
         GameState g21 = new GameState(2);
 
@@ -40,14 +38,8 @@ public class GameStateTest {
         }
 
         // 2 players - should throw FullCloudException
-        try {
-            g21.fillCloud(0);
-            g21.fillCloud(0);
-
-            fail();
-        } catch (FullCloudException | EmptyStudentSupplyException e) {
-            e.printStackTrace();
-        }
+        g21.fillCloud(0);
+        assertThrows(FullCloudException.class, () -> g21.fillCloud(0));
 
         // 3 players
         cloudsCount = 3;
@@ -78,7 +70,7 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(2);
 
         gameState.fillClouds();
@@ -91,7 +83,7 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(2);
 
         gameState.fillClouds();
@@ -104,7 +96,7 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(3);
 
         gameState.fillClouds();
@@ -120,7 +112,7 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud4() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloud4() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(3);
 
         gameState.fillClouds();
@@ -137,7 +129,7 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud5() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloud5() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(4);
 
         gameState.fillClouds();
@@ -156,7 +148,7 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud6() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloud6() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(4);
 
         gameState.fillClouds();
@@ -178,7 +170,7 @@ public class GameStateTest {
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudEmptyCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloudEmptyCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(2);
 
         gameState.fillClouds();
@@ -186,17 +178,14 @@ public class GameStateTest {
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
 
-        try {
-            gameState.grabStudentsFromCloud(0);
-            fail();
-        }catch (EmptyCloudException e){
-            e.printStackTrace();
-        }
+
+        assertThrows(EmptyCloudException.class, () -> gameState.grabStudentsFromCloud(0));
+
     }
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudEmptyCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloudEmptyCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(3);
 
         gameState.fillClouds();
@@ -207,18 +196,13 @@ public class GameStateTest {
         gameState.grabStudentsFromCloud(2);
         assertTrue(gameState.getClouds().get(2).isEmpty());
 
-        try {
-            gameState.grabStudentsFromCloud(0);
-            fail();
-        }catch (EmptyCloudException e){
-            e.printStackTrace();
-        }
 
+        assertThrows(EmptyCloudException.class, () -> gameState.grabStudentsFromCloud(0));
     }
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudEmptyCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloudEmptyCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(4);
 
         gameState.fillClouds();
@@ -232,18 +216,13 @@ public class GameStateTest {
         gameState.grabStudentsFromCloud(3);
         assertTrue(gameState.getClouds().get(3).isEmpty());
 
-        try {
-            gameState.grabStudentsFromCloud(0);
-            fail();
-        }catch (EmptyCloudException e){
-            e.printStackTrace();
-        }
+        assertThrows(EmptyCloudException.class, () -> gameState.grabStudentsFromCloud(0));
 
     }
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudIllegalArgument() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, InvalidSchoolBoardIdException, EmptyCloudException {
+    public void grabStudentsFromCloudIllegalArgument() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
         GameState gameState = new GameState(2);
 
         gameState.fillClouds();
@@ -251,21 +230,13 @@ public class GameStateTest {
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
 
-        try {
-            gameState.grabStudentsFromCloud(2);
-            fail();
-        }catch (IllegalArgumentException e){
-            e.printStackTrace();
-        }
-
+        assertThrows(IllegalArgumentException.class ,() -> gameState.grabStudentsFromCloud(2));
 
     }
 
     @Test
     public void playCard() throws GameStateInitializationFailureException {
-        List<GameState> gameStates = Stream.of(
-                new GameState(2), new GameState(3), new GameState(4)
-        ).collect(Collectors.toList());
+        List<GameState> gameStates = Stream.of(new GameState(2), new GameState(3), new GameState(4)).collect(Collectors.toList());
 
         for(GameState g : gameStates) {
             for(int id : g.getSchoolBoardIds()) {
@@ -273,8 +244,8 @@ public class GameStateTest {
                 for(Card card : Card.values()) {
                     try {
                         g.playCard(card);
-                        assertEquals(card, g.getSchoolBoardIdToCardPlayedThisRound().get(id));
-                    } catch (CardIsNotInTheDeckException | InvalidSchoolBoardIdException e) {
+                        assertEquals(card, g.getSchoolBoardIdsToCardsPlayedThisRound().get(id));
+                    } catch (CardIsNotInTheDeckException | InvalidCardPlayedException e) {
                         fail();
                     }
                 }
@@ -284,7 +255,7 @@ public class GameStateTest {
 
     //2 PLAYERS
     @Test
-    public void moveStudentFromEntranceToArchipelago1() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException{
+    public void moveStudentFromEntranceToArchipelago1() throws GameStateInitializationFailureException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -312,7 +283,7 @@ public class GameStateTest {
 
     //3 PLAYERS
     @Test
-    public void moveStudentFromEntranceToArchipelago2() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException{
+    public void moveStudentFromEntranceToArchipelago2() throws GameStateInitializationFailureException{
         GameState gameState = new GameState(3);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -340,7 +311,7 @@ public class GameStateTest {
 
     //4 PLAYERS
     @Test
-    public void moveStudentFromEntranceToArchipelago3() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException{
+    public void moveStudentFromEntranceToArchipelago3() throws GameStateInitializationFailureException{
         GameState gameState = new GameState(4);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -368,7 +339,7 @@ public class GameStateTest {
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES PROVIDED IS NOT VALID
     @Test
-    public void moveStudentFromEntranceToArchipelago4() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago4() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -378,21 +349,15 @@ public class GameStateTest {
         List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
 
         for (Color c:Color.values()) {
-            try{
-                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
-                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
-                    fail();
-                }
-            }
-            catch(IllegalArgumentException e){
-                e.printStackTrace();
+            if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                assertThrows(IllegalArgumentException.class, () -> gameState.moveStudentFromEntranceToArchipelago(c,islandCodes));
             }
         }
     }
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES CONTAINS NULL ARGUMENT
     @Test
-    public void moveStudentFromEntranceToArchipelago5() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago5() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -401,21 +366,15 @@ public class GameStateTest {
         List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
 
         for (Color c:Color.values()) {
-            try{
-                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
-                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
-                    fail();
-                }
-            }
-            catch(IllegalArgumentException e){
-                e.printStackTrace();
+            if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                assertThrows(IllegalArgumentException.class, () -> gameState.moveStudentFromEntranceToArchipelago(c,islandCodes));
             }
         }
     }
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES REFERENCE IS NULL
     @Test
-    public void moveStudentFromEntranceToArchipelago6() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago6() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -424,21 +383,15 @@ public class GameStateTest {
         List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
 
         for (Color c:Color.values()) {
-            try{
-                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
-                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);
-                    fail();
-                }
-            }
-            catch(IllegalArgumentException e){
-                e.printStackTrace();
+            if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){
+                assertThrows(IllegalArgumentException.class, () -> gameState.moveStudentFromEntranceToArchipelago(c,islandCodes));
             }
         }
     }
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - STUDENT ARGUMENT IS NULL
     @Test
-    public void moveStudentFromEntranceToArchipelago7() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago7() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -446,342 +399,600 @@ public class GameStateTest {
 
         List<Color> entrance = new LinkedList<>(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());
 
-        try{
-            gameState.moveStudentFromEntranceToArchipelago(null,islandCodes);
-            fail();
-        }
-        catch(IllegalArgumentException e){
-            e.printStackTrace();
-        }
+        assertThrows(IllegalArgumentException.class, () -> gameState.moveStudentFromEntranceToArchipelago(null,islandCodes));
+    }
+
+    @Test
+    public void assignProfessor0() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        GameState gameState = new GameState(2);
+        Color studentToBeMoved;
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+
+
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+    }
+
+    @Test
+    public void assignProfessor1() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        GameState gameState = new GameState(2);
+        Color studentToBeMoved;
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(1);
+
+
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+    }
+
+    @Test
+    public void assignProfessor2() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        GameState gameState = new GameState(2);
+        Color studentToBeMoved;
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+    }
+
+    @Test
+    public void assignProfessor3() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        GameState gameState = new GameState(3);
+        Color studentToBeMoved;
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+    }
+
+    @Test
+    public void assignProfessor4() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        GameState gameState = new GameState(4);
+        Color studentToBeMoved;
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);
+        gameState.assignProfessor(studentToBeMoved);
+        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));
     }
 
     //2 PLAYERS
     @Test
-    public void getInfluence1() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence1() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+
         GameState gameState = new GameState(2);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
+        Color student = null;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-
-        assertEquals(1,gameState.getInfluence());
+        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
 
 
-    }
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+
+        gameState.assignProfessor(student);
+
+        motherNaturePosition.addStudent(student);
 
 
-    @Test
-    public void getInfluence2() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
-        GameState gameState = new GameState(2);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.GREEN);
-        motherNaturePosition.addStudent(Color.PURPLE);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
-
-        gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-
-        assertEquals(1,gameState.getInfluence());
-
-
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
     }
 
     @Test
-    public void getInfluence3() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence2() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+
         GameState gameState = new GameState(2);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.GREEN);
-        motherNaturePosition.addStudent(Color.PURPLE);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
+        Color student = null;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(2,gameState.getInfluence());
 
+        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+        gameState.assignProfessor(student);
+        motherNaturePosition.addStudent(student);
+        motherNaturePosition.addStudent(student);
+
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
 
     }
 
     @Test
-    public void getInfluence4() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence3() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(2);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.PURPLE);
-        motherNaturePosition.addStudent(Color.YELLOW);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(3,gameState.getInfluence());
+        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        Optional<Color> student2;
+
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+
+        gameState.assignProfessor(student);
+
+        motherNaturePosition.addStudent(student);
+
+        gameState.setCurrentPlayerSchoolBoardId(1);
+
+        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()
+                .stream()
+                .filter(s -> !s.equals(student))
+                .findFirst();
+
+
+        if(student2.isPresent()){
+            gameState.moveStudentFromEntranceToDiningRoom(student2.get());
+
+            gameState.assignProfessor(student2.get());
+
+            motherNaturePosition.addStudent(student2.get());
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        }
+
+
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
 
     }
 
     @Test
-    public void getInfluence5() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence4() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(2);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.PURPLE);
-        motherNaturePosition.addStudent(Color.YELLOW);
-
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
-        gameState.conquestArchipelago();
 
-        assertEquals(4,gameState.getInfluence());
+        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        Optional<Color> student2;
+
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+
+        gameState.assignProfessor(student);
+
+        motherNaturePosition.addStudent(student);
+
+        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()
+                .stream()
+                .filter(s -> !s.equals(student))
+                .findFirst();
+
+
+        if(student2.isPresent()){
+            gameState.moveStudentFromEntranceToDiningRoom(student2.get());
+
+            gameState.assignProfessor(student2.get());
+
+            motherNaturePosition.addStudent(student2.get());
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        }
+        else
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
 
     }
-
 
     //3 PLAYERS
     @Test
-    public void getInfluence6() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence5() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(3);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
+        Color student = null;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
+        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
 
-        assertEquals(1,gameState.getInfluence());
 
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+
+        gameState.assignProfessor(student);
+
+        motherNaturePosition.addStudent(student);
+
+
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
 
     }
 
     @Test
-    public void getInfluence7() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence6() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+
         GameState gameState = new GameState(3);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.GREEN);
-        motherNaturePosition.addStudent(Color.PURPLE);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
+        Color student = null;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
 
-        assertEquals(1,gameState.getInfluence());
 
+        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+        gameState.assignProfessor(student);
+        motherNaturePosition.addStudent(student);
+        motherNaturePosition.addStudent(student);
+
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
 
     }
 
     @Test
-    public void getInfluence8() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence7() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(3);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.GREEN);
-        motherNaturePosition.addStudent(Color.PURPLE);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
 
-        assertEquals(2,gameState.getInfluence());
+        gameState.moveStudentFromEntranceToDiningRoom(student);
 
+        gameState.assignProfessor(student);
+
+
+        Optional<Color> student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()
+                .stream()
+                .filter(s -> !s.equals(student))
+                .findFirst();
+
+        motherNaturePosition.addStudent(student);
+
+
+        if(student2.isPresent()){
+            gameState.moveStudentFromEntranceToDiningRoom(student2.get());
+
+            gameState.assignProfessor(student2.get());
+
+            motherNaturePosition.addStudent(student2.get());
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        }
+        else
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+
+
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
 
     }
 
     @Test
-    public void getInfluence9() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence8() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(3);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.PURPLE);
-        motherNaturePosition.addStudent(Color.YELLOW);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(3,gameState.getInfluence());
+        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        Optional<Color> student2;
 
-    }
+        gameState.moveStudentFromEntranceToDiningRoom(student);
 
-    @Test
-    public void getInfluence10() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
-        GameState gameState = new GameState(3);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
+        gameState.assignProfessor(student);
 
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.PURPLE);
-        motherNaturePosition.addStudent(Color.YELLOW);
+        motherNaturePosition.addStudent(student);
+
+        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()
+                .stream()
+                .filter(s -> !s.equals(student))
+                .findFirst();
 
 
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        if(student2.isPresent()){
+            gameState.moveStudentFromEntranceToDiningRoom(student2.get());
 
-        gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
-        gameState.conquestArchipelago();
+            gameState.assignProfessor(student2.get());
 
-        assertEquals(4,gameState.getInfluence());
+            motherNaturePosition.addStudent(student2.get());
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        }
+        else
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
 
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
     }
 
     //4 PLAYERS
     @Test
-    public void getInfluence11() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence9() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(4);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
+        Color student = null;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
+        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
 
-        assertEquals(1,gameState.getInfluence());
+
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+
+        gameState.assignProfessor(student);
+
+        motherNaturePosition.addStudent(student);
+
+
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
+
+    }
+
+    @Test
+    public void getInfluence10() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        GameState gameState = new GameState(4);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
+        Color student = null;
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+
+
+        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+        gameState.assignProfessor(student);
+        motherNaturePosition.addStudent(student);
+        motherNaturePosition.addStudent(student);
+
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
 
 
     }
 
     @Test
-    public void getInfluence12() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence11() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(4);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.GREEN);
-        motherNaturePosition.addStudent(Color.PURPLE);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
+        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
 
-        assertEquals(1,gameState.getInfluence());
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+
+        gameState.assignProfessor(student);
+
+
+        Optional<Color> student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()
+                .stream()
+                .filter(s -> !s.equals(student))
+                .findFirst();
+
+        motherNaturePosition.addStudent(student);
+
+
+        if(student2.isPresent()){
+            gameState.moveStudentFromEntranceToDiningRoom(student2.get());
+
+            gameState.assignProfessor(student2.get());
+
+            motherNaturePosition.addStudent(student2.get());
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        }
+        else
+        {
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        }
+
+
+
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
 
 
     }
 
     @Test
-    public void getInfluence13() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
+    public void getInfluence12() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(4);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.GREEN);
-        motherNaturePosition.addStudent(Color.PURPLE);
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
 
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
 
-        assertEquals(2,gameState.getInfluence());
+        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
+        Optional<Color> student2;
 
+        gameState.moveStudentFromEntranceToDiningRoom(student);
+
+        gameState.assignProfessor(student);
+
+        motherNaturePosition.addStudent(student);
+
+        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()
+                .stream()
+                .filter(s -> !s.equals(student))
+                .findFirst();
+
+
+        if(student2.isPresent()){
+            gameState.moveStudentFromEntranceToDiningRoom(student2.get());
+
+            gameState.assignProfessor(student2.get());
+
+            motherNaturePosition.addStudent(student2.get());
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        }
+        else{
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        }
+
+
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
+
+    }
+    @Test
+    public void mergeWithPrevious1() throws GameStateInitializationFailureException {
+        GameState gameState = new GameState(2);
+
+        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagosForTesting().stream().filter(archipelago -> archipelago.getIslandCodes().contains(0)).findFirst().orElse(null));
+        gameState.conquerArchipelago(0);
+
+        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagosForTesting().stream().filter(archipelago -> archipelago.getIslandCodes().contains(1)).findFirst().orElse(null));
+        gameState.conquerArchipelago(0);
+
+        gameState.mergeWithPrevious();
+
+        assertTrue(gameState.getMotherNaturePositionIslandCodes().contains(0));
+        assertTrue(gameState.getMotherNaturePositionIslandCodes().contains(1));
 
     }
 
     @Test
-    public void getInfluence14() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
-        GameState gameState = new GameState(4);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
+    public void mergeWithNext1() throws GameStateInitializationFailureException {
+        GameState gameState = new GameState(2);
 
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.PURPLE);
-        motherNaturePosition.addStudent(Color.YELLOW);
+        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagosForTesting().stream().filter(archipelago -> archipelago.getIslandCodes().contains(1)).findFirst().orElse(null));
+        gameState.conquerArchipelago(0);
 
-        gameState.setMotherNaturePosition(motherNaturePosition);
+        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagosForTesting().stream().filter(archipelago -> archipelago.getIslandCodes().contains(0)).findFirst().orElse(null));
+        gameState.conquerArchipelago(0);
 
-        gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
+        gameState.mergeWithNext();
 
-        assertEquals(3,gameState.getInfluence());
-
+        assertTrue(gameState.getMotherNaturePositionIslandCodes().contains(0));
+        assertTrue(gameState.getMotherNaturePositionIslandCodes().contains(1));
     }
-
-    @Test
-    public void getInfluence15() throws GameStateInitializationFailureException, InvalidSchoolBoardIdException {
-        GameState gameState = new GameState(4);
-        Set<Color> playerProfessors = Stream.of(Color.RED)
-                .collect(Collectors.toSet());
-        Archipelago motherNaturePosition = new Archipelago(0);
-
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.RED);
-        motherNaturePosition.addStudent(Color.PURPLE);
-        motherNaturePosition.addStudent(Color.YELLOW);
-
-
-        gameState.setMotherNaturePosition(motherNaturePosition);
-
-        gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.setCurrentPlayerProfessor(Color.RED);
-        gameState.setCurrentPlayerProfessor(Color.PURPLE);
-        gameState.conquestArchipelago();
-
-        assertEquals(4,gameState.getInfluence());
-
-    }
-
 }
+
