@@ -41,7 +41,7 @@ public abstract class TcpClient {
                     String input = in.readLine();
 
                     // If input is null, try to send data to the server to see if the connection is still active
-                    this.send("test");
+                    this.send("test msg");
 
                     // If input != null, call the onMessage callback on a separate thread
                     if(input != null) new Thread(() -> this.onMessage(input)).start();

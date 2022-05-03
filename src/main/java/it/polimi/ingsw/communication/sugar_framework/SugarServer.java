@@ -225,7 +225,7 @@ public abstract class SugarServer extends TcpServer {
      * Creates a new room
      * @return the UUID of the new room
      */
-    protected UUID createRoom() {
+    public UUID createRoom() {
         var room = new Room();
         synchronized (this.rooms) {
             this.rooms.add(room);
@@ -234,11 +234,22 @@ public abstract class SugarServer extends TcpServer {
     }
 
     /**
+     * Creates a new room with the specified uuid
+     * @param roomId the uuid of the room
+     */
+    public void createRoom(UUID roomId) {
+        var room = new Room(roomId);
+        synchronized (this.rooms) {
+            this.rooms.add(room);
+        }
+    }
+
+    /**
      * Sends the message to any peer in the specified room (if it exists)
      * @param roomId uuid of the room
      * @param message message to send
      */
-    protected void multicastToRoom(UUID roomId, SugarMessage message) throws IOException, RoomNotFoundException {
+    public void multicastToRoom(UUID roomId, SugarMessage message) throws IOException, RoomNotFoundException {
         synchronized (this.rooms) {
             // Find the room with the given roomId
             var room = this.rooms.stream().parallel()
@@ -261,7 +272,7 @@ public abstract class SugarServer extends TcpServer {
      * Deletes the room with the specified id (hall cannot be deleted), and puts all the peers in that room back into the hall
      * @param roomId the id of the room to be deleted
      */
-    protected void deleteRoom(UUID roomId) {
+    public void deleteRoom(UUID roomId) {
         if(!roomId.equals(hallId)) {
             this.rooms.stream()
                     .filter(_room -> _room.getRoomId().equals(roomId))  // find the room with the specified id
