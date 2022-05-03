@@ -35,7 +35,7 @@ public class GameStateController {
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
         this.gameState.fillClouds();
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getRoundIterator().next());
+        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
 
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
@@ -57,12 +57,12 @@ public class GameStateController {
 
         //Preparation of the roundOrder that will support the turns
         this.gameState.setRoundOrder(this.gameState.getSchoolBoardIds().stream().toList());
-        this.gameState.setRoundIterator(this.gameState.getRoundOrder().listIterator());
+        this.gameState.resetRoundIterator();
 
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
         this.gameState.fillClouds();
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getRoundIterator().next());
+        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
 
@@ -236,16 +236,16 @@ public class GameStateController {
 
         this.gameState.setRoundOrder(orderedSchoolBoardsToCardPlayed.stream().map(Map.Entry::getKey).toList());
 
-        this.gameState.setRoundIterator(this.gameState.getRoundOrder().listIterator());
+        this.gameState.resetRoundIterator();
 
     }
 
     private void nextPlanningTurn() {
 
         //If all the players played in this round, a new round will begin
-        if(!this.gameState.getRoundIterator().hasNext()) {
+        if(this.gameState.isLastTurnInThisRound()) {
             this.defineRoundOrder();
-            this.gameState.setRoundIterator(this.gameState.getRoundOrder().listIterator());
+            this.gameState.resetRoundIterator();
             //If a planning round was completed, now the round order has to be defined and the phase has to be set to action
 
 
@@ -254,7 +254,7 @@ public class GameStateController {
         }
 
         //There is still someone that didn't play, so they will play
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getRoundIterator().next());
+        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
@@ -262,8 +262,8 @@ public class GameStateController {
 
     private void nextActionTurn() throws EmptyStudentSupplyException /*throws FullCloudException,*/ {
         //If all the players played in this round, a new round will begin
-        if(!this.gameState.getRoundIterator().hasNext()) {
-            this.gameState.setRoundIterator(this.gameState.getRoundOrder().listIterator());
+        if(this.gameState.isLastTurnInThisRound()) {
+            this.gameState.resetRoundIterator();
             this.gameState.resetSchoolBoardIdsToCardsPlayerThisRound();
 
             //If an actual round was completed, the round count has to be increased and a new round will begin with the planning phase
@@ -273,7 +273,7 @@ public class GameStateController {
         }
 
         //There is still someone that didn't play, so they will play
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getRoundIterator().next());
+        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }

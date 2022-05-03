@@ -353,8 +353,8 @@ public class GameState {
         this.roundOrder = roundOrder;
     }
 
-    public void setRoundIterator(Iterator<Integer> roundIterator) {
-        this.roundIterator = roundIterator;
+    public void resetRoundIterator() {
+        this.roundIterator = this.getRoundOrder().listIterator();
     }
 
     public void increaseRoundCount(){
@@ -454,6 +454,15 @@ public class GameState {
     public Iterator<Integer> getRoundIterator() {
         return roundIterator;
     }
+
+    public boolean isLastTurnInThisRound(){
+        return !this.roundIterator.hasNext();
+    }
+
+    public int getNextTurn(){
+        return this.roundIterator.next();
+    }
+
 
     public int getNumberOfStudentsInTheEntrance(){
         return this.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size();
