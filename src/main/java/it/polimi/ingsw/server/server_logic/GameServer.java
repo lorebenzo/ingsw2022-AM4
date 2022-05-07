@@ -3,7 +3,7 @@ package it.polimi.ingsw.server.server_logic;
 import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.communication.sugar_framework.SugarServer;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
-import it.polimi.ingsw.server.server_logic.games_manager.GamesManager;
+import it.polimi.ingsw.server.controller.games_manager.GamesManager;
 
 import java.io.IOException;
 
