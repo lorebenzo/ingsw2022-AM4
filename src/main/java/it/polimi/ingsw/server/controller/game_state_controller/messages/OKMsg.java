@@ -4,12 +4,12 @@ import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod;
 
 public class OKMsg extends SugarMessage {
-    String text;
+    public final String text;
 
     public OKMsg() {
         super(SugarMethod.CONTROL);
+        this.text = null;
     }
-
 
     public OKMsg(String text) {
         super(SugarMethod.CONTROL);

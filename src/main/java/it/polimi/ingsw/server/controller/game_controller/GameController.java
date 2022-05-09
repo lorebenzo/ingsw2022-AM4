@@ -45,5 +45,9 @@ public class GameController extends SugarMessageProcessor {
         this.gameStateController = new GameStateController(players.stream().map(player -> player.associatedPeer).toList());
     }
 
-
+    public boolean containsPeer(Peer peer) {
+        for(var player : this.players)
+            if(player.associatedPeer.equals(peer)) return true;
+        return false;
+    }
 }
