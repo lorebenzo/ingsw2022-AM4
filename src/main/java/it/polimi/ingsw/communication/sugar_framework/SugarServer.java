@@ -244,6 +244,16 @@ public abstract class SugarServer extends TcpServer {
         }
     }
 
+    public Room getRoom(UUID roomId) {
+        synchronized (this.rooms) {
+            return this.rooms
+                    .stream()
+                    .filter(room -> room.getRoomId().equals(roomId))
+                    .findFirst()
+                    .orElse(null);
+        }
+    }
+
     /**
      * Sends the message to any peer in the specified room (if it exists)
      * @param roomId uuid of the room

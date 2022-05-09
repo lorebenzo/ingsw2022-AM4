@@ -1,9 +1,11 @@
 package it.polimi.ingsw.communication.tcp_client;
 
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
+import it.polimi.ingsw.communication.sugar_framework.messages.HeartBeatMessage;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.UUID;
 
 public abstract class TcpClient {
     private final String hostname;
@@ -41,7 +43,7 @@ public abstract class TcpClient {
                     String input = in.readLine();
 
                     // If input is null, try to send data to the server to see if the connection is still active
-                    this.send("test msg");
+                    this.send(new HeartBeatMessage(UUID.randomUUID()).serialize());
 
                     // If input != null, call the onMessage callback on a separate thread
                     if(input != null) new Thread(() -> this.onMessage(input)).start();

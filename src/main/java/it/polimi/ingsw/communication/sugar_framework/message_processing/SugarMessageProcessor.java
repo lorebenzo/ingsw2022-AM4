@@ -14,7 +14,7 @@ public abstract class SugarMessageProcessor {
      * @param message any Message object
      * @param sender the Peer that sent the message
      */
-    public final SugarMessage process(SugarMessage message, Peer sender) {
+    public synchronized final SugarMessage process(SugarMessage message, Peer sender) {
         // Get the methods of this class marked with the @Process annotation
         List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(SugarMessageHandler.class))  // Get annotated methods

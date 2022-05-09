@@ -17,7 +17,7 @@ public class GameStateController {
 
     private Map<Peer,Integer> peersToSchoolBoardIdsMap;
 
-    public GameStateController(List<Peer> peers) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+    public GameStateController(List<Peer> peers) throws GameStateInitializationFailureException {
 
         //Create a new gameState
         this.gameState = new GameState(peers.size());
@@ -35,7 +35,9 @@ public class GameStateController {
 
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
-        this.gameState.fillClouds();
+        try {
+            this.gameState.fillClouds();
+        } catch (EmptyStudentSupplyException ignored) { }
         this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
 
