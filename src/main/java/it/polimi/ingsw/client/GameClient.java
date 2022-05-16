@@ -1,5 +1,7 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.client.enums.CLICommand;
+import it.polimi.ingsw.client.exceptions.SyntaxError;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -40,7 +42,7 @@ import java.util.regex.Pattern;
  */
 
 
-public class GameClient extends SugarMessageProcessor implements Runnable {
+public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
     private final Logger logger = new GameLogger(System.out);
 
