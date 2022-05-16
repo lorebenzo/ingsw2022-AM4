@@ -15,6 +15,7 @@ public class ThreePlayerStrategy implements NumberOfPlayersStrategy {
     private final int numberOfPlayers = 3;
     private final int numberOfStudentsInEachCloud = 4;
     private final int numberOfStudentsInTheEntrance = 9;
+    private final int numberOfTowers = 6;
 
     @Override
     public int getNumberOfStudentsInEachCloud() {
@@ -69,5 +70,9 @@ public class ThreePlayerStrategy implements NumberOfPlayersStrategy {
 
     }
 
+    @Override
+    public int getNumberOfTowers() {
+        return this.numberOfTowers;
+    }
 }
 

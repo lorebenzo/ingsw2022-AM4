@@ -5,6 +5,7 @@ import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class StudentFactory {
     private final Map<Color, Integer> studentSupply;
@@ -86,5 +87,9 @@ public class StudentFactory {
         Collections.shuffle(colors);
 
         return colors;
+    }
+
+    public boolean isEmpty() {
+        return this.studentSupply.values().stream().mapToInt(i -> i).sum() == 0;
     }
 }

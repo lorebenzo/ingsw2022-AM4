@@ -12,12 +12,14 @@ import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberO
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GameState {
     private final int numberOfPlayers;
     private final NumberOfPlayersStrategy strategy;
     private final int numberOfStudentsInEachCloud;
     private final int numberOfStudentsInTheEntrance;
+    private final int numberOfTowers;
 
     // Game flow attributes
     private int currentRound; // rounds start at 0, and get incremented when all players play a turn
@@ -55,6 +57,7 @@ public class GameState {
 
         this.numberOfStudentsInEachCloud = this.strategy.getNumberOfStudentsInEachCloud();
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
+        this.numberOfTowers = this.strategy.getNumberOfTowers();
 
         this.currentRound = 0;
         this.actionPhaseSubTurn = ActionPhaseSubTurn.STUDENTS_TO_MOVE;
@@ -71,7 +74,6 @@ public class GameState {
             this.schoolBoards = this.initializeSchoolBoards();
             this.clouds = this.initializeClouds();
         } catch (EmptyStudentSupplyException e) {
-            e.printStackTrace();
             throw new GameStateInitializationFailureException();
         }
 

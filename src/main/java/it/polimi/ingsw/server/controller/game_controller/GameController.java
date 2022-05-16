@@ -3,11 +3,15 @@ package it.polimi.ingsw.server.controller.game_controller;
 import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
+import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.controller.game_state_controller.CommunicationController;
 import it.polimi.ingsw.server.controller.game_state_controller.GameStateController;
+import it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 
+import javax.swing.plaf.ComponentUI;
 import java.util.*;
 
 public class GameController extends SugarMessageProcessor {
@@ -17,7 +21,7 @@ public class GameController extends SugarMessageProcessor {
     private final int numPlayers;
     private final boolean expertMode;
     private boolean gameStarted = false;
-    private GameStateController gameStateController = null;
+    private CommunicationController communicationController = null;
 
     public GameController(UUID roomId, int numPlayers, boolean expertMode)
     {
@@ -42,7 +46,7 @@ public class GameController extends SugarMessageProcessor {
             for (int i = 0; i < players.size(); i++)
                 upiToSchoolBoardId.put(players.get(i).associatedPeer.upi, i);
         }
-        this.gameStateController = new GameStateController(players.stream().map(player -> player.associatedPeer).toList());
+        this.communicationController = new CommunicationController(players.stream().map(player -> player.associatedPeer).toList());
     }
 
     public boolean containsPeer(Peer peer) {
@@ -50,4 +54,10 @@ public class GameController extends SugarMessageProcessor {
             if(player.associatedPeer.equals(peer)) return true;
         return false;
     }
+
+    @SugarMessageHandler
+    public SugarMessage base(SugarMessage message, Peer peer) {
+        return this.communicationController.process(message, peer);
+    }
+
 }

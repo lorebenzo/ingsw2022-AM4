@@ -16,11 +16,58 @@ public class CommunicationController extends SugarMessageProcessor {
 
     private final GameStateController gameStateController;
 
-    public CommunicationController(List<Peer> peers) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+    public CommunicationController(List<Peer> peers) {
 
-        this.gameStateController = new GameStateController(peers);
+        GameStateController gameStateController1;
+        try {
+            gameStateController1 = new GameStateController(peers.size());
+        } catch(GameStateInitializationFailureException e) {
+            // Something went wrong, everything breaks
+            gameStateController1 = null;
+            e.printStackTrace();
+        }
+        this.gameStateController = gameStateController1;
+
+
+        this.peersToSchoolBoardIdsMap = new HashMap<>();
+
+        //Create a map that links every peer to a schoolBoardId
+        Iterator<Integer> schoolBoardIdsSetIterator = this.gameStateController.getSchoolBoardIds().iterator();
+
+        for (Peer peer : peers) {
+            this.peersToSchoolBoardIdsMap = new HashMap<>();
+
+            this.peersToSchoolBoardIdsMap.put(peer, schoolBoardIdsSetIterator.next());
+        }
+
+
+
     }
 
+    private Peer getPeerFromSchoolBoardId(int schoolBoardId){
+        return this.peersToSchoolBoardIdsMap.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() == schoolBoardId)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList())
+                .get(0);
+    }
+
+    private int getSchoolBoardIdFromPeer(Peer peer){
+        return this.peersToSchoolBoardIdsMap.get(peer);
+    }
+
+
+    //Necessary to CommunicationController
+
+    /**
+     * This method whether a move was sent by the current player or not.
+     * @param peer indicates a  peer, therefore a player,
+     * @return true if the move has to be processed, because it is performed by the current player, false otherwise.
+     */
+    boolean isMoveFromCurrentPlayer(Peer peer){
+        return this.getSchoolBoardIdFromPeer(peer) == this.gameStateController.getCurrentPlayerSchoolBoardId();
+    }
 
     @SugarMessageHandler
     public SugarMessage playCardMsg(SugarMessage message, Peer peer){
@@ -98,8 +145,21 @@ public class CommunicationController extends SugarMessageProcessor {
             var msg = (MoveMotherNatureMsg) message;
 
             try {
-                if(this.gameStateController.moveMotherNature(msg.numberOfSteps))
+                boolean merged = this.gameStateController.moveMotherNature(msg.numberOfSteps);
+
+                // Check winners
+                var winners = this.gameStateController.checkWinners(false);
+                if(winners.containsValue(true) /* someone won */) {
+                    // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
+                    Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
+                    for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
+                        peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
+                    return new GameOverMsg(peerToIsWinner);
+                }
+
+                if(merged) {
                     return new OKMsg(ReturnMessage.MERGE_PERFORMED.text);
+                }
                 else
                     return new OKMsg();
             } catch (WrongPhaseException e) {
@@ -144,8 +204,16 @@ public class CommunicationController extends SugarMessageProcessor {
         if(this.gameStateController.isMoveFromCurrentPlayer(peer)){
             try {
                 this.gameStateController.endActionTurn();
-            } catch (GameOverException e) {
-                return new GameOverMsg();
+
+                // Check winners
+                var winners = this.gameStateController.checkWinners(false);
+                if(winners.containsValue(true) /* someone won */) {
+                    // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
+                    Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
+                    for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
+                        peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
+                    return new GameOverMsg(peerToIsWinner);
+                }
             } catch (MoreStudentsToBeMovedException e){
                 return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
             } catch (MotherNatureToBeMovedException e){

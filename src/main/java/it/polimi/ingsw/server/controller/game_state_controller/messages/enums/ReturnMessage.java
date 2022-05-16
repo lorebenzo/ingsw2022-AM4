@@ -19,6 +19,7 @@ public enum ReturnMessage {
     CARD_NOT_PLAYED("You have to play a card before ending your turn."),
     MERGE_PERFORMED("Archipelagos merged!"),
     MOVE_ALREADY_PLAYED("The selected move was already performed and cannot be repeated.");
+
     public final String text;
 
     ReturnMessage(String text){

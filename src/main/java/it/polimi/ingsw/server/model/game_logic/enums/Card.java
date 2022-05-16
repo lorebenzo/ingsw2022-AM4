@@ -1,5 +1,7 @@
 package it.polimi.ingsw.server.model.game_logic.enums;
 
+import java.util.Optional;
+
 /**
  * This class represents each one of the 10 cards provided to each player at the start of a game.
  */
@@ -29,6 +31,12 @@ public enum Card implements Comparable<Card>{
 
     public int getSteps() {
         return steps;
+    }
+
+    public static Optional<Card> fromValue(int value) {
+        for(var card : Card.values())
+            if(card.value == value) return Optional.of(card);
+        return Optional.empty();
     }
 
 }

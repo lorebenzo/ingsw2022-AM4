@@ -14,4 +14,7 @@ public enum GameConstants {
     GameConstants(int value) {
         this.value = value;
     }
+    public static boolean isPlayersNumberValid(int nPlayers) {
+        return nPlayers >= MIN_NUMBER_OF_PLAYERS.value && nPlayers <= MAX_NUMBER_OF_PLAYERS.value;
+    }
 }

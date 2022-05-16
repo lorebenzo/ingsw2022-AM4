@@ -6,9 +6,11 @@ import it.polimi.ingsw.communication.sugar_framework.exceptions.RoomNotFoundExce
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.OKMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
+import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.enums.ReturnMessage;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.controller.game_controller.GameController;
@@ -83,13 +85,45 @@ public class GamesManager extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
-        var gameInvolvingPeer = this.games
+        var gameInvolvingPeer = findGameInvolvingPeer(peer);
+
+        if(gameInvolvingPeer.isPresent()) {
+            var ret = gameInvolvingPeer.get().process(sugarMessage, peer);
+
+            // Process the message coming from the lower layers
+            this.process(ret);
+        }
+
+        return null;
+    }
+
+    private Optional<GameController> findGameInvolvingPeer(Peer peer) {
+        return this.games
                 .stream()
                 .filter(gameController -> gameController.containsPeer(peer))
                 .findFirst();
+    }
 
-        if(gameInvolvingPeer.isPresent())
-            return gameInvolvingPeer.get().process(sugarMessage, peer);
-        return null;
+
+    // Handling messages from lower layers
+    @SugarMessageHandler
+    public void gameOverMsg(SugarMessage message) { // From CommunicationController
+        GameOverMsg msg = (GameOverMsg) message;
+
+        Peer aPeerFromThisGame = null;
+
+        // Notify clients
+        for(var peer : msg.peerToIsWinner.keySet()) {
+            aPeerFromThisGame = peer;
+            try {
+                this.server.send(new NotifyGameOverMsg(
+                        msg.peerToIsWinner.get(peer) ? ReturnMessage.YOU_WIN.text : ReturnMessage.YOU_LOSE.text
+                ).serialize(), peer.peerSocket);
+            } catch (IOException ignored) { }
+        }
+
+        // Close game
+        var game = this.findGameInvolvingPeer(aPeerFromThisGame);
+        game.ifPresent(this.games::remove);
     }
 }

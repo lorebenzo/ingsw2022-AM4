@@ -12,6 +12,7 @@ public class FourPlayerStrategy implements NumberOfPlayersStrategy {
     private final int numberOfPlayers = 4;
     private final int numberOfStudentsInEachCloud = 3;
     private final int numberOfStudentsInTheEntrance = 7;
+    private final int numberOfTowers = 8;
 
     @Override
     public int getNumberOfStudentsInEachCloud() {
@@ -98,5 +99,10 @@ public class FourPlayerStrategy implements NumberOfPlayersStrategy {
 
         return teamsInfluences;
 
+    }
+
+    @Override
+    public int getNumberOfTowers() {
+        return this.numberOfTowers;
     }
 }

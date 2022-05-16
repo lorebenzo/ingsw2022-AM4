@@ -1,5 +1,6 @@
 package it.polimi.ingsw.communication.sugar_framework;
 
+import it.polimi.ingsw.client.GameClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
@@ -15,15 +16,11 @@ import java.util.UUID;
 public class SugarClient extends TcpClient {
     private static final int                port = 33400;
     private UUID                            upi = null;
-    private final SugarMessageProcessor     messageProcessor = new SugarMessageProcessor() {
-        @SugarMessageHandler
-        public void base(SugarMessage message) {
-            System.out.println("Unhandled message received from server: " + message.serialize());
-        }
-    };
+    private final GameClient                gameClient;
 
-    public SugarClient(String hostname) {
+    public SugarClient(String hostname, GameClient gameClient) {
         super(hostname, port);
+        this.gameClient = gameClient;
         this.setLogHeader("[Sugar Client] : ");
     }
 
@@ -42,7 +39,7 @@ public class SugarClient extends TcpClient {
                 this.send(new HeartBeatMessage(message.messageID));
             }
             else {
-                messageProcessor.process(message);
+                gameClient.process(message);
             }
         } catch (MessageDeserializationException e) {
             this.log("error in message deserialization, dropping message : " + input);

@@ -15,6 +15,7 @@ public class TwoPlayerStrategy implements NumberOfPlayersStrategy {
     private final int numberOfPlayers = 2;
     private final int numberOfStudentsInEachCloud = 3;
     private final int numberOfStudentsInTheEntrance = 7;
+    private final int numberOfTowers = 8;
 
     @Override
     public int getNumberOfStudentsInEachCloud() {
@@ -64,5 +65,10 @@ public class TwoPlayerStrategy implements NumberOfPlayersStrategy {
 
         return schoolBoardIdsToInfluenceMap;
 
+    }
+
+    @Override
+    public int getNumberOfTowers() {
+        return this.numberOfTowers;
     }
 }

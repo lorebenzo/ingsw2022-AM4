@@ -11,6 +11,7 @@ import java.util.Map;
 public interface NumberOfPlayersStrategy {
     int getNumberOfStudentsInEachCloud();
     int getNumberOfStudentsInTheEntrance();
+    int getNumberOfTowers();
     List<SchoolBoard> initializeSchoolBoards(StudentFactory studentFactory) throws EmptyStudentSupplyException;
     //int getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago, int currentPlayerSchoolBoardId);
     Map<Integer, Integer> getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago);
