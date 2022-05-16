@@ -161,6 +161,11 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         // TODO: Close game
     }
 
+    @SugarMessageHandler
+    public void base(SugarMessage message) {
+        this.logError("Unhandled message: " + message.serialize());
+    }
+
     @Override
     public void parseLine(String input) {
         var command = extractCommand(input);
