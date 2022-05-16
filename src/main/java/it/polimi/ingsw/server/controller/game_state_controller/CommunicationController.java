@@ -10,11 +10,16 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.ReturnMessage;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CommunicationController extends SugarMessageProcessor {
 
     private final GameStateController gameStateController;
+    private Map<Peer,Integer> peersToSchoolBoardIdsMap;
 
     public CommunicationController(List<Peer> peers) {
 
@@ -71,7 +76,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage playCardMsg(SugarMessage message, Peer peer){
-        if(this.gameStateController.isMoveFromCurrentPlayer(peer)){
+        if(this.isMoveFromCurrentPlayer(peer)){
             var msg = (PlayCardMsg) message;
 
             try {
@@ -91,13 +96,11 @@ public class CommunicationController extends SugarMessageProcessor {
         }
         else
             return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
-
-
     }
 
     @SugarMessageHandler
     public SugarMessage moveStudentFromEntranceToDiningRoomMsg(SugarMessage message, Peer peer){
-        if(this.gameStateController.isMoveFromCurrentPlayer(peer)){
+        if(this.isMoveFromCurrentPlayer(peer)){
             var msg = (MoveStudentFromEntranceToDiningRoomMsg) message;
 
             try {
@@ -120,7 +123,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage moveStudentFromEntranceToArchipelagoMsg(SugarMessage message, Peer peer) {
-        if (this.gameStateController.isMoveFromCurrentPlayer(peer)) {
+        if (this.isMoveFromCurrentPlayer(peer)) {
             var msg = (MoveStudentFromEntranceToArchipelagoMsg) message;
 
             try {
@@ -141,7 +144,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage moveMotherNatureMsg(SugarMessage message, Peer peer) {
-        if(this.gameStateController.isMoveFromCurrentPlayer(peer)){
+        if(this.isMoveFromCurrentPlayer(peer)){
             var msg = (MoveMotherNatureMsg) message;
 
             try {
@@ -178,7 +181,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage grabStudentsFromCloudMsg(SugarMessage message, Peer peer){
-        if(this.gameStateController.isMoveFromCurrentPlayer(peer)){
+        if(this.isMoveFromCurrentPlayer(peer)){
             var msg = (GrabStudentsFromCloudMsg) message;
 
             try {
@@ -201,7 +204,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage endTurnMsg(SugarMessage message, Peer peer){
-        if(this.gameStateController.isMoveFromCurrentPlayer(peer)){
+        if(this.isMoveFromCurrentPlayer(peer)){
             try {
                 this.gameStateController.endActionTurn();
 

@@ -83,6 +83,8 @@ public class GameState {
 
     }
 
+
+
     /**
      * This method initializes the List<List<Color>> representing the clouds
      */
@@ -351,6 +353,128 @@ public class GameState {
 
         return mergePerformed;
     }
+
+
+    /**
+     *
+     * @return a map schoolBoardId -> isWinner
+     */
+    public Map<Integer, Boolean> checkWinners(boolean isRoundTerminated){
+        Map<Integer, Boolean> schoolBoardIdToIsWinnerMap = new HashMap<>();
+
+        // Init map
+        for(var schoolBoard : this.schoolBoards)
+            schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), false);
+
+
+        var schoolboardToNumberOfTowersPlaced = new HashMap<SchoolBoard, Integer>();
+
+        // Init map
+        for(var schoolboard : this.schoolBoards)
+            schoolboardToNumberOfTowersPlaced.put(schoolboard, 0);
+
+
+        if(isGameOver(isRoundTerminated)) {
+            for (var schoolboard : this.schoolBoards) {
+                for (var archipelago : this.archipelagos) {
+                    if (archipelago.getTowerColor().equals(schoolboard.getTowerColor())) {
+                        schoolboardToNumberOfTowersPlaced.put(
+                                schoolboard,
+                                schoolboardToNumberOfTowersPlaced.get(schoolboard) + archipelago.getIslandCodes().size()
+                        );
+                    }
+                }
+            }
+
+            var maxTowersPlaced = schoolboardToNumberOfTowersPlaced
+                    .keySet()
+                    .stream()
+                    .mapToInt(schoolboardToNumberOfTowersPlaced::get)
+                    .max();
+
+            // List of winner schoolboards
+            List<SchoolBoard> winnerSchoolBoards = new LinkedList<>();
+
+            // Filter by maximum number of towers
+            for (var schoolboard : schoolboardToNumberOfTowersPlaced.keySet())
+                if (schoolboardToNumberOfTowersPlaced.get(schoolboard) == maxTowersPlaced.getAsInt())
+                    winnerSchoolBoards.add(schoolboard);
+
+            if (winnerSchoolBoards.size() > 1) {
+                if (this.numberOfPlayers != GameConstants.MAX_NUMBER_OF_PLAYERS.value) {
+                    // Filter by number of professors
+                    var maxNumberOfProfessors = winnerSchoolBoards
+                            .stream()
+                            .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
+                            .max();
+
+                    winnerSchoolBoards = winnerSchoolBoards
+                            .stream()
+                            .filter(schoolBoard -> schoolBoard.getProfessors().size() == maxNumberOfProfessors.getAsInt())
+                            .toList();
+                } else {
+                    var whiteSchoolBoards = winnerSchoolBoards
+                            .stream()
+                            .filter(schoolBoard -> schoolBoard.getTowerColor().equals(TowerColor.WHITE));
+
+                    var blackSchoolBoards = winnerSchoolBoards
+                            .stream()
+                            .filter(schoolBoard -> schoolBoard.getTowerColor().equals(TowerColor.BLACK));
+
+                    var whiteProfessors = whiteSchoolBoards
+                            .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
+                            .sum();
+
+                    var blackProfessors = blackSchoolBoards
+                            .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
+                            .sum();
+
+                    winnerSchoolBoards = (whiteProfessors >= blackProfessors ? whiteSchoolBoards : blackSchoolBoards).toList();
+                }
+            }
+
+            for (var schoolBoard : winnerSchoolBoards)
+                schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), true);
+        }
+
+        return schoolBoardIdToIsWinnerMap;
+    }
+
+    public boolean isGameOver(boolean isLastRound) {
+        // There are only 3 archipelagos left
+        if(this.archipelagos.size() <= 3)
+            return true;
+
+        // A player places his last tower
+        for(var schoolboard : this.schoolBoards) {
+            TowerColor towerColor = schoolboard.getTowerColor();
+            var archipelgosWithThisTowerColor =
+                    this.archipelagos
+                            .stream()
+                            .filter(archipelago -> archipelago.getTowerColor().equals(towerColor))
+                            .toList();
+
+            var towersPlaced = 0;
+
+            for(var archipelago : archipelgosWithThisTowerColor)
+                towersPlaced += archipelago.getIslandCodes().size();
+
+            if(towersPlaced >= this.numberOfTowers) return true;
+        }
+
+        // Student supply is finished or there is at least a player that finished the cards
+        if(isLastRound)
+            if(
+                    this.studentFactory.isEmpty() ||
+                    this.schoolBoards.stream()
+                            .anyMatch(schoolBoard -> schoolBoard.getDeck().isEmpty())
+            ) {
+                return true;
+            }
+
+        return false;
+    }
+
 
     //Setters
 

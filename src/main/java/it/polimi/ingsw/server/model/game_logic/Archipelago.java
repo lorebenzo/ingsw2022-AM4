@@ -111,4 +111,9 @@ public class Archipelago {
         if(towerColor == null) throw new IllegalArgumentException();
         this.towerColor = towerColor;
     }
+
+    public TowerColor getTowerColor(){
+        return this.towerColor;
+    }
+
 }

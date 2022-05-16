@@ -15,24 +15,12 @@ import java.util.stream.Collectors;
 public class GameStateController {
     private final GameState gameState;
 
-    private Map<Peer,Integer> peersToSchoolBoardIdsMap;
 
-    public GameStateController(List<Peer> peers) throws GameStateInitializationFailureException {
+
+    public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
 
         //Create a new gameState
-        this.gameState = new GameState(peers.size());
-
-        //Create a map that links every peer to a schoolBoardId
-        Iterator<Integer> schoolBoardIdsSetIterator = this.gameState.getSchoolBoardIds().iterator();
-
-        for (int i = 0; i < this.gameState.getNumberOfPlayers(); i++){
-            this.peersToSchoolBoardIdsMap = new HashMap<>();
-
-            this.peersToSchoolBoardIdsMap.put(peers.get(i), schoolBoardIdsSetIterator.next());
-        }
-
-
-
+        this.gameState = new GameState(playersNumber);
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
         try {
@@ -55,8 +43,6 @@ public class GameStateController {
 
         //Create a new gameState
         this.gameState = new GameState(2);
-
-        this.peersToSchoolBoardIdsMap = new HashMap<>();
 
         //Preparation of the roundOrder that will support the turns
         this.gameState.setRoundOrder(this.gameState.getSchoolBoardIds().stream().toList());
@@ -184,12 +170,11 @@ public class GameStateController {
 
     /**
      * This method performs all the controls before ending the player's turn and starting the next player's turn
-     * @throws GameOverException if the student supply is empty
      * @throws MoreStudentsToBeMovedException if the player didn't move all the students that he has to move before trying to end his turn.
      * @throws MotherNatureToBeMovedException if the player didn't move motherNature before trying to end his turn.
      * @throws StudentsToBeGrabbedFromCloudException if the player didn't grab the students from a cloud before trying to end his turn.
      */
-    public void endActionTurn() throws /*FullCloudException, */GameOverException, MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
+    public void endActionTurn() throws /*FullCloudException, */MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
         //TODO there may be more actions to be performed
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
@@ -202,17 +187,6 @@ public class GameStateController {
 
         //Block rollback option
         this.nextActionTurn();
-    }
-
-    //Necessary to CommunicationController
-
-    /**
-     * This method whether a move was sent by the current player or not.
-     * @param peer indicates a  peer, therefore a player,
-     * @return true if the move has to be processed, because it is performed by the current player, false otherwise.
-     */
-    boolean isMoveFromCurrentPlayer(Peer peer){
-        return this.getSchoolBoardIdFromPeer(peer) == this.gameState.getCurrentPlayerSchoolBoardId();
     }
 
     //Private methods
@@ -281,17 +255,17 @@ public class GameStateController {
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
 
-    private Peer getPeerFromSchoolBoardId(int schoolBoardId){
-        return this.peersToSchoolBoardIdsMap.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue() == schoolBoardId)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList())
-                .get(0);
+    Map<Integer, Boolean> checkWinners(boolean isRoundTerminated){
+        return this.gameState.checkWinners(isRoundTerminated);
     }
 
-    private int getSchoolBoardIdFromPeer(Peer peer){
-        return this.peersToSchoolBoardIdsMap.get(peer);
+
+    int getCurrentPlayerSchoolBoardId(){
+        return this.gameState.getCurrentPlayerSchoolBoardId();
+    }
+
+    Set<Integer> getSchoolBoardIds(){
+        return this.gameState.getSchoolBoardIds();
     }
 
     /**
