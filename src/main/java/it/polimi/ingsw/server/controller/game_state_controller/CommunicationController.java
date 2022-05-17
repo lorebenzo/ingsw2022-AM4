@@ -51,8 +51,7 @@ public class CommunicationController extends SugarMessageProcessor {
         return this.peersToSchoolBoardIdsMap.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue() == schoolBoardId)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList())
+                .map(Map.Entry::getKey).toList()
                 .get(0);
     }
 
@@ -82,7 +81,7 @@ public class CommunicationController extends SugarMessageProcessor {
                 this.gameStateController.playCard(msg.card);
                 System.out.println("Card played");
                 System.out.println("CARD PLAYED: " + msg.card.toString());
-                return new OKMsg();
+                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (WrongPhaseException e){
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
 

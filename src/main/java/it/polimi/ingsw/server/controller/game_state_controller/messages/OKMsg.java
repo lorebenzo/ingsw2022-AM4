@@ -14,7 +14,6 @@ public class OKMsg extends SugarMessage {
     public OKMsg(String text) {
         super(SugarMethod.CONTROL);
         this.text = text;
-
     }
 
 }

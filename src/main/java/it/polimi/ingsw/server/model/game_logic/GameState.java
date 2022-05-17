@@ -1,5 +1,6 @@
 package it.polimi.ingsw.server.model.game_logic;
 
+import com.google.gson.Gson;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.CardIsNotInTheDeckException;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidCardPlayedException;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidNumberOfStepsException;
@@ -677,5 +678,16 @@ public class GameState {
 
     public Map<Integer, Card> getSchoolBoardIdsToCardsPlayedThisRoundForTesting() {
         return this.schoolBoardIdsToCardsPlayedThisRound;
+    }
+
+    public LightGameState lightify(){
+        return new LightGameState(this.archipelagos,
+                                    this.schoolBoards,
+                                    this.clouds,
+                                    this.currentPlayerSchoolBoardId,
+                                    this.currentPhase,
+                                    this.roundOrder,
+                                    this.motherNaturePosition
+        );
     }
 }

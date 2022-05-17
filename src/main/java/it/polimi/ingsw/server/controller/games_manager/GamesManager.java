@@ -9,6 +9,7 @@ import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMes
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg;
+import it.polimi.ingsw.server.controller.game_state_controller.messages.OKAndUpdateMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.OKMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
@@ -126,6 +127,22 @@ public class GamesManager extends SugarMessageProcessor {
         // Close game
         var game = this.findGameInvolvingPeer(aPeerFromThisGame);
         game.ifPresent(this.games::remove);
+    }
+
+    @SugarMessageFromLowerLayersHandler
+    public void okAndUpdateMsg(SugarMessage message, Peer receiver) {
+        var msg = (OKAndUpdateMsg) message;
+
+        try {
+            this.server.send(msg.okMsg.serialize(), receiver.peerSocket);
+
+            var gameInvolvingReceiver = findGameInvolvingPeer(receiver);
+            if(gameInvolvingReceiver.isPresent()) {
+                this.server.multicastToRoom(gameInvolvingReceiver.get().roomId, msg.updateClientMsg);
+            }
+        } catch (IOException ignored) {} catch (RoomNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @SugarMessageFromLowerLayersHandler

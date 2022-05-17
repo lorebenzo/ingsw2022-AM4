@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.controller.game_state_controller;
 import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.GameState;
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.ActionPhaseSubTurn;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
@@ -336,6 +337,10 @@ public class GameStateController {
         return this.gameState.mergeWithPrevious() || this.gameState.mergeWithNext();
     }
 
+
+    LightGameState getLightGameState() {
+        return this.gameState.lightify();
+    }
 
     public GameState getGameStateForTesting(){
         return gameState;

@@ -47,9 +47,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final Logger logger = new GameLogger(System.out);
 
     // CLI Attributes
-    private static Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
-    private static Pattern parameter = Pattern.compile("--[a-zA-Z]+=[a-zA-Z0-9]+( )*");
-    private static Pattern keyValue = Pattern.compile("[a-zA-Z0-9]+");
+    private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
+    private static final Pattern parameter = Pattern.compile("--[a-zA-Z]+=[a-zA-Z0-9]+( )*");
+    private static final Pattern keyValue = Pattern.compile("[a-zA-Z0-9]+");
 
     public GameClient() {
         var dotenv = Dotenv.configure().load();
