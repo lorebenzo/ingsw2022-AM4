@@ -140,7 +140,7 @@ public abstract class TcpServer implements Runnable {
         b.append((char) curr);
         while(curr != '§') {
             curr = in.read();
-            b.append((char) curr);
+            if(curr != '§') b.append((char) curr);
         }
 
         return b.toString();
