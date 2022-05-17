@@ -682,13 +682,13 @@ public class GameState {
 
     public LightGameState lightify(){
         return new LightGameState(
-                (LinkedList<Archipelago>) this.archipelagos,
-                (ArrayList<SchoolBoard>) this.schoolBoards,
-                (ArrayList) this.clouds,
-                                    this.currentPlayerSchoolBoardId,
-                                    this.currentPhase,
-                (LinkedList<Integer>) this.roundOrder,
-                                    this.motherNaturePosition
+                this.archipelagos,
+                this.schoolBoards,
+                this.clouds,
+                this.currentPlayerSchoolBoardId,
+                this.currentPhase,
+                this.roundOrder,
+                this.motherNaturePosition
         );
     }
 }
