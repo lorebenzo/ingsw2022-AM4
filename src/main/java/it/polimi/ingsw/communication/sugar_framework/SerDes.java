@@ -28,9 +28,9 @@ public class SerDes {
     }
 
     public static String serialize(SugarMessage message) {
-        return gson.toJson(message)
-                    .replaceAll("\\s", "")  // Remove all newlines, spaces, tabs
-                    + "\n";  // Adds a newline to the end
+        return gson.toJson(message);
+                    //.replaceAll("\\s", "")  // Remove all newlines, spaces, tabs
+                    //+ "\n";  // Adds a newline to the end
     }
 
     public static SugarMessage deserialize(String message) throws MessageDeserializationException {
