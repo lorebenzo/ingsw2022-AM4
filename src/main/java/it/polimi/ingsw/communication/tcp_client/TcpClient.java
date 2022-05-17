@@ -62,11 +62,12 @@ public abstract class TcpClient {
     private String readLine(BufferedReader in) throws IOException {
         StringBuilder b = new StringBuilder();
 
-        int curr;
-        do {
+        int curr = in.read();
+        b.append((char) curr);
+        while(curr != '§') {
             curr = in.read();
             b.append((char) curr);
-        } while(curr != '§');
+        }
 
         return b.toString();
     }
