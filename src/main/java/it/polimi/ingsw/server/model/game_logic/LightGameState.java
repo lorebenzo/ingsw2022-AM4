@@ -4,15 +4,16 @@ package it.polimi.ingsw.server.model.game_logic;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public record LightGameState(
-        List<Archipelago> archipelagos,
-        List<SchoolBoard> schoolBoards,
-        List<List<Color>> clouds,
+        LinkedList<Archipelago> archipelagos,
+        ArrayList<SchoolBoard> schoolBoards,
+        ArrayList<ArrayList<Color>> clouds,
         int currentPlayerSchoolBoardId,
         Phase currentPhase,
-        List<Integer> roundOrder,
+        LinkedList<Integer> roundOrder,
         Archipelago motherNaturePosition
 ) {
 }
