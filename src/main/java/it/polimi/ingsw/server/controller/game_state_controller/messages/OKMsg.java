@@ -8,7 +8,7 @@ public class OKMsg extends SugarMessage {
 
     public OKMsg() {
         super(SugarMethod.CONTROL);
-        this.text = null;
+        this.text = "OK";
     }
 
     public OKMsg(String text) {

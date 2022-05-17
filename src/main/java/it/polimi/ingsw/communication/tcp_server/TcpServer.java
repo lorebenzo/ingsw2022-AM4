@@ -117,7 +117,7 @@ public abstract class TcpServer implements Runnable {
             while(!client.isClosed()) {
                 try {
                     // Try to read a line
-                    String input = in.readLine();
+                    String input = this.readLine(in);
 
                     // If input != null, call the onMessage callback on a separate thread
                     if(input != null)
@@ -133,6 +133,18 @@ public abstract class TcpServer implements Runnable {
         }
     }
 
+    private String readLine(BufferedReader in) throws IOException {
+        StringBuilder b = new StringBuilder();
+
+        int curr;
+        do {
+            curr = in.read();
+            b.append((char) curr);
+        } while(curr != '§');
+
+        return b.toString();
+    }
+
     /**
      * Removes all whitespaces from the message, adds a newline at the end and sends it to the client
      * @param message any message string
@@ -143,8 +155,8 @@ public abstract class TcpServer implements Runnable {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
         out.write(
                 message
-                        .replaceAll("\\s", "")  // Remove all newlines, spaces, tabs
-                        + "\n"  // Adds a newline to the end
+                        // .replaceAll("\\s", "")  // Remove all newlines, spaces, tabs
+                        + '§'  // Adds a newline to the end
         );
         out.flush();
     }

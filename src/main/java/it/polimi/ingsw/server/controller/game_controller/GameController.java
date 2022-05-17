@@ -57,7 +57,10 @@ public class GameController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage base(SugarMessage message, Peer peer) {
-        return this.communicationController.process(message, peer);
+        System.out.println("Game controller: ");
+        var ret = this.communicationController.process(message, peer);
+        System.out.println(ret.serialize());
+        return ret;
     }
 
 }

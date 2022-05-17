@@ -40,7 +40,7 @@ public abstract class TcpClient {
             while(!this.socket.isClosed()) {
                 try {
                     // Try to read a line
-                    String input = in.readLine();
+                    String input = this.readLine(in);
 
                     // If input is null, try to send data to the server to see if the connection is still active
                     this.send(new HeartBeatMessage(UUID.randomUUID()).serialize());
@@ -57,6 +57,18 @@ public abstract class TcpClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String readLine(BufferedReader in) throws IOException {
+        StringBuilder b = new StringBuilder();
+
+        int curr;
+        do {
+            curr = in.read();
+            b.append((char) curr);
+        } while(curr != '§');
+
+        return b.toString();
     }
 
     /**
@@ -84,8 +96,8 @@ public abstract class TcpClient {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
         out.write(
                 message
-                        .replaceAll("\\s", "")  // Remove all newlines, spaces, tabs
-                        + "\n"  // Adds a newline to the end
+                        //.replaceAll("\\s", "")  // Remove all newlines, spaces, tabs
+                        + '§'  // Adds a terminator to the end
         );
         out.flush();
     }

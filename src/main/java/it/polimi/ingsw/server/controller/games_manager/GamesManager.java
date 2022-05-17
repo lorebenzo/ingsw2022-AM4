@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.controller.games_manager;
 import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.communication.sugar_framework.SugarServer;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.RoomNotFoundException;
+import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageFromLowerLayersHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
@@ -91,7 +92,7 @@ public class GamesManager extends SugarMessageProcessor {
             var ret = gameInvolvingPeer.get().process(sugarMessage, peer);
 
             // Process the message coming from the lower layers
-            this.process(ret);
+            this.processFromLowerLayers(ret, peer);
         }
 
         return null;
@@ -106,7 +107,7 @@ public class GamesManager extends SugarMessageProcessor {
 
 
     // Handling messages from lower layers
-    @SugarMessageHandler
+    @SugarMessageFromLowerLayersHandler
     public void gameOverMsg(SugarMessage message) { // From CommunicationController
         GameOverMsg msg = (GameOverMsg) message;
 
@@ -125,5 +126,14 @@ public class GamesManager extends SugarMessageProcessor {
         // Close game
         var game = this.findGameInvolvingPeer(aPeerFromThisGame);
         game.ifPresent(this.games::remove);
+    }
+
+    @SugarMessageFromLowerLayersHandler
+    public void baseLowerLayers(SugarMessage message, Peer receiver) {
+        // Games manager had nothing to do with message coming from lower layers, so it will just forward the message to
+        // the peer
+        try {
+            this.server.send(message.serialize(), receiver.peerSocket);
+        } catch (IOException ignored) { }
     }
 }

@@ -40,8 +40,6 @@ public class CommunicationController extends SugarMessageProcessor {
         Iterator<Integer> schoolBoardIdsSetIterator = this.gameStateController.getSchoolBoardIds().iterator();
 
         for (Peer peer : peers) {
-            this.peersToSchoolBoardIdsMap = new HashMap<>();
-
             this.peersToSchoolBoardIdsMap.put(peer, schoolBoardIdsSetIterator.next());
         }
 
@@ -77,10 +75,13 @@ public class CommunicationController extends SugarMessageProcessor {
     @SugarMessageHandler
     public SugarMessage playCardMsg(SugarMessage message, Peer peer){
         if(this.isMoveFromCurrentPlayer(peer)){
+            System.out.println("It's your turn");
             var msg = (PlayCardMsg) message;
 
             try {
                 this.gameStateController.playCard(msg.card);
+                System.out.println("Card played");
+                System.out.println("CARD PLAYED: " + msg.card.toString());
                 return new OKMsg();
             } catch (WrongPhaseException e){
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
@@ -94,8 +95,10 @@ public class CommunicationController extends SugarMessageProcessor {
                 return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
             }
         }
-        else
+        else {
+            System.out.println("NOT YOUR TURN");
             return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+        }
     }
 
     @SugarMessageHandler
