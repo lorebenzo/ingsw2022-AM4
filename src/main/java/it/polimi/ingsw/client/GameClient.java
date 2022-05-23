@@ -8,6 +8,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg;
+import it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg;
+import it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
@@ -15,9 +18,6 @@ import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
     private final Logger logger = new GameLogger(System.out);
+    private String jwt;
 
     // CLI Attributes
     private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
@@ -69,10 +70,18 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     // Game methods
 
+    public void signUp(String username, String password) {
+        this.sendAndHandleDisconnection(new SignUpMsg(username, password));
+    }
+
+    public void login(String username, String password) {
+        this.sendAndHandleDisconnection(new LoginMsg(username, password));
+    }
+
     public void joinMatchMaking(int numberOfPlayers, boolean expertMode) {
         if(!GameConstants.isPlayersNumberValid(numberOfPlayers))
             this.logError("Invalid number of players");
-        else this.sendAndHandleDisconnection(new JoinMatchMakingMsg(numberOfPlayers, expertMode));
+        else this.sendAndHandleDisconnection(new JoinMatchMakingMsg(numberOfPlayers, expertMode, this.jwt));
     }
 
     public void playCard(int cardValue) {
@@ -162,6 +171,18 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     @SugarMessageHandler
+    public void updateClientMsg(SugarMessage message) {
+        var msg = (UpdateClientMsg) message;
+        System.out.println(msg.lightGameState.archipelagos.get(1));
+    }
+
+    @SugarMessageHandler
+    public void jwtMsg(SugarMessage message) {
+        var msg = (JWTMsg) message;
+        this.jwt = message.jwt;
+    }
+
+    @SugarMessageHandler
     public void base(SugarMessage message) {
         this.logError("Unhandled message: " + message.serialize());
     }
@@ -225,7 +246,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     private boolean arePresent(Optional<?> ...args) {
-        return Arrays.stream(args).allMatch(arg -> arg.isPresent());
+        return Arrays.stream(args).allMatch(Optional::isPresent);
     }
 
     public void executeCommand(CLICommand command, Map<String, String> params) throws SyntaxError {
