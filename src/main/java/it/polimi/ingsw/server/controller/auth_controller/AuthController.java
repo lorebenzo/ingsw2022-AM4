@@ -21,15 +21,14 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 
 
 public class AuthController extends SugarMessageProcessor {
     private final UsersRepository usersRepository = UsersRepository.getInstance();
     private static final Dotenv dotenv = Dotenv.configure().load();
-    private final String hashedKey = DigestUtils.sha256Hex(dotenv.get("JWT_KEY"));
+    private static final String hashedKey = DigestUtils.sha256Hex(dotenv.get("JWT_KEY"));
     private final GamesManager gamesManager;
-    private final SecretKey key = Keys.hmacShaKeyFor(hashedKey.getBytes(StandardCharsets.UTF_8));
+    private static final SecretKey key = Keys.hmacShaKeyFor(hashedKey.getBytes(StandardCharsets.UTF_8));
 
     public AuthController(GameServer gameServer) {
         this.gamesManager = new GamesManager(gameServer);
@@ -62,7 +61,7 @@ public class AuthController extends SugarMessageProcessor {
                var jwt = Jwts.builder().claim("username", msg.username).signWith(key).compact();
                return new JWTMsg(jwt);
            }
-        } catch (SQLException e) {
+        } catch (DBQueryException e) {
             e.printStackTrace();
         }
         return new KOMsg("Username or password not valid");
@@ -79,13 +78,17 @@ public class AuthController extends SugarMessageProcessor {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt);
             return true;
-        } catch (JwtException e) {
-            e.printStackTrace();
+        } catch (JwtException ignored) {
             return false;
         }
     }
 
-    private String getUsernameFromJWT(String jwt) {
+    /**
+     * Get username from the jwt claims
+     * @param jwt String of the encoded jwt
+     * @return the username of the user logged in
+     */
+    public static String getUsernameFromJWT(String jwt) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody().get("username", String.class);
     }
 

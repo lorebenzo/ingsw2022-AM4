@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
  * grab-std-cloud --cloud=int
  * end-turn
  * rollback
+ * login --username=string --password=string
+ * signup --username=string --password=string
  * help
  *
  * TODO:
@@ -87,14 +89,14 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void playCard(int cardValue) {
         var card = Card.fromValue(cardValue);
         if(card.isPresent())
-            this.sendAndHandleDisconnection(new PlayCardMsg(card.get()));
+            this.sendAndHandleDisconnection(new PlayCardMsg(card.get(), this.jwt));
         else this.logError("Card does not exists");
     }
 
     public void moveStudentFromEntranceToDiningRoom(String student) {
         var _student = Color.fromString(student);
         if(_student.isPresent())
-            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToDiningRoomMsg(_student.get()));
+            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToDiningRoomMsg(_student.get(), this.jwt));
         else this.logError("Color does not exist");
     }
 
@@ -103,12 +105,12 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var _student = Color.fromString(student);
         // TODO: implement archipelagoIslandCodes abstraction
         if(_student.isPresent())
-            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), null));
+            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), null, this.jwt));
         else this.logError("Color does not exist or archipelago does not exist");
     }
 
     public void moveMotherNature(int numberOfSteps){
-        this.sendAndHandleDisconnection(new MoveMotherNatureMsg(numberOfSteps));
+        this.sendAndHandleDisconnection(new MoveMotherNatureMsg(numberOfSteps, this.jwt));
     }
 
     public void grabStudentsFromCloud(int cloudIndex){
@@ -129,7 +131,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 " → mv-std-to-island --color=string --island=char\n" +
                 " → mv-mother-nature --steps=int\n" +
                 " → grab-std-cloud --cloud=int\n" +
-                " → end-turn\n" +
+                " → signup --username=string --password=string\n" +
+                " → login  --username=string --password=string\n" +
                 " → rollback\n" +
                 " → help"
         );
@@ -177,9 +180,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     @SugarMessageHandler
-    public void jwtMsg(SugarMessage message) {
+    public void JWTMsg(SugarMessage message) {
         var msg = (JWTMsg) message;
-        this.jwt = message.jwt;
+        this.jwt = msg.jwtAuthCode;
     }
 
     @SugarMessageHandler
@@ -241,7 +244,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             mapParameterNameToValue.put(name, value);
         }
 
-        System.out.println(mapParameterNameToValue);
         return mapParameterNameToValue;
     }
 
@@ -257,6 +259,26 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 if(this.arePresent(players, expert))
                     this.joinMatchMaking(Integer.parseInt(players.get()), Boolean.parseBoolean(expert.get()));
                 else throw new SyntaxError();
+                break;
+            }
+            case login: {
+                var username = Optional.ofNullable(params.get("username"));
+                var password = Optional.ofNullable(params.get("password"));
+
+                if(arePresent(username, password))
+                    this.login(username.get(), password.get());
+                else
+                    throw new SyntaxError();
+                break;
+            }
+            case signup: {
+                var username = Optional.ofNullable(params.get("username"));
+                var password = Optional.ofNullable(params.get("password"));
+
+                if(arePresent(username, password))
+                    this.signUp(username.get(), password.get());
+                else
+                    throw new SyntaxError();
                 break;
             }
             case play_card: {
