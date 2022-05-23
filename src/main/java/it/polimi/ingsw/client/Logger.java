@@ -1,6 +1,10 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
+
 public interface Logger {
-    public void logSuccess(String s);
-    public void logError(String s);
+    void logSuccess(String s);
+    void logError(String s);
+    void log(String s);
+    void logGameState(LightGameState lightGameState);
 }

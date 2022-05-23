@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.MoveMotherNatureMsg;
 import it.polimi.ingsw.server.server_logic.GameServer;
@@ -9,9 +10,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class Client {
-    /*
     public static void main(String[] args) throws IOException, InterruptedException {
         var gameClient = new GameClient();
+
+//        t.logError("Error");
+//        t.logSuccess("Success");
+//        t.logWarning("Warning");
+//        t.log("Normal");
+//        t.flush();
 
         Thread t = new Thread(gameClient);
 
@@ -19,11 +25,19 @@ public class Client {
 
         gameClient.parseLine("join-matchmaking --players=2 --expert=false");
 
-        while(true) {
+        while (true) {
             var br = new BufferedReader(new InputStreamReader(System.in));
             gameClient.parseLine(br.readLine());
         }
     }
-     */
+}
+
+class Server {
+    public static void main(String[] args) throws IOException {
+        GameServer gs = new GameServer();
+        Thread t = new Thread(gs);
+
+        t.start();
+    }
 }
 

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
@@ -46,7 +47,7 @@ import java.util.regex.Pattern;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final Logger logger = new GameLogger(System.out);
+    private final Logger logger = new GameLogger(new Terminal(23, 150, System.out));
     private String jwt;
 
     // CLI Attributes
@@ -176,7 +177,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     @SugarMessageHandler
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
-        System.out.println(msg.lightGameState.archipelagos.get(1));
+        this.logger.logGameState(msg.lightGameState);
     }
 
     @SugarMessageHandler

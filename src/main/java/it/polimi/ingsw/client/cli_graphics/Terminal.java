@@ -10,18 +10,6 @@ import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import java.io.*;
 import java.util.*;
 
-class Test {
-    public static void main(String[] args) {
-        var t = new Terminal(23, 150, System.out);
-
-        t.logError("Error");
-        t.logSuccess("Success");
-        t.logWarning("Warning");
-        t.log("Normal");
-        t.flush();
-    }
-}
-
 public class Terminal {
     private int rows;
     private int cols;
