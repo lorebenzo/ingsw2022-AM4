@@ -288,8 +288,8 @@ public class GameStateController {
     private Optional<Integer> getMostInfluentSchoolBoardId(List<Integer> archipelagoIslandCodes){
         List<Map.Entry<Integer, Integer>> orderedPlayersInfluences = this.getInfluence(archipelagoIslandCodes).entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) //sorts the map using the influences in descending order
-                .collect(Collectors.toList());
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .toList();
 
         //If the number of players is 2 or 3, the most influent is calculated between the most influent and the second most influent.
 

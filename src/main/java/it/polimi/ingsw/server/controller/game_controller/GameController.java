@@ -1,20 +1,14 @@
 package it.polimi.ingsw.server.controller.game_controller;
 
 import it.polimi.ingsw.communication.sugar_framework.Peer;
-import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageFromLowerLayersHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.game_state_controller.CommunicationController;
-import it.polimi.ingsw.server.controller.game_state_controller.GameStateController;
-import it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg;
-import it.polimi.ingsw.server.controller.game_state_controller.messages.OKAndUpdateMsg;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
-import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
+import it.polimi.ingsw.server.repository.UsersRepository;
 
-import javax.management.remote.JMXServerErrorException;
-import javax.swing.plaf.ComponentUI;
 import java.util.*;
 
 public class GameController extends SugarMessageProcessor {
@@ -25,6 +19,8 @@ public class GameController extends SugarMessageProcessor {
     private final boolean expertMode;
     private boolean gameStarted = false;
     private CommunicationController communicationController = null;
+    private final UsersRepository usersRepository = UsersRepository.getInstance();
+
 
     public GameController(UUID roomId, int numPlayers, boolean expertMode)
     {
@@ -46,8 +42,10 @@ public class GameController extends SugarMessageProcessor {
     public void startGame() throws GameStateInitializationFailureException {
         this.gameStarted = true;
         synchronized (this.players) {
-            for (int i = 0; i < players.size(); i++)
+            for (int i = 0; i < players.size(); i++) {
                 upiToSchoolBoardId.put(players.get(i).associatedPeer.upi, i);
+                usersRepository.saveUserSchoolBardMap(this.roomId, players.get(i).username, i);
+            }
         }
         this.communicationController = new CommunicationController(players.stream().map(player -> player.associatedPeer).toList());
     }

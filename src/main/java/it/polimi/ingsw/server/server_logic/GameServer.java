@@ -3,13 +3,12 @@ package it.polimi.ingsw.server.server_logic;
 import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.communication.sugar_framework.SugarServer;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
-import it.polimi.ingsw.server.controller.games_manager.GamesManager;
+import it.polimi.ingsw.server.controller.auth_controller.AuthController;
 
 import java.io.IOException;
 
 public class GameServer extends SugarServer {
-
-    private final GamesManager gamesManager = new GamesManager(this);
+    private final AuthController authController = new AuthController(this);
 
     public GameServer() throws IOException {
         super();
@@ -23,7 +22,7 @@ public class GameServer extends SugarServer {
 
     @Override
     protected void onPeerMessage(Peer peer, SugarMessage message) {
-        var response = gamesManager.process(message, peer);
+        var response = authController.process(message, peer);
         if(response != null) {
             try {
                 this.send(response, peer);

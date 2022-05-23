@@ -7,6 +7,7 @@ import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMes
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.controller.auth_controller.AuthController;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.OKAndUpdateMsg;
@@ -26,6 +27,7 @@ public class GamesManager extends SugarMessageProcessor {
     private final List<GameController> games = new LinkedList<>();
     private final SugarServer server;
     private final MultiList<Peer, Integer, Boolean> matchMakingList = new MultiList<>();
+    private final Map<Peer, String> peerUsernameMap = new HashMap<>();
 
     public GamesManager(SugarServer server) {
         this.server = server;
@@ -34,6 +36,8 @@ public class GamesManager extends SugarMessageProcessor {
     @SugarMessageHandler
     public SugarMessage joinMatchMakingMsg(SugarMessage message, Peer peer) {
         var msg = (JoinMatchMakingMsg) message;
+
+        this.peerUsernameMap.put(peer, AuthController.getUsernameFromJWT(msg.jwt));
 
         // Add the peer to the matchmaking room
         this.matchMakingList.add(peer, msg.numberOfPlayers, msg.expertMode);
@@ -64,7 +68,7 @@ public class GamesManager extends SugarMessageProcessor {
             var gameRoomId = this.server.createRoom();
             var gameController = new GameController(gameRoomId, numberOfPlayers, expertMode);
             // Add players to the game controller
-            filteredMatchMakingList.forEach((peer, numPlayers, expMode) -> gameController.addPlayer(new Player(peer)));
+            filteredMatchMakingList.forEach((peer, numPlayers, expMode) -> gameController.addPlayer(new Player(peer, this.peerUsernameMap.get(peer))));
 
             try {
                 filteredMatchMakingList.forEach((peer, nPlayers, expMode) -> this.server.getRoom(gameRoomId).addPeer(peer));
