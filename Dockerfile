@@ -2,12 +2,11 @@
 # Build stage
 #
 FROM maven:3.8.3-openjdk-17 AS build
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package
+COPY pom.xml /usr/src/ing-sw/
+CMD mvn -f /usr/src/ing-sw/pom.xml clean package
 
 FROM build as test
-CMD mvn -f /home/app/pom.xml clean test
+CMD mvn -f /usr/src/ing-sw/pom.xml clean test
 
 FROM build as run
 CMD mvn compilev
