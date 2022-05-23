@@ -7,8 +7,8 @@ import it.polimi.ingsw.server.model.game_logic.enums.Card;
 public class PlayCardMsg extends SugarMessage {
     public final Card card;
 
-    public PlayCardMsg(Card card) {
-        super(SugarMethod.ACTION);
+    public PlayCardMsg(Card card, String jwt) {
+        super(SugarMethod.ACTION, jwt);
         this.card = card;
     }
 }

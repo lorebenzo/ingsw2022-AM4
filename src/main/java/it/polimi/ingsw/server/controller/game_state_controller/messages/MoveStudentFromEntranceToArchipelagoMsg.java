@@ -10,8 +10,8 @@ public class MoveStudentFromEntranceToArchipelagoMsg extends SugarMessage {
     public final Color student;
     public final List<Integer> archipelagoIslandCodes;
 
-    public MoveStudentFromEntranceToArchipelagoMsg(Color student, List<Integer> archipelagoIslandCodes) {
-        super(SugarMethod.ACTION);
+    public MoveStudentFromEntranceToArchipelagoMsg(Color student, List<Integer> archipelagoIslandCodes, String jwt) {
+        super(SugarMethod.ACTION, jwt);
 
         this.student = student;
         this.archipelagoIslandCodes = archipelagoIslandCodes;
