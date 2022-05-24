@@ -165,7 +165,10 @@ public class CommunicationController extends SugarMessageProcessor {
                     );
                 }
                 else
-                    return new OKMsg();
+                    return new OKAndUpdateMsg(
+                            new OKMsg(ReturnMessage.MERGE_NOT_PERFORMED.text),
+                            new UpdateClientMsg(this.gameStateController.getLightGameState())
+                    );
             } catch (WrongPhaseException e) {
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
             } catch (InvalidNumberOfStepsException e) {
@@ -187,7 +190,10 @@ public class CommunicationController extends SugarMessageProcessor {
 
             try {
                 this.gameStateController.grabStudentsFromCloud(msg.cloudIndex);
-                return new OKMsg();
+                return new OKAndUpdateMsg(
+                        new OKMsg(ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
+                        new UpdateClientMsg(this.gameStateController.getLightGameState())
+                );
             } catch (WrongPhaseException e) {
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
             } catch (EmptyCloudException e) {
@@ -232,7 +238,10 @@ public class CommunicationController extends SugarMessageProcessor {
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
             }
 
-            return new OKMsg();
+            return new OKAndUpdateMsg(
+                    new OKMsg(),
+                    new UpdateClientMsg(this.gameStateController.getLightGameState())
+            );
         }
         else
             return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);

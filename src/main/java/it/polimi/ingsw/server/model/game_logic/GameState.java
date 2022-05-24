@@ -253,8 +253,10 @@ public class GameState {
                 //Compare the current player's number of students in the dining room lane corresponding to the inputed professor's color with the other schoolBoard's max number of students in the dining room lane
                 //If the current player has more students in the dining room lane, then he will get the professor.
                 //If the current player has the same number of students in the dining room lane as the other's schoolBoard's max, then the professor will be removed from the other's schoolBoard's max.
-                if(currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane)
+                if(currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane){
                     this.getCurrentPlayerSchoolBoard().addProfessor(professor);
+                    otherSchoolBoardMax.removeProfessor(professor);
+                }
                 //Rules interpretation established that the professor remains of the original possessor if contended.
             }
 

@@ -5,8 +5,8 @@ package it.polimi.ingsw.server.controller.game_state_controller.messages;
 
 public class EndTurnMsg extends SugarMessage {
 
-    public EndTurnMsg() {
-        super(SugarMethod.ACTION);
+    public EndTurnMsg(String jwt) {
+        super(SugarMethod.ACTION, jwt);
     }
 }
 

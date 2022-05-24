@@ -13,7 +13,7 @@ public class SugarMessage {
     public final Class<?> messageClass;
     public final SugarMethod sugarMethod;
     public final UUID messageID; // Useful to identify which message is a response to another message
-    public String jwt;
+    public final String jwt;
     /* ************************************************* */
 
     public SugarMessage(SugarMethod sugarMethod, UUID messageID, String jwt) {

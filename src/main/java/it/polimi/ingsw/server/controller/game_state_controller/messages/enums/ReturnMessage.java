@@ -18,7 +18,9 @@ public enum ReturnMessage {
     STUDENTS_TO_BE_GRABBED_FROM_CLOUD("You have to choose a cloud from which getting the students before ending the turn."),
     CARD_NOT_PLAYED("You have to play a card before ending your turn."),
     MERGE_PERFORMED("Archipelagos merged!"),
-    MOVE_ALREADY_PLAYED("The selected move was already performed and cannot be repeated.");
+    MERGE_NOT_PERFORMED("Archipelagos not merged!"),
+    MOVE_ALREADY_PLAYED("The selected move was already performed and cannot be repeated."),
+    STUDENTS_GRABBED_FROM_CLOUD("Students successfully grabbed from cloud");
 
     public final String text;
 

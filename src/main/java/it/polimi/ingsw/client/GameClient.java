@@ -117,11 +117,11 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     public void grabStudentsFromCloud(int cloudIndex){
-        this.sendAndHandleDisconnection(new GrabStudentsFromCloudMsg(cloudIndex));
+        this.sendAndHandleDisconnection(new GrabStudentsFromCloudMsg(cloudIndex, this.jwt));
     }
 
     public void endTurn() {
-        this.sendAndHandleDisconnection(new EndTurnMsg());
+        this.sendAndHandleDisconnection(new EndTurnMsg(this.jwt));
     }
 
     public void help() {
