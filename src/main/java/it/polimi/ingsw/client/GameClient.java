@@ -293,7 +293,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             }
             case mv_std_to_island: {
                 var color = Optional.ofNullable(params.get("color"));
-                var islandCode = Optional.ofNullable("island");
+                var islandCode = Optional.ofNullable(params.get("island"));
                 if(this.arePresent(color, islandCode))
                     this.moveStudentFromEntranceToArchipelago(color.get(), Integer.parseInt(islandCode.get()));
                 else throw new SyntaxError();
