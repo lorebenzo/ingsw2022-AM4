@@ -22,10 +22,10 @@ public class Client {
         Thread t = new Thread(gameClient);
 
         t.start();
-        Thread.sleep(1000);
+/*        Thread.sleep(1000);
         gameClient.login("guido", "guido");
         Thread.sleep(1000);
-        gameClient.joinMatchMaking(2, false);
+        gameClient.joinMatchMaking(2, false);*/
 
         while (true) {
             var br = new BufferedReader(new InputStreamReader(System.in));
