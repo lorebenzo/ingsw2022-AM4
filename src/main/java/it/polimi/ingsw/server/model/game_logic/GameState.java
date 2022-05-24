@@ -298,12 +298,12 @@ public class GameState {
      */
     public void moveMotherNatureNStepsClockwise(int numberOfSteps) throws InvalidNumberOfStepsException{
 
-        int maxStepsAllowed = this.schoolBoardIdsToCardsPlayedThisRound.get(this.currentPlayerSchoolBoardId).getValue();
+        int maxStepsAllowed = this.schoolBoardIdsToCardsPlayedThisRound.get(this.currentPlayerSchoolBoardId).getSteps();
 
         if(numberOfSteps <= 0 || numberOfSteps > maxStepsAllowed)
             throw new InvalidNumberOfStepsException();
         for (int i = 0; i < numberOfSteps; i++)
-            moveMotherNatureOneStepClockwise();
+            this.moveMotherNatureOneStepClockwise();
     }
 
     /**
