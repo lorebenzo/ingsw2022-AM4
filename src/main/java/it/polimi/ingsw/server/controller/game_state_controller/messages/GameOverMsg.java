@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.controller.game_state_controller.messages;
 import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod;
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
 
 import java.util.Map;
 
@@ -12,9 +13,11 @@ import java.util.Map;
  */
 public class GameOverMsg extends SugarMessage{
     public final Map<Peer, Boolean> peerToIsWinner;
+    public final LightGameState lightGameState;
 
-    public GameOverMsg(Map<Peer, Boolean> peerToIsWinner){
-        super(SugarMethod.CONTROL);
+    public GameOverMsg(Map<Peer, Boolean> peerToIsWinner, LightGameState lightGameState){
+        super(SugarMethod.CONTROL_AND_NOTIFY);
         this.peerToIsWinner = peerToIsWinner;
+        this.lightGameState = lightGameState;
     }
 }

@@ -19,7 +19,7 @@ public class Terminal {
     // Logging
     private final int loggerWidth;
     private final int loggerHeight;
-    private List<String> logs = new LinkedList<>();
+    private List<UnicodeString> logs = new LinkedList<>();
 
     // Colors
     private static final String ANSI_RESET = "\u001B[0m";
@@ -158,8 +158,7 @@ public class Terminal {
      * @param s
      */
     public void log(String s) {
-        this.logs.add(0, s);
-        this.updateLogs(this.logs);
+        this.logWithColor(s, ANSI_RESET);
     }
 
     public void logSuccess(String s) {
@@ -175,7 +174,10 @@ public class Terminal {
     }
 
     private void logWithColor(String s, String ansiColorCode) {
-        this.logs.add(0, this.color(s, ansiColorCode));
+        UnicodeString log = new UnicodeString();
+        for(var ch : s.toCharArray())
+            log.appendUnicodeChar(ansiColorCode + ch + ANSI_RESET);
+        this.logs.add(0, log);
         this.updateLogs(this.logs);
     }
 
@@ -183,21 +185,26 @@ public class Terminal {
      * Prints the logs to the terminal
      * @param logs
      */
-    private void updateLogs(List<String> logs) {
+    private void updateLogs(List<UnicodeString> logs) {
         this.cleanLogs();
 
-        StringBuilder _logString = new StringBuilder();
-        for(var log : logs)
-            _logString.append("> ").append(log).append('\n');
+        List<String> characters = new LinkedList<>();
+        for(var log : logs) {
+            List<String> logCharacters = log.getCharacters();
 
-        var logString = _logString.toString().toCharArray();
+            characters.add(">");
+            characters.add(" ");
+            for(var ch : logCharacters)
+                characters.add(ch);
+            characters.add("\n");
+        }
 
         var index = 0;
-        for(int row = 0; row < this.rows && index < logString.length; row++) {
-            for(int col = this.cols - this.loggerWidth; col < this.cols && index < logString.length; col++) {
-                var ch = logString[index++];
-                if(ch != '\n')
-                    this.terminal[row][col] = String.valueOf(ch);
+        for(int row = 0; row < this.rows && index < characters.size(); row++) {
+            for(int col = this.cols - this.loggerWidth; col < this.cols && index < characters.size(); col++) {
+                var ch = characters.get(index++);
+                if(!ch.equals("\n"))
+                    this.put(row, col, ch);
                 else break;
             }
         }
@@ -216,6 +223,7 @@ public class Terminal {
 
     // Print Game State
     public void updateGS(LightGameState lightGameState) {
+        this.clean();
         this.renderSchoolBoards(lightGameState.schoolBoards, lightGameState.currentPlayerSchoolBoardId, 0, 0);
         this.renderArchipelagos(lightGameState.archipelagos, lightGameState.motherNaturePosition, 0, 65);
         this.renderClouds(lightGameState.clouds, 15, 65);
@@ -372,5 +380,9 @@ class UnicodeString {
     public void color(String ansiColorCode) {
         this.string.set(0, ansiColorCode + this.string.get(0));
         this.string.set(this.string.size() - 1, this.string.get(this.string.size() - 1) + ANSI_RESET);
+    }
+
+    public List<String> getCharacters() {
+        return string;
     }
 }

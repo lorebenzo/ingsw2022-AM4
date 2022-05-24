@@ -12,18 +12,13 @@ import java.io.InputStreamReader;
 public class Client {
     public static void main(String[] args) throws IOException, InterruptedException {
         var gameClient = new GameClient();
-
-//        t.logError("Error");
-//        t.logSuccess("Success");
-//        t.logWarning("Warning");
-//        t.log("Normal");
-//        t.flush();
-
         Thread t = new Thread(gameClient);
 
         t.start();
-
-        gameClient.parseLine("join-matchmaking --players=2 --expert=false");
+        Thread.sleep(1000);
+        gameClient.login("player", "bro");
+        Thread.sleep(1000);
+        gameClient.joinMatchMaking(2, false);
 
         while (true) {
             var br = new BufferedReader(new InputStreamReader(System.in));

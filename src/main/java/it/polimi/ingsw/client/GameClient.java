@@ -1,5 +1,7 @@
 package it.polimi.ingsw.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
@@ -178,12 +180,17 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);
+
+        // TODO: remove (debug)
+        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        // System.out.println(gson.toJson(msg.lightGameState));
     }
 
     @SugarMessageHandler
     public void JWTMsg(SugarMessage message) {
         var msg = (JWTMsg) message;
         this.jwt = msg.jwtAuthCode;
+        this.logger.logSuccess("Successfully logged in");
     }
 
     @SugarMessageHandler
