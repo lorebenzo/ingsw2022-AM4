@@ -85,7 +85,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     public void joinMatchMaking(int numberOfPlayers, boolean expertMode) {
         if(!GameConstants.isPlayersNumberValid(numberOfPlayers))
-            this.logError("Invalid number of players");
+            this.logger.logError("Invalid number of players");
         else this.sendAndHandleDisconnection(new JoinMatchMakingMsg(numberOfPlayers, expertMode, this.jwt));
     }
 
@@ -93,14 +93,14 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var card = Card.fromValue(cardValue);
         if(card.isPresent())
             this.sendAndHandleDisconnection(new PlayCardMsg(card.get(), this.jwt));
-        else this.logError("Card does not exists");
+        else this.logger.logError("Card does not exists");
     }
 
     public void moveStudentFromEntranceToDiningRoom(String student) {
         var _student = Color.fromString(student);
         if(_student.isPresent())
             this.sendAndHandleDisconnection(new MoveStudentFromEntranceToDiningRoomMsg(_student.get(), this.jwt));
-        else this.logError("Color does not exist");
+        else this.logger.logError("Color does not exist");
     }
 
 
@@ -109,7 +109,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         // TODO: implement archipelagoIslandCodes abstraction
         if(_student.isPresent())
             this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), null, this.jwt));
-        else this.logError("Color does not exist or archipelago does not exist");
+        else this.logger.logError("Color does not exist or archipelago does not exist");
     }
 
     public void moveMotherNature(int numberOfSteps){
@@ -125,20 +125,17 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     public void help() {
-        this.logSuccess(
-                "CLI commands\n" +
-                " \n" +
-                " → join-matchmaking --players=int[2-4] --expert=boolean\n" +
-                " → play-card --card=int[1-10]\n" +
-                " → mv-std-to-dining --color=string\n" +
-                " → mv-std-to-island --color=string --island=char\n" +
-                " → mv-mother-nature --steps=int\n" +
-                " → grab-std-cloud --cloud=int\n" +
-                " → signup --username=string --password=string\n" +
-                " → login  --username=string --password=string\n" +
-                " → rollback\n" +
-                " → help"
-        );
+        this.logger.log("  help");
+        this.logger.log("  rollback");
+        this.logger.log("  login  --username=string --password=string");
+        this.logger.log("  signup --username=string --password=string");
+        this.logger.log("  grab-std-cloud --cloud=int");
+        this.logger.log("  mv-mother-nature --steps=int");
+        this.logger.log("  mv-std-to-island --color=string --island=char");
+        this.logger.log("  mv-std-to-dining --color=string");
+        this.logger.log("  play-card --card=int[1-10]");
+        this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
+        this.logger.log("CLI commands:");
     }
 
     private void sendAndHandleDisconnection(SugarMessage message) {
@@ -147,14 +144,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         } catch (DisconnectionException e) {
             this.logger.logError(e.getMessage());
         }
-    }
-
-    private void logError(String s) {
-        this.logger.logError(s);
-    }
-
-    private void logSuccess(String s) {
-        this.logger.logSuccess(s);
     }
 
     @SugarMessageHandler
@@ -195,7 +184,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     @SugarMessageHandler
     public void base(SugarMessage message) {
-        this.logError("Unhandled message: " + message.serialize());
+        this.logger.logError("Unhandled message: " + message.serialize());
     }
 
     @Override

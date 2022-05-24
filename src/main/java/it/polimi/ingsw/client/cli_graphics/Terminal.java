@@ -68,7 +68,7 @@ public class Terminal {
         this.cols = cols;
         this.target = target;
         this.terminal = new String[rows][cols];
-        this.loggerWidth = cols/5; // TODO: fix bug: logs are displayed also if they go outside the log box
+        this.loggerWidth = cols/10*3; // TODO: fix bug: logs are displayed also if they go outside the log box
         this.loggerHeight = rows;
         this.cleanEverything();
     }
