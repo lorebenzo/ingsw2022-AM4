@@ -159,6 +159,7 @@ public class CommunicationController extends SugarMessageProcessor {
                 }
 
                 if(merged) {
+                    System.out.println(this.gameStateController.getLightGameState());
                     return new OKAndUpdateMsg(
                             new OKMsg(ReturnMessage.MERGE_PERFORMED.text),
                             new UpdateClientMsg(this.gameStateController.getLightGameState())

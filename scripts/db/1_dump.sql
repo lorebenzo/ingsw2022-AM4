@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS users.users (
 );
 
 CREATE TABLE IF NOT EXISTS users.user_game (
-   "username" VARCHAR(255) not null primary key,
-   "gameUUID" uuid not null primary key,
-   "schoolBoardID" int not null primary key
+   "username" VARCHAR(255) not null,
+   "gameUUID" uuid not null,
+   "schoolBoardID" int not null,
+    PRIMARY KEY(username, "gameUUID", "schoolBoardID")
 );

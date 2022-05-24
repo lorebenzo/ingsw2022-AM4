@@ -125,6 +125,7 @@ public class GameStateController {
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
     public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, /*InvalidSchoolBoardIdException,*/ WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException {
+
         boolean mergePerformed = false;
 
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
@@ -139,11 +140,11 @@ public class GameStateController {
 
         //If there is a player that is the most influent on an archipelago, he will conquer the archipelago
         if(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().isPresent()){
-            this.gameState.conquerArchipelago(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().get());
-            mergePerformed = this.merge();
+            mergePerformed = this.gameState.conquerArchipelago(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().get());
+
         }
 
-        return mergePerformed;
+        return  mergePerformed;
 
     }
 
@@ -333,9 +334,9 @@ public class GameStateController {
      * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
      * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen
      */
-    private boolean merge(){
+/*    private boolean merge(){
         return this.gameState.mergeWithPrevious() || this.gameState.mergeWithNext();
-    }
+    }*/
 
 
     LightGameState getLightGameState() {

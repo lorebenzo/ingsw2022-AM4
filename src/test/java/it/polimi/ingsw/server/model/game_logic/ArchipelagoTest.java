@@ -14,6 +14,26 @@ import static org.junit.Assert.*;
 public class ArchipelagoTest {
 
     @Test
+    public void merge1() throws NonMergeableArchipelagosException {
+        Archipelago mergeableA1 = new Archipelago(1);
+        Archipelago mergeableA2 = new Archipelago(2);
+
+        mergeableA1.addStudent(Color.RED);
+        mergeableA2.addStudent(Color.GREEN);
+
+        mergeableA1.setTowerColor(TowerColor.BLACK);
+        mergeableA2.setTowerColor(TowerColor.BLACK);
+
+        Archipelago merged = Archipelago.merge(mergeableA1, mergeableA2);
+
+
+        assertTrue(merged.getStudents().contains(Color.RED));
+        assertTrue(merged.getStudents().contains(Color.GREEN));
+        assertEquals(2, merged.getStudents().size());
+
+    }
+
+    @Test
     public void merge() {
         // Arrange
         Archipelago mergeableA1 = new Archipelago(1);

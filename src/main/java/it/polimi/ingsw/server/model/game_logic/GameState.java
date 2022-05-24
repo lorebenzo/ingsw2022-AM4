@@ -311,9 +311,16 @@ public class GameState {
      * and substituting any tower that was previously placed on that archipelago
      * //@throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      */
-    public void conquerArchipelago(int schoolBoardId) /*throws InvalidSchoolBoardIdException*/ {
+    public boolean conquerArchipelago(int schoolBoardId) /*throws InvalidSchoolBoardIdException*/ {
         TowerColor playerTowerColor = this.getSchoolBoardFromSchoolBoardId(schoolBoardId).getTowerColor();
+
         this.motherNaturePosition.setTowerColor(playerTowerColor);
+
+        boolean mergeNextPerformed = this.mergeWithNext();
+        boolean mergePreviousPerformed = this.mergeWithPrevious();
+
+        return mergeNextPerformed || mergePreviousPerformed;
+
     }
 
     /**
@@ -322,14 +329,20 @@ public class GameState {
      */
     public boolean mergeWithPrevious() /*throws NonMergeableArchipelagosException*/ {
         boolean mergePerformed = false;
-
         Archipelago previous = getPreviousArchipelago();
 
         try {
             // Substitute current archipelago with the merged archipelago
-            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, previous);
+
+            Archipelago merged = Archipelago.merge(this.motherNaturePosition, previous);
             // Remove left archipelago from the list
+
+            this.archipelagos.add(this.archipelagos.indexOf(this.motherNaturePosition), merged);
+
+            this.archipelagos.remove(motherNaturePosition);
             this.archipelagos.remove(previous);
+
+            this.motherNaturePosition = this.archipelagos.get(this.archipelagos.indexOf(merged));
             mergePerformed = true;
         } catch (NonMergeableArchipelagosException ignored) {  }
 
@@ -342,15 +355,20 @@ public class GameState {
      */
     public boolean mergeWithNext() /*throws NonMergeableArchipelagosException*/ {
         boolean mergePerformed = false;
-
         Archipelago next = getNextArchipelago();
-
 
         try {
             // Substitute current archipelago with the merged archipelago
-            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, next);
+            Archipelago merged = Archipelago.merge(this.motherNaturePosition, next);
             // Remove left archipelago from the list
+
+            this.archipelagos.add(this.archipelagos.indexOf(this.motherNaturePosition), merged);
+
+            this.archipelagos.remove(motherNaturePosition);
             this.archipelagos.remove(next);
+
+            this.motherNaturePosition = this.archipelagos.get(this.archipelagos.indexOf(merged));
+
             mergePerformed = true;
         } catch (NonMergeableArchipelagosException ignored) {  }
 

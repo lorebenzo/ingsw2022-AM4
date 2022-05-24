@@ -23,7 +23,7 @@ public class Client {
 
         t.start();
         Thread.sleep(1000);
-        gameClient.login("player", "bro");
+        gameClient.login("guido", "guido");
         Thread.sleep(1000);
         gameClient.joinMatchMaking(2, false);
 
