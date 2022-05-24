@@ -20,7 +20,8 @@ public enum ReturnMessage {
     MERGE_PERFORMED("Archipelagos merged!"),
     MERGE_NOT_PERFORMED("Archipelagos not merged!"),
     MOVE_ALREADY_PLAYED("The selected move was already performed and cannot be repeated."),
-    STUDENTS_GRABBED_FROM_CLOUD("Students successfully grabbed from cloud");
+    STUDENTS_GRABBED_FROM_CLOUD("Students successfully grabbed from cloud"),
+    INVALID_ARCHIPELAGO_ID("The archipelago island code provided is invalid");
 
     public final String text;
 

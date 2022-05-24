@@ -104,11 +104,10 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
 
-    public void moveStudentFromEntranceToArchipelago(String student, String archipelagoIslandCodes) {
+    public void moveStudentFromEntranceToArchipelago(String student, int archipelagoIslandCode) {
         var _student = Color.fromString(student);
-        // TODO: implement archipelagoIslandCodes abstraction
         if(_student.isPresent())
-            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), null, this.jwt));
+            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), archipelagoIslandCode, this.jwt));
         else this.logger.logError("Color does not exist or archipelago does not exist");
     }
 
@@ -294,9 +293,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             }
             case mv_std_to_island: {
                 var color = Optional.ofNullable(params.get("color"));
-                var islandCodes = Optional.ofNullable("island");
-                if(this.arePresent(color, islandCodes))
-                    this.moveStudentFromEntranceToArchipelago(color.get(), islandCodes.get());
+                var islandCode = Optional.ofNullable("island");
+                if(this.arePresent(color, islandCode))
+                    this.moveStudentFromEntranceToArchipelago(color.get(), Integer.parseInt(islandCode.get()));
                 else throw new SyntaxError();
                 break;
             }

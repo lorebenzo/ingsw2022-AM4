@@ -8,13 +8,13 @@ package it.polimi.ingsw.server.controller.game_state_controller.messages;
 
 public class MoveStudentFromEntranceToArchipelagoMsg extends SugarMessage {
     public final Color student;
-    public final List<Integer> archipelagoIslandCodes;
+    public final int archipelagoIslandCode;
 
-    public MoveStudentFromEntranceToArchipelagoMsg(Color student, List<Integer> archipelagoIslandCodes, String jwt) {
+    public MoveStudentFromEntranceToArchipelagoMsg(Color student, int archipelagoIslandCode, String jwt) {
         super(SugarMethod.ACTION, jwt);
 
         this.student = student;
-        this.archipelagoIslandCodes = archipelagoIslandCodes;
+        this.archipelagoIslandCode = archipelagoIslandCode;
     }
 }
 

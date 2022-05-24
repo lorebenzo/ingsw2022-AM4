@@ -125,7 +125,13 @@ public class CommunicationController extends SugarMessageProcessor {
             var msg = (MoveStudentFromEntranceToArchipelagoMsg) message;
 
             try {
-                this.gameStateController.moveStudentFromEntranceToArchipelago(msg.student, msg.archipelagoIslandCodes);
+                var archipelagoIslandCodes = this.gameStateController.getLightGameState().archipelagos
+                        .stream()
+                        .map(a -> a.getIslandCodes())
+                        .filter(ic -> ic.contains(msg.archipelagoIslandCode))
+                        .findFirst()
+                        .orElseThrow(() -> new InvalidArchipelagoIdException());
+                this.gameStateController.moveStudentFromEntranceToArchipelago(msg.student, archipelagoIslandCodes);
                 return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (WrongPhaseException e) {
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
@@ -133,6 +139,8 @@ public class CommunicationController extends SugarMessageProcessor {
                 return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);
             } catch (TooManyStudentsMovedException e) {
                 return new KOMsg(ReturnMessage.TOO_MANY_STUDENTS_MOVED.text);
+            } catch (InvalidArchipelagoIdException e) {
+                return new KOMsg(ReturnMessage.INVALID_ARCHIPELAGO_ID.text);
             }
         }
         else
