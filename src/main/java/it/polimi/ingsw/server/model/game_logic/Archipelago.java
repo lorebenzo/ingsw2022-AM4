@@ -61,11 +61,16 @@ public class Archipelago {
         if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE) || a1.islandCodes.stream().anyMatch(a2.islandCodes::contains))
             throw new NonMergeableArchipelagosException();
 
-        return new Archipelago(
+        a1.islandCodes.addAll(a2.islandCodes);
+        a1.studentToNumber.replaceAll((k, v) -> a1.studentToNumber.get(k) + a2.studentToNumber.get(k));
+
+        return a1;
+
+/*        return new Archipelago(
                 a1.islandCodes, a2.islandCodes,
                 a1.studentToNumber, a2.studentToNumber,
                 a1.towerColor
-        );
+        );*/
     }
 
     /**

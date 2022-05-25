@@ -8,6 +8,7 @@ import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.ReturnMessage;
+import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
 import java.util.HashMap;
@@ -127,10 +128,10 @@ public class CommunicationController extends SugarMessageProcessor {
             try {
                 var archipelagoIslandCodes = this.gameStateController.getLightGameState().archipelagos
                         .stream()
-                        .map(a -> a.getIslandCodes())
+                        .map(Archipelago::getIslandCodes)
                         .filter(ic -> ic.contains(msg.archipelagoIslandCode))
                         .findFirst()
-                        .orElseThrow(() -> new InvalidArchipelagoIdException());
+                        .orElseThrow(InvalidArchipelagoIdException::new);
                 this.gameStateController.moveStudentFromEntranceToArchipelago(msg.student, archipelagoIslandCodes);
                 return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (WrongPhaseException e) {

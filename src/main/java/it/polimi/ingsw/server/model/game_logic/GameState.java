@@ -333,16 +333,10 @@ public class GameState {
 
         try {
             // Substitute current archipelago with the merged archipelago
-
-            Archipelago merged = Archipelago.merge(this.motherNaturePosition, previous);
-            // Remove left archipelago from the list
-
-            this.archipelagos.add(this.archipelagos.indexOf(this.motherNaturePosition), merged);
-
-            this.archipelagos.remove(motherNaturePosition);
+            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, previous);
+            // Remove previous archipelago from the list
             this.archipelagos.remove(previous);
 
-            this.motherNaturePosition = this.archipelagos.get(this.archipelagos.indexOf(merged));
             mergePerformed = true;
         } catch (NonMergeableArchipelagosException ignored) {  }
 
@@ -359,15 +353,9 @@ public class GameState {
 
         try {
             // Substitute current archipelago with the merged archipelago
-            Archipelago merged = Archipelago.merge(this.motherNaturePosition, next);
-            // Remove left archipelago from the list
-
-            this.archipelagos.add(this.archipelagos.indexOf(this.motherNaturePosition), merged);
-
-            this.archipelagos.remove(motherNaturePosition);
+            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, next);
+            // Remove the next archipelago from the list
             this.archipelagos.remove(next);
-
-            this.motherNaturePosition = this.archipelagos.get(this.archipelagos.indexOf(merged));
 
             mergePerformed = true;
         } catch (NonMergeableArchipelagosException ignored) {  }
@@ -395,7 +383,7 @@ public class GameState {
             schoolboardToNumberOfTowersPlaced.put(schoolboard, 0);
 
 
-        if(isGameOver(isRoundTerminated)) {
+        if(this.isGameOver(isRoundTerminated)) {
             for (var schoolboard : this.schoolBoards) {
                 for (var archipelago : this.archipelagos) {
                     if (archipelago.getTowerColor().equals(schoolboard.getTowerColor())) {
