@@ -13,11 +13,11 @@ import java.util.Map;
  */
 public class GameOverMsg extends SugarMessage{
     public final Map<Peer, Boolean> peerToIsWinner;
-    public final LightGameState lightGameState;
+    public final UpdateClientMsg updateClientMsg;
 
-    public GameOverMsg(Map<Peer, Boolean> peerToIsWinner, LightGameState lightGameState){
+    public GameOverMsg(Map<Peer, Boolean> peerToIsWinner, UpdateClientMsg updateClientMsg){
         super(SugarMethod.CONTROL_AND_NOTIFY);
         this.peerToIsWinner = peerToIsWinner;
-        this.lightGameState = lightGameState;
+        this.updateClientMsg = updateClientMsg;
     }
 }

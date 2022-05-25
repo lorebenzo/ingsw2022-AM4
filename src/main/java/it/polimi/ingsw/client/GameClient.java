@@ -165,6 +165,14 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     @SugarMessageHandler
+    public void GameOverMsg(SugarMessage message) {
+        var msg = (GameOverMsg) message;
+        this.logger.logGameState(msg.updateClientMsg.lightGameState);
+        this.logger.log("GAME OVER!");
+        // TODO: Close game
+    }
+
+    @SugarMessageHandler
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);

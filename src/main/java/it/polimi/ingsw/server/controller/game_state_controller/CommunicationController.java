@@ -11,11 +11,7 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.Re
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class CommunicationController extends SugarMessageProcessor {
 
@@ -158,27 +154,22 @@ public class CommunicationController extends SugarMessageProcessor {
                 boolean merged = this.gameStateController.moveMotherNature(msg.numberOfSteps);
 
                 // Check winners
-                var winners = this.gameStateController.checkWinners(false);
-                if(winners.containsValue(true) /* someone won */) {
+                Optional<Map<Integer, Boolean>> schoolBoardIdToIsWinnerMap = this.gameStateController.checkImmediateWinners();
+
+                //If someone won
+                if(schoolBoardIdToIsWinnerMap.isPresent()) {
                     // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
                     Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
+
                     for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
-                        peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
-                    return new GameOverMsg(peerToIsWinner, this.gameStateController.getLightGameState());
+                        peerToIsWinner.put(_peer, schoolBoardIdToIsWinnerMap.get().get(this.peersToSchoolBoardIdsMap.get(_peer)));
+                    return new GameOverMsg(peerToIsWinner, new UpdateClientMsg(this.gameStateController.getLightGameState()));
                 }
 
-                if(merged) {
-                    System.out.println(this.gameStateController.getLightGameState());
-                    return new OKAndUpdateMsg(
-                            new OKMsg(ReturnMessage.MERGE_PERFORMED.text),
-                            new UpdateClientMsg(this.gameStateController.getLightGameState())
-                    );
-                }
-                else
-                    return new OKAndUpdateMsg(
-                            new OKMsg(ReturnMessage.MERGE_NOT_PERFORMED.text),
-                            new UpdateClientMsg(this.gameStateController.getLightGameState())
-                    );
+                return new OKAndUpdateMsg(
+                        new OKMsg(merged ? ReturnMessage.MERGE_PERFORMED.text : ReturnMessage.MERGE_NOT_PERFORMED.text),
+                        new UpdateClientMsg(this.gameStateController.getLightGameState())
+                );
             } catch (WrongPhaseException e) {
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
             } catch (InvalidNumberOfStepsException e) {
@@ -224,16 +215,7 @@ public class CommunicationController extends SugarMessageProcessor {
         if(this.isMoveFromCurrentPlayer(peer)){
             try {
                 this.gameStateController.endActionTurn();
-
-                // Check winners
-                var winners = this.gameStateController.checkWinners(false);
-                if(winners.containsValue(true) /* someone won */) {
-                    // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
-                    Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
-                    for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
-                        peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
-                    return new GameOverMsg(peerToIsWinner, this.gameStateController.getLightGameState());
-                }
+                return new OKAndUpdateMsg(new OKMsg(ReturnMessage.TURN_ENDED.text), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (MoreStudentsToBeMovedException e){
                 return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
             } catch (MotherNatureToBeMovedException e){
@@ -247,11 +229,6 @@ public class CommunicationController extends SugarMessageProcessor {
             } catch (WrongPhaseException e) {
                 return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
             }
-
-            return new OKAndUpdateMsg(
-                    new OKMsg(),
-                    new UpdateClientMsg(this.gameStateController.getLightGameState())
-            );
         }
         else
             return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
