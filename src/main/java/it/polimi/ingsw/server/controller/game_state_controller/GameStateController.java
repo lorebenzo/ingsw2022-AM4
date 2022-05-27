@@ -1,6 +1,5 @@
 package it.polimi.ingsw.server.controller.game_state_controller;
 
-import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
@@ -13,15 +12,16 @@ import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GameStateController {
-    private final GameState gameState;
-
+public class GameStateController implements ControllerCommonInterface {
+    protected GameState gameState;
 
 
     public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
 
         //Create a new gameState
-        this.gameState = new GameState(playersNumber);
+        this.initializeGameState(playersNumber);
+
+
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
         try {
@@ -34,6 +34,11 @@ public class GameStateController {
 
         //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
         //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
+
+    }
+
+    protected void initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
+        this.gameState = new GameState(playersNumber);
     }
 
     /**
@@ -274,7 +279,7 @@ public class GameStateController {
      * and returns its schoolBoardId
      * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
      */
-    private Optional<Integer> getMostInfluentSchoolBoardIdOnMotherNaturesPosition(){
+    Optional<Integer> getMostInfluentSchoolBoardIdOnMotherNaturesPosition(){
         return this.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());
 
     }
@@ -285,11 +290,20 @@ public class GameStateController {
      * and returns its schoolBoardId
      * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
      */
-    private Optional<Integer> getMostInfluentSchoolBoardId(List<Integer> archipelagoIslandCodes){
-        List<Map.Entry<Integer, Integer>> orderedPlayersInfluences = this.getInfluence(archipelagoIslandCodes).entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) //sorts the map using the influences in descending order
-                .collect(Collectors.toList());
+    protected Optional<Integer> getMostInfluentSchoolBoardId(List<Integer> archipelagoIslandCodes){
+        var influenceMap = this.getInfluence(archipelagoIslandCodes);
+        List<Map.Entry<Integer, Integer>> orderedPlayersInfluences;
+
+        if(influenceMap.isPresent()){
+            orderedPlayersInfluences = influenceMap.get().entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) //sorts the map using the influences in descending order
+                    .collect(Collectors.toList());
+        }
+        else
+            return Optional.empty();
+
+
 
         //If the number of players is 2 or 3, the most influent is calculated between the most influent and the second most influent.
 
@@ -306,7 +320,6 @@ public class GameStateController {
             else
                 return Optional.empty();
         }
-
     }
 
 
@@ -315,7 +328,7 @@ public class GameStateController {
      * @param archipelagoIslandCodes is a List<Integer> uniquely identifying an archipelago
      * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
      */
-    private Map<Integer, Integer> getInfluence(List<Integer> archipelagoIslandCodes){
+    private Optional<Map<Integer, Integer>> getInfluence(List<Integer> archipelagoIslandCodes){
         return this.gameState.getInfluence(archipelagoIslandCodes);
     }
 
@@ -333,7 +346,7 @@ public class GameStateController {
      * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
      * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen
      */
-    private boolean merge(){
+    boolean merge(){
         return this.gameState.mergeWithPrevious() || this.gameState.mergeWithNext();
     }
 
@@ -349,6 +362,7 @@ public class GameStateController {
     public void setCurrentPhaseForTesting(Phase phase){
         this.gameState.setCurrentPhase(phase);
     }
+
 
 }
 

@@ -14,26 +14,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class CommunicationController extends SugarMessageProcessor {
+public class CommunicationController extends SugarMessageProcessor{
 
-    private final GameStateController gameStateController;
-    private Map<Peer,Integer> peersToSchoolBoardIdsMap;
+    protected GameStateController gameStateController;
+    protected Map<Peer,Integer> peersToSchoolBoardIdsMap;
 
-    public CommunicationController(List<Peer> peers) {
+    protected CommunicationController(List<Peer> peers) throws GameStateInitializationFailureException {
 
-        GameStateController gameStateController1;
-        try {
-            gameStateController1 = new GameStateController(peers.size());
-        } catch(GameStateInitializationFailureException e) {
-            // Something went wrong, everything breaks
-            gameStateController1 = null;
-            e.printStackTrace();
-        }
-        this.gameStateController = gameStateController1;
+        this.initializeGameStateController(peers.size());
+        this.initializePeerToSchoolBoardIdMap(peers);
 
+    }
 
+    protected void initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
+        this.gameStateController = new GameStateController(playersNumber);
+    }
+
+    protected void initializePeerToSchoolBoardIdMap(List<Peer> peers){
         this.peersToSchoolBoardIdsMap = new HashMap<>();
 
         //Create a map that links every peer to a schoolBoardId
@@ -42,10 +40,18 @@ public class CommunicationController extends SugarMessageProcessor {
         for (Peer peer : peers) {
             this.peersToSchoolBoardIdsMap.put(peer, schoolBoardIdsSetIterator.next());
         }
-
-
-
     }
+
+
+
+    public static CommunicationController createCommunicationController(List<Peer> peers, boolean isExpertMode) throws GameStateInitializationFailureException {
+        if(isExpertMode)
+            return new ExpertCommunicationController(peers);
+        else
+            return new CommunicationController(peers);
+    }
+
+
 
     private Peer getPeerFromSchoolBoardId(int schoolBoardId){
         return this.peersToSchoolBoardIdsMap.entrySet()
@@ -73,30 +79,22 @@ public class CommunicationController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage playCardMsg(SugarMessage message, Peer peer){
-        if(this.isMoveFromCurrentPlayer(peer)){
-            System.out.println("It's your turn");
-            var msg = (PlayCardMsg) message;
 
-            try {
-                this.gameStateController.playCard(msg.card);
-                System.out.println("Card played");
-                System.out.println("CARD PLAYED: " + msg.card.toString());
-                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-            } catch (WrongPhaseException e){
-                return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
+        if(!this.isMoveFromCurrentPlayer(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-            } catch (CardIsNotInTheDeckException e) {
-                return new KOMsg(ReturnMessage.CARD_IS_NOT_IN_THE_DECK.text);
+        var msg = (PlayCardMsg) message;
 
-            }catch (InvalidCardPlayedException e) {
-                return new KOMsg(ReturnMessage.INVALID_CARD_PLAYED.text);
-            } catch (MoveAlreadyPlayedException e) {
-                return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
-            }
-        }
-        else {
-            System.out.println("NOT YOUR TURN");
-            return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+        try {
+            this.gameStateController.playCard(msg.card);
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+        } catch (WrongPhaseException e){
+            return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+        } catch (CardIsNotInTheDeckException e) {
+            return new KOMsg(ReturnMessage.CARD_IS_NOT_IN_THE_DECK.text);
+        }catch (InvalidCardPlayedException e) {
+            return new KOMsg(ReturnMessage.INVALID_CARD_PLAYED.text);
+        } catch (MoveAlreadyPlayedException e) {
+            return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
         }
     }
 
@@ -107,9 +105,9 @@ public class CommunicationController extends SugarMessageProcessor {
 
             try {
                 this.gameStateController.moveStudentFromEntranceToDiningRoom(msg.student);
-                return new OKMsg();
+                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
+                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
             } catch (StudentNotInTheEntranceException e) {
                 return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);
             } catch (FullDiningRoomLaneException e) {
@@ -130,9 +128,9 @@ public class CommunicationController extends SugarMessageProcessor {
 
             try {
                 this.gameStateController.moveStudentFromEntranceToArchipelago(msg.student, msg.archipelagoIslandCodes);
-                return new OKMsg();
+                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
+                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
             } catch (StudentNotInTheEntranceException e) {
                 return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);
             } catch (TooManyStudentsMovedException e) {
@@ -153,7 +151,7 @@ public class CommunicationController extends SugarMessageProcessor {
                 boolean merged = this.gameStateController.moveMotherNature(msg.numberOfSteps);
 
                 // Check winners
-                var winners = this.gameStateController.checkWinners(false);
+                Map<Integer, Boolean> winners = this.gameStateController.checkWinners(false);
                 if(winners.containsValue(true) /* someone won */) {
                     // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
                     Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
@@ -163,12 +161,12 @@ public class CommunicationController extends SugarMessageProcessor {
                 }
 
                 if(merged) {
-                    return new OKMsg(ReturnMessage.MERGE_PERFORMED.text);
+                    return new OKAndUpdateMsg(new OKMsg(ReturnMessage.MERGE_PERFORMED.text), new UpdateClientMsg(this.gameStateController.getLightGameState()));
                 }
                 else
-                    return new OKMsg();
+                    return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
+                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
             } catch (InvalidNumberOfStepsException e) {
                 return new KOMsg(ReturnMessage.INVALID_NUMBER_OF_STEPS.text);
             } catch (MoreStudentsToBeMovedException e) {
@@ -188,9 +186,9 @@ public class CommunicationController extends SugarMessageProcessor {
 
             try {
                 this.gameStateController.grabStudentsFromCloud(msg.cloudIndex);
-                return new OKMsg();
+                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
             } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
+                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
             } catch (EmptyCloudException e) {
                 return new KOMsg(ReturnMessage.EMPTY_CLOUD.text);
             } catch (MoveAlreadyPlayedException e) {
@@ -230,7 +228,7 @@ public class CommunicationController extends SugarMessageProcessor {
             } catch (EmptyStudentSupplyException e) {
                 return new KOMsg("Empty student supply"); //TODO transform this message in a GameOver condition
             } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE_EXCEPTION.text);
+                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
             }
 
             return new OKMsg();
@@ -245,4 +243,5 @@ public class CommunicationController extends SugarMessageProcessor {
         System.out.println("Dropping message : " + message.serialize());
         throw new UnhandledMessageAtLowestLayerException(message);
     }
+
 }

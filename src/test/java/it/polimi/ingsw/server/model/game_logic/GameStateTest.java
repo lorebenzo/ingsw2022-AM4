@@ -342,7 +342,7 @@ public class GameStateTest {
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES PROVIDED IS NOT VALID
     @Test
-    public void moveStudentFromEntranceToArchipelago4() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago4() throws GameStateInitializationFailureException {
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -360,7 +360,7 @@ public class GameStateTest {
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES CONTAINS NULL ARGUMENT
     @Test
-    public void moveStudentFromEntranceToArchipelago5() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago5() throws GameStateInitializationFailureException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -377,7 +377,7 @@ public class GameStateTest {
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES REFERENCE IS NULL
     @Test
-    public void moveStudentFromEntranceToArchipelago6() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago6() throws GameStateInitializationFailureException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -394,7 +394,7 @@ public class GameStateTest {
 
     //THIS METHOD SHOULD THROW AN EXCEPTION - STUDENT ARGUMENT IS NULL
     @Test
-    public void moveStudentFromEntranceToArchipelago7() throws GameStateInitializationFailureException, StudentNotInTheEntranceException{
+    public void moveStudentFromEntranceToArchipelago7() throws GameStateInitializationFailureException{
         GameState gameState = new GameState(2);
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -598,7 +598,7 @@ public class GameStateTest {
 
         GameState gameState = new GameState(2);
         Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
-        Color student = null;
+        Color student;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
         student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
@@ -611,8 +611,8 @@ public class GameStateTest {
         motherNaturePosition.addStudent(student);
 
 
-        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
     }
 
     @Test
@@ -620,7 +620,7 @@ public class GameStateTest {
 
         GameState gameState = new GameState(2);
         Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
-        Color student = null;
+        Color student;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -631,8 +631,8 @@ public class GameStateTest {
         motherNaturePosition.addStudent(student);
         motherNaturePosition.addStudent(student);
 
-        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
 
     }
 
@@ -666,11 +666,11 @@ public class GameStateTest {
             gameState.assignProfessor(student2.get());
 
             motherNaturePosition.addStudent(student2.get());
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
         }
 
 
-        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
 
     }
 
@@ -702,12 +702,12 @@ public class GameStateTest {
             gameState.assignProfessor(student2.get());
 
             motherNaturePosition.addStudent(student2.get());
-            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
         }
         else
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
 
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
 
     }
 
@@ -716,7 +716,7 @@ public class GameStateTest {
     public void getInfluence5() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(3);
         Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
-        Color student = null;
+        Color student;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
         student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
@@ -729,9 +729,9 @@ public class GameStateTest {
         motherNaturePosition.addStudent(student);
 
 
-        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
 
     }
 
@@ -740,7 +740,7 @@ public class GameStateTest {
 
         GameState gameState = new GameState(3);
         Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
-        Color student = null;
+        Color student;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -751,9 +751,9 @@ public class GameStateTest {
         motherNaturePosition.addStudent(student);
         motherNaturePosition.addStudent(student);
 
-        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
 
     }
 
@@ -784,14 +784,14 @@ public class GameStateTest {
             gameState.assignProfessor(student2.get());
 
             motherNaturePosition.addStudent(student2.get());
-            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
         }
         else
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
 
 
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
 
     }
 
@@ -823,13 +823,13 @@ public class GameStateTest {
             gameState.assignProfessor(student2.get());
 
             motherNaturePosition.addStudent(student2.get());
-            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
         }
         else
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
 
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
     }
 
     //4 PLAYERS
@@ -837,7 +837,7 @@ public class GameStateTest {
     public void getInfluence9() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(4);
         Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
-        Color student = null;
+        Color student;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
         student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);
@@ -850,10 +850,10 @@ public class GameStateTest {
         motherNaturePosition.addStudent(student);
 
 
-        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3));
 
     }
 
@@ -861,7 +861,7 @@ public class GameStateTest {
     public void getInfluence10() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
         GameState gameState = new GameState(4);
         Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);
-        Color student = null;
+        Color student;
 
         gameState.setCurrentPlayerSchoolBoardId(0);
 
@@ -872,10 +872,10 @@ public class GameStateTest {
         motherNaturePosition.addStudent(student);
         motherNaturePosition.addStudent(student);
 
-        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3));
 
 
     }
@@ -907,19 +907,19 @@ public class GameStateTest {
             gameState.assignProfessor(student2.get());
 
             motherNaturePosition.addStudent(student2.get());
-            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
         }
         else
         {
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
         }
 
 
 
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3));
 
 
     }
@@ -952,17 +952,17 @@ public class GameStateTest {
             gameState.assignProfessor(student2.get());
 
             motherNaturePosition.addStudent(student2.get());
-            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+            assertEquals(2,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
         }
         else{
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(0));
-            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(2));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0));
+            assertEquals(1,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2));
         }
 
 
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(1));
-        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get(3));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1));
+        assertEquals(0,(int) gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3));
 
     }
     @Test

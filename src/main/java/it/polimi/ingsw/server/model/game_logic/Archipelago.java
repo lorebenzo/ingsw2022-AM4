@@ -11,7 +11,7 @@ import java.util.*;
  * an island is an archipelago with a single island and
  * multiple archipelagos merge into a single archipelago
  */
-public class Archipelago {
+public class Archipelago implements ArchipelagoCommonInterface {
     private final List<Integer> islandCodes;
     private final Map<Color, Integer> studentToNumber;
     private TowerColor towerColor;
@@ -96,7 +96,11 @@ public class Archipelago {
                 .filter(playerProfessors::contains)     // filter the ones that match given professors colors
                 .mapToInt(this.studentToNumber::get)    // map each student to the number of occurrences in this archipelago
                 .sum()                                  // sum the occurrences
-                + ((playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0); // add tower score
+                + getTowersInfluence(playerTowerColor); // add tower score
+    }
+
+    protected int getTowersInfluence(TowerColor playerTowerColor){
+        return (playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0;
     }
 
     public List<Integer> getIslandCodes() {
