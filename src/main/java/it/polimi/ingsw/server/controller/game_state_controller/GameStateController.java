@@ -1,6 +1,5 @@
 package it.polimi.ingsw.server.controller.game_state_controller;
 
-import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
@@ -11,12 +10,9 @@ import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GameStateController {
     private final GameState gameState;
-
-
 
     public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
 
@@ -69,7 +65,7 @@ public class GameStateController {
      * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public void playCard(Card card) throws CardIsNotInTheDeckException, /*InvalidSchoolBoardIdException,*/ InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
+    public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
         if(this.gameState.getCurrentPhase() != Phase.PLANNING) throw new WrongPhaseException();
 
         if(this.cardPlayed()) throw new MoveAlreadyPlayedException();
@@ -86,7 +82,7 @@ public class GameStateController {
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      * @throws TooManyStudentsMovedException if the player has already moved the maximum number of students allowed by the rules.
      */
-    public void moveStudentFromEntranceToDiningRoom(Color student) throws /*InvalidSchoolBoardIdException,*/ StudentNotInTheEntranceException, FullDiningRoomLaneException, WrongPhaseException, TooManyStudentsMovedException {
+    public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException, WrongPhaseException, TooManyStudentsMovedException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
         if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) != 0) throw new TooManyStudentsMovedException();
@@ -107,7 +103,7 @@ public class GameStateController {
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      * @throws TooManyStudentsMovedException if the player has already moved the maximum number of students allowed by the rules.
      */
-    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws /*InvalidSchoolBoardIdException,*/ StudentNotInTheEntranceException, WrongPhaseException, TooManyStudentsMovedException {
+    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, WrongPhaseException, TooManyStudentsMovedException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
         if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) != 0) throw new TooManyStudentsMovedException();
@@ -124,7 +120,7 @@ public class GameStateController {
      * @throws InvalidNumberOfStepsException if the player provides a number of steps that isn't between 0 and the maximum number of steps that the player chose during the planning phase.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, /*InvalidSchoolBoardIdException,*/ WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException {
+    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException {
 
         boolean mergePerformed = false;
 
@@ -155,7 +151,7 @@ public class GameStateController {
      * @throws EmptyCloudException indicates that che chosen cloud is empty.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public void grabStudentsFromCloud(int cloudIndex) throws /*InvalidSchoolBoardIdException,*/ EmptyCloudException, WrongPhaseException, MoveAlreadyPlayedException, MotherNatureToBeMovedException {
+    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException, WrongPhaseException, MoveAlreadyPlayedException, MotherNatureToBeMovedException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
 
@@ -176,7 +172,7 @@ public class GameStateController {
      * @throws MotherNatureToBeMovedException if the player didn't move motherNature before trying to end his turn.
      * @throws StudentsToBeGrabbedFromCloudException if the player didn't grab the students from a cloud before trying to end his turn.
      */
-    public void endActionTurn() throws /*FullCloudException, */MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
+    public void endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
         //TODO there may be more actions to be performed
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
@@ -239,7 +235,7 @@ public class GameStateController {
     }
 
 
-    private void nextActionTurn() throws EmptyStudentSupplyException /*throws FullCloudException,*/ {
+    private void nextActionTurn() throws EmptyStudentSupplyException {
         //If all the players played in this round, a new round will begin
         if(this.gameState.isLastTurnInThisRound()) {
             this.gameState.resetRoundIterator();
@@ -257,8 +253,8 @@ public class GameStateController {
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
 
-    Map<Integer, Boolean> checkWinners(boolean isRoundTerminated){
-        return this.gameState.checkWinners(isRoundTerminated);
+    Optional<Map<Integer, Boolean>> checkImmediateWinners(){
+        return this.gameState.checkImmediateWinners();
     }
 
 
@@ -324,9 +320,8 @@ public class GameStateController {
     /**
      * This method assigns the professor of the specified color to the current player, verifying if all the conditions are met.
      * @param professor indicates the color for which the professor may be assigned
-     * //@throws InvalidSchoolBoardIdException if there is an error with the schoolBoardIds
      */
-    private void assignProfessor(Color professor) /*throws InvalidSchoolBoardIdException*/ {
+    private void assignProfessor(Color professor) {
         this.gameState.assignProfessor(professor);
     }
 

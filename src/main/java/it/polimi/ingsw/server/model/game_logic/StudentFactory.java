@@ -90,6 +90,11 @@ public class StudentFactory {
     }
 
     public boolean isEmpty() {
-        return this.studentSupply.values().stream().mapToInt(i -> i).sum() == 0;
+
+        return this.numberOfStudentsLeft() == 0;
+    }
+
+    public int numberOfStudentsLeft(){
+        return this.studentSupply.values().stream().mapToInt(i -> i).sum();
     }
 }

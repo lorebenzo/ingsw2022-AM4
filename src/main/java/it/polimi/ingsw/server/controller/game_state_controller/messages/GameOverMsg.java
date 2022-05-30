@@ -12,12 +12,12 @@ import java.util.Map;
  * to notify to the clients the end of the game
  */
 public class GameOverMsg extends SugarMessage{
-    public final Map<Peer, Boolean> peerToIsWinner;
-    public final LightGameState lightGameState;
+    public final Map<String, Boolean> peerToIsWinner;
+    public final UpdateClientMsg updateClientMsg;
 
-    public GameOverMsg(Map<Peer, Boolean> peerToIsWinner, LightGameState lightGameState){
+    public GameOverMsg(Map<String, Boolean> peerToIsWinner, UpdateClientMsg updateClientMsg){
         super(SugarMethod.CONTROL_AND_NOTIFY);
         this.peerToIsWinner = peerToIsWinner;
-        this.lightGameState = lightGameState;
+        this.updateClientMsg = updateClientMsg;
     }
 }

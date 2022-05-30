@@ -41,7 +41,9 @@ public class SugarClient extends TcpClient {
             }
         } catch (MessageDeserializationException e) {
             this.log("error in message deserialization, dropping message : " + input);
-        } catch (DisconnectionException ignored) {}
+        } catch (DisconnectionException ignored) {
+
+        }
     }
 
     public void send(SugarMessage message) throws DisconnectionException {

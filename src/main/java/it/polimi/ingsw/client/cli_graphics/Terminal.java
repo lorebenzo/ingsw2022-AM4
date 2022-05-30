@@ -224,21 +224,33 @@ public class Terminal {
     // Print Game State
     public void updateGS(LightGameState lightGameState) {
         this.clean();
-        this.renderSchoolBoards(lightGameState.schoolBoards, lightGameState.currentPlayerSchoolBoardId, 0, 0);
+        this.renderSchoolBoards(lightGameState.schoolBoards, lightGameState.usernameToSchoolBoardID, lightGameState.currentPlayerSchoolBoardId, 0, 0);
         this.renderArchipelagos(lightGameState.archipelagos, lightGameState.motherNaturePosition, 0, 65);
         this.renderClouds(lightGameState.clouds, 15, 65);
     }
 
-    private void renderSchoolBoards(List<SchoolBoard> schoolBoards, int currentPlayerSchId, int row, int col) {
+    private Optional<String> getUsernameFromSchoolBoardID(Map<String, Integer> usernameToSchoolBoardID, int schoolBoardID) {
+        for (Map.Entry<String, Integer> username : usernameToSchoolBoardID.entrySet()) {
+            if (Objects.equals(schoolBoardID, username.getValue())) {
+                return Optional.of(username.getKey());
+            }
+        }
+        return Optional.empty();
+    }
+
+    private void renderSchoolBoards(List<SchoolBoard> schoolBoards, Map<String, Integer> usernameToSchoolBoardID, int currentPlayerSchId, int row, int col) {
         // Display schoolBoards
         int printed = 0;
         for(var schoolBoard : schoolBoards) {
             var _row = printed == 0 || printed == 1 ? row : row + 11;
             var _col = printed == 0 || printed == 2 ? col : col + 32;
 
+
+            var username = getUsernameFromSchoolBoardID(usernameToSchoolBoardID, schoolBoard.getId());
+
             // Display schoolBoard name
             var name = new UnicodeString()
-                    .appendNonUnicodeString("Schoolboard " + Integer.toString(schoolBoard.getId()));
+                    .appendNonUnicodeString("Schoolboard " + username.get());
             if(schoolBoard.getId() == currentPlayerSchId)
                 name.color(ANSI_GREEN);
             this.putStringAsComponent(name.getUnicodeString(), _row++, _col);
@@ -293,7 +305,7 @@ public class Terminal {
     }
 
 
-    private void renderArchipelagos(List<Archipelago> archipelagos, Archipelago motherNatPos, int row, int col) {
+    private void renderArchipelagos(List<Archipelago> archipelagos, int motherNatPos, int row, int col) {
         // Display header
         var header = new UnicodeString()
                 .appendNonUnicodeString("Archipelagos:")
@@ -308,7 +320,7 @@ public class Terminal {
 
             // Add island codes
             archipelagoRepresentation.appendNonUnicodeString(archipelago.getIslandCodes().toString() + ": ");
-            if(archipelago.equals(motherNatPos)) archipelagoRepresentation.color(ANSI_GREEN); // TODO: fix, does not work
+            if(archipelago.equals(archipelagos.get(motherNatPos))) archipelagoRepresentation.color(ANSI_GREEN); // TODO: fix, does not work
 
             // Add towers
             String towerColor = towerColorToANSI.get(archipelago.getTowerColor());
