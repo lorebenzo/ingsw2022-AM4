@@ -10,7 +10,7 @@ import javafx.scene.text.Text;
 import java.util.List;
 
 public class ArchipelagosRenderer {
-    static VBox renderArchipelagos(List<Archipelago> archipelagos) {
+    static VBox renderArchipelagos(List<Archipelago> archipelagos, int motherNatureArchipelagoId) {
         var archipelagosElement = new VBox();
 
         // Header
@@ -18,8 +18,15 @@ public class ArchipelagosRenderer {
 
         // Bar
         var archipelagosBar = new HBox();
-        for(var archipelago : archipelagos)
-            archipelagosBar.getChildren().add(renderArchipelago(archipelago));
+        for(var archipelago : archipelagos) {
+            var archipelagoElement = renderArchipelago(archipelago);
+            archipelagosBar.getChildren().add(archipelagoElement);
+
+            // Archipelago event listener
+            archipelagoElement.setOnMouseClicked(mouseEvent -> UserInputHandler.onArchipelagoIndexClick(
+                    archipelago, getSteps(archipelagos, motherNatureArchipelagoId, archipelago.getIslandCodes().get(0)))
+            );
+        }
 
         // Bar Style
         archipelagosBar.setStyle("-fx-alignment: center");
@@ -38,9 +45,6 @@ public class ArchipelagosRenderer {
 
         // Header
         var header = new Text(Integer.toString(archipelago.getIslandCodes().get(0)));
-
-        // Header event listeners
-        header.setOnMouseClicked(mouseEvent -> UserInputHandler.onArchipelagoIndexClick(archipelago));
 
         // Header Style
         header.setStyle("-fx-alignment: center");
@@ -69,5 +73,20 @@ public class ArchipelagosRenderer {
         archipelagoElement.setStyle("-fx-padding: 3");
 
         return archipelagoElement;
+    }
+
+    private static int getSteps(List<Archipelago> archipelagos, int motherNaturePosId, int destId) {
+        int steps = 0;
+        int motherNatureIndex = 0, destinationIndex = 0;
+        for(int i = 0; i < archipelagos.size(); i++) {
+            if(archipelagos.get(i).getIslandCodes().get(0) == motherNaturePosId)
+                motherNatureIndex = i;
+            if(archipelagos.get(i).getIslandCodes().get(0) == destId)
+                destinationIndex = i;
+        }
+
+        return (destinationIndex >= motherNatureIndex) ?
+                destinationIndex - motherNatureIndex :
+                archipelagos.size() - (motherNatureIndex - destinationIndex);
     }
 }

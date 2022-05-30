@@ -85,7 +85,7 @@ public class GameStateRenderer {
         } catch (IndexOutOfBoundsException ignored) { }
 
         // Render archipelagos
-        var archipelagos = ArchipelagosRenderer.renderArchipelagos(gs.archipelagos);
+        var archipelagos = ArchipelagosRenderer.renderArchipelagos(gs.archipelagos, gs.motherNaturePosition);
         // baseGrid.addRow(2, archipelagos);
         baseGrid.add(archipelagos, 0, 2, 2, 1);
         // Style

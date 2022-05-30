@@ -166,15 +166,5 @@ public class StageRenderer {
         this.logs.add(log);
         this.render();
     }
-
-    public void login() {
-        LoginModuleMock.login();
-        this.logged = true;
-    }
 }
 
-class LoginModuleMock {
-    public static void login() {
-        System.out.println("Successfully logged in");
-    }
-}

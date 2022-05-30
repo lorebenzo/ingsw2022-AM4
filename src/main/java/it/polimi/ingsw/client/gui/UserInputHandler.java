@@ -72,18 +72,18 @@ public class UserInputHandler {
 
     public static void onCloudClick(int cloudIndex, List<Color> cloud) {
         if(initialized) {
-            stageRenderer.log("grabStudentsFromCloud " + cloudIndex);
-            //gameClient.grabStudentsFromCloud(cloudIndex);
+            gameClient.grabStudentsFromCloud(cloudIndex);
         }
     }
 
-    public static void onArchipelagoIndexClick(Archipelago archipelago) {
+    public static void onArchipelagoIndexClick(Archipelago archipelago, int steps) {
         if(initialized) {
             if(state.name.equals(State.StateName.FromEntrance) && state.student.isPresent())
-                stageRenderer.log("moveStudentFromEntranceToArchipelago(color=" + state.student.get() + ", archId=" + archipelago.getIslandCodes().get(0));
-                //gameClient.moveStudentFromEntranceToArchipelago(state.student.get().toString(), archipelago.getIslandCodes().get(0));
+                // stageRenderer.log("moveStudentFromEntranceToArchipelago(color=" + state.student.get() + ", archId=" + archipelago.getIslandCodes().get(0));
+                gameClient.moveStudentFromEntranceToArchipelago(state.student.get().toString(), archipelago.getIslandCodes().get(0));
             else {
-                stageRenderer.log("moveMotherNature");
+                // stageRenderer.log("moveMotherNature");
+                gameClient.moveMotherNature(steps);
             }
             state.reset();
         }
@@ -91,15 +91,16 @@ public class UserInputHandler {
 
     public static void onSignUpClick(String username, String password) {
         if(initialized) {
-            stageRenderer.log("Trying to sign up with username: " + username + " and password: " + password);
-            stageRenderer.login();
+            // stageRenderer.log("Trying to sign up with username: " + username + " and password: " + password);
+            gameClient.signUp(username, password);
             stageRenderer.render();
         }
     }
 
     public static void onLoginClick(String username, String password) {
         if(initialized) {
-            stageRenderer.log("Trying to log in with username: " + username + " and password: " + password);
+            // stageRenderer.log("Trying to log in with username: " + username + " and password: " + password);
+            gameClient.login(username, password);
             stageRenderer.render();
         }
     }
