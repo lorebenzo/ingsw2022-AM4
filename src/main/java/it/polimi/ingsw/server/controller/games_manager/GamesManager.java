@@ -8,10 +8,7 @@ import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMes
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.auth_controller.AuthController;
-import it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg;
-import it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg;
-import it.polimi.ingsw.server.controller.game_state_controller.messages.OKAndUpdateMsg;
-import it.polimi.ingsw.server.controller.game_state_controller.messages.OKMsg;
+import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
@@ -105,8 +102,10 @@ public class GamesManager extends SugarMessageProcessor {
 
 //                this.server.multicastToRoom(gameRoomId, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
 
-                this.gameLogicMulticast(gameController, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
                 gameController.startGame();
+                this.gameLogicMulticast(gameController, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
+                this.gameLogicMulticast(gameController, new UpdateClientMsg(gameController.getLightGameState()));
+
                 this.games.add(gameController);
 
                 // Remove from the matchmaking peers that joined the game

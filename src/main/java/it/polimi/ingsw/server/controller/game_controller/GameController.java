@@ -5,6 +5,7 @@ import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMes
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.game_state_controller.CommunicationController;
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.server.repository.UsersRepository;
@@ -82,6 +83,10 @@ public class GameController extends SugarMessageProcessor {
                 break;
             }
         }
+    }
+
+    public LightGameState getLightGameState() {
+        return this.communicationController.getLightGameState();
     }
 
     @SugarMessageHandler

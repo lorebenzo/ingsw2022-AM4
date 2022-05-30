@@ -10,6 +10,7 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.ReturnMessage;
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
@@ -238,6 +239,10 @@ public class CommunicationController extends SugarMessageProcessor {
         }
         else
             return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+    }
+
+    public LightGameState getLightGameState() {
+        return this.gameStateController.getLightGameState().addUsernames(usernameToSchoolBoardID);
     }
 
 
