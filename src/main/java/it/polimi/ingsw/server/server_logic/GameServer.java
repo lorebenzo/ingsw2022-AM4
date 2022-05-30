@@ -18,7 +18,11 @@ public class GameServer extends SugarServer {
     protected void onPeerConnect(Peer peer) {}
 
     @Override
-    protected void onPeerDisconnect(Peer peer) {}
+    protected void onPeerDisconnect(Peer peer) {
+//        try {
+//            authController.process();
+//        }
+    }
 
     @Override
     protected void onPeerMessage(Peer peer, SugarMessage message) {

@@ -307,7 +307,7 @@ public abstract class SugarServer extends TcpServer {
      * @param peer any peer
      * @throws IOException if the message could not be sent through the socket
      */
-    protected void send(SugarMessage msg, Peer peer) throws IOException {
+    public void send(SugarMessage msg, Peer peer) throws IOException {
         this.send(msg.serialize(), peer.peerSocket);
     }
 

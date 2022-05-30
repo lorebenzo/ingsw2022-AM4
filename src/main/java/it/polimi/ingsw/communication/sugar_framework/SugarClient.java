@@ -2,8 +2,6 @@ package it.polimi.ingsw.communication.sugar_framework;
 
 import it.polimi.ingsw.client.GameClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
-import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
-import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.HeartBeatMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod;
@@ -43,7 +41,9 @@ public class SugarClient extends TcpClient {
             }
         } catch (MessageDeserializationException e) {
             this.log("error in message deserialization, dropping message : " + input);
-        } catch (DisconnectionException ignored) {}
+        } catch (DisconnectionException ignored) {
+
+        }
     }
 
     public void send(SugarMessage message) throws DisconnectionException {

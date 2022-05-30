@@ -66,6 +66,7 @@ public abstract class TcpClient {
         b.append((char) curr);
         while(curr != '§') {
             curr = in.read();
+            if(curr == -1) throw new IOException("Disconnected");
             if(curr != '§') b.append((char) curr);
         }
 

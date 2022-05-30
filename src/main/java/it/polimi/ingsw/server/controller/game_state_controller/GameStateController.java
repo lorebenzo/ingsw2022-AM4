@@ -14,8 +14,6 @@ import java.util.*;
 public class GameStateController {
     private final GameState gameState;
 
-
-
     public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
 
         //Create a new gameState

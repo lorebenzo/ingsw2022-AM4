@@ -12,6 +12,8 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.GameOver
 import it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.OKAndUpdateMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.OKMsg;
+import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
+import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.enums.ReturnMessage;
@@ -20,6 +22,7 @@ import it.polimi.ingsw.server.controller.game_controller.GameController;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.utils.multilist.MultiList;
 
+import javax.management.remote.JMXServerErrorException;
 import java.io.IOException;
 import java.util.*;
 
@@ -34,10 +37,37 @@ public class GamesManager extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
+    public SugarMessage getGamesMsg(SugarMessage message, Peer peer) {
+        var msg = (GetGamesMsg) message;
+        var username = AuthController.getUsernameFromJWT(msg.jwt);
+
+        var gameController = this.games.stream()
+                .filter(gc -> gc.containsPLayer(username))
+                .findFirst();
+
+        if(gameController.isPresent()) {
+            return new GamesUpdateMsg(gameController.get().roomId);
+        } else {
+            return new GamesUpdateMsg(null);
+        }
+     }
+
+    @SugarMessageHandler
     public SugarMessage joinMatchMakingMsg(SugarMessage message, Peer peer) {
         var msg = (JoinMatchMakingMsg) message;
+        var username = AuthController.getUsernameFromJWT(msg.jwt);
 
-        this.peerUsernameMap.put(peer, AuthController.getUsernameFromJWT(msg.jwt));
+        // If player was already in another game, it removes it from the game
+        if(this.games.stream().anyMatch(gameController -> gameController.containsPLayer(username))) {
+            var gameController = this.games.stream()
+                    .filter(gc -> gc.containsPLayer(username))
+                    .findFirst()
+                    .get();
+
+            gameController.removePlayer(username);
+        }
+
+        this.peerUsernameMap.put(peer, username);
 
         // Add the peer to the matchmaking room
         this.matchMakingList.add(peer, msg.numberOfPlayers, msg.expertMode);
@@ -73,16 +103,17 @@ public class GamesManager extends SugarMessageProcessor {
             try {
                 filteredMatchMakingList.forEach((peer, nPlayers, expMode) -> this.server.getRoom(gameRoomId).addPeer(peer));
 
-                this.server.multicastToRoom(gameRoomId, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
+//                this.server.multicastToRoom(gameRoomId, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
 
+                this.gameLogicMulticast(gameController, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
                 gameController.startGame();
                 this.games.add(gameController);
 
                 // Remove from the matchmaking peers that joined the game
                 filteredMatchMakingList.forEach((peer, nPlayers, expMode) -> this.matchMakingList.remove(peer));
-            } catch (IOException | RoomNotFoundException ignored) { }
-            catch (GameStateInitializationFailureException e) {
+            } catch (GameStateInitializationFailureException e) {
                 try {
+                    //todo: da fixare
                     this.server.multicastToRoom(gameRoomId, new KOMsg(ReturnMessage.DELETING_GAME.text));
                 } catch (IOException | RoomNotFoundException ignored) { }
             }
@@ -91,10 +122,12 @@ public class GamesManager extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
-        var gameInvolvingPeer = findGameInvolvingPeer(peer);
+        var username =AuthController.getUsernameFromJWT(sugarMessage.jwt);
+        var gameInvolvingPlayer = findGameInvolvingPlayer(username);
 
-        if(gameInvolvingPeer.isPresent()) {
-            var ret = gameInvolvingPeer.get().process(sugarMessage, peer);
+        if(gameInvolvingPlayer.isPresent()) {
+            gameInvolvingPlayer.get().updatePeerIfOlder(username, peer);
+            var ret = gameInvolvingPlayer.get().process(sugarMessage, peer);
 
             // Process the message coming from the lower layers
             this.processFromLowerLayers(ret, peer);
@@ -110,27 +143,45 @@ public class GamesManager extends SugarMessageProcessor {
                 .findFirst();
     }
 
+    private Optional<GameController> findGameInvolvingPlayer(String player) {
+        return this.games
+                .stream()
+                .filter(gameController -> gameController.containsPLayer(player))
+                .findFirst();
+    }
+
 
     // Handling messages from lower layers
-    @SugarMessageFromLowerLayersHandler
-    public void gameOverMsg(SugarMessage message) { // From CommunicationController
-        GameOverMsg msg = (GameOverMsg) message;
+//    @SugarMessageFromLowerLayersHandler
+//    public void gameOverMsg(SugarMessage message) { // From CommunicationController
+//        GameOverMsg msg = (GameOverMsg) message;
+//
+//        String aPeerFromThisGame = null;
+//
+//        // Notify clients
+//        for(var peer : msg.peerToIsWinner.keySet()) {
+//            aPeerFromThisGame = peer;
+//            try {
+//                this.server.send(new NotifyGameOverMsg(
+//                        msg.peerToIsWinner.get(peer) ? ReturnMessage.YOU_WIN.text : ReturnMessage.YOU_LOSE.text
+//                ).serialize(), );
+//            } catch (IOException ignored) { }
+//        }
+//
+//        // Close game
+//        var game = this.findGameInvolvingPeer(aPeerFromThisGame);
+//        game.ifPresent(this.games::remove);
+//    }
 
-        Peer aPeerFromThisGame = null;
-
-        // Notify clients
-        for(var peer : msg.peerToIsWinner.keySet()) {
-            aPeerFromThisGame = peer;
+    private void gameLogicMulticast(GameController gameController, SugarMessage message) {
+        var players = gameController.getPlayers();
+        for(var player: players) {
             try {
-                this.server.send(new NotifyGameOverMsg(
-                        msg.peerToIsWinner.get(peer) ? ReturnMessage.YOU_WIN.text : ReturnMessage.YOU_LOSE.text
-                ).serialize(), peer.peerSocket);
-            } catch (IOException ignored) { }
+                this.server.send(message, player.associatedPeer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        // Close game
-        var game = this.findGameInvolvingPeer(aPeerFromThisGame);
-        game.ifPresent(this.games::remove);
     }
 
     @SugarMessageFromLowerLayersHandler
@@ -142,11 +193,9 @@ public class GamesManager extends SugarMessageProcessor {
 
             var gameInvolvingReceiver = findGameInvolvingPeer(receiver);
             if(gameInvolvingReceiver.isPresent()) {
-                this.server.multicastToRoom(gameInvolvingReceiver.get().roomId, msg.updateClientMsg);
+                this.gameLogicMulticast(gameInvolvingReceiver.get(), msg.updateClientMsg);
             }
-        } catch (IOException ignored) {} catch (RoomNotFoundException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {} {}
     }
 
     @SugarMessageFromLowerLayersHandler

@@ -1,6 +1,4 @@
 package it.polimi.ingsw.server;
-
-import com.google.gson.Gson;
 import it.polimi.ingsw.server.server_logic.GameServer;
 
 import java.io.IOException;

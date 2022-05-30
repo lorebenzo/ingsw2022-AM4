@@ -15,6 +15,8 @@ import it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
+import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
+import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
@@ -176,7 +178,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);
-
         // TODO: remove (debug)
         // Gson gson = new GsonBuilder().setPrettyPrinting().create();
         // System.out.println(gson.toJson(msg.lightGameState));
@@ -187,6 +188,17 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (JWTMsg) message;
         this.jwt = msg.jwtAuthCode;
         this.logger.logSuccess("Successfully logged in");
+        this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
+    }
+    @SugarMessageHandler
+    public void peerUPIMessage(SugarMessage message) {}
+
+    @SugarMessageHandler
+    public void gamesUpdateMsg(SugarMessage message) {
+        var msg = (GamesUpdateMsg) message;
+        if(msg.gameUUID != null) {
+            this.logger.log(msg.gameUUID.toString());
+        }
     }
 
     @SugarMessageHandler
@@ -218,6 +230,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 .filter(cliCommand -> cliCommand.text().equals(command.toLowerCase().trim()))
                 .findFirst();
     }
+
+
 
     private String extractCommand(String input) {
         var matcher = command.matcher(input);

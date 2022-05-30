@@ -35,6 +35,16 @@ public class GameController extends SugarMessageProcessor {
         }
     }
 
+    public void removePlayer(String username) {
+        synchronized (this.players) {
+            this.players.removeIf(player -> player.username.equals(username));
+        }
+    }
+    //todo: increase security
+    public List<Player> getPlayers() {
+        return this.players;
+    }
+
     public void addPlayer(Player player) {
         if(!this.gameStarted) this.addPlayerEffective(player);
     }
@@ -47,13 +57,31 @@ public class GameController extends SugarMessageProcessor {
                 usersRepository.saveUserSchoolBardMap(this.roomId, players.get(i).username, i);
             }
         }
-        this.communicationController = new CommunicationController(players.stream().map(player -> player.associatedPeer).toList());
+        this.communicationController = new CommunicationController(players);
     }
 
     public boolean containsPeer(Peer peer) {
         for(var player : this.players)
             if(player.associatedPeer.equals(peer)) return true;
         return false;
+    }
+
+    public boolean containsPLayer(String username) {
+        for(var player : this.players)
+            if(player.username.equals(username)) return true;
+        return false;
+    }
+
+    public void updatePeerIfOlder(String username, Peer peer) {
+        for(int i = 0; i < this.players.size(); i++) {
+            var player = this.players.get(i);
+            if (player.username.equals(username)) {
+                if (!player.associatedPeer.upi.equals(peer.upi)) {
+                    this.players.set(i, new Player(peer, username));
+                }
+                break;
+            }
+        }
     }
 
     @SugarMessageHandler
