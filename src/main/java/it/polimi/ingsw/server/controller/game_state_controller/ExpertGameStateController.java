@@ -1,24 +1,25 @@
 package it.polimi.ingsw.server.controller.game_state_controller;
 
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
-import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.ExpertGameState;
-import it.polimi.ingsw.server.model.game_logic.PlayableCharacter;
 import it.polimi.ingsw.server.model.game_logic.enums.Character;
+import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
-import java.util.Optional;
+import java.util.List;
 
 public class ExpertGameStateController extends GameStateController {
-    public ExpertGameStateController(int playersNumber) throws GameStateInitializationFailureException {
+
+    public ExpertGameStateController(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         super(playersNumber);
     }
 
     @Override
-    protected void initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
+    protected void initializeGameState(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         this.gameState = new ExpertGameState(playersNumber);
     }
+
 
     private void applyEffectGenericChecks(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
@@ -27,66 +28,87 @@ public class ExpertGameStateController extends GameStateController {
 
         if(characterIndex < 0 || characterIndex >= this.gameState.getAvailableCharacters().size()) throw new InvalidCharacterIndexException();
     }
-
-    public boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws InvalidCharacterIndexException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, WrongPhaseException, MoveAlreadyPlayedException, MoveNotAvailableException, NoAvailableLockException {
-
+    @Override
+    public void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException, WrongArgumentsException {
         this.applyEffectGenericChecks(characterIndex);
+
+        int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
+
+        if(characterId == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId){
+            this.gameState.playGetProfessorsWithSameStudents();
+        }else if (characterId == Character.TWO_ADDITIONAL_STEPS.characterId){
+            this.gameState.playTwoAdditionalSteps();
+        }else if(characterId == Character.TOWERS_DONT_COUNT.characterId){
+            this.gameState.playTowersDontCount();
+        } else if(characterId == Character.TWO_ADDITIONAL_INFLUENCE.characterId){
+            this.gameState.playTwoAdditionalInfluence();
+        }else
+            throw new WrongArgumentsException();
+
+    }
+    @Override
+    public boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws InvalidCharacterIndexException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, WrongPhaseException, MoveAlreadyPlayedException, MoveNotAvailableException, NoAvailableLockException, WrongArgumentsException {
 
         boolean mergePerformed = false;
 
-        Optional<Archipelago> selectedArchipelago = this.gameState.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);
+        this.applyEffectGenericChecks(characterIndex);
 
-        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();
+        int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
 
-        PlayableCharacter selectedCharacter = this.gameState.getAvailableCharacters().get(characterIndex);
-
-        if(selectedCharacter.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId){
-            if(!selectedCharacter.isLockAvailable()) throw new NoAvailableLockException();
-            this.gameState.lockArchipelago(selectedArchipelago.get());
-            selectedCharacter.useLock();
+        if(characterId == Character.LOCK_ARCHIPELAGO.characterId){
+            this.gameState.playCharacterLock(archipelagoIslandCode);
         }
-        else if(selectedCharacter.getCharacterId() == Character.MOVE_MOTHER_NATURE_TO_ANY_ISLAND.characterId){
-            int actualMotherNaturePositionIslandCode = this.gameState.getMotherNaturePositionIslandCodes().get(0);
-            this.gameState.moveMotherNatureToGivenArchipelagoIslandCode(archipelagoIslandCode);
-
-            if(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().isPresent()){
-                this.gameState.conquerArchipelago(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().get());
-                mergePerformed = this.merge();
-            }
-            this.gameState.moveMotherNatureToGivenArchipelagoIslandCode(actualMotherNaturePositionIslandCode);
+        else if(characterId == Character.MOVE_MOTHER_NATURE_TO_ANY_ARCHIPELAGO.characterId){
+            mergePerformed = this.gameState.playMoveMotherNatureToAnyArchipelago(archipelagoIslandCode);
         }
         else
-            throw new MoveNotAvailableException();
-
-        //this.gameState.payCharacter(this.gameState.getAvailableCharacters().get(characterIndex).getCurrentCost());
-        this.gameState.playCharacter(selectedCharacter);
+            throw new WrongArgumentsException();
 
         return mergePerformed;
     }
-
-    public void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException {
+    @Override
+    public void applyEffect(int characterIndex, Color color) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException {
         this.applyEffectGenericChecks(characterIndex);
 
-        PlayableCharacter selectedCharacter = this.gameState.getAvailableCharacters().get(characterIndex);
+        int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
 
-        if(selectedCharacter.getCharacterId() == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId){
-            //OK
-            this.gameState.playCharacter(selectedCharacter);
-        }
-        else if(selectedCharacter.getCharacterId() == Character.TWO_ADDITIONAL_STEPS.characterId){
-            //OK
-            this.gameState.playCharacter(selectedCharacter);
-        }
-        else if(selectedCharacter.getCharacterId() == Character.TOWERS_DONT_COUNT.characterId){
-            this.gameState.playCharacter(selectedCharacter);
-        }
-        else if(selectedCharacter.getCharacterId() == Character.TWO_ADDITIONAL_INFLUENCE.characterId){
-            this.gameState.playCharacter(selectedCharacter);
+        if(characterId == Character.COLOR_DOESNT_COUNT.characterId){
+            this.gameState.playColorDoesntCount(color);
+        }else if(characterId == Character.PUT_ONE_STUDENT_FROM_CHARACTER_INTO_DINING_ROOM.characterId){
+            this.gameState.playPutOneStudentFromCharacterToDiningRoom(color);
+        }else if(characterId == Character.PUT_THREE_STUDENTS_IN_THE_BAG.characterId){
+            this.gameState.playPutThreeStudentsInTheBag(color);
         }
         else
-            throw new MoveNotAvailableException();
+            throw new WrongArgumentsException();
+    }
+    @Override
+    public void applyEffect(int characterIndex, Color color, int archipelagoIslandCode) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, WrongArgumentsException {
+        this.applyEffectGenericChecks(characterIndex);
+
+        int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
+
+        if(characterId == Character.PUT_ONE_STUDENT_FROM_CHARACTER_TO_ARCHIPELAGO.characterId)
+            this.gameState.playPutOneStudentFromCharacterToArchipelago(color, archipelagoIslandCode);
+        else
+            throw new WrongArgumentsException();
 
     }
+    @Override
+    public void applyEffect(int characterIndex, List<Color> students1, List<Color> students2) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException {
+        this.applyEffectGenericChecks(characterIndex);
+
+        int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
+
+        if(characterId == Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE.characterId)
+            this.gameState.playSwapThreeStudentsBetweenCharacterAndEntrance(students1, students2);
+        else if(characterId == Character.SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM.characterId)
+            this.gameState.playSwapTwoStudentsBetweenEntranceAndDiningRoom(students1, students2);
+        else
+            throw new WrongArgumentsException();
+
+    }
+
 
     /**
      * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState moving motherNature.
@@ -101,5 +123,18 @@ public class ExpertGameStateController extends GameStateController {
         this.gameState.unlockMotherNaturePosition();
 
         return merged;
+    }
+
+    @Override
+    protected void nextActionTurn() throws EmptyStudentSupplyException {
+        this.gameState.refillCharacter();
+
+        this.gameState.resetCharacterPlayedThisTurn();
+
+        this.gameState.resetProfessors();
+        this.gameState.setTowersInfluenceForAllArchipelagos(true);
+        this.gameState.resetColorThatDoesntCountForAllArchipelagos();
+
+        super.nextActionTurn();
     }
 }

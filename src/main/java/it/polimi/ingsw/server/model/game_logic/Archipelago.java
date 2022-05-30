@@ -49,23 +49,32 @@ public class Archipelago implements ArchipelagoCommonInterface {
     }
 
     /**
-     * @throws  IllegalArgumentException if(a1 == null || a2 == null)
      * //@throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
      *                                              if the two archipelagos have intersecting islandCodes
-     * @param a1 first archipelago to merge
      * @param a2 second archipelago
      * @return an Archipelago that has first islandCodes + second islandCodes
      */
-    public static Archipelago merge(Archipelago a1, Archipelago a2) throws NonMergeableArchipelagosException {
-        if(a1 == null || a2 == null) throw new IllegalArgumentException();
-        if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE) || a1.islandCodes.stream().anyMatch(a2.islandCodes::contains))
-            throw new NonMergeableArchipelagosException();
+    public boolean merge(Archipelago a2) {
+        if(a2 == null) throw new IllegalArgumentException();
 
-        return new Archipelago(
-                a1.islandCodes, a2.islandCodes,
-                a1.studentToNumber, a2.studentToNumber,
-                a1.towerColor
-        );
+        boolean merged = this.towerColor.equals(a2.towerColor) && !this.towerColor.equals(TowerColor.NONE) && this.islandCodes.stream().noneMatch(a2.islandCodes::contains);
+
+        if(merged){
+            this.islandCodes.addAll(a2.islandCodes);
+            this.studentToNumber.replaceAll((k, v) -> this.studentToNumber.get(k) + a2.studentToNumber.get(k));
+        }
+
+
+        return merged;
+
+    }
+
+    public List<Color> getStudents() {
+        var students = new LinkedList<Color>();
+        for(var key : this.studentToNumber.keySet())
+            for(int i = 0; i < this.studentToNumber.get(key); i++)
+                students.add(key);
+        return students;
     }
 
     /**
@@ -92,15 +101,19 @@ public class Archipelago implements ArchipelagoCommonInterface {
                 playerProfessors == null || playerProfessors.contains(null) ||
                 playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE)
         ) throw new IllegalArgumentException();
-        return studentToNumber.keySet().stream()        // get student colors
-                .filter(playerProfessors::contains)     // filter the ones that match given professors colors
-                .mapToInt(this.studentToNumber::get)    // map each student to the number of occurrences in this archipelago
-                .sum()                                  // sum the occurrences
+        return getStudentsInfluence(playerProfessors)
                 + getTowersInfluence(playerTowerColor); // add tower score
     }
 
     protected int getTowersInfluence(TowerColor playerTowerColor){
         return (playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0;
+    }
+
+    protected int getStudentsInfluence(Set<Color> playerProfessors){
+        return this.studentToNumber.keySet().stream()        // get student colors
+                .filter(playerProfessors::contains)     // filter the ones that match given professors colors
+                .mapToInt(this.studentToNumber::get)    // map each student to the number of occurrences in this archipelago
+                .sum();                                  // sum the occurrences
     }
 
     public List<Integer> getIslandCodes() {

@@ -30,7 +30,7 @@ public class GameState implements GameStateCommonInterface {
     private final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
 
     protected final List<Archipelago> archipelagos;
-    private final List<SchoolBoard> schoolBoards;
+    protected final List<SchoolBoard> schoolBoards;
     private final List<List<Color>> clouds;
 
     protected final StudentFactory studentFactory;
@@ -312,13 +312,6 @@ public class GameState implements GameStateCommonInterface {
             this.moveMotherNatureOneStepClockwise();
     }
 
-    public void moveMotherNatureToGivenArchipelagoIslandCode(int archipelagoIslandCode) throws InvalidArchipelagoIdException {
-        Optional<Archipelago> tmp = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);
-        if(tmp.isEmpty()) throw new InvalidArchipelagoIdException();
-
-        this.motherNaturePosition = tmp.get();
-    }
-
     /**
      * The current player conquers the archipelago mother nature is currently in, placing a tower of his own color
      * and substituting any tower that was previously placed on that archipelago
@@ -329,22 +322,19 @@ public class GameState implements GameStateCommonInterface {
         this.motherNaturePosition.setTowerColor(playerTowerColor);
     }
 
+
     /**
      * Merges the archipelago mother nature is currently in with the archipelago on the left (one step counter-clockwise with respect to mother nature's position)
      * @return true if the archipelagos merged, false otherwise.
      */
-    public boolean mergeWithPrevious() /*throws NonMergeableArchipelagosException*/ {
-        boolean mergePerformed = false;
-
+    public boolean mergeWithPrevious() {
+        boolean mergePerformed;
         Archipelago previous = getPreviousArchipelago();
 
-        try {
-            // Substitute current archipelago with the merged archipelago
-            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, previous);
-            // Remove left archipelago from the list
-            this.archipelagos.remove(previous);
-            mergePerformed = true;
-        } catch (NonMergeableArchipelagosException ignored) {  }
+        // Substitute current archipelago with the merged archipelago
+        mergePerformed = this.motherNaturePosition.merge(previous);
+        // Remove previous archipelago from the list
+        this.archipelagos.remove(previous);
 
         return mergePerformed;
     }
@@ -353,23 +343,17 @@ public class GameState implements GameStateCommonInterface {
      * Merges the archipelago mother nature is currently on with the archipelago on the right (one step clockwise with respect to mother nature's position)
      * @return true if the archipelagos merged, false otherwise.
      */
-    public boolean mergeWithNext() /*throws NonMergeableArchipelagosException*/ {
-        boolean mergePerformed = false;
-
+    public boolean mergeWithNext() {
+        boolean mergePerformed;
         Archipelago next = getNextArchipelago();
 
-
-        try {
-            // Substitute current archipelago with the merged archipelago
-            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, next);
-            // Remove left archipelago from the list
-            this.archipelagos.remove(next);
-            mergePerformed = true;
-        } catch (NonMergeableArchipelagosException ignored) {  }
+        // Substitute current archipelago with the merged archipelago
+        mergePerformed = this.motherNaturePosition.merge(next);
+        // Remove the next archipelago from the list
+        this.archipelagos.remove(next);
 
         return mergePerformed;
     }
-
 
     /**
      *
@@ -551,7 +535,7 @@ public class GameState implements GameStateCommonInterface {
     }
 
 
-    private Archipelago getPreviousArchipelago() {
+    protected Archipelago getPreviousArchipelago() {
         int pos =  this.archipelagos.indexOf(this.motherNaturePosition);
         int previous = pos == 0 ? this.archipelagos.size() - 1 : pos - 1;
 
@@ -564,14 +548,14 @@ public class GameState implements GameStateCommonInterface {
     }
 
 
-    public Optional<Archipelago> getArchipelagoFromIslandCodes(List<Integer> archipelagoIslandCodes){
+    protected Optional<Archipelago> getArchipelagoFromIslandCodes(List<Integer> archipelagoIslandCodes){
         return this.archipelagos.stream()
                 // Filter out archipelagos that don't match archipelagoIslandCodes
                 .filter(archipelago -> archipelago.getIslandCodes().equals(archipelagoIslandCodes))
                 .findFirst();
     }
 
-    public Optional<Archipelago> getArchipelagoFromSingleIslandCode(int archipelagoIslandCode){
+    protected Optional<Archipelago> getArchipelagoFromSingleIslandCode(int archipelagoIslandCode){
         return this.archipelagos.stream()
                 // Filter out archipelagos that don't match archipelagoIslandCodes
                 .filter(archipelago -> archipelago.getIslandCodes().contains(archipelagoIslandCode))
@@ -611,7 +595,7 @@ public class GameState implements GameStateCommonInterface {
         return !this.roundIterator.hasNext();
     }
 
-    public int getNextTurn(){ return this.roundIterator.next(); }
+    public int getNextTurn() { return this.roundIterator.next(); }
 
 
     public int getNumberOfStudentsInTheEntrance(){
@@ -710,5 +694,46 @@ public class GameState implements GameStateCommonInterface {
                 this.motherNaturePosition
         );
     }
+
+
+
+    /**
+     * This method verifies if there is a schoolBoard that is more influent than all the others on the archipelago on which motherNature is,
+     * and returns its schoolBoardId
+     * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
+     */
+    public Optional<Integer> getMostInfluentSchoolBoardId(List<Integer> archipelagoIslandCodes){
+        var influenceMap = this.getInfluence(archipelagoIslandCodes);
+        List<Map.Entry<Integer, Integer>> orderedPlayersInfluences;
+
+        if(influenceMap.isPresent()){
+            orderedPlayersInfluences = influenceMap.get().entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) //sorts the map using the influences in descending order
+                    .collect(Collectors.toList());
+        }
+        else
+            return Optional.empty();
+
+
+
+        //If the number of players is 2 or 3, the most influent is calculated between the most influent and the second most influent.
+
+        if(this.getNumberOfPlayers() == 2 || this.getNumberOfPlayers() == 3){
+            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(1).getValue())
+                return Optional.of(orderedPlayersInfluences.get(0).getKey());
+            else
+                return Optional.empty();
+        }
+        //if the number of players is 4, the most influent is calculated between the most influent and the third most influent, since the second most influent is certainly a teammate.
+        else {
+            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(2).getValue())
+                return Optional.of(orderedPlayersInfluences.get(0).getKey());
+            else
+                return Optional.empty();
+        }
+    }
+
+
 
 }

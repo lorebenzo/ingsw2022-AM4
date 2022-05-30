@@ -6,6 +6,7 @@ import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMes
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.game_state_controller.CommunicationController;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
+import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 
 import java.util.*;
@@ -36,7 +37,7 @@ public class GameController extends SugarMessageProcessor {
         if(!this.gameStarted) this.addPlayerEffective(player);
     }
 
-    public void startGame() throws GameStateInitializationFailureException {
+    public void startGame() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         this.gameStarted = true;
         synchronized (this.players) {
             for (int i = 0; i < players.size(); i++)

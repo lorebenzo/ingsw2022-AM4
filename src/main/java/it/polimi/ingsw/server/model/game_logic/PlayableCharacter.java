@@ -1,7 +1,6 @@
 package it.polimi.ingsw.server.model.game_logic;
 
 import it.polimi.ingsw.server.model.game_logic.enums.Character;
-import it.polimi.ingsw.server.model.game_logic.exceptions.ArchipelagoAlreadyLockedException;
 
 public class PlayableCharacter implements Playable{
     private int characterId;
@@ -19,7 +18,7 @@ public class PlayableCharacter implements Playable{
         if(!character.isStateful)
             return new PlayableCharacter(character);
         else
-            return new CharacterWithStudents(character);
+            return new PlayableCharacterWithStudents(character);
     }
 
     public int getCurrentCost() {

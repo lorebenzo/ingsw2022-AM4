@@ -26,7 +26,11 @@ public enum ReturnMessage {
     ISLAND_ALREADY_LOCKED("The island you are trying to lock is already locked"),
     INVALID_ARCHIPELAGO_ID("The selected island id is invalid"),
     NO_AVAILABLE_LOCK("There is no locks available at the moment, unlock an island to be able to lock another one"),
-    MOVE_NOT_AVAILABLE("The move you are trying to play is not available");
+    MOVE_NOT_AVAILABLE("The move you are trying to play is not available"),
+    STUDENT_NOT_ON_CHARACTER("The student you are trying to get from the character is not available"),
+    WRONG_ARGUMENTS("The character index is incompatible with the arguments provided"),
+    INVALID_STUDENT_LISTS_LENGTH("The lists of students to be swapped have to be of the same length"),
+    STUDENTS_NOT_IN_THE_DINING_ROOM("One or more students you are trying to swap are not present in the dining room");
     public final String text;
 
     ReturnMessage(String text){

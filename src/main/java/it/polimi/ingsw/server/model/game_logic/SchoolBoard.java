@@ -10,9 +10,9 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.Studen
 
 import java.util.*;
 
-public class SchoolBoard {
+public class SchoolBoard implements SchoolBoardCommonInterface{
     private final int id; // must be unique for each GameState
-    private final Map<Color, Integer> diningRoomLaneColorToNumberOfStudents;
+    protected final Map<Color, Integer> diningRoomLaneColorToNumberOfStudents;
     private final TowerColor towerColor;
     private final List<Color> studentsInTheEntrance;
     private final Set<Color> professorsTable;
@@ -92,6 +92,11 @@ public class SchoolBoard {
     public void moveFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
         if(student == null) throw new IllegalArgumentException();
         this.removeStudentFromEntrance(student);
+
+        this.addStudentToDiningRoom(student);
+    }
+
+    protected void addStudentToDiningRoom(Color student) throws FullDiningRoomLaneException {
         if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= GameConstants.DINING_ROOM_LANE_SIZE.value)
             throw new FullDiningRoomLaneException();
         this.diningRoomLaneColorToNumberOfStudents.put(student, this.diningRoomLaneColorToNumberOfStudents.get(student) + 1);
@@ -105,6 +110,35 @@ public class SchoolBoard {
         if(student == null) throw new IllegalArgumentException();
         if(!this.studentsInTheEntrance.contains(student)) throw new StudentNotInTheEntranceException();
         this.studentsInTheEntrance.remove(student);
+    }
+
+    public void addStudentToEntrance(Color student){
+        if(student == null) throw new IllegalArgumentException();
+        this.studentsInTheEntrance.add(student);
+    }
+
+    public boolean containsAllStudentsInTheEntrance(List<Color> students){
+        boolean allStudentsArePresent = true;
+
+        List<Color> entranceCopy = new ArrayList<>(this.studentsInTheEntrance);
+
+        for (Color student: students) {
+            if(!entranceCopy.remove(student)) allStudentsArePresent = false;
+        }
+        return allStudentsArePresent;
+    }
+
+    public boolean containsAllStudentsInTheDiningRoom(List<Color> students){
+        boolean allStudentsArePresent = true;
+        Map<Color, Integer> diningRoomCopy = this.diningRoomLaneColorToNumberOfStudents;
+
+        for (Color student: students) {
+            if(diningRoomCopy.get(student) <= 0) allStudentsArePresent = false;
+            else
+                diningRoomCopy.put(student, diningRoomCopy.get(student) -1);
+        }
+        return allStudentsArePresent;
+
     }
 
     /**

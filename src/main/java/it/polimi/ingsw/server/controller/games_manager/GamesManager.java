@@ -16,6 +16,7 @@ import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMs
 import it.polimi.ingsw.server.controller.games_manager.messages.enums.ReturnMessage;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.controller.game_controller.GameController;
+import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.utils.multilist.MultiList;
 
@@ -81,6 +82,8 @@ public class GamesManager extends SugarMessageProcessor {
                 try {
                     this.server.multicastToRoom(gameRoomId, new KOMsg(ReturnMessage.DELETING_GAME.text));
                 } catch (IOException | RoomNotFoundException ignored) { }
+            } catch (EmptyStudentSupplyException e) {
+                e.printStackTrace();
             }
         }
     }

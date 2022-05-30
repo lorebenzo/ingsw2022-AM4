@@ -2,7 +2,6 @@ package it.polimi.ingsw.server.model.game_logic;
 
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
-import it.polimi.ingsw.server.model.game_logic.exceptions.NonMergeableArchipelagosException;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -14,28 +13,77 @@ import static org.junit.Assert.*;
 public class ArchipelagoTest {
 
     @Test
-    public void merge() {
-        // Arrange
-        Archipelago mergeableA1 = new Archipelago(1);
-        Archipelago mergeableA2 = new Archipelago(2);
-        Archipelago mergeableA3 = new Archipelago(-445);
+    public void merge1() {
+        Archipelago a1 = new Archipelago(1);
+        Archipelago a2 = new Archipelago(2);
 
+        a1.addStudent(Color.RED);
+        a2.addStudent(Color.GREEN);
+
+        a1.setTowerColor(TowerColor.BLACK);
+        a2.setTowerColor(TowerColor.BLACK);
+
+        a1.merge(a2);
+
+        assertTrue(a1.getIslandCodes().contains(1));
+        assertTrue(a1.getIslandCodes().containsAll(a2.getIslandCodes()));
+
+        assertTrue(a1.getStudents().contains(Color.RED));
+        assertTrue(a1.getStudents().contains(Color.GREEN));
+        assertEquals(2, a1.getStudents().size());
+
+    }
+
+    @Test
+    public void merge2() {
+        Archipelago a1 = new Archipelago(1);
+        Archipelago a2 = new Archipelago(2);
+        Archipelago a3 = new Archipelago(3);
+
+        a1.addStudent(Color.RED);
+        a2.addStudent(Color.GREEN);
+        a3.addStudent(Color.GREEN);
+
+        a1.setTowerColor(TowerColor.BLACK);
+        a2.setTowerColor(TowerColor.BLACK);
+        a3.setTowerColor(TowerColor.BLACK);
+
+
+        a1.merge(a2);
+
+        assertTrue(a1.getIslandCodes().contains(1));
+        assertTrue(a1.getIslandCodes().containsAll(a2.getIslandCodes()));
+        assertEquals(2, a1.getIslandCodes().size());
+
+        assertTrue(a1.getStudents().contains(Color.RED));
+        assertTrue(a1.getStudents().contains(Color.GREEN));
+        assertEquals(2, a1.getStudents().size());
+
+        a1.merge(a3);
+
+        assertTrue(a1.getStudents().contains(Color.RED));
+        assertTrue(a1.getStudents().contains(Color.GREEN));
+        assertEquals(3, a1.getStudents().size());
+
+        assertTrue(a1.getIslandCodes().contains(1));
+        assertTrue(a1.getIslandCodes().containsAll(a2.getIslandCodes()));
+        assertTrue(a1.getIslandCodes().containsAll(a3.getIslandCodes()));
+        assertEquals(3, a1.getIslandCodes().size());
+
+    }
+
+
+
+    @Test
+    public void unmergeables() {
+        // Arrange
         Archipelago unmergeableA1 = new Archipelago(20);
         Archipelago unmergeableA2 = new Archipelago(21);
         Archipelago unmergeableA3 = new Archipelago(22);
         Archipelago unmergeableA4 = new Archipelago(20);
-
         Archipelago unmergeableA5 = new Archipelago(30);
         Archipelago unmergeableA6 = new Archipelago(31);
-
-        Archipelago mergeableA7 = new Archipelago(40);
-        Archipelago mergeableA8 = new Archipelago(41);
         Archipelago unmergeableA9 = new Archipelago(40);
-
-        //Test merge with 3 different mergeable archipelagos
-        mergeableA1.setTowerColor(TowerColor.BLACK);
-        mergeableA2.setTowerColor(TowerColor.BLACK);
-        mergeableA3.setTowerColor(TowerColor.BLACK);
 
         //unmergeable archipelagos
         unmergeableA1.setTowerColor(TowerColor.WHITE);
@@ -44,100 +92,43 @@ public class ArchipelagoTest {
         unmergeableA4.setTowerColor(TowerColor.WHITE);
         unmergeableA5.setTowerColor(TowerColor.NONE);
         unmergeableA6.setTowerColor(TowerColor.NONE);
-
-        mergeableA7.setTowerColor(TowerColor.GRAY);
-        mergeableA8.setTowerColor(TowerColor.GRAY);
         unmergeableA9.setTowerColor(TowerColor.GRAY);
 
-        // Act
-        Archipelago merged1 = null;
-        Archipelago merged2 = null;
-        Archipelago merged3 = null;
-
-        try {
-            merged1 = Archipelago.merge(mergeableA1, mergeableA2);
-        } catch (NonMergeableArchipelagosException e) {
-            e.printStackTrace();
-            fail();
-        }
-
-        try {
-            merged2 = Archipelago.merge(merged1, mergeableA3);
-        } catch (NonMergeableArchipelagosException e) {
-            fail();
-        }
-
-        try {
-            merged3 = Archipelago.merge(mergeableA7, mergeableA8);
-        } catch (NonMergeableArchipelagosException e) {
-            fail();
-        }
 
         //A1 A1
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA1));
-
+        assertFalse(unmergeableA1.merge(unmergeableA1));
         //A1 A2
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA2));
-
+        assertFalse(unmergeableA1.merge(unmergeableA2));
         //A1 A3
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA3));
-
+        assertFalse(unmergeableA1.merge(unmergeableA3));
         //A1 A4
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA4));
-
+        assertFalse(unmergeableA1.merge(unmergeableA4));
         //A1 A5
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA1,unmergeableA5));
-
+        assertFalse(unmergeableA1.merge(unmergeableA5));
         //A2
 
         //A2 A3
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA2,unmergeableA3));
-
+        assertFalse(unmergeableA2.merge(unmergeableA3));
         //A2 A4
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA2,unmergeableA4));
-
+        assertFalse(unmergeableA2.merge(unmergeableA4));
         //A2 A5
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA2,unmergeableA5));
-
+        assertFalse(unmergeableA2.merge(unmergeableA5));
         //A3
 
         //A3 A4
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA3,unmergeableA4));
-
+        assertFalse(unmergeableA3.merge(unmergeableA4));
         //A3 A5
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA3,unmergeableA5));
-
+        assertFalse(unmergeableA3.merge(unmergeableA5));
         //A4
 
         //A4 A5
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA4,unmergeableA5));
-
+        assertFalse(unmergeableA4.merge(unmergeableA5));
         //A5
 
         //A5 A5
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA5,unmergeableA5));
-
+        assertFalse(unmergeableA5.merge(unmergeableA5));
         //A5 A6
-        assertThrows(NonMergeableArchipelagosException.class, () -> Archipelago.merge(unmergeableA5,unmergeableA6));
-
-
-
-
-        // Assert
-
-        assertTrue(merged1.getIslandCodes().containsAll(mergeableA1.getIslandCodes()));
-        assertTrue(merged1.getIslandCodes().containsAll(mergeableA2.getIslandCodes()));
-        assertEquals(2, merged1.getIslandCodes().size());
-
-        assertTrue(merged2.getIslandCodes().containsAll(merged1.getIslandCodes()));
-        assertTrue(merged2.getIslandCodes().containsAll(mergeableA3.getIslandCodes()));
-        assertEquals(3, merged2.getIslandCodes().size());
-
-        assertTrue(merged3.getIslandCodes().containsAll(mergeableA7.getIslandCodes()));
-        assertTrue(merged3.getIslandCodes().containsAll(mergeableA8.getIslandCodes()));
-        assertEquals(2, merged3.getIslandCodes().size());
-        
-
+        assertFalse(unmergeableA5.merge(unmergeableA6));
     }
 
     @Test

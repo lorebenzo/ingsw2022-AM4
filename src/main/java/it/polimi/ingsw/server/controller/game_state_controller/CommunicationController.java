@@ -20,14 +20,14 @@ public class CommunicationController extends SugarMessageProcessor{
     protected GameStateController gameStateController;
     protected Map<Peer,Integer> peersToSchoolBoardIdsMap;
 
-    protected CommunicationController(List<Peer> peers) throws GameStateInitializationFailureException {
+    protected CommunicationController(List<Peer> peers) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
 
         this.initializeGameStateController(peers.size());
         this.initializePeerToSchoolBoardIdMap(peers);
 
     }
 
-    protected void initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
+    protected void initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         this.gameStateController = new GameStateController(playersNumber);
     }
 
@@ -44,7 +44,7 @@ public class CommunicationController extends SugarMessageProcessor{
 
 
 
-    public static CommunicationController createCommunicationController(List<Peer> peers, boolean isExpertMode) throws GameStateInitializationFailureException {
+    public static CommunicationController createCommunicationController(List<Peer> peers, boolean isExpertMode) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         if(isExpertMode)
             return new ExpertCommunicationController(peers);
         else
@@ -73,14 +73,14 @@ public class CommunicationController extends SugarMessageProcessor{
      * @param peer indicates a  peer, therefore a player,
      * @return true if the move has to be processed, because it is performed by the current player, false otherwise.
      */
-    boolean isMoveFromCurrentPlayer(Peer peer){
-        return this.getSchoolBoardIdFromPeer(peer) == this.gameStateController.getCurrentPlayerSchoolBoardId();
+    boolean isOthersPlayerTurn(Peer peer){
+        return this.getSchoolBoardIdFromPeer(peer) != this.gameStateController.getCurrentPlayerSchoolBoardId();
     }
 
     @SugarMessageHandler
     public SugarMessage playCardMsg(SugarMessage message, Peer peer){
 
-        if(!this.isMoveFromCurrentPlayer(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+        if(this.isOthersPlayerTurn(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
         var msg = (PlayCardMsg) message;
 
@@ -100,141 +100,132 @@ public class CommunicationController extends SugarMessageProcessor{
 
     @SugarMessageHandler
     public SugarMessage moveStudentFromEntranceToDiningRoomMsg(SugarMessage message, Peer peer){
-        if(this.isMoveFromCurrentPlayer(peer)){
-            var msg = (MoveStudentFromEntranceToDiningRoomMsg) message;
+        if(this.isOthersPlayerTurn(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-            try {
-                this.gameStateController.moveStudentFromEntranceToDiningRoom(msg.student);
-                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-            } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
-            } catch (StudentNotInTheEntranceException e) {
-                return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);
-            } catch (FullDiningRoomLaneException e) {
-                return new KOMsg(ReturnMessage.FULL_DINING_ROOM_LANE.text);
-            } catch (TooManyStudentsMovedException e) {
-                return new KOMsg(ReturnMessage.TOO_MANY_STUDENTS_MOVED.text);
-            }
+        var msg = (MoveStudentFromEntranceToDiningRoomMsg) message;
 
+        try {
+            this.gameStateController.moveStudentFromEntranceToDiningRoom(msg.student);
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+        } catch (WrongPhaseException e) {
+            return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+        } catch (StudentNotInTheEntranceException e) {
+            return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);
+        } catch (FullDiningRoomLaneException e) {
+            return new KOMsg(ReturnMessage.FULL_DINING_ROOM_LANE.text);
+        } catch (TooManyStudentsMovedException e) {
+            return new KOMsg(ReturnMessage.TOO_MANY_STUDENTS_MOVED.text);
         }
-        else
-            return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+
     }
 
     @SugarMessageHandler
     public SugarMessage moveStudentFromEntranceToArchipelagoMsg(SugarMessage message, Peer peer) {
-        if (this.isMoveFromCurrentPlayer(peer)) {
-            var msg = (MoveStudentFromEntranceToArchipelagoMsg) message;
+        if (this.isOthersPlayerTurn(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-            try {
-                this.gameStateController.moveStudentFromEntranceToArchipelago(msg.student, msg.archipelagoIslandCodes);
-                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-            } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
-            } catch (StudentNotInTheEntranceException e) {
-                return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);
-            } catch (TooManyStudentsMovedException e) {
-                return new KOMsg(ReturnMessage.TOO_MANY_STUDENTS_MOVED.text);
-            }
+        var msg = (MoveStudentFromEntranceToArchipelagoMsg) message;
+
+        try {
+            this.gameStateController.moveStudentFromEntranceToArchipelago(msg.student, msg.archipelagoIslandCodes);
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+        } catch (WrongPhaseException e) {
+            return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+        } catch (StudentNotInTheEntranceException e) {
+            return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);
+        } catch (TooManyStudentsMovedException e) {
+            return new KOMsg(ReturnMessage.TOO_MANY_STUDENTS_MOVED.text);
         }
-        else
-            return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+
     }
 
 
     @SugarMessageHandler
     public SugarMessage moveMotherNatureMsg(SugarMessage message, Peer peer) {
-        if(this.isMoveFromCurrentPlayer(peer)){
-            var msg = (MoveMotherNatureMsg) message;
+        if(this.isOthersPlayerTurn(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-            try {
-                boolean merged = this.gameStateController.moveMotherNature(msg.numberOfSteps);
+        var msg = (MoveMotherNatureMsg) message;
 
-                // Check winners
-                Map<Integer, Boolean> winners = this.gameStateController.checkWinners(false);
-                if(winners.containsValue(true) /* someone won */) {
-                    // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
-                    Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
-                    for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
-                        peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
-                    return new GameOverMsg(peerToIsWinner);
-                }
+        try {
+            boolean merged = this.gameStateController.moveMotherNature(msg.numberOfSteps);
 
-                if(merged) {
-                    return new OKAndUpdateMsg(new OKMsg(ReturnMessage.MERGE_PERFORMED.text), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-                }
-                else
-                    return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-            } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
-            } catch (InvalidNumberOfStepsException e) {
-                return new KOMsg(ReturnMessage.INVALID_NUMBER_OF_STEPS.text);
-            } catch (MoreStudentsToBeMovedException e) {
-                return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
-            } catch (MoveAlreadyPlayedException e) {
-                return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
+            // Check winners
+            Map<Integer, Boolean> winners = this.gameStateController.checkWinners(false);
+            if(winners.containsValue(true) /* someone won */) {
+                // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
+                Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
+                for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
+                    peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
+                return new GameOverMsg(peerToIsWinner);
             }
+
+            if(merged) {
+                return new OKAndUpdateMsg(new OKMsg(ReturnMessage.MERGE_PERFORMED.text), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+            }
+            else
+                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+        } catch (WrongPhaseException e) {
+            return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+        } catch (InvalidNumberOfStepsException e) {
+            return new KOMsg(ReturnMessage.INVALID_NUMBER_OF_STEPS.text);
+        } catch (MoreStudentsToBeMovedException e) {
+            return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
+        } catch (MoveAlreadyPlayedException e) {
+            return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
         }
-        else
-            return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
     }
 
     @SugarMessageHandler
     public SugarMessage grabStudentsFromCloudMsg(SugarMessage message, Peer peer){
-        if(this.isMoveFromCurrentPlayer(peer)){
-            var msg = (GrabStudentsFromCloudMsg) message;
+        if(this.isOthersPlayerTurn(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-            try {
-                this.gameStateController.grabStudentsFromCloud(msg.cloudIndex);
-                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-            } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
-            } catch (EmptyCloudException e) {
-                return new KOMsg(ReturnMessage.EMPTY_CLOUD.text);
-            } catch (MoveAlreadyPlayedException e) {
-                return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
-            } catch (MotherNatureToBeMovedException e) {
-                return new KOMsg(ReturnMessage.MOTHER_NATURE_TO_BE_MOVED.text);
-            }
+        var msg = (GrabStudentsFromCloudMsg) message;
+
+        try {
+            this.gameStateController.grabStudentsFromCloud(msg.cloudIndex);
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+        } catch (WrongPhaseException e) {
+            return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+        } catch (EmptyCloudException e) {
+            return new KOMsg(ReturnMessage.EMPTY_CLOUD.text);
+        } catch (MoveAlreadyPlayedException e) {
+            return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
+        } catch (MotherNatureToBeMovedException e) {
+            return new KOMsg(ReturnMessage.MOTHER_NATURE_TO_BE_MOVED.text);
         }
-        else
-            return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
     }
 
 
     @SugarMessageHandler
     public SugarMessage endTurnMsg(SugarMessage message, Peer peer){
-        if(this.isMoveFromCurrentPlayer(peer)){
-            try {
-                this.gameStateController.endActionTurn();
 
-                // Check winners
-                var winners = this.gameStateController.checkWinners(false);
-                if(winners.containsValue(true) /* someone won */) {
-                    // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
-                    Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
-                    for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
-                        peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
-                    return new GameOverMsg(peerToIsWinner);
-                }
-            } catch (MoreStudentsToBeMovedException e){
-                return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
-            } catch (MotherNatureToBeMovedException e){
-                return new KOMsg(ReturnMessage.MOTHER_NATURE_TO_BE_MOVED.text);
-            } catch (StudentsToBeGrabbedFromCloudException e){
-                return new KOMsg(ReturnMessage.STUDENTS_TO_BE_GRABBED_FROM_CLOUD.text);
-            } catch (CardNotPlayedException e){
-                return new KOMsg(ReturnMessage.CARD_NOT_PLAYED.text);
-            } catch (EmptyStudentSupplyException e) {
-                return new KOMsg("Empty student supply"); //TODO transform this message in a GameOver condition
-            } catch (WrongPhaseException e) {
-                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+        if(this.isOthersPlayerTurn(peer)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+
+        try {
+            this.gameStateController.endActionTurn();
+
+            // Check winners
+            var winners = this.gameStateController.checkWinners(false);
+            if(winners.containsValue(true) /* someone won */) {
+                // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
+                Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
+                for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
+                    peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
+                return new GameOverMsg(peerToIsWinner);
             }
-
-            return new OKMsg();
+        } catch (MoreStudentsToBeMovedException e){
+            return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
+        } catch (MotherNatureToBeMovedException e){
+            return new KOMsg(ReturnMessage.MOTHER_NATURE_TO_BE_MOVED.text);
+        } catch (StudentsToBeGrabbedFromCloudException e){
+            return new KOMsg(ReturnMessage.STUDENTS_TO_BE_GRABBED_FROM_CLOUD.text);
+        } catch (CardNotPlayedException e){
+            return new KOMsg(ReturnMessage.CARD_NOT_PLAYED.text);
+        } catch (EmptyStudentSupplyException e) {
+            return new KOMsg("Empty student supply"); //TODO transform this message in a GameOver condition
+        } catch (WrongPhaseException e) {
+            return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         }
-        else
-            return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+        return new OKMsg();
     }
 
 
