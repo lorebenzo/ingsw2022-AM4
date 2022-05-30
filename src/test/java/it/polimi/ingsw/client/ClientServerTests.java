@@ -1,10 +1,8 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.server.server_logic.GameServer;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
 
 public class ClientServerTests {
 

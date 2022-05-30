@@ -1,9 +1,7 @@
 package it.polimi.ingsw.communication.sugar_framework;
 
-import it.polimi.ingsw.client.GameClient;
+import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
-import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
-import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.HeartBeatMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod;

@@ -1,7 +1,5 @@
-package it.polimi.ingsw.client;
+package it.polimi.ingsw.client.game_client_and_cli;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;

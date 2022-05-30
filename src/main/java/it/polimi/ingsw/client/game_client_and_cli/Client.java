@@ -1,8 +1,5 @@
-package it.polimi.ingsw.client;
+package it.polimi.ingsw.client.game_client_and_cli;
 
-import it.polimi.ingsw.client.cli_graphics.Terminal;
-import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
-import it.polimi.ingsw.server.controller.game_state_controller.messages.MoveMotherNatureMsg;
 import it.polimi.ingsw.server.server_logic.GameServer;
 
 import java.io.BufferedReader;
