@@ -38,15 +38,6 @@ public class App extends Application {
         // Create a stage renderer
         var stageRenderer = new StageRenderer(stage);
 
-        // Test
-        LightGameState gs = null;
-        try {
-            gs = new Gson().fromJson(Files.readString(Path.of("filename.json"), StandardCharsets.US_ASCII), LightGameState.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        stageRenderer.updateGameState(gs);
-
 
         // Set starting window size
         stage.setWidth(windowWidth);

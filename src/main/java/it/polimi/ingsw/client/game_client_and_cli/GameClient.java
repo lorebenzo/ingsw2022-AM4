@@ -3,6 +3,7 @@ package it.polimi.ingsw.client.game_client_and_cli;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
+import it.polimi.ingsw.client.gui.UserInputHandler;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -149,6 +150,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void OKMsg(SugarMessage message) {
         var msg = (OKMsg) message;
         this.logger.logSuccess(msg.text);
+
+        // Update GUI
+        UserInputHandler.onOKMessage(msg.text);
     }
 
     @SugarMessageHandler
@@ -179,6 +183,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         // TODO: remove (debug)
         // Gson gson = new GsonBuilder().setPrettyPrinting().create();
         // System.out.println(gson.toJson(msg.lightGameState));
+
+        // Update GUI
+        UserInputHandler.onGameStateUpdate(msg.lightGameState);
     }
 
     @SugarMessageHandler

@@ -2,6 +2,7 @@ package it.polimi.ingsw.client.gui;
 
 import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import javafx.scene.input.MouseButton;
@@ -102,6 +103,20 @@ public class UserInputHandler {
             // stageRenderer.log("Trying to log in with username: " + username + " and password: " + password);
             gameClient.login(username, password);
             stageRenderer.render();
+        }
+    }
+
+    public static void onStartMatchMakingClick() {
+        gameClient.joinMatchMaking(2, false); // TODO generalize
+    }
+
+    public static void onGameStateUpdate(LightGameState lightGameState) {
+        stageRenderer.updateGameState(lightGameState);
+    }
+
+    public static void onOKMessage(String msg) {
+        if(msg.equals("Successfully logged in")) {
+            stageRenderer.logged = true;
         }
     }
 }

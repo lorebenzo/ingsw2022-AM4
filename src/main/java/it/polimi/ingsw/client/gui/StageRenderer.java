@@ -1,16 +1,12 @@
 package it.polimi.ingsw.client.gui;
 
+import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.client.gui.game_state_renderer.GameStateRenderer;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
-import it.polimi.ingsw.utils.multilist.MultiList;
-import javafx.beans.Observable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.Light;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -23,7 +19,7 @@ public class StageRenderer {
     private final Stage stage;
 
     // State
-    private boolean logged = false;
+    public boolean logged = false;
     private final List<String> logs = new LinkedList<>();
 
     public StageRenderer(Stage stage) {
@@ -34,11 +30,14 @@ public class StageRenderer {
         this.stage = stage;
 
         // Initialize UserInputHandler
-        UserInputHandler.init(null, this); // TODO: change this
+        var gameClient = new GameClient();
+        new Thread(gameClient).start();
+        UserInputHandler.init(gameClient, this);
     }
 
     public void updateGameState(LightGameState lgs) {
         gameStateRenderer.setCurrentGameState(lgs);
+        this.render();
     }
 
     public void renderWithPopUp(Parent popUp) {
@@ -115,11 +114,16 @@ public class StageRenderer {
         var logInButton = new Button("Login");
         baseGrid.add(logInButton, 1, 3);
 
+        var startMatchMakingButton = new Button("Enter matchmaking");
+        baseGrid.add(startMatchMakingButton, 2, 3);
+
         // Event listeners
         signUpButton.setOnMouseClicked(mouseEvent ->
                 UserInputHandler.onSignUpClick(usernameTextField.getText(), passwordField.getText()));
         logInButton.setOnMouseClicked(mouseEvent ->
                 UserInputHandler.onLoginClick(usernameTextField.getText(), passwordField.getText()));
+        startMatchMakingButton.setOnMouseClicked(mouseEvent ->
+                UserInputHandler.onStartMatchMakingClick());
 
         // Style
         baseGrid.setStyle("-fx-alignment: center; -fx-background-color: azure");
