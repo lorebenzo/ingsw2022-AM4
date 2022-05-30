@@ -18,6 +18,7 @@ import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.controller.game_controller.GameController;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.utils.multilist.MultiList;
+import org.postgresql.core.Tuple;
 
 import javax.management.remote.JMXServerErrorException;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.util.*;
 public class GamesManager extends SugarMessageProcessor {
     private final List<GameController> games = new LinkedList<>();
     private final SugarServer server;
-    private final MultiList<Peer, Integer, Boolean> matchMakingList = new MultiList<>();
+    private final MultiList<Player, Integer, Boolean> matchMakingList = new MultiList<>();
     private final Map<Peer, String> peerUsernameMap = new HashMap<>();
 
     public GamesManager(SugarServer server) {
@@ -54,6 +55,8 @@ public class GamesManager extends SugarMessageProcessor {
         var msg = (JoinMatchMakingMsg) message;
         var username = AuthController.getUsernameFromJWT(msg.jwt);
 
+        matchMakingList.remove(new Player(peer, username));
+
         // If player was already in another game, it removes it from the game
         if(this.games.stream().anyMatch(gameController -> gameController.containsPLayer(username))) {
             var gameController = this.games.stream()
@@ -67,7 +70,7 @@ public class GamesManager extends SugarMessageProcessor {
         this.peerUsernameMap.put(peer, username);
 
         // Add the peer to the matchmaking room
-        this.matchMakingList.add(peer, msg.numberOfPlayers, msg.expertMode);
+        this.matchMakingList.add(new Player(peer, username), msg.numberOfPlayers, msg.expertMode);
 
         // Check if a game can be created
         this.createMatchIfPossible(msg.numberOfPlayers, msg.expertMode);
@@ -77,11 +80,11 @@ public class GamesManager extends SugarMessageProcessor {
 
     private void createMatchIfPossible(int numberOfPlayers, boolean expertMode) {
         // Remove all the inactive peers from the matchmaking list
-        Set<Peer> peersToRemove = new HashSet<>();
-        this.matchMakingList.forEach((peer, numOfPlayers, expMode) -> {
-            if(peer.peerSocket.isClosed()) peersToRemove.add(peer);
+        Set<Player> playersToRemove = new HashSet<>();
+        this.matchMakingList.forEach((player, numOfPlayers, expMode) -> {
+            if(player.associatedPeer.peerSocket.isClosed()) playersToRemove.add(player);
         });
-        peersToRemove.forEach(this.matchMakingList::remove);
+        playersToRemove.forEach(this.matchMakingList::remove);
 
         // Filter the peers that are waiting in the matchmaking room, and they have the same match preferences as the
         // peer that just joined the room
@@ -95,10 +98,10 @@ public class GamesManager extends SugarMessageProcessor {
             var gameRoomId = this.server.createRoom();
             var gameController = new GameController(gameRoomId, numberOfPlayers, expertMode);
             // Add players to the game controller
-            filteredMatchMakingList.forEach((peer, numPlayers, expMode) -> gameController.addPlayer(new Player(peer, this.peerUsernameMap.get(peer))));
+            filteredMatchMakingList.forEach((player, numPlayers, expMode) -> gameController.addPlayer(player));
 
             try {
-                filteredMatchMakingList.forEach((peer, nPlayers, expMode) -> this.server.getRoom(gameRoomId).addPeer(peer));
+                filteredMatchMakingList.forEach((player, nPlayers, expMode) -> this.server.getRoom(gameRoomId).addPeer(player.associatedPeer));
 
 //                this.server.multicastToRoom(gameRoomId, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
 
@@ -191,9 +194,7 @@ public class GamesManager extends SugarMessageProcessor {
             this.server.send(msg.okMsg.serialize(), receiver.peerSocket);
 
             var gameInvolvingReceiver = findGameInvolvingPeer(receiver);
-            if(gameInvolvingReceiver.isPresent()) {
-                this.gameLogicMulticast(gameInvolvingReceiver.get(), msg.updateClientMsg);
-            }
+            gameInvolvingReceiver.ifPresent(gameController -> this.gameLogicMulticast(gameController, msg.updateClientMsg));
         } catch (IOException ignored) {} {}
     }
 

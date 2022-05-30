@@ -185,7 +185,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         // System.out.println(gson.toJson(msg.lightGameState));
 
         // Update GUI
-        UserInputHandler.onGameStateUpdate(msg.lightGameState);
+//        UserInputHandler.onGameStateUpdate(msg.lightGameState);
     }
 
     @SugarMessageHandler

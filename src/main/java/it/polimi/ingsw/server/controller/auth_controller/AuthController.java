@@ -16,6 +16,7 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.OKMsg;
 import it.polimi.ingsw.server.controller.games_manager.GamesManager;
 import it.polimi.ingsw.server.repository.UsersRepository;
 import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
+import it.polimi.ingsw.server.repository.interfaces.UsersRepositoryInterface;
 import it.polimi.ingsw.server.server_logic.GameServer;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -24,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 
 public class AuthController extends SugarMessageProcessor {
-    private final UsersRepository usersRepository = UsersRepository.getInstance();
+    private final UsersRepositoryInterface usersRepository = UsersRepository.getInstance();
     private static final Dotenv dotenv = Dotenv.configure().load();
     private static final String hashedKey = DigestUtils.sha256Hex(dotenv.get("JWT_KEY"));
     private final GamesManager gamesManager;
@@ -34,9 +35,18 @@ public class AuthController extends SugarMessageProcessor {
         this.gamesManager = new GamesManager(gameServer);
     }
 
+    private static boolean stringNotValid(String s) {
+        return s == null || s.length() <= 0;
+    }
+
     @SugarMessageHandler
     public SugarMessage signUpMsg(SugarMessage message, Peer peer) {
         var msg = (SignUpMsg) message;
+
+        if(stringNotValid(msg.username))
+            return new KOMsg("Cannot create the user, please provide a not empty username");
+        else if(stringNotValid(msg.password))
+            return new KOMsg("Cannot create the user, please provide a not empty password");
 
         var hashedPassword = DigestUtils.sha256Hex(msg.password);
 
@@ -46,7 +56,6 @@ public class AuthController extends SugarMessageProcessor {
         } catch (DBQueryException e) {
             e.printStackTrace();
         }
-
         return new KOMsg("Cannot create the user, please check the password or the username field");
     }
 
@@ -54,16 +63,26 @@ public class AuthController extends SugarMessageProcessor {
     public SugarMessage loginMsg(SugarMessage message, Peer peer) {
         var msg = (LoginMsg) message;
 
+        if(stringNotValid(msg.username))
+            return new KOMsg("Cannot login, please provide a not empty username");
+        else if(stringNotValid(msg.password))
+            return new KOMsg("Cannot login, please provide a not empty password");
+
         var hashedPassword = DigestUtils.sha256Hex(msg.password);
 
         try {
            if(usersRepository.getUserHashedPassword(msg.username).equals(hashedPassword)) {
-               var jwt = Jwts.builder().claim("username", msg.username).signWith(key).compact();
+               var jwt = Jwts.builder()
+                       .claim("username", msg.username)
+                       .signWith(key)
+                       .compact();
+
                return new JWTMsg(jwt);
            }
         } catch (DBQueryException e) {
             e.printStackTrace();
         }
+
         return new KOMsg("Username or password not valid");
     }
 
@@ -86,10 +105,22 @@ public class AuthController extends SugarMessageProcessor {
     /**
      * Get username from the jwt claims
      * @param jwt String of the encoded jwt
-     * @return the username of the user logged in
+     * @return the username of the user logged in, null if there is no username claims
+     * @throws IllegalArgumentException when you provide a malformed JWT, an encrypted jwt with the wrong key
      */
     public static String getUsernameFromJWT(String jwt) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody().get("username", String.class);
+        if(stringNotValid(jwt)) throw new IllegalArgumentException("Jwt must be null or a valid JWT");
+
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(jwt)
+                    .getBody()
+                    .get("username", String.class);
+        } catch(Exception e) {
+            throw new IllegalArgumentException("Jwt malformed");
+        }
     }
 
     @SugarMessageHandler
