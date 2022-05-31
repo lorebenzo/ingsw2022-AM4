@@ -29,7 +29,7 @@ public class ExpertGameStateController extends GameStateController {
         if(characterIndex < 0 || characterIndex >= this.gameState.getAvailableCharacters().size()) throw new InvalidCharacterIndexException();
     }
     @Override
-    public void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException, WrongArgumentsException {
+    public void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException, WrongArgumentsException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
 
         int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
@@ -47,7 +47,7 @@ public class ExpertGameStateController extends GameStateController {
 
     }
     @Override
-    public boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws InvalidCharacterIndexException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, WrongPhaseException, MoveAlreadyPlayedException, MoveNotAvailableException, NoAvailableLockException, WrongArgumentsException {
+    public boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws InvalidCharacterIndexException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, WrongPhaseException, MoveAlreadyPlayedException, MoveNotAvailableException, NoAvailableLockException, WrongArgumentsException, NotEnoughCoinsException {
 
         boolean mergePerformed = false;
 
@@ -67,7 +67,7 @@ public class ExpertGameStateController extends GameStateController {
         return mergePerformed;
     }
     @Override
-    public void applyEffect(int characterIndex, Color color) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException {
+    public void applyEffect(int characterIndex, Color color) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
 
         int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
@@ -83,7 +83,7 @@ public class ExpertGameStateController extends GameStateController {
             throw new WrongArgumentsException();
     }
     @Override
-    public void applyEffect(int characterIndex, Color color, int archipelagoIslandCode) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, WrongArgumentsException {
+    public void applyEffect(int characterIndex, Color color, int archipelagoIslandCode) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, WrongArgumentsException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
 
         int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
@@ -95,7 +95,7 @@ public class ExpertGameStateController extends GameStateController {
 
     }
     @Override
-    public void applyEffect(int characterIndex, List<Color> students1, List<Color> students2) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException {
+    public void applyEffect(int characterIndex, List<Color> students1, List<Color> students2) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
 
         int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
@@ -131,10 +131,12 @@ public class ExpertGameStateController extends GameStateController {
 
         this.gameState.resetCharacterPlayedThisTurn();
 
-        this.gameState.resetProfessors();
+        this.gameState.assignProfessorsAfterEffect();
         this.gameState.setTowersInfluenceForAllArchipelagos(true);
         this.gameState.resetColorThatDoesntCountForAllArchipelagos();
 
         super.nextActionTurn();
     }
+
+
 }

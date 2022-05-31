@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface GameStateControllerCommonInterface {
 
-    default void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException, WrongArgumentsException {}
+    default void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException, WrongArgumentsException, NotEnoughCoinsException {}
     default boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws NotEnoughCoinsException, WrongPhaseException, InvalidCharacterIndexException, MoveAlreadyPlayedException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, NoAvailableLockException, MoveNotAvailableException, WrongArgumentsException { return false; }
-    default void applyEffect(int characterIndex, Color student) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException {}
-    default void applyEffect(int characterIndex, Color student, int archipelagoIslandCode) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, WrongArgumentsException {}
-    default void applyEffect(int characterIndex, List<Color> getStudents, List<Color> putStudents) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException {}
+    default void applyEffect(int characterIndex, Color student) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException, NotEnoughCoinsException {}
+    default void applyEffect(int characterIndex, Color student, int archipelagoIslandCode) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, WrongArgumentsException, NotEnoughCoinsException {}
+    default void applyEffect(int characterIndex, List<Color> getStudents, List<Color> putStudents) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException, NotEnoughCoinsException {}
 
 
 

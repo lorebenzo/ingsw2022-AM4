@@ -84,7 +84,7 @@ public class ExpertArchipelago extends Archipelago{
      */
     @Override
     public boolean merge(Archipelago a2) {
-        this.lock = this.lock && a2.isLocked();
+        this.lock = this.lock || a2.isLocked();
         return super.merge(a2);
     }
 }

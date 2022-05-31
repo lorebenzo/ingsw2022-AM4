@@ -4,6 +4,7 @@ import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PlayableCharacterWithStudents extends PlayableCharacter {
@@ -14,12 +15,8 @@ public class PlayableCharacterWithStudents extends PlayableCharacter {
     protected PlayableCharacterWithStudents(Character character) {
         super(character);
         this.initialStudentsNumberOnCharacter = character.studentsNumberOnCharacter;
+        this.students = new LinkedList<>();
 
-    }
-
-    //Card has to be initialized before being played
-    public void initializeCard(List<Color> studentsOnCard){
-        this.students = studentsOnCard;
     }
 
     @Override
@@ -47,5 +44,10 @@ public class PlayableCharacterWithStudents extends PlayableCharacter {
     @Override
     public int getInitialStudentsNumberOnCharacter() {
         return this.initialStudentsNumberOnCharacter;
+    }
+
+    @Override
+    public List<Color> getStudents() {
+        return new ArrayList<>(students);
     }
 }

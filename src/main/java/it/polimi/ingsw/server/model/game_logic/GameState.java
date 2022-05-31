@@ -14,8 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GameState implements GameStateCommonInterface {
-    private final int numberOfPlayers;
-    protected final NumberOfPlayersStrategy strategy;
+    protected final int numberOfPlayers;
+    protected NumberOfPlayersStrategy strategy;
     private final int numberOfStudentsInEachCloud;
     private final int numberOfStudentsInTheEntrance;
     private final int numberOfTowers;
@@ -27,7 +27,7 @@ public class GameState implements GameStateCommonInterface {
     private ActionPhaseSubTurn actionPhaseSubTurn;
 
     private Phase currentPhase;
-    private final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
+    protected final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
 
     protected final List<Archipelago> archipelagos;
     protected final List<SchoolBoard> schoolBoards;
@@ -36,7 +36,7 @@ public class GameState implements GameStateCommonInterface {
     protected final StudentFactory studentFactory;
     protected Archipelago motherNaturePosition;
 
-    private int currentPlayerSchoolBoardId;
+    protected int currentPlayerSchoolBoardId;
 
     /**
      * @throws IllegalArgumentException if the argument representing the number of players is not between 2 and 4
@@ -52,7 +52,8 @@ public class GameState implements GameStateCommonInterface {
         ) throw new IllegalArgumentException();
 
         this.numberOfPlayers = numberOfPlayers;
-        this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
+        this.chooseStrategy();
+
 
         this.numberOfStudentsInEachCloud = this.strategy.getNumberOfStudentsInEachCloud();
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
@@ -80,6 +81,10 @@ public class GameState implements GameStateCommonInterface {
         this.roundOrder = this.schoolBoards.stream().map(SchoolBoard::getId).toList();
         this.roundIterator = this.getRoundOrder().listIterator();
 
+    }
+
+    protected void chooseStrategy(){
+        this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
     }
 
     /**
@@ -226,7 +231,8 @@ public class GameState implements GameStateCommonInterface {
      * @param professor indicates the color of the professor the player should get and/or remove from another player
      * //@throws InvalidSchoolBoardIdException when there is an error with the schoolBoardId
      */
-    public void assignProfessor(Color professor) /*throws InvalidSchoolBoardIdException*/ {
+    public Map<Color, Integer> assignProfessor(Color professor) /*throws InvalidSchoolBoardIdException*/ {
+        Map<Color, Integer> professorToPreviousOwnerMap = new HashMap<>();
 
         if(professor == null) throw new IllegalArgumentException();
 
@@ -256,13 +262,13 @@ public class GameState implements GameStateCommonInterface {
                 if(this.compareCurrentPlayersStudentsNumberWithOthersMax(currentPlayerNumberOfStudentsInDiningRoomLane,otherSchoolBoardsMaxStudentsInDiningRoomLane)){
                     this.getCurrentPlayerSchoolBoard().addProfessor(professor);
                     otherSchoolBoardMax.removeProfessor(professor);
+                    professorToPreviousOwnerMap.put(professor, otherSchoolBoardMax.getId());
                 }
-
-                //Rules interpretation established that the professor remains of the original possessor if contended.
             }
 
         }
 
+        return professorToPreviousOwnerMap;
     }
 
     protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane){
@@ -334,7 +340,8 @@ public class GameState implements GameStateCommonInterface {
         // Substitute current archipelago with the merged archipelago
         mergePerformed = this.motherNaturePosition.merge(previous);
         // Remove previous archipelago from the list
-        this.archipelagos.remove(previous);
+        if(mergePerformed)
+            this.archipelagos.remove(previous);
 
         return mergePerformed;
     }
@@ -350,7 +357,8 @@ public class GameState implements GameStateCommonInterface {
         // Substitute current archipelago with the merged archipelago
         mergePerformed = this.motherNaturePosition.merge(next);
         // Remove the next archipelago from the list
-        this.archipelagos.remove(next);
+        if(mergePerformed)
+            this.archipelagos.remove(next);
 
         return mergePerformed;
     }
@@ -519,7 +527,7 @@ public class GameState implements GameStateCommonInterface {
      * @return the reference to the schoolBoard corresponding to the inputted schoolBoardId
      * //@throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      */
-    private SchoolBoard getSchoolBoardFromSchoolBoardId(int schoolBoardId) /*throws InvalidSchoolBoardIdException */{
+    protected SchoolBoard getSchoolBoardFromSchoolBoardId(int schoolBoardId) /*throws InvalidSchoolBoardIdException */{
         Optional<SchoolBoard> requestedSchoolBoard =
                 // get all school boards
                 this.schoolBoards.stream()

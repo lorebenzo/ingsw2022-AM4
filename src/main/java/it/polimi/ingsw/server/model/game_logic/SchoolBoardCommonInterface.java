@@ -5,6 +5,6 @@ import it.polimi.ingsw.server.model.game_logic.exceptions.StudentsNotInTheDining
 
 public interface SchoolBoardCommonInterface {
     default void payCharacter(int cost){}
-    default int getCoins(){return 0;}
+    default int getCoins(){ return 0; }
     default void removeStudentFromDiningRoom(Color student) {}
 }

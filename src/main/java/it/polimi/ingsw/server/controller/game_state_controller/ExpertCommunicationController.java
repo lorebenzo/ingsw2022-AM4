@@ -43,6 +43,8 @@ public class ExpertCommunicationController extends CommunicationController {
             return new KOMsg(ReturnMessage.MOVE_NOT_AVAILABLE.text);
         } catch (WrongArgumentsException e) {
             return new KOMsg(ReturnMessage.WRONG_ARGUMENTS.text);
+        } catch (NotEnoughCoinsException e) {
+            return new KOMsg(ReturnMessage.NOT_ENOUGH_COINS.text);
         }
     }
 
@@ -117,6 +119,8 @@ public class ExpertCommunicationController extends CommunicationController {
             return new KOMsg(ReturnMessage.FULL_DINING_ROOM_LANE.text);
         } catch (WrongArgumentsException e) {
             return new KOMsg(ReturnMessage.WRONG_ARGUMENTS.text);
+        } catch (NotEnoughCoinsException e) {
+            return new KOMsg(ReturnMessage.NOT_ENOUGH_COINS.text);
         }
     }
 
@@ -143,6 +147,8 @@ public class ExpertCommunicationController extends CommunicationController {
             return new KOMsg(ReturnMessage.STUDENT_NOT_ON_CHARACTER.text);
         } catch (WrongArgumentsException e) {
             return new KOMsg(ReturnMessage.WRONG_ARGUMENTS.text);
+        } catch (NotEnoughCoinsException e) {
+            return new KOMsg(ReturnMessage.NOT_ENOUGH_COINS.text);
         }
 
     }
@@ -175,6 +181,8 @@ public class ExpertCommunicationController extends CommunicationController {
             return new KOMsg(ReturnMessage.STUDENTS_NOT_IN_THE_DINING_ROOM.text);
         } catch (FullDiningRoomLaneException e) {
             return new KOMsg(ReturnMessage.FULL_DINING_ROOM_LANE.text);
+        } catch (NotEnoughCoinsException e) {
+            return new KOMsg(ReturnMessage.NOT_ENOUGH_COINS.text);
         }
         return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
 

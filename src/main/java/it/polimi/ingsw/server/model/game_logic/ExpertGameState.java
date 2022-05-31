@@ -1,11 +1,12 @@
 package it.polimi.ingsw.server.model.game_logic;
 
-import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidNumberOfStepsException;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.MoveNotAvailableException;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
 import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertNumberOfPlayersStrategyFactory;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
 
 import java.util.*;
 
@@ -13,6 +14,7 @@ public class ExpertGameState extends GameState {
 
     private final List<PlayableCharacter> availableCharacters;
     private PlayableCharacter characterPlayedInCurrentTurn;
+    private Map<Color, Integer> professorToOriginalOwnerMap;
 
 
     /**
@@ -29,6 +31,7 @@ public class ExpertGameState extends GameState {
         this.extractCharacters();
 
         this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);
+        this.professorToOriginalOwnerMap = new HashMap<>();
     }
 
     /**
@@ -42,9 +45,14 @@ public class ExpertGameState extends GameState {
             this.refillGivenCharacter(playableCharacter);
         }
 
-        this.characterPlayedInCurrentTurn = null;
+        this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);
+        this.professorToOriginalOwnerMap = new HashMap<>();
     }
 
+    @Override
+    protected void chooseStrategy() {
+        this.strategy = ExpertNumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
+    }
 
     @Override
     protected ExpertArchipelago createArchipelago(int code) {
@@ -71,13 +79,13 @@ public class ExpertGameState extends GameState {
 
 
         for (int i = 0; i < 3; i++){
-            this.availableCharacters.add(PlayableCharacter.initializeCharacter(characters.get(i)));
+            this.availableCharacters.add(PlayableCharacter.createCharacter(characters.get(i)));
             this.refillGivenCharacter(this.availableCharacters.get(i));
         }
     }
 
     private void refillGivenCharacter(PlayableCharacter playableCharacter) throws EmptyStudentSupplyException {
-        while (playableCharacter.getStudents().size() < playableCharacter.getInitialStudentsNumberOnCharacter())
+        while (playableCharacter.getStudents() != null && playableCharacter.getStudents().size() < playableCharacter.getInitialStudentsNumberOnCharacter())
             playableCharacter.addStudent(this.studentFactory.getStudent());
     }
 
@@ -87,14 +95,16 @@ public class ExpertGameState extends GameState {
 
     //RULES MODIFIERS
 
-    //1 OK
+    //1 OK AND TESTED
     @Override
-    public void playPutOneStudentFromCharacterToArchipelago(Color color, int archipelagoIslandCode) throws MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException {
+    public void playPutOneStudentFromCharacterToArchipelago(Color color, int archipelagoIslandCode) throws MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, NotEnoughCoinsException {
         if(color == null) throw new IllegalArgumentException();
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.PUT_ONE_STUDENT_FROM_CHARACTER_TO_ARCHIPELAGO.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         if(!selectedCharacter.get().getStudents().contains(color)) throw new StudentNotOnCharacterException();
 
@@ -110,35 +120,56 @@ public class ExpertGameState extends GameState {
 
     }
 
-    //2 OK
+    //2 OK AND TESTED
     @Override
-    public void playGetProfessorsWithSameStudents() throws MoveNotAvailableException {
+    public void playGetProfessorsWithSameStudents() throws MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
 
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
+
         this.characterPlayedInCurrentTurn = selectedCharacter.get();
 
         this.payCharacter();
+
+        this.assignProfessorsWithEffect();
     }
 
     @Override
     protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane) {
-        if(this.characterPlayedInCurrentTurn.getCharacterId() == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId)
-            return currentPlayerNumberOfStudentsInDiningRoomLane >= otherSchoolBoardsMaxStudentsInDiningRoomLane;
+        if(this.characterPlayedInCurrentTurn != null && this.characterPlayedInCurrentTurn.getCharacterId() == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId)
+            return currentPlayerNumberOfStudentsInDiningRoomLane >= otherSchoolBoardsMaxStudentsInDiningRoomLane && currentPlayerNumberOfStudentsInDiningRoomLane > 0;
         return super.compareCurrentPlayersStudentsNumberWithOthersMax(currentPlayerNumberOfStudentsInDiningRoomLane,otherSchoolBoardsMaxStudentsInDiningRoomLane);
     }
 
-    @Override
-    public void resetProfessors(){
+    protected void assignProfessorsWithEffect(){
         for (Color professor: Color.values()) {
-            this.assignProfessor(professor);
+            Integer tmp = this.assignProfessor(professor).get(professor);
+            if(tmp != null)
+                this.professorToOriginalOwnerMap.put(professor,tmp);
         }
     }
 
-    //3 OK
     @Override
-    public boolean playMoveMotherNatureToAnyArchipelago(int archipelagoIslandCode) throws InvalidArchipelagoIdException, MoveNotAvailableException {
+    public void assignProfessorsAfterEffect() {
+        Integer professorToOriginalOwnerSchoolBoardId;
+        for (Color color : this.professorToOriginalOwnerMap.keySet()) {
+            professorToOriginalOwnerSchoolBoardId = this.professorToOriginalOwnerMap.get(color);
+            SchoolBoard originalProfessorOwnerSchoolBoard = this.getSchoolBoardFromSchoolBoardId(professorToOriginalOwnerSchoolBoardId);
+
+            if(this.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().get(color).intValue() == originalProfessorOwnerSchoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(color).intValue()){
+                this.getCurrentPlayerSchoolBoard().removeProfessor(color);
+                originalProfessorOwnerSchoolBoard.addProfessor(color);
+            }
+
+
+        }
+    }
+
+    //3 OK AND TESTED
+    @Override
+    public boolean playMoveMotherNatureToAnyArchipelago(int archipelagoIslandCode) throws InvalidArchipelagoIdException, MoveNotAvailableException, NotEnoughCoinsException {
         boolean mergePreviousPerformed = false;
         boolean mergeNextPerformed = false;
 
@@ -146,19 +177,24 @@ public class ExpertGameState extends GameState {
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
 
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
+
         Optional<Archipelago> selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);
         if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();
 
         Archipelago originalMotherNaturePositionIslandCode = this.motherNaturePosition;
+        this.motherNaturePosition = selectedArchipelago.get();
 
-
-        if(this.getMostInfluentSchoolBoardId(selectedArchipelago.get().getIslandCodes()).isPresent()){
-            this.conquerArchipelago(this.getMostInfluentSchoolBoardId(selectedArchipelago.get().getIslandCodes()).get());
-            mergePreviousPerformed = this.mergeWithPrevious();
-            mergeNextPerformed = this.mergeWithNext();
+        if(!selectedArchipelago.get().isLocked()){
+            if(this.getMostInfluentSchoolBoardId(selectedArchipelago.get().getIslandCodes()).isPresent()){
+                this.conquerArchipelago(this.getMostInfluentSchoolBoardId(selectedArchipelago.get().getIslandCodes()).get());
+                mergePreviousPerformed = this.mergeWithPrevious();
+                mergeNextPerformed = this.mergeWithNext();
+            }
         }
 
         this.unlockMotherNaturePosition();
+
         this.motherNaturePosition = originalMotherNaturePositionIslandCode;
 
 
@@ -168,13 +204,15 @@ public class ExpertGameState extends GameState {
         return mergePreviousPerformed || mergeNextPerformed;
     }
 
-    //4 OK
+    //4 OK AND TESTED
     @Override
-    public void playTwoAdditionalSteps() throws MoveNotAvailableException {
+    public void playTwoAdditionalSteps() throws MoveNotAvailableException, NotEnoughCoinsException {
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.TWO_ADDITIONAL_STEPS.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         this.characterPlayedInCurrentTurn = selectedCharacter.get();
         this.payCharacter();
@@ -193,7 +231,7 @@ public class ExpertGameState extends GameState {
     }
 
 
-    //5 OK
+    //5 OK AND TESTED
     private void lockArchipelago(Archipelago archipelagoToLock) throws ArchipelagoAlreadyLockedException {
         if(archipelagoToLock == null) throw new IllegalArgumentException();
 
@@ -201,10 +239,12 @@ public class ExpertGameState extends GameState {
     }
 
     @Override
-    public void playCharacterLock(int archipelagoIslandCode) throws NoAvailableLockException, InvalidArchipelagoIdException, ArchipelagoAlreadyLockedException, MoveNotAvailableException {
+    public void playCharacterLock(int archipelagoIslandCode) throws NoAvailableLockException, InvalidArchipelagoIdException, ArchipelagoAlreadyLockedException, MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         if(!selectedCharacter.get().isLockAvailable()) throw new NoAvailableLockException();
 
@@ -221,14 +261,14 @@ public class ExpertGameState extends GameState {
 
     @Override
     public void unlockMotherNaturePosition(){
-        if(this.motherNaturePosition.isLocked()){
+        var tmp = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId).findFirst();
+        if(this.motherNaturePosition.isLocked() && tmp.isPresent()){
             this.motherNaturePosition.unlock();
-            var tmp = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId).findFirst();
-            tmp.ifPresent(Playable::unLock);
+            tmp.get().unLock();
         }
     }
 
-    //6 OK
+    //6 OK AND TESTED
     @Override
     public void setTowersInfluenceForAllArchipelagos(boolean doTowersCount){
         for (Archipelago archipelago: this.archipelagos) {
@@ -236,10 +276,12 @@ public class ExpertGameState extends GameState {
         }
     }
     @Override
-    public void playTowersDontCount() throws MoveNotAvailableException {
+    public void playTowersDontCount() throws MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.TOWERS_DONT_COUNT.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         this.characterPlayedInCurrentTurn = selectedCharacter.get();
 
@@ -248,9 +290,9 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
-    //7 OK
+    //7 OK AND TESTED
     @Override
-    public void playSwapThreeStudentsBetweenCharacterAndEntrance(List<Color> students1, List<Color> students2) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotOnCharacterException, StudentNotInTheEntranceException {
+    public void playSwapThreeStudentsBetweenCharacterAndEntrance(List<Color> students1, List<Color> students2) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotOnCharacterException, StudentNotInTheEntranceException, NotEnoughCoinsException {
         if(students1 == null || students2 == null || students1.contains(null) || students2.contains(null)) throw new IllegalArgumentException();
 
         if(students1.size() != students2.size() || students2.size() > 3) throw new InvalidStudentListsLengthException();
@@ -258,6 +300,8 @@ public class ExpertGameState extends GameState {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         if(!selectedCharacter.get().containsAllStudents(students1)) throw new StudentNotOnCharacterException();
         if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(students2)) throw new StudentNotInTheEntranceException();
@@ -277,12 +321,14 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
-    //8 OK
+    //8 OK AND TESTED
     @Override
-    public void playTwoAdditionalInfluence() throws MoveNotAvailableException {
+    public void playTwoAdditionalInfluence() throws MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.TWO_ADDITIONAL_INFLUENCE.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         this.characterPlayedInCurrentTurn = selectedCharacter.get();
 
@@ -292,27 +338,28 @@ public class ExpertGameState extends GameState {
 
     @Override
     public Optional<Map<Integer, Integer>> getInfluence(List<Integer> archipelagoIslandCodes) {
-        Optional<Map<Integer, Integer>> schoolBoardToInfluenceMap = Optional.empty();
+        Optional<Map<Integer, Integer>> schoolBoardToInfluenceMap = super.getInfluence(archipelagoIslandCodes);
         if(this.characterPlayedInCurrentTurn.getCharacterId() == Character.TWO_ADDITIONAL_INFLUENCE.characterId){
-            schoolBoardToInfluenceMap = super.getInfluence(archipelagoIslandCodes);
             schoolBoardToInfluenceMap.ifPresent(schoolBoardToInfluence -> schoolBoardToInfluence.put(this.getCurrentPlayerSchoolBoardId(), schoolBoardToInfluence.get(this.getCurrentPlayerSchoolBoardId()) + 2));
         }
         return schoolBoardToInfluenceMap;
     }
 
-    //9 OK
+    //9 OK AND TESTED
     private void setColorThatDoesntCountForAllArchipelagos(Color color){
         for (Archipelago archipelago: this.archipelagos) {
             archipelago.setColorThatDoesntCount(color);
         }
     }
     @Override
-    public void playColorDoesntCount(Color color) throws MoveNotAvailableException {
+    public void playColorDoesntCount(Color color) throws MoveNotAvailableException, NotEnoughCoinsException {
         if(color == null) throw new IllegalArgumentException();
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.COLOR_DOESNT_COUNT.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         this.setColorThatDoesntCountForAllArchipelagos(color);
 
@@ -325,26 +372,28 @@ public class ExpertGameState extends GameState {
         this.setColorThatDoesntCountForAllArchipelagos(null);
     }
 
-    //10 OK
+    //10 OK AND TESTED
     @Override
-    public void playSwapTwoStudentsBetweenEntranceAndDiningRoom(List<Color> students1, List<Color> students2) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotInTheEntranceException, FullDiningRoomLaneException, StudentsNotInTheDiningRoomException {
-        if(students1 == null || students2 == null || students1.contains(null) || students2.contains(null)) throw new IllegalArgumentException();
+    public void playSwapTwoStudentsBetweenEntranceAndDiningRoom(List<Color> studentsFromDiningRoom, List<Color> studentFromEntrance) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotInTheEntranceException, FullDiningRoomLaneException, StudentsNotInTheDiningRoomException, NotEnoughCoinsException {
+        if(studentsFromDiningRoom == null || studentFromEntrance == null || studentsFromDiningRoom.contains(null) || studentFromEntrance.contains(null)) throw new IllegalArgumentException();
 
-        if(students1.size() != students2.size() || students2.size() > 3) throw new InvalidStudentListsLengthException();
+        if(studentsFromDiningRoom.size() != studentFromEntrance.size() || studentFromEntrance.size() > 3) throw new InvalidStudentListsLengthException();
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
 
-        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheDiningRoom(students1)) throw new StudentsNotInTheDiningRoomException();
-        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(students2)) throw new StudentNotInTheEntranceException();
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
-        for (Color student: students1 ) {
+        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheDiningRoom(studentsFromDiningRoom)) throw new StudentsNotInTheDiningRoomException();
+        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentFromEntrance)) throw new StudentNotInTheEntranceException();
+
+        for (Color student: studentsFromDiningRoom ) {
             this.getCurrentPlayerSchoolBoard().removeStudentFromDiningRoom(student);
             this.getCurrentPlayerSchoolBoard().addStudentToEntrance(student);
         }
 
-        for (Color student: students2 ) {
+        for (Color student: studentFromEntrance ) {
             this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);
             this.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(student);
         }
@@ -354,28 +403,30 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
-    //11 OK
-    private void putOneStudentFromCharacterToDiningRoom(Color student) throws StudentNotOnCharacterException, FullDiningRoomLaneException {
-        if(!characterPlayedInCurrentTurn.removeStudent(student)) throw new StudentNotOnCharacterException();
+    //11 OK AND TESTED
+    private void putOneStudentFromCharacterToDiningRoom(PlayableCharacter selectedCharacter, Color student) throws StudentNotOnCharacterException, FullDiningRoomLaneException {
+        if(!selectedCharacter.removeStudent(student)) throw new StudentNotOnCharacterException();
 
         this.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(student);
     }
     @Override
-    public void playPutOneStudentFromCharacterToDiningRoom(Color color) throws StudentNotOnCharacterException, FullDiningRoomLaneException, MoveNotAvailableException {
+    public void playPutOneStudentFromCharacterToDiningRoom(Color color) throws StudentNotOnCharacterException, FullDiningRoomLaneException, MoveNotAvailableException, NotEnoughCoinsException {
         if(color == null) throw new IllegalArgumentException();
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.PUT_ONE_STUDENT_FROM_CHARACTER_INTO_DINING_ROOM.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
 
-        this.putOneStudentFromCharacterToDiningRoom(color);
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
+
+        this.putOneStudentFromCharacterToDiningRoom(selectedCharacter.get(), color);
 
         this.characterPlayedInCurrentTurn = selectedCharacter.get();
 
         this.payCharacter();
     }
 
-    //12 OK
+    //12 OK AND TESTED
     private void putThreeStudentsInTheBag(Color color) {
         for (SchoolBoard schoolBoard: this.schoolBoards ) {
             for (int i = 0; i < 3; i++) {
@@ -384,12 +435,14 @@ public class ExpertGameState extends GameState {
         }
     }
     @Override
-    public void playPutThreeStudentsInTheBag(Color color) throws MoveNotAvailableException {
+    public void playPutThreeStudentsInTheBag(Color color) throws MoveNotAvailableException, NotEnoughCoinsException {
         if(color == null) throw new IllegalArgumentException();
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.PUT_THREE_STUDENTS_IN_THE_BAG.characterId).findFirst();
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
+
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         this.putThreeStudentsInTheBag(color);
 
