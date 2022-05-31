@@ -12,15 +12,12 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
-import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.enums.ReturnMessage;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.controller.game_controller.GameController;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.utils.multilist.MultiList;
-import org.postgresql.core.Tuple;
 
-import javax.management.remote.JMXServerErrorException;
 import java.io.IOException;
 import java.util.*;
 
@@ -28,7 +25,6 @@ public class GamesManager extends SugarMessageProcessor {
     private final List<GameController> games = new LinkedList<>();
     private final SugarServer server;
     private final MultiList<Player, Integer, Boolean> matchMakingList = new MultiList<>();
-    private final Map<Peer, String> peerUsernameMap = new HashMap<>();
 
     public GamesManager(SugarServer server) {
         this.server = server;
@@ -40,14 +36,15 @@ public class GamesManager extends SugarMessageProcessor {
         var username = AuthController.getUsernameFromJWT(msg.jwt);
 
         var gameController = this.games.stream()
-                .filter(gc -> gc.containsPLayer(username))
+                .filter(gc -> gc.containsPlayer(username))
                 .findFirst();
 
-        if(gameController.isPresent()) {
-            return new GamesUpdateMsg(gameController.get().roomId);
-        } else {
-            return new GamesUpdateMsg(null);
-        }
+        // Game controller UUID if present, or else is null
+        var gameControllerUUID = gameController
+                .map(controller -> controller.roomId)
+                .orElse(null);
+
+        return new GamesUpdateMsg(gameControllerUUID);
      }
 
     @SugarMessageHandler
@@ -55,19 +52,14 @@ public class GamesManager extends SugarMessageProcessor {
         var msg = (JoinMatchMakingMsg) message;
         var username = AuthController.getUsernameFromJWT(msg.jwt);
 
+        // if there is already the player in the matchmaking list, it removes him
         matchMakingList.remove(new Player(peer, username));
 
         // If player was already in another game, it removes it from the game
-        if(this.games.stream().anyMatch(gameController -> gameController.containsPLayer(username))) {
-            var gameController = this.games.stream()
-                    .filter(gc -> gc.containsPLayer(username))
-                    .findFirst()
-                    .get();
-
-            gameController.removePlayer(username);
-        }
-
-        this.peerUsernameMap.put(peer, username);
+        this.games.stream()
+                .filter(gc -> gc.containsPlayer(username))
+                .findFirst()
+                .ifPresent((gameController) -> gameController.removePlayer(username));
 
         // Add the peer to the matchmaking room
         this.matchMakingList.add(new Player(peer, username), msg.numberOfPlayers, msg.expertMode);
@@ -91,19 +83,15 @@ public class GamesManager extends SugarMessageProcessor {
         var filteredMatchMakingList = this.matchMakingList.filter(
                 (peer, numPlayers, expMode) -> numPlayers == numberOfPlayers && expMode == expertMode
         );
-        if(
-            filteredMatchMakingList.size() == numberOfPlayers
-        ) {
+        if( filteredMatchMakingList.size() == numberOfPlayers ) {
             // Start match
             var gameRoomId = this.server.createRoom();
-            var gameController = new GameController(gameRoomId, numberOfPlayers, expertMode);
+            var gameController = new GameController(gameRoomId);
             // Add players to the game controller
             filteredMatchMakingList.forEach((player, numPlayers, expMode) -> gameController.addPlayer(player));
 
             try {
                 filteredMatchMakingList.forEach((player, nPlayers, expMode) -> this.server.getRoom(gameRoomId).addPeer(player.associatedPeer));
-
-//                this.server.multicastToRoom(gameRoomId, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
 
                 gameController.startGame();
                 this.gameLogicMulticast(gameController, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));
@@ -124,7 +112,7 @@ public class GamesManager extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
-        var username =AuthController.getUsernameFromJWT(sugarMessage.jwt);
+        var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);
         var gameInvolvingPlayer = findGameInvolvingPlayer(username);
 
         if(gameInvolvingPlayer.isPresent()) {
@@ -148,7 +136,7 @@ public class GamesManager extends SugarMessageProcessor {
     private Optional<GameController> findGameInvolvingPlayer(String player) {
         return this.games
                 .stream()
-                .filter(gameController -> gameController.containsPLayer(player))
+                .filter(gameController -> gameController.containsPlayer(player))
                 .findFirst();
     }
 

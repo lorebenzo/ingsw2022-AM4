@@ -9,57 +9,39 @@ import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyExce
 import java.util.*;
 
 public class FourPlayerStrategy implements NumberOfPlayersStrategy {
-    private final int numberOfPlayers = 4;
-    private final int numberOfStudentsInEachCloud = 3;
-    private final int numberOfStudentsInTheEntrance = 7;
-    private final int numberOfTowers = 8;
+    private static final int numberOfPlayers = 4;
+    private static final int numberOfStudentsInEachCloud = 3;
+    private static final int numberOfStudentsInTheEntrance = 7;
+    private static final int numberOfTowers = 8;
 
     @Override
     public int getNumberOfStudentsInEachCloud() {
-        return this.numberOfStudentsInEachCloud;
+        return numberOfStudentsInEachCloud;
     }
 
     @Override
     public int getNumberOfStudentsInTheEntrance() {
-        return this.numberOfStudentsInTheEntrance;
+        return numberOfStudentsInTheEntrance;
     }
 
     @Override
     public List<SchoolBoard> initializeSchoolBoards(StudentFactory studentFactory) throws EmptyStudentSupplyException {
         List<SchoolBoard> schoolBoards = new ArrayList<>(numberOfPlayers);
         schoolBoards.add(
-                new SchoolBoard(0, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.WHITE)
+                new SchoolBoard(0, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.WHITE)
         );
         schoolBoards.add(
-                new SchoolBoard(1, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.BLACK)
+                new SchoolBoard(1, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.BLACK)
         );
         schoolBoards.add(
-                new SchoolBoard(2, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.WHITE)
+                new SchoolBoard(2, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.WHITE)
         );
         schoolBoards.add(
-                new SchoolBoard(3, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.BLACK)
+                new SchoolBoard(3, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.BLACK)
         );
 
         return schoolBoards;
     }
-
-/*    @Override
-    public int getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago, int currentPlayerSchoolBoardId) {
-        SchoolBoard currentPlayerSchoolBoard = schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getId() == currentPlayerSchoolBoardId)
-                .collect(Collectors.toList())
-                .get(0);
-        SchoolBoard currentPlayerPartnerSchoolBoard = schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getTowerColor().equals(currentPlayerSchoolBoard.getTowerColor()))
-                .collect(Collectors.toList())
-                .get(0);
-
-        Set<Color> totalProfessors = new HashSet<>();
-        totalProfessors.addAll(currentPlayerSchoolBoard.getProfessors());
-        totalProfessors.addAll(currentPlayerPartnerSchoolBoard.getProfessors());
-
-        return archipelago.getInfluence(totalProfessors, currentPlayerSchoolBoard.getTowerColor());
-    }*/
 
     //TODO da migliorare
     /**
@@ -103,6 +85,6 @@ public class FourPlayerStrategy implements NumberOfPlayersStrategy {
 
     @Override
     public int getNumberOfTowers() {
-        return this.numberOfTowers;
+        return numberOfTowers;
     }
 }

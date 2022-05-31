@@ -15,35 +15,25 @@ import java.util.*;
 public class GameController extends SugarMessageProcessor {
     public final UUID roomId;
     private final List<Player> players = new LinkedList<>();
-    private final Map<UUID, Integer> upiToSchoolBoardId = new HashMap<>();
-    private final int numPlayers;
-    private final boolean expertMode;
-    private boolean gameStarted = false;
     private CommunicationController communicationController = null;
     private final UsersRepository usersRepository = UsersRepository.getInstance();
+    private boolean gameStarted = false;
 
-
-    public GameController(UUID roomId, int numPlayers, boolean expertMode)
+    public GameController(UUID roomId)
     {
         this.roomId = roomId;
-        this.numPlayers = numPlayers;
-        this.expertMode = expertMode;
     }
 
     private void addPlayerEffective(Player player) {
-        synchronized (this.players) {
-            this.players.add(player);
-        }
+        this.players.add(player);
     }
 
     public void removePlayer(String username) {
-        synchronized (this.players) {
-            this.players.removeIf(player -> player.username.equals(username));
-        }
+        this.players.removeIf(player -> player.username.equals(username));
     }
-    //todo: increase security
+
     public List<Player> getPlayers() {
-        return this.players;
+        return new ArrayList<>(this.players);
     }
 
     public void addPlayer(Player player) {
@@ -52,12 +42,11 @@ public class GameController extends SugarMessageProcessor {
 
     public void startGame() throws GameStateInitializationFailureException {
         this.gameStarted = true;
-        synchronized (this.players) {
-            for (int i = 0; i < players.size(); i++) {
-                upiToSchoolBoardId.put(players.get(i).associatedPeer.upi, i);
-                usersRepository.saveUserSchoolBardMap(this.roomId, players.get(i).username, i);
-            }
+
+        for (int i = 0; i < players.size(); i++) {
+            usersRepository.saveUserSchoolBardMap(this.roomId, players.get(i).username, i);
         }
+
         this.communicationController = new CommunicationController(players);
     }
 
@@ -67,7 +56,7 @@ public class GameController extends SugarMessageProcessor {
         return false;
     }
 
-    public boolean containsPLayer(String username) {
+    public boolean containsPlayer(String username) {
         for(var player : this.players)
             if(player.username.equals(username)) return true;
         return false;
@@ -91,10 +80,6 @@ public class GameController extends SugarMessageProcessor {
 
     @SugarMessageHandler
     public SugarMessage base(SugarMessage message, Peer peer) {
-        System.out.println("Game controller: ");
-        var ret = this.communicationController.process(message, peer);
-        System.out.println(ret.serialize());
-        return ret;
+        return this.communicationController.process(message, peer);
     }
-
 }

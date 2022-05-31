@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client.game_client_and_cli;
 
+import com.google.gson.Gson;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
@@ -22,6 +23,9 @@ import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -135,7 +139,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.log("  mv-std-to-dining --color=string");
         this.logger.log("  play-card --card=int[1-10]");
         this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
-        this.logger.log("CLI commands:");
+        this.logger.log("  CLI commands:");
     }
 
     private void sendAndHandleDisconnection(SugarMessage message) {
@@ -180,9 +184,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);
-        // TODO: remove (debug)
-        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        // System.out.println(gson.toJson(msg.lightGameState));
 
         // Update GUI
 //        UserInputHandler.onGameStateUpdate(msg.lightGameState);
@@ -195,6 +196,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.logSuccess("Successfully logged in");
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
     }
+    
     @SugarMessageHandler
     public void peerUPIMessage(SugarMessage message) {}
 
@@ -235,7 +237,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 .filter(cliCommand -> cliCommand.text().equals(command.toLowerCase().trim()))
                 .findFirst();
     }
-
 
 
     private String extractCommand(String input) {

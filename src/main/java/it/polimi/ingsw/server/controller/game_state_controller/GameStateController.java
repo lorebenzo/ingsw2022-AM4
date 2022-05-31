@@ -329,11 +329,6 @@ public class GameStateController {
      * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
      * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen
      */
-/*    private boolean merge(){
-        return this.gameState.mergeWithPrevious() || this.gameState.mergeWithNext();
-    }*/
-
-
     LightGameState getLightGameState() {
         return this.gameState.lightify();
     }

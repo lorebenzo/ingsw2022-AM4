@@ -19,7 +19,7 @@ import java.util.*;
 public class CommunicationController extends SugarMessageProcessor {
 
     private final GameStateController gameStateController;
-    private Map<String, Integer> usernameToSchoolBoardID;
+    private final Map<String, Integer> usernameToSchoolBoardID;
 
     public CommunicationController(List<Player> players) {
 

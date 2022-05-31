@@ -12,32 +12,32 @@ import java.util.List;
 import java.util.Map;
 
 public class ThreePlayerStrategy implements NumberOfPlayersStrategy {
-    private final int numberOfPlayers = 3;
-    private final int numberOfStudentsInEachCloud = 4;
-    private final int numberOfStudentsInTheEntrance = 9;
-    private final int numberOfTowers = 6;
+    private static final int numberOfPlayers = 3;
+    private static final int numberOfStudentsInEachCloud = 4;
+    private static final int numberOfStudentsInTheEntrance = 9;
+    private static final int numberOfTowers = 6;
 
     @Override
     public int getNumberOfStudentsInEachCloud() {
-        return this.numberOfStudentsInEachCloud;
+        return numberOfStudentsInEachCloud;
     }
 
     @Override
     public int getNumberOfStudentsInTheEntrance() {
-        return this.numberOfStudentsInTheEntrance;
+        return numberOfStudentsInTheEntrance;
     }
 
     @Override
     public List<SchoolBoard> initializeSchoolBoards(StudentFactory studentFactory) throws EmptyStudentSupplyException {
         List<SchoolBoard> schoolBoards = new ArrayList<>(numberOfPlayers);
         schoolBoards.add(
-                new SchoolBoard(0, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.WHITE)
+                new SchoolBoard(0, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.WHITE)
         );
         schoolBoards.add(
-                new SchoolBoard(1, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.BLACK)
+                new SchoolBoard(1, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.BLACK)
         );
         schoolBoards.add(
-                new SchoolBoard(2, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.GRAY)
+                new SchoolBoard(2, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.GRAY)
         );
         return schoolBoards;
     }
@@ -72,7 +72,7 @@ public class ThreePlayerStrategy implements NumberOfPlayersStrategy {
 
     @Override
     public int getNumberOfTowers() {
-        return this.numberOfTowers;
+        return numberOfTowers;
     }
 }
 
