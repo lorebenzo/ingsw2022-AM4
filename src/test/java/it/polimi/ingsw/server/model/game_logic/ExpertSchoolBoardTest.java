@@ -4,6 +4,7 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.Studen
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.model.game_logic.exceptions.FullDiningRoomLaneException;
+import it.polimi.ingsw.server.model.game_logic.exceptions.StudentsNotInTheDiningRoomException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class ExpertSchoolBoardTest {
     }
 
     @Test
-    public void removeStudentFromDiningRoom() throws FullDiningRoomLaneException {
+    public void removeStudentFromDiningRoom() throws FullDiningRoomLaneException, StudentsNotInTheDiningRoomException {
         List<Color> entrance = new ArrayList<>(List.of(Color.RED, Color.RED));
 
         SchoolBoard schoolBoard = new ExpertSchoolBoard(0, entrance, TowerColor.BLACK,1);
@@ -57,8 +58,7 @@ public class ExpertSchoolBoardTest {
         schoolBoard.removeStudentFromDiningRoom(Color.RED);
         assertEquals(0, schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(Color.RED).intValue());
 
-        schoolBoard.removeStudentFromDiningRoom(Color.RED);
-        assertEquals(0, schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(Color.RED).intValue());
+        assertThrows(StudentsNotInTheDiningRoomException.class, () -> schoolBoard.removeStudentFromDiningRoom(Color.RED));
 
     }
 }

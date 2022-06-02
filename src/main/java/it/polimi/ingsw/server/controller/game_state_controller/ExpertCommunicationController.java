@@ -121,6 +121,8 @@ public class ExpertCommunicationController extends CommunicationController {
             return new KOMsg(ReturnMessage.WRONG_ARGUMENTS.text);
         } catch (NotEnoughCoinsException e) {
             return new KOMsg(ReturnMessage.NOT_ENOUGH_COINS.text);
+        } catch (StudentsNotInTheDiningRoomException e) {
+            return new KOMsg(ReturnMessage.STUDENTS_NOT_IN_THE_DINING_ROOM.text);
         }
     }
 

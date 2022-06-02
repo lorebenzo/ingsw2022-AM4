@@ -57,16 +57,13 @@ public class Archipelago implements ArchipelagoCommonInterface {
     public boolean merge(Archipelago a2) {
         if(a2 == null) throw new IllegalArgumentException();
 
-        boolean merged = this.towerColor.equals(a2.towerColor) && !this.towerColor.equals(TowerColor.NONE) && this.islandCodes.stream().noneMatch(a2.islandCodes::contains);
-
-        if(merged){
+        if(this.towerColor.equals(a2.towerColor) && !this.towerColor.equals(TowerColor.NONE) && this.islandCodes.stream().noneMatch(a2.islandCodes::contains)){
             this.islandCodes.addAll(a2.islandCodes);
+            this.islandCodes.sort(Comparator.naturalOrder());
             this.studentToNumber.replaceAll((k, v) -> this.studentToNumber.get(k) + a2.studentToNumber.get(k));
+            return true;
         }
-
-
-        return merged;
-
+        return false;
     }
 
     public List<Color> getStudents() {
@@ -131,6 +128,12 @@ public class Archipelago implements ArchipelagoCommonInterface {
 
     public TowerColor getTowerColor(){
         return this.towerColor;
+    }
+
+
+    public void removeStudent(Color student){
+        if(this.studentToNumber.get(student) >= 1)
+            this.studentToNumber.put(student, this.studentToNumber.get(student) -1);
     }
 
 }

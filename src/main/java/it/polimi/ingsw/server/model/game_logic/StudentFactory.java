@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class StudentFactory {
-    private final Map<Color, Integer> studentSupply;
+    protected final Map<Color, Integer> studentSupply;
     private final Random randomizer;
 
     public StudentFactory() {

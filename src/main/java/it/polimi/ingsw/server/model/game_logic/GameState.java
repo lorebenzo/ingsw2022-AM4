@@ -340,8 +340,10 @@ public class GameState implements GameStateCommonInterface {
         // Substitute current archipelago with the merged archipelago
         mergePerformed = this.motherNaturePosition.merge(previous);
         // Remove previous archipelago from the list
-        if(mergePerformed)
+        if(mergePerformed){
             this.archipelagos.remove(previous);
+        }
+
 
         return mergePerformed;
     }

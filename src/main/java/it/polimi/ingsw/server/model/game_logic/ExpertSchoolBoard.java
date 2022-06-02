@@ -41,8 +41,8 @@ public class ExpertSchoolBoard extends SchoolBoard {
         return coins;
     }
 
-    public void removeStudentFromDiningRoom(Color student) {
-        if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= 1)
+    public void removeStudentFromDiningRoom(Color student) throws StudentsNotInTheDiningRoomException {
+        if(this.diningRoomLaneColorToNumberOfStudents.get(student) < 1) throw new StudentsNotInTheDiningRoomException();
             this.diningRoomLaneColorToNumberOfStudents.put(student, this.diningRoomLaneColorToNumberOfStudents.get(student)-1);
     }
 }

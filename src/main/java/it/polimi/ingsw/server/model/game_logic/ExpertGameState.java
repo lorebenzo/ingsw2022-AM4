@@ -185,15 +185,16 @@ public class ExpertGameState extends GameState {
         Archipelago originalMotherNaturePositionIslandCode = this.motherNaturePosition;
         this.motherNaturePosition = selectedArchipelago.get();
 
-        if(!selectedArchipelago.get().isLocked()){
-            if(this.getMostInfluentSchoolBoardId(selectedArchipelago.get().getIslandCodes()).isPresent()){
-                this.conquerArchipelago(this.getMostInfluentSchoolBoardId(selectedArchipelago.get().getIslandCodes()).get());
+        if(!this.motherNaturePosition.isLocked()){
+            Optional<Integer> mostInfluentSchoolBoardId = this.getMostInfluentSchoolBoardId(this.motherNaturePosition.getIslandCodes());
+            if(mostInfluentSchoolBoardId.isPresent()){
+                this.conquerArchipelago(mostInfluentSchoolBoardId.get());
                 mergePreviousPerformed = this.mergeWithPrevious();
                 mergeNextPerformed = this.mergeWithNext();
             }
         }
-
-        this.unlockMotherNaturePosition();
+        else
+            this.unlockMotherNaturePosition();
 
         this.motherNaturePosition = originalMotherNaturePositionIslandCode;
 
@@ -292,10 +293,10 @@ public class ExpertGameState extends GameState {
 
     //7 OK AND TESTED
     @Override
-    public void playSwapThreeStudentsBetweenCharacterAndEntrance(List<Color> students1, List<Color> students2) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotOnCharacterException, StudentNotInTheEntranceException, NotEnoughCoinsException {
-        if(students1 == null || students2 == null || students1.contains(null) || students2.contains(null)) throw new IllegalArgumentException();
+    public void playSwapThreeStudentsBetweenCharacterAndEntrance(List<Color> studentsFromCharacter, List<Color> studentsFromEntrance) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotOnCharacterException, StudentNotInTheEntranceException, NotEnoughCoinsException {
+        if(studentsFromCharacter == null || studentsFromEntrance == null || studentsFromCharacter.contains(null) || studentsFromEntrance.contains(null)) throw new IllegalArgumentException();
 
-        if(students1.size() != students2.size() || students2.size() > 3) throw new InvalidStudentListsLengthException();
+        if(studentsFromCharacter.size() != studentsFromEntrance.size() || studentsFromEntrance.size() > 3) throw new InvalidStudentListsLengthException();
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE.characterId).findFirst();
 
@@ -303,15 +304,15 @@ public class ExpertGameState extends GameState {
 
         if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
-        if(!selectedCharacter.get().containsAllStudents(students1)) throw new StudentNotOnCharacterException();
-        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(students2)) throw new StudentNotInTheEntranceException();
+        if(!selectedCharacter.get().containsAllStudents(studentsFromCharacter)) throw new StudentNotOnCharacterException();
+        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentsFromEntrance)) throw new StudentNotInTheEntranceException();
 
-        for (Color student: students1 ) {
+        for (Color student: studentsFromCharacter ) {
             selectedCharacter.get().removeStudent(student);
             this.getCurrentPlayerSchoolBoard().addStudentToEntrance(student);
         }
 
-        for (Color student: students2 ) {
+        for (Color student: studentsFromEntrance ) {
             this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);
             selectedCharacter.get().addStudent(student);
         }
@@ -427,15 +428,18 @@ public class ExpertGameState extends GameState {
     }
 
     //12 OK AND TESTED
-    private void putThreeStudentsInTheBag(Color color) {
+    private void putThreeStudentsInTheBag(Color color) throws StudentsNotInTheDiningRoomException {
         for (SchoolBoard schoolBoard: this.schoolBoards ) {
             for (int i = 0; i < 3; i++) {
-                schoolBoard.removeStudentFromDiningRoom(color);
+                if(schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(color) >= 1){
+                    schoolBoard.removeStudentFromDiningRoom(color);
+                    this.studentFactory.studentSupply.put(color, this.studentFactory.studentSupply.get(color) + 1 );
+                }
             }
         }
     }
     @Override
-    public void playPutThreeStudentsInTheBag(Color color) throws MoveNotAvailableException, NotEnoughCoinsException {
+    public void playPutThreeStudentsInTheBag(Color color) throws MoveNotAvailableException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException {
         if(color == null) throw new IllegalArgumentException();
 
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.PUT_THREE_STUDENTS_IN_THE_BAG.characterId).findFirst();

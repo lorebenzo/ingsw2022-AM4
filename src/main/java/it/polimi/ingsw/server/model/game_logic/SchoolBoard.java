@@ -130,7 +130,7 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
 
     public boolean containsAllStudentsInTheDiningRoom(List<Color> students){
         boolean allStudentsArePresent = true;
-        Map<Color, Integer> diningRoomCopy = this.diningRoomLaneColorToNumberOfStudents;
+        Map<Color, Integer> diningRoomCopy = new HashMap<>(this.diningRoomLaneColorToNumberOfStudents);
 
         for (Color student: students) {
             if(diningRoomCopy.get(student) <= 0) allStudentsArePresent = false;

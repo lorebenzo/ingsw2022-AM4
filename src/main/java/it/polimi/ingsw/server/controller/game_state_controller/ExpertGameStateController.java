@@ -67,7 +67,7 @@ public class ExpertGameStateController extends GameStateController {
         return mergePerformed;
     }
     @Override
-    public void applyEffect(int characterIndex, Color color) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException, NotEnoughCoinsException {
+    public void applyEffect(int characterIndex, Color color) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException {
         this.applyEffectGenericChecks(characterIndex);
 
         int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
