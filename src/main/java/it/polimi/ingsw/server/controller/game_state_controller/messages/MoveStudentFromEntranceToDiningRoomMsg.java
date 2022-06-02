@@ -7,8 +7,8 @@ package it.polimi.ingsw.server.controller.game_state_controller.messages;
 public class MoveStudentFromEntranceToDiningRoomMsg extends SugarMessage {
     public final Color student;
 
-    public MoveStudentFromEntranceToDiningRoomMsg(Color student) {
-        super(SugarMethod.ACTION);
+    public MoveStudentFromEntranceToDiningRoomMsg(Color student, String jwt) {
+        super(SugarMethod.ACTION, jwt);
 
         this.student = student;
     }

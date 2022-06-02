@@ -1,23 +1,31 @@
-package it.polimi.ingsw.client;
+package it.polimi.ingsw.client.game_client_and_cli;
 
+import com.google.gson.Gson;
+import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
+import it.polimi.ingsw.client.gui.UserInputHandler;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg;
+import it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg;
+import it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
+import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
+import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -32,6 +40,8 @@ import java.util.regex.Pattern;
  * grab-std-cloud --cloud=int
  * end-turn
  * rollback
+ * login --username=string --password=string
+ * signup --username=string --password=string
  * help
  *
  * TODO:
@@ -44,7 +54,8 @@ import java.util.regex.Pattern;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final Logger logger = new GameLogger(System.out);
+    private final Logger logger = new GameLogger(new Terminal(23, 150, System.out));
+    private String jwt;
 
     // CLI Attributes
     private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
@@ -69,61 +80,66 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     // Game methods
 
+    public void signUp(String username, String password) {
+        this.sendAndHandleDisconnection(new SignUpMsg(username, password));
+    }
+
+    public void login(String username, String password) {
+        this.sendAndHandleDisconnection(new LoginMsg(username, password));
+    }
+
     public void joinMatchMaking(int numberOfPlayers, boolean expertMode) {
         if(!GameConstants.isPlayersNumberValid(numberOfPlayers))
-            this.logError("Invalid number of players");
-        else this.sendAndHandleDisconnection(new JoinMatchMakingMsg(numberOfPlayers, expertMode));
+            this.logger.logError("Invalid number of players");
+        else this.sendAndHandleDisconnection(new JoinMatchMakingMsg(numberOfPlayers, expertMode, this.jwt));
     }
 
     public void playCard(int cardValue) {
         var card = Card.fromValue(cardValue);
         if(card.isPresent())
-            this.sendAndHandleDisconnection(new PlayCardMsg(card.get()));
-        else this.logError("Card does not exists");
+            this.sendAndHandleDisconnection(new PlayCardMsg(card.get(), this.jwt));
+        else this.logger.logError("Card does not exists");
     }
 
     public void moveStudentFromEntranceToDiningRoom(String student) {
         var _student = Color.fromString(student);
         if(_student.isPresent())
-            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToDiningRoomMsg(_student.get()));
-        else this.logError("Color does not exist");
+            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToDiningRoomMsg(_student.get(), this.jwt));
+        else this.logger.logError("Color does not exist");
     }
 
 
-    public void moveStudentFromEntranceToArchipelago(String student, String archipelagoIslandCodes) {
+    public void moveStudentFromEntranceToArchipelago(String student, int archipelagoIslandCode) {
         var _student = Color.fromString(student);
-        // TODO: implement archipelagoIslandCodes abstraction
         if(_student.isPresent())
-            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), null));
-        else this.logError("Color does not exist or archipelago does not exist");
+            this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), archipelagoIslandCode, this.jwt));
+        else this.logger.logError("Color does not exist or archipelago does not exist");
     }
 
     public void moveMotherNature(int numberOfSteps){
-        this.sendAndHandleDisconnection(new MoveMotherNatureMsg(numberOfSteps));
+        this.sendAndHandleDisconnection(new MoveMotherNatureMsg(numberOfSteps, this.jwt));
     }
 
     public void grabStudentsFromCloud(int cloudIndex){
-        this.sendAndHandleDisconnection(new GrabStudentsFromCloudMsg(cloudIndex));
+        this.sendAndHandleDisconnection(new GrabStudentsFromCloudMsg(cloudIndex, this.jwt));
     }
 
     public void endTurn() {
-        this.sendAndHandleDisconnection(new EndTurnMsg());
+        this.sendAndHandleDisconnection(new EndTurnMsg(this.jwt));
     }
 
     public void help() {
-        this.logSuccess(
-                "CLI commands\n" +
-                " \n" +
-                " → join-matchmaking --players=int[2-4] --expert=boolean\n" +
-                " → play-card --card=int[1-10]\n" +
-                " → mv-std-to-dining --color=string\n" +
-                " → mv-std-to-island --color=string --island=char\n" +
-                " → mv-mother-nature --steps=int\n" +
-                " → grab-std-cloud --cloud=int\n" +
-                " → end-turn\n" +
-                " → rollback\n" +
-                " → help"
-        );
+        this.logger.log("  help");
+        this.logger.log("  rollback");
+        this.logger.log("  login  --username=string --password=string");
+        this.logger.log("  signup --username=string --password=string");
+        this.logger.log("  grab-std-cloud --cloud=int");
+        this.logger.log("  mv-mother-nature --steps=int");
+        this.logger.log("  mv-std-to-island --color=string --island=char");
+        this.logger.log("  mv-std-to-dining --color=string");
+        this.logger.log("  play-card --card=int[1-10]");
+        this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
+        this.logger.log("  CLI commands:");
     }
 
     private void sendAndHandleDisconnection(SugarMessage message) {
@@ -134,18 +150,13 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         }
     }
 
-    private void logError(String s) {
-        this.logger.logError(s);
-    }
-
-    private void logSuccess(String s) {
-        this.logger.logSuccess(s);
-    }
-
     @SugarMessageHandler
     public void OKMsg(SugarMessage message) {
         var msg = (OKMsg) message;
         this.logger.logSuccess(msg.text);
+
+        // Update GUI
+        UserInputHandler.onOKMessage(msg.text);
     }
 
     @SugarMessageHandler
@@ -162,8 +173,44 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     @SugarMessageHandler
+    public void GameOverMsg(SugarMessage message) {
+        var msg = (GameOverMsg) message;
+        this.logger.logGameState(msg.updateClientMsg.lightGameState);
+        this.logger.log("GAME OVER!");
+        // TODO: Close game
+    }
+
+    @SugarMessageHandler
+    public void updateClientMsg(SugarMessage message) {
+        var msg = (UpdateClientMsg) message;
+        this.logger.logGameState(msg.lightGameState);
+
+        // Update GUI
+//        UserInputHandler.onGameStateUpdate(msg.lightGameState);
+    }
+
+    @SugarMessageHandler
+    public void JWTMsg(SugarMessage message) {
+        var msg = (JWTMsg) message;
+        this.jwt = msg.jwtAuthCode;
+        this.logger.logSuccess("Successfully logged in");
+        this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
+    }
+    
+    @SugarMessageHandler
+    public void peerUPIMessage(SugarMessage message) {}
+
+    @SugarMessageHandler
+    public void gamesUpdateMsg(SugarMessage message) {
+        var msg = (GamesUpdateMsg) message;
+        if(msg.gameUUID != null) {
+            this.logger.log(msg.gameUUID.toString());
+        }
+    }
+
+    @SugarMessageHandler
     public void base(SugarMessage message) {
-        this.logError("Unhandled message: " + message.serialize());
+        this.logger.logError("Unhandled message: " + message.serialize());
     }
 
     @Override
@@ -190,6 +237,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 .filter(cliCommand -> cliCommand.text().equals(command.toLowerCase().trim()))
                 .findFirst();
     }
+
 
     private String extractCommand(String input) {
         var matcher = command.matcher(input);
@@ -220,12 +268,11 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             mapParameterNameToValue.put(name, value);
         }
 
-        System.out.println(mapParameterNameToValue);
         return mapParameterNameToValue;
     }
 
     private boolean arePresent(Optional<?> ...args) {
-        return Arrays.stream(args).allMatch(arg -> arg.isPresent());
+        return Arrays.stream(args).allMatch(Optional::isPresent);
     }
 
     public void executeCommand(CLICommand command, Map<String, String> params) throws SyntaxError {
@@ -236,6 +283,26 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 if(this.arePresent(players, expert))
                     this.joinMatchMaking(Integer.parseInt(players.get()), Boolean.parseBoolean(expert.get()));
                 else throw new SyntaxError();
+                break;
+            }
+            case login: {
+                var username = Optional.ofNullable(params.get("username"));
+                var password = Optional.ofNullable(params.get("password"));
+
+                if(arePresent(username, password))
+                    this.login(username.get(), password.get());
+                else
+                    throw new SyntaxError();
+                break;
+            }
+            case signup: {
+                var username = Optional.ofNullable(params.get("username"));
+                var password = Optional.ofNullable(params.get("password"));
+
+                if(arePresent(username, password))
+                    this.signUp(username.get(), password.get());
+                else
+                    throw new SyntaxError();
                 break;
             }
             case play_card: {
@@ -254,9 +321,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             }
             case mv_std_to_island: {
                 var color = Optional.ofNullable(params.get("color"));
-                var islandCodes = Optional.ofNullable("island");
-                if(this.arePresent(color, islandCodes))
-                    this.moveStudentFromEntranceToArchipelago(color.get(), islandCodes.get());
+                var islandCode = Optional.ofNullable(params.get("island"));
+                if(this.arePresent(color, islandCode))
+                    this.moveStudentFromEntranceToArchipelago(color.get(), Integer.parseInt(islandCode.get()));
                 else throw new SyntaxError();
                 break;
             }

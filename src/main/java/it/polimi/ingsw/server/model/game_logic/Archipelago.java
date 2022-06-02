@@ -130,6 +130,13 @@ public class Archipelago implements ArchipelagoCommonInterface {
         return this.towerColor;
     }
 
+    public List<Color> getStudents() {
+        var students = new LinkedList<Color>();
+        for(var key : this.studentToNumber.keySet())
+            for(int i = 0; i < this.studentToNumber.get(key); i++)
+                students.add(key);
+        return students;
+    }
 
     public void removeStudent(Color student){
         if(this.studentToNumber.get(student) >= 1)

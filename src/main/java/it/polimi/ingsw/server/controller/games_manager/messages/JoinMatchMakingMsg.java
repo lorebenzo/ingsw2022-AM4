@@ -7,8 +7,8 @@ public class JoinMatchMakingMsg extends SugarMessage {
     public final int numberOfPlayers;
     public final boolean expertMode;
 
-    public JoinMatchMakingMsg(int numberOfPlayers, boolean expertMode) {
-        super(SugarMethod.JOIN);
+    public JoinMatchMakingMsg(int numberOfPlayers, boolean expertMode, String jwt) {
+        super(SugarMethod.JOIN, jwt);
         this.numberOfPlayers = numberOfPlayers;
         this.expertMode = expertMode;
     }

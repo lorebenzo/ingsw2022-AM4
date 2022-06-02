@@ -6,8 +6,8 @@ import it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod;
 public class MoveMotherNatureMsg extends SugarMessage {
     public final int numberOfSteps;
 
-    public MoveMotherNatureMsg(int numberOfSteps) {
-        super(SugarMethod.ACTION);
+    public MoveMotherNatureMsg(int numberOfSteps, String jwt) {
+        super(SugarMethod.ACTION, jwt);
         this.numberOfSteps = numberOfSteps;
     }
 }

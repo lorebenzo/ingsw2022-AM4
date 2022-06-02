@@ -7,12 +7,14 @@ public enum CLICommand {
     mv_std_to_island(2),
     mv_mother_nature(1),
     grab_std_cloud(1),
+    login(2),
+    signup(2),
     end_turn,
     rollback,
     help,
     ;
 
-    public int numberOfParams;
+    public final int numberOfParams;
 
     CLICommand(int numberOfParams) {
         this.numberOfParams = numberOfParams;

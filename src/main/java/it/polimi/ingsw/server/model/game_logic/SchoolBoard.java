@@ -168,6 +168,8 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         return new LinkedList<>(this.studentsInTheEntrance);
     }
 
+
+
     //Created for testing - could be useful or dangerous
     public void addProfessor(Color professor){
         if(professor == null)

@@ -7,8 +7,8 @@ public class ChatToMsg extends SugarMessage {
     public final String msg;
     public final String to; // Username of the receiver
 
-    public ChatToMsg(String msg, String to) {
-        super(SugarMethod.NOTIFY);
+    public ChatToMsg(String msg, String to, String jwt) {
+        super(SugarMethod.NOTIFY, jwt);
         this.msg = msg;
         this.to = to;
     }

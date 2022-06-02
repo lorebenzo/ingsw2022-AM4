@@ -19,6 +19,11 @@ public enum ReturnMessage {
     CARD_NOT_PLAYED("You have to play a card before ending your turn"),
     MERGE_PERFORMED("Archipelagos merged!"),
     MOVE_ALREADY_PLAYED("The selected move was already performed and cannot be repeated"),
+    MERGE_NOT_PERFORMED("Archipelagos not merged!"),
+    MOVE_ALREADY_PLAYED("The selected move was already performed and cannot be repeated"),
+    STUDENTS_GRABBED_FROM_CLOUD("Students successfully grabbed from cloud"),
+    INVALID_ARCHIPELAGO_ID("The archipelago island code provided is invalid"),
+    TURN_ENDED("Turn ended."),
 
     //EXPERT MODE
     NOT_ENOUGH_COINS("You don't have enough coins to play the selected character"),

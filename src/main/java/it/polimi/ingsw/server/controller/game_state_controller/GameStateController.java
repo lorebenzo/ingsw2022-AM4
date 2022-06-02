@@ -10,17 +10,15 @@ import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GameStateController implements GameStateControllerCommonInterface {
     protected GameState gameState;
 
-
-    public GameStateController(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+    public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
 
         //Create a new gameState
-        this.initializeGameState(playersNumber);
-
-
+        this.gameState = new GameState(playersNumber);
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
         try {
@@ -33,11 +31,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
         //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
         //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
-
-    }
-
-    protected void initializeGameState(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
-        this.gameState = new GameState(playersNumber);
     }
 
     /**
@@ -73,7 +66,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public void playCard(Card card) throws CardIsNotInTheDeckException, /*InvalidSchoolBoardIdException,*/ InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
+    public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
         if(this.gameState.getCurrentPhase() != Phase.PLANNING) throw new WrongPhaseException();
 
         if(this.cardPlayed()) throw new MoveAlreadyPlayedException();
@@ -90,7 +83,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      * @throws TooManyStudentsMovedException if the player has already moved the maximum number of students allowed by the rules.
      */
-    public void moveStudentFromEntranceToDiningRoom(Color student) throws /*InvalidSchoolBoardIdException,*/ StudentNotInTheEntranceException, FullDiningRoomLaneException, WrongPhaseException, TooManyStudentsMovedException {
+    public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException, WrongPhaseException, TooManyStudentsMovedException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
         if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) != 0) throw new TooManyStudentsMovedException();
@@ -111,7 +104,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      * @throws TooManyStudentsMovedException if the player has already moved the maximum number of students allowed by the rules.
      */
-    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws /*InvalidSchoolBoardIdException,*/ StudentNotInTheEntranceException, WrongPhaseException, TooManyStudentsMovedException {
+    public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException, WrongPhaseException, TooManyStudentsMovedException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
         if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) != 0) throw new TooManyStudentsMovedException();
@@ -153,13 +146,14 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
     }
 
+
     /**
      * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState grabbing the students from the chosen cloud.
      * @param cloudIndex indicates the index of the cloud from which the player wants to grab the students.
      * @throws EmptyCloudException indicates that che chosen cloud is empty.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public void grabStudentsFromCloud(int cloudIndex) throws /*InvalidSchoolBoardIdException,*/ EmptyCloudException, WrongPhaseException, MoveAlreadyPlayedException, MotherNatureToBeMovedException {
+    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException, WrongPhaseException, MoveAlreadyPlayedException, MotherNatureToBeMovedException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
 
@@ -180,7 +174,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws MotherNatureToBeMovedException if the player didn't move motherNature before trying to end his turn.
      * @throws StudentsToBeGrabbedFromCloudException if the player didn't grab the students from a cloud before trying to end his turn.
      */
-    public void endActionTurn() throws /*FullCloudException, */MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
+    public void endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
         //TODO there may be more actions to be performed
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
@@ -243,7 +237,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
     }
 
 
-    protected void nextActionTurn() throws EmptyStudentSupplyException /*throws FullCloudException,*/ {
+    protected void nextActionTurn() throws EmptyStudentSupplyException {
         //If all the players played in this round, a new round will begin
         if(this.gameState.isLastTurnInThisRound()) {
             this.gameState.resetRoundIterator();
@@ -261,8 +255,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
 
-    Map<Integer, Boolean> checkWinners(boolean isRoundTerminated){
-        return this.gameState.checkWinners(isRoundTerminated);
+    Optional<Map<Integer, Boolean>> checkImmediateWinners(){
+        return this.gameState.checkImmediateWinners();
     }
 
 
@@ -279,10 +273,41 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * and returns its schoolBoardId
      * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
      */
-    Optional<Integer> getMostInfluentSchoolBoardIdOnMotherNaturesPosition(){
-        return this.gameState.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());
+    private Optional<Integer> getMostInfluentSchoolBoardIdOnMotherNaturesPosition(){
+        return this.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());
 
     }
+
+
+    /**
+     * This method verifies if there is a schoolBoard that is more influent than all the others on the archipelago on which motherNature is,
+     * and returns its schoolBoardId
+     * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
+     */
+    private Optional<Integer> getMostInfluentSchoolBoardId(List<Integer> archipelagoIslandCodes){
+        List<Map.Entry<Integer, Integer>> orderedPlayersInfluences = this.getInfluence(archipelagoIslandCodes).entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .toList();
+
+        //If the number of players is 2 or 3, the most influent is calculated between the most influent and the second most influent.
+
+        if(this.gameState.getNumberOfPlayers() == 2 || this.gameState.getNumberOfPlayers() == 3){
+            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(1).getValue())
+                return Optional.of(orderedPlayersInfluences.get(0).getKey());
+            else
+                return Optional.empty();
+        }
+        //if the number of players is 4, the most influent is calculated between the most influent and the third most influent, since the second most influent is certainly a teammate.
+        else {
+            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(2).getValue())
+                return Optional.of(orderedPlayersInfluences.get(0).getKey());
+            else
+                return Optional.empty();
+        }
+
+    }
+
 
     /**
      * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputed archipelago
@@ -297,13 +322,12 @@ public class GameStateController implements GameStateControllerCommonInterface {
     /**
      * This method assigns the professor of the specified color to the current player, verifying if all the conditions are met.
      * @param professor indicates the color for which the professor may be assigned
-     * //@throws InvalidSchoolBoardIdException if there is an error with the schoolBoardIds
      */
-    private void assignProfessor(Color professor) /*throws InvalidSchoolBoardIdException*/ {
+    private void assignProfessor(Color professor) {
         this.gameState.assignProfessor(professor);
     }
-/*
-    *//**
+
+    /**
      * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
      * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen
      *//*
@@ -324,7 +348,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
     public void setCurrentPhaseForTesting(Phase phase){
         this.gameState.setCurrentPhase(phase);
     }
-
 
 }
 
