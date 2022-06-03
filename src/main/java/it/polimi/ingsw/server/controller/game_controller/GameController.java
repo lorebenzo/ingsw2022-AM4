@@ -10,6 +10,7 @@ import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.server.repository.UsersRepository;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -53,19 +54,47 @@ public class GameController extends SugarMessageProcessor {
         this.communicationController = CommunicationController.createCommunicationController(this.players, this.isExpertMode);
     }
 
+    /**
+     * Return true if there is the player in the game
+     * @param peer of the player to check
+     * @return true if the players list contains the peer provided
+     */
     public boolean containsPeer(Peer peer) {
         for(var player : this.players)
             if(player.associatedPeer.equals(peer)) return true;
         return false;
     }
 
+    /**
+     * Return true if there is the player in the game
+     * @param username of the player to check
+     * @return true if the players list contains the player provided
+     */
     public boolean containsPlayer(String username) {
         for(var player : this.players)
             if(player.username.equals(username)) return true;
         return false;
     }
 
-    public void updatePeerIfOlder(String username, Peer peer) {
+    /**
+     * Returns a peer associated to the username provided
+     * @param username of the player
+     * @return an Optional<Peer> that contains the peer, or it can be empty
+     */
+    public Optional<Peer> getPeerFromPlayer(String username) {
+        return this.players.stream()
+                .filter(player -> player.username.equals(username))
+                .map(player -> player.associatedPeer)
+                .findFirst();
+    }
+
+    /**
+     * Used when a player plays a move, it checks if the user has logged In from a new connection,
+     * if yes, it updates the peer socket
+     * @param username of the player
+     * @param peer to check if it has changed
+     */
+    public void updatePeerIfOlder(@NotNull String username, @NotNull Peer peer) {
         for(int i = 0; i < this.players.size(); i++) {
             var player = this.players.get(i);
             if (player.username.equals(username)) {
@@ -75,6 +104,22 @@ public class GameController extends SugarMessageProcessor {
                 break;
             }
         }
+    }
+
+    /**
+     * Returns the peers of the player's team
+     * @param username of the player
+     * @return a List<Peer> that contains the player's team peers
+     */
+    public List<Peer> getTeamPeers(String username) {
+        return this.communicationController.getTeamUsernames(username).stream()
+                // Get peer from player username
+                .map(this::getPeerFromPlayer)
+                // Filter only for the valid players (expected 1)
+                .filter(Optional::isPresent)
+                // Get the peer
+                .map(Optional::get)
+                .toList();
     }
 
     public LightGameState getLightGameState() {

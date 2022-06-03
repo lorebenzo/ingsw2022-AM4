@@ -82,6 +82,13 @@ public class GameState implements GameStateCommonInterface {
 
     }
 
+    public List<Integer> getSchoolBoardIDFromTowerColor(TowerColor towerColor) {
+        return this.schoolBoards.stream()
+                .filter(s -> s.getTowerColor() == towerColor)
+                .map(SchoolBoard::getId)
+                .toList();
+    }
+
     protected void chooseStrategy(){
         this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
     }
@@ -748,6 +755,13 @@ public class GameState implements GameStateCommonInterface {
         this.motherNaturePosition = motherNaturePosition;
     }
 
+    public Optional<TowerColor> getTowerColorFromSchoolBoardID(Integer schoolBoardID) {
+        return this.schoolBoards.stream()
+                .filter(s -> s.getId() == schoolBoardID)
+                .map(SchoolBoard::getTowerColor)
+                .findFirst();
+    }
+
     public SchoolBoard getCurrentPlayerSchoolBoardForTesting() /*throws InvalidSchoolBoardIdException*/ {
         SchoolBoard currentPlayerSchoolBoard =
                 // get all school boards
@@ -823,7 +837,4 @@ public class GameState implements GameStateCommonInterface {
                 return Optional.empty();
         }
     }
-
-
-
 }

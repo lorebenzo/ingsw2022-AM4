@@ -12,9 +12,11 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.Re
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
+import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class CommunicationController extends SugarMessageProcessor {
 
@@ -35,7 +37,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
 
 
-    public static CommunicationController createCommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+    public static CommunicationController createCommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException {
         if(isExpertMode)
             return new ExpertCommunicationController(players);
         else
@@ -229,6 +231,30 @@ public class CommunicationController extends SugarMessageProcessor {
         return new OKMsg();
     }
 
+    /**
+     * Returns the usernames in my team
+     * @param username of the player
+     * @return a List<String> that contains all the users in my team, in 2/3 players games,
+     *         it returns a list containing only the given username
+     */
+    public List<String> getTeamUsernames(String username) {
+        var userSchoolBoardId = usernameToSchoolBoardID.get(username);
+        var userTowerColor = this.gameStateController.getSchoolBoardTowerColorFromID(userSchoolBoardId);
+        var teamSchoolBoardIDs = this.gameStateController.getSchoolBoardIDFromTowerColor(userTowerColor);
+
+        List<String> teamUsernames = new LinkedList<>();
+
+        this.usernameToSchoolBoardID.forEach((user, sbID) -> {
+            if(teamSchoolBoardIDs.contains(sbID)) teamUsernames.add(user);
+        });
+
+        return teamUsernames;
+    }
+
+    /**
+     * Return light game state from the communication controller
+     * @return light game state
+     */
     public LightGameState getLightGameState() {
         return this.gameStateController.getLightGameState().addUsernames(usernameToSchoolBoardID);
     }

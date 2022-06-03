@@ -10,6 +10,7 @@ public enum CLICommand {
     login(2),
     signup(2),
     play_char(3),
+    chat(3),
     end_turn,
     rollback,
     help,

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.client.game_client_and_cli;
 
 import it.polimi.ingsw.client.cli_graphics.Terminal;
+import it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 
 public class GameLogger implements Logger {
@@ -25,6 +26,17 @@ public class GameLogger implements Logger {
     @Override
     public void log(String s) {
         this.terminal.log(s);
+        this.terminal.flush();
+    }
+
+    @Override
+    public void logChat(ChatMsg msg) {
+        if(msg.to.equals("all"))
+            this.terminal.logCyan("[ " + msg.from + " ] " + msg.message);
+        else if(msg.to.equals("team"))
+            this.terminal.logPurple("[ " + msg.from + " ] " + msg.message);
+        else
+            this.terminal.log("[ " + msg.from + " ] " + msg.message);
         this.terminal.flush();
     }
 

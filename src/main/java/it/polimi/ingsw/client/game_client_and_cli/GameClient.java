@@ -12,6 +12,7 @@ import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg;
+import it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
@@ -20,6 +21,7 @@ import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMs
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -37,6 +39,7 @@ import java.util.stream.Stream;
  * play-char --index=int[0-2] --color=string{opt} --
  * end-turn
  * rollback
+ * chat --to=string[all, team, username] --message=string
  * login --username=string --password=string
  * signup --username=string --password=string
  * help
@@ -56,8 +59,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     // CLI Attributes
     private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
-    private static final Pattern parameter = Pattern.compile("--[a-zA-Z]+=[,a-zA-Z0-9]+( )*");
-    private static final Pattern keyValue = Pattern.compile("[,a-zA-Z0-9]+");
+    private static final Pattern parameter = Pattern.compile("--[a-zA-Z]+=[,a-zA-Z0-9 ]+( )*");
+    private static final Pattern keyValue = Pattern.compile("[,a-zA-Z0-9 ]+");
 
     public GameClient() {
         var dotenv = Dotenv.configure().load();
@@ -135,6 +138,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.log("  mv-std-island --color=string --island=char");
         this.logger.log("  mv-std-dining --color=string");
         this.logger.log("  play-card --card=int[1-10]");
+        this.logger.log("  chat --to=string[all, team, username] --message=string");
         this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
         this.logger.log("  CLI commands:");
     }
@@ -259,7 +263,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             else throw new SyntaxError();
 
             if(keyValueMatcher.find())
-                value = keyValueMatcher.group().toLowerCase();
+                value = keyValueMatcher.group().toLowerCase().trim();
             else throw new SyntaxError();
 
             mapParameterNameToValue.put(name, value);
@@ -273,72 +277,72 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     public void executeCommand(CLICommand command, Map<String, String> params) throws SyntaxError {
-        switch(command) {
-            case join_matchmaking: {
+        switch (command) {
+            case join_matchmaking -> {
                 var players = Optional.ofNullable(params.get("players"));
                 var expert = Optional.ofNullable(params.get("expert"));
-                if(this.arePresent(players, expert))
+                if (this.arePresent(players, expert))
                     this.joinMatchMaking(Integer.parseInt(players.get()), Boolean.parseBoolean(expert.get()));
                 else throw new SyntaxError();
-                break;
             }
-            case login: {
+            case login -> {
                 var username = Optional.ofNullable(params.get("username"));
                 var password = Optional.ofNullable(params.get("password"));
 
-                if(arePresent(username, password))
+                if (arePresent(username, password))
                     this.login(username.get(), password.get());
                 else
                     throw new SyntaxError();
-                break;
             }
-            case signup: {
+            case signup -> {
                 var username = Optional.ofNullable(params.get("username"));
                 var password = Optional.ofNullable(params.get("password"));
 
-                if(arePresent(username, password))
+                if (arePresent(username, password))
                     this.signUp(username.get(), password.get());
                 else
                     throw new SyntaxError();
-                break;
             }
-            case play_card: {
+            case play_card -> {
                 var card = Optional.ofNullable(params.get("card"));
-                if(card.isPresent())
+                if (card.isPresent())
                     this.playCard(Integer.parseInt(card.get()));
                 else throw new SyntaxError();
-                break;
             }
-            case mv_std_dining: {
+            case mv_std_dining -> {
                 var color = Optional.ofNullable(params.get("color"));
-                if(color.isPresent())
+                if (color.isPresent())
                     this.moveStudentFromEntranceToDiningRoom(color.get());
                 else throw new SyntaxError();
-                break;
             }
-            case mv_std_island: {
+            case mv_std_island -> {
                 var color = Optional.ofNullable(params.get("color"));
                 var islandCode = Optional.ofNullable(params.get("island"));
-                if(this.arePresent(color, islandCode))
+                if (this.arePresent(color, islandCode))
                     this.moveStudentFromEntranceToArchipelago(color.get(), Integer.parseInt(islandCode.get()));
                 else throw new SyntaxError();
-                break;
             }
-            case mv_mother_nature: {
+            case mv_mother_nature -> {
                 var steps = Optional.ofNullable(params.get("steps"));
-                if(steps.isPresent())
+                if (steps.isPresent())
                     this.moveMotherNature(Integer.parseInt(steps.get()));
                 else throw new SyntaxError();
-                break;
             }
-            case grab_std: {
+            case grab_std -> {
                 var cloud = Optional.ofNullable(params.get("cloud"));
-                if(cloud.isPresent())
+                if (cloud.isPresent())
                     this.grabStudentsFromCloud(Integer.parseInt(cloud.get()));
                 else throw new SyntaxError();
-                break;
             }
-            case play_char: {
+            case chat -> {
+                var to = Optional.ofNullable(params.get("to"));
+                var message = Optional.ofNullable(params.get("message"));
+
+                if (arePresent(to, message))
+                    this.sendChatMessage(to.get(), message.get());
+                else throw new SyntaxError();
+            }
+            case play_char -> {
                 var index = Optional.ofNullable(params.get("index"));
                 var color = Optional.ofNullable(params.get("color"));
                 var island = Optional.ofNullable(params.get("island"));
@@ -347,7 +351,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
                 Map<String, Object> parametersMap = new HashMap<>();
 
-                if(index.isPresent()) {
+                if (index.isPresent()) {
                     parametersMap.put("index", Integer.parseInt(index.get()));
                     color.ifPresent((col) -> parametersMap.put("color", col));
                     island.ifPresent((isl) -> parametersMap.put("island", Integer.parseInt(isl)));
@@ -355,20 +359,27 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                     giveStudents.ifPresent((givS) -> parametersMap.put("give-students", Arrays.asList(givS.split(","))));
 
                     this.playChar(parametersMap);
-                }
-                else throw new SyntaxError();
-                break;
+                } else throw new SyntaxError();
             }
-            case end_turn: {
+            case end_turn -> {
                 this.endTurn();
-                break;
             }
+
             // TODO: rollback
-            case help: {
+            case help -> {
                 this.help();
-                break;
             }
         }
+    }
+
+    @SugarMessageHandler
+    public void chatMsg(SugarMessage message) {
+        var msg = (ChatMsg) message;
+        this.logger.logChat(msg);
+    }
+
+    private void sendChatMessage(@NotNull String to, @NotNull String message) {
+        this.sendAndHandleDisconnection(new ChatMsg("me", to, message, this.jwt));
     }
 
     private void playChar(Map<String, Object> parametersMap) throws SyntaxError {

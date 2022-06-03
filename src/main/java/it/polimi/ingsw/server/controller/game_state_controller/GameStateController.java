@@ -4,10 +4,8 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.ExpertGameState;
 import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
-import it.polimi.ingsw.server.model.game_logic.enums.ActionPhaseSubTurn;
-import it.polimi.ingsw.server.model.game_logic.enums.Card;
-import it.polimi.ingsw.server.model.game_logic.enums.Color;
-import it.polimi.ingsw.server.model.game_logic.enums.Phase;
+import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
+import it.polimi.ingsw.server.model.game_logic.enums.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
 import java.util.*;
@@ -281,6 +279,22 @@ public class GameStateController implements GameStateControllerCommonInterface {
         return this.gameState.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());
     }
 
+    public List<Integer> getSchoolBoardIDFromTowerColor(TowerColor towerColor) {
+        return this.gameState.getSchoolBoardIDFromTowerColor(towerColor);
+    }
+
+    /**
+     * This method returns the TowerColor of the schoolBoardId provided
+     * If there is a problem finding the schoolBoard i.e. the user provided SchoolBoardID > 3, it returns
+     * TowerColor.NONE
+     * @param schoolBoardID of the player
+     * @return the TowerColor of his schoolBoard
+     */
+    public TowerColor getSchoolBoardTowerColorFromID(Integer schoolBoardID) {
+        return this.gameState
+                .getTowerColorFromSchoolBoardID(schoolBoardID)
+                .orElse(TowerColor.NONE);
+    }
     /**
      * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
      * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen

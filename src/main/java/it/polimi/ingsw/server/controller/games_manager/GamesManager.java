@@ -8,6 +8,7 @@ import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMes
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.auth_controller.AuthController;
+import it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
@@ -18,6 +19,7 @@ import it.polimi.ingsw.server.controller.game_controller.GameController;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.utils.multilist.MultiList;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -141,6 +143,49 @@ public class GamesManager extends SugarMessageProcessor {
                 .stream()
                 .filter(gameController -> gameController.containsPlayer(player))
                 .findFirst();
+    }
+
+    @SugarMessageHandler
+    public void chatMsg(SugarMessage message, Peer peer) {
+        var msg = (ChatMsg) message;
+        var username = AuthController.getUsernameFromJWT(msg.jwt);
+        var gameController = findGameInvolvingPlayer(username);
+        @NotNull var textMessage = msg.message;
+
+        if(gameController.isPresent()) {
+            // Send the message to all the players in the room
+            if(msg.to.equals("all")) {
+                this.gameLogicMulticast(gameController.get(), new ChatMsg(username, "all", textMessage));
+            // Send the message only to my teammates
+            } else if(msg.to.equals("team")) {
+                gameController.get()
+                        .getTeamPeers(username)
+                        .forEach(pr -> this.send(new ChatMsg(username, "team", textMessage), pr));
+            // Send the message to a player
+            } else {
+                // Getting the peer from the username given, for sending the message
+                var peerFromPlayer = gameController.get()
+                        .getPeerFromPlayer(msg.to);
+
+                // Check if the user is present in the game or not
+                peerFromPlayer.ifPresentOrElse(
+                        pr -> {
+                            this.send(new ChatMsg(username, msg.to, textMessage), pr);
+                            this.send(new ChatMsg(username, username, textMessage), peer);
+                        },
+                        () ->   this.send(new KOMsg("No user found in this game with the username given"), peer))
+                ;
+            }
+        // The game is not present, the user have probably provided a fake JWT token
+        } else {
+            this.send(new KOMsg("No game found"), peer);
+        }
+    }
+
+    private void send(SugarMessage message, Peer peer) {
+        try {
+            this.server.send(message, peer);
+        } catch (IOException ignored) {}
     }
 
 
