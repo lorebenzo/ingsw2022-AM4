@@ -7,8 +7,8 @@ public class CharacterIndexArchipelagoMsg extends SugarMessage {
     public final int characterIndex;
     public final int archipelagoIslandCode;
 
-    public CharacterIndexArchipelagoMsg(int characterIndex, int archipelagoIslandCode) {
-        super(SugarMethod.ACTION);
+    public CharacterIndexArchipelagoMsg(int characterIndex, int archipelagoIslandCode, String jwt) {
+        super(SugarMethod.ACTION, jwt);
 
         this.characterIndex = characterIndex;
         this.archipelagoIslandCode = archipelagoIslandCode;

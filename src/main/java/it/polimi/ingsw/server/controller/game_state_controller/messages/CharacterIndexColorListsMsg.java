@@ -12,8 +12,8 @@ public class CharacterIndexColorListsMsg extends SugarMessage {
     public final List<Color> studentsToGive;
 
 
-    public CharacterIndexColorListsMsg(int characterIndex, List<Color> studentsToGet, List<Color> studentsToGive) {
-        super(SugarMethod.ACTION);
+    public CharacterIndexColorListsMsg(int characterIndex, List<Color> studentsToGet, List<Color> studentsToGive, String jwt) {
+        super(SugarMethod.ACTION, jwt);
 
         this.characterIndex = characterIndex;
         this.studentsToGet = studentsToGet;

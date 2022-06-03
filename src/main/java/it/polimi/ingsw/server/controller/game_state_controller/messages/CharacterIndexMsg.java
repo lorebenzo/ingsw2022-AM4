@@ -6,8 +6,8 @@ import it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod;
 public class CharacterIndexMsg extends SugarMessage {
     public final int characterIndex;
 
-    public CharacterIndexMsg(int characterIndex) {
-        super(SugarMethod.ACTION);
+    public CharacterIndexMsg(int characterIndex, String jwt) {
+        super(SugarMethod.ACTION, jwt);
 
         this.characterIndex = characterIndex;
     }

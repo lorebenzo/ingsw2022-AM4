@@ -9,8 +9,8 @@ public class CharacterIndexColorArchipelagoMsg extends SugarMessage {
     public final Color color;
     public final int archipelagoIslandCode;
 
-    public CharacterIndexColorArchipelagoMsg(int characterIndex, Color color, int archipelagoIslandCode) {
-        super(SugarMethod.ACTION);
+    public CharacterIndexColorArchipelagoMsg(int characterIndex, Color color, int archipelagoIslandCode, String jwt) {
+        super(SugarMethod.ACTION, jwt);
 
         this.characterIndex = characterIndex;
         this.color = color;

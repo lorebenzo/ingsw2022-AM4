@@ -8,8 +8,8 @@ public class CharacterIndexColorMsg extends SugarMessage {
     public final int characterIndex;
     public final Color color;
 
-    public CharacterIndexColorMsg(int characterIndex, Color color) {
-        super(SugarMethod.ACTION);
+    public CharacterIndexColorMsg(int characterIndex, Color color, String jwt) {
+        super(SugarMethod.ACTION, jwt);
 
         this.characterIndex = characterIndex;
         this.color = color;

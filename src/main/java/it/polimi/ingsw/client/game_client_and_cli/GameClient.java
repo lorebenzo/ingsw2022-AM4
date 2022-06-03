@@ -56,8 +56,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     // CLI Attributes
     private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
-    private static final Pattern parameter = Pattern.compile("--[a-zA-Z]+=[a-zA-Z0-9]+( )*");
-    private static final Pattern keyValue = Pattern.compile("[a-zA-Z0-9]+");
+    private static final Pattern parameter = Pattern.compile("--[a-zA-Z]+=[,a-zA-Z0-9]+( )*");
+    private static final Pattern keyValue = Pattern.compile("[,a-zA-Z0-9]+");
 
     public GameClient() {
         var dotenv = Dotenv.configure().load();
@@ -342,8 +342,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 var index = Optional.ofNullable(params.get("index"));
                 var color = Optional.ofNullable(params.get("color"));
                 var island = Optional.ofNullable(params.get("island"));
-                var getStudents = Optional.ofNullable(params.get("get-students"));
-                var giveStudents = Optional.ofNullable(params.get("give-students"));
+                var getStudents = Optional.ofNullable(params.get("getstd"));
+                var giveStudents = Optional.ofNullable(params.get("givestd"));
 
                 Map<String, Object> parametersMap = new HashMap<>();
 
@@ -379,16 +379,16 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             if(color.isPresent()) {
                 if(parametersMap.containsKey("island")) {
                     var island = (Integer) parametersMap.get("island");
-                    this.sendAndHandleDisconnection(new CharacterIndexColorArchipelagoMsg(index, color.get(), island));
+                    this.sendAndHandleDisconnection(new CharacterIndexColorArchipelagoMsg(index, color.get(), island, this.jwt));
                 } else {
-                    this.sendAndHandleDisconnection(new CharacterIndexColorMsg(index, color.get()));
+                    this.sendAndHandleDisconnection(new CharacterIndexColorMsg(index, color.get(), this.jwt));
                 }
             } else {
                 throw new SyntaxError();
             }
         } else if (parametersMap.containsKey("island")) {
             var island = (Integer) parametersMap.get("island");
-            this.sendAndHandleDisconnection(new CharacterIndexArchipelagoMsg(index, island));
+            this.sendAndHandleDisconnection(new CharacterIndexArchipelagoMsg(index, island, this.jwt));
         } else if (parametersMap.containsKey("get-students") && parametersMap.containsKey("give-students")) {
             var getStudents = ((List<String>) parametersMap.get("get-students"))
                     .stream()
@@ -406,15 +406,16 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             if(allStudentsAreCorrectColors) {
                 this.sendAndHandleDisconnection(
                         new CharacterIndexColorListsMsg(
-                            index,
-                            getStudents.stream().map(Optional::get).toList(),
-                            giveStudents.stream().map(Optional::get).toList()
+                                index,
+                                getStudents.stream().map(Optional::get).toList(),
+                                giveStudents.stream().map(Optional::get).toList(),
+                                this.jwt
                         ));
             } else {
                 throw new SyntaxError();
             }
         } else {
-            this.sendAndHandleDisconnection(new CharacterIndexMsg(index));
+            this.sendAndHandleDisconnection(new CharacterIndexMsg(index, this.jwt));
         }
     }
 }
