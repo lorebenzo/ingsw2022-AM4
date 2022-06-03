@@ -355,8 +355,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                     parametersMap.put("index", Integer.parseInt(index.get()));
                     color.ifPresent((col) -> parametersMap.put("color", col));
                     island.ifPresent((isl) -> parametersMap.put("island", Integer.parseInt(isl)));
-                    getStudents.ifPresent((getS) -> parametersMap.put("get-students", Arrays.asList(getS.split(","))));
-                    giveStudents.ifPresent((givS) -> parametersMap.put("give-students", Arrays.asList(givS.split(","))));
+                    getStudents.ifPresent((getS) -> parametersMap.put("get-students", getS));
+                    giveStudents.ifPresent((givS) -> parametersMap.put("give-students", givS));
 
                     this.playChar(parametersMap);
                 } else throw new SyntaxError();
@@ -382,11 +382,19 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.sendAndHandleDisconnection(new ChatMsg("me", to, message, this.jwt));
     }
 
+    /**
+     * Plays the character of the expert mode
+     * @param parametersMap maps of parameters that contains all the parameters and their values
+     * @throws SyntaxError if there is a problem with the data entered the CLI
+     */
     private void playChar(Map<String, Object> parametersMap) throws SyntaxError {
         var index = (Integer) parametersMap.get("index");
 
+        // If the map contains the color param, then proceed to the decision tree
         if(parametersMap.containsKey("color")) {
             var color = Color.fromString((String) parametersMap.get("color"));
+
+            // Check if the color is correct
             if(color.isPresent()) {
                 if(parametersMap.containsKey("island")) {
                     var island = (Integer) parametersMap.get("island");
@@ -401,19 +409,21 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             var island = (Integer) parametersMap.get("island");
             this.sendAndHandleDisconnection(new CharacterIndexArchipelagoMsg(index, island, this.jwt));
         } else if (parametersMap.containsKey("get-students") && parametersMap.containsKey("give-students")) {
-            var getStudents = ((List<String>) parametersMap.get("get-students"))
-                    .stream()
-                    .map(Color::fromString)
-                    .toList();
+            // Extract a list of getStudents, given separated with comma
+            var getStudents =
+                    Arrays.stream(((String) parametersMap.get("get-students")).split(","))
+                        .map(Color::fromString)
+                        .toList();
 
-            var giveStudents = ((List<String>) parametersMap.get("give-students"))
-                    .stream()
+            // Extract a list of giveStudents, given separated with comma
+            var giveStudents = Arrays.stream(((String) parametersMap.get("give-students")).split(","))
                     .map(Color::fromString)
                     .toList();
 
             var allStudentsAreCorrectColors = Stream.concat(getStudents.stream(), giveStudents.stream())
                     .allMatch(Optional::isPresent);
 
+            // Check if getStudents and giveStudents have all correct colors
             if(allStudentsAreCorrectColors) {
                 this.sendAndHandleDisconnection(
                         new CharacterIndexColorListsMsg(
@@ -425,6 +435,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             } else {
                 throw new SyntaxError();
             }
+        // Only index provided
         } else {
             this.sendAndHandleDisconnection(new CharacterIndexMsg(index, this.jwt));
         }
