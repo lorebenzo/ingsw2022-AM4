@@ -12,32 +12,41 @@ import java.util.List;
 import java.util.Map;
 
 public class TwoPlayerStrategy implements NumberOfPlayersStrategy {
-    private static final int numberOfPlayers = 2;
-    private static final int numberOfStudentsInEachCloud = 3;
-    private static final int numberOfStudentsInTheEntrance = 7;
-    private static final int numberOfTowers = 8;
+    protected final int numberOfPlayers = 2;
+    private final int numberOfStudentsInEachCloud = 3;
+    protected final int numberOfStudentsInTheEntrance = 7;
+    private final int numberOfTowers = 8;
 
     @Override
     public int getNumberOfStudentsInEachCloud() {
-        return numberOfStudentsInEachCloud;
+        return this.numberOfStudentsInEachCloud;
     }
 
     @Override
     public int getNumberOfStudentsInTheEntrance() {
-        return numberOfStudentsInTheEntrance;
+        return this.numberOfStudentsInTheEntrance;
     }
 
     @Override
     public List<SchoolBoard> initializeSchoolBoards(StudentFactory studentFactory) throws EmptyStudentSupplyException {
         List<SchoolBoard> schoolBoards = new ArrayList<>(numberOfPlayers);
         schoolBoards.add(
-                new SchoolBoard(0, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.WHITE)
+                new SchoolBoard(0, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.WHITE)
         );
         schoolBoards.add(
-                new SchoolBoard(1, studentFactory.getNStudents(numberOfStudentsInTheEntrance), TowerColor.BLACK)
+                new SchoolBoard(1, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.BLACK)
         );
         return schoolBoards;
     }
+
+/*    @Override
+    public int getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago, int currentPlayerSchoolBoardId) {
+        SchoolBoard currentPlayerSchoolBoard = schoolBoards.stream()
+                .filter(schoolBoard -> schoolBoard.getId() == currentPlayerSchoolBoardId)
+                .collect(Collectors.toList())
+                .get(0);
+        return archipelago.getInfluence(currentPlayerSchoolBoard.getProfessors(), currentPlayerSchoolBoard.getTowerColor());
+    }*/
 
     /**
      * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
@@ -60,6 +69,6 @@ public class TwoPlayerStrategy implements NumberOfPlayersStrategy {
 
     @Override
     public int getNumberOfTowers() {
-        return numberOfTowers;
+        return this.numberOfTowers;
     }
 }

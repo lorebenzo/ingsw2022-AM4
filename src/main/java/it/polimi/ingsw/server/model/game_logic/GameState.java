@@ -12,9 +12,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class GameState {
-    private final int numberOfPlayers;
-    private final NumberOfPlayersStrategy strategy;
+public class GameState implements GameStateCommonInterface {
+    protected final int numberOfPlayers;
+    protected NumberOfPlayersStrategy strategy;
     private final int numberOfStudentsInEachCloud;
     private final int numberOfStudentsInTheEntrance;
     private final int numberOfTowers;
@@ -26,16 +26,16 @@ public class GameState {
     private ActionPhaseSubTurn actionPhaseSubTurn;
 
     private Phase currentPhase;
-    private final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
+    protected final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
 
-    private final List<Archipelago> archipelagos;
-    private final List<SchoolBoard> schoolBoards;
+    protected final List<Archipelago> archipelagos;
+    protected final List<SchoolBoard> schoolBoards;
     private final List<List<Color>> clouds;
 
-    private final StudentFactory studentFactory;
-    private Archipelago motherNaturePosition;
+    protected final StudentFactory studentFactory;
+    protected Archipelago motherNaturePosition;
 
-    private int currentPlayerSchoolBoardId;
+    protected int currentPlayerSchoolBoardId;
 
     /**
      * @throws IllegalArgumentException if the argument representing the number of players is not between 2 and 4
@@ -51,7 +51,8 @@ public class GameState {
         ) throw new IllegalArgumentException();
 
         this.numberOfPlayers = numberOfPlayers;
-        this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
+        this.chooseStrategy();
+
 
         this.numberOfStudentsInEachCloud = this.strategy.getNumberOfStudentsInEachCloud();
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
@@ -81,7 +82,9 @@ public class GameState {
 
     }
 
-
+    protected void chooseStrategy(){
+        this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
+    }
 
     /**
      * This method initializes the List<List<Color>> representing the clouds
@@ -113,7 +116,7 @@ public class GameState {
 
         List<Archipelago> archipelagos = new LinkedList<>();
         for(int i = 0; i < GameConstants.NUMBER_OF_ISLANDS.value; i++) {
-            Archipelago newArchipelago = new Archipelago(i);
+            Archipelago newArchipelago = this.createArchipelago(i);
             if(i == motherNatureIndex)
                 this.motherNaturePosition = newArchipelago; // put mother nature in the first island
             if(i != motherNatureIndex && i != getOppositeIslandIndex.apply(motherNatureIndex))
@@ -124,12 +127,16 @@ public class GameState {
         return archipelagos;
     }
 
+    protected Archipelago createArchipelago(int code){
+        return new Archipelago(code);
+    }
+
     /**
      * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
      * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
      */
-    private List<SchoolBoard> initializeSchoolBoards() throws EmptyStudentSupplyException {
+    protected List<SchoolBoard> initializeSchoolBoards() throws EmptyStudentSupplyException {
         return this.strategy.initializeSchoolBoards(this.studentFactory);
     }
 
@@ -143,6 +150,7 @@ public class GameState {
      * @throws IllegalArgumentException if the card parameter is null
      * @throws CardIsNotInTheDeckException if the current player does not actually own the card to be played.
      * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
+     * //@throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      * @param card the card to be played by the current player
      */
     public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException {
@@ -166,7 +174,7 @@ public class GameState {
      * @throws EmptyStudentSupplyException if the student supply representing the bag cannot fulfill the request for students
      * @param cloudIndex is the index of the cloud to fill with students
      */
-    public void fillCloud(int cloudIndex) throws /*FullCloudException,*/ EmptyStudentSupplyException {
+    public void fillCloud(int cloudIndex) throws EmptyStudentSupplyException {
         if(cloudIndex >= this.numberOfPlayers || cloudIndex < 0) throw new IllegalArgumentException();
         List<Color> chosenCloud = this.clouds.get(cloudIndex);
         if(!chosenCloud.isEmpty()) throw new FullCloudException();
@@ -178,7 +186,7 @@ public class GameState {
      * //@throws FullCloudException if one or more of the clouds are not completely empty before being refilled
      * @throws EmptyStudentSupplyException if the studentSupply cannot fulfill the demand for students to refill all the clouds
      */
-    public void fillClouds() throws /*FullCloudException,*/ EmptyStudentSupplyException {
+    public void fillClouds() throws EmptyStudentSupplyException {
         for(int cloudIndex = 0; cloudIndex < this.numberOfPlayers; cloudIndex++)
             fillCloud(cloudIndex);
     }
@@ -219,7 +227,8 @@ public class GameState {
      * The method gets a color in input and checks if the current player should get the professor corresponding to the inputted color and if another player should lose the corresponding professor
      * @param professor indicates the color of the professor the player should get and/or remove from another player
      */
-    public void assignProfessor(Color professor) {
+    public Map<Color, Integer> assignProfessor(Color professor) /*throws InvalidSchoolBoardIdException*/ {
+        Map<Color, Integer> professorToPreviousOwnerMap = new HashMap<>();
 
         if(professor == null) throw new IllegalArgumentException();
 
@@ -243,18 +252,23 @@ public class GameState {
                 int currentPlayerNumberOfStudentsInDiningRoomLane = this.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().get(professor);
                 int otherSchoolBoardsMaxStudentsInDiningRoomLane = otherSchoolBoardMax.getDiningRoomLaneColorToNumberOfStudents().get(professor);
 
-                //Compare the current player's number of students in the dining room lane corresponding to the inputed professor's color with the other schoolBoard's max number of students in the dining room lane
+                //Compare the current player's number of students in the dining room lane corresponding to the inputted professor's color with the other schoolBoard's max number of students in the dining room lane
                 //If the current player has more students in the dining room lane, then he will get the professor.
                 //If the current player has the same number of students in the dining room lane as the other's schoolBoard's max, then the professor will be removed from the other's schoolBoard's max.
-                if(currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane){
+                if(this.compareCurrentPlayersStudentsNumberWithOthersMax(currentPlayerNumberOfStudentsInDiningRoomLane,otherSchoolBoardsMaxStudentsInDiningRoomLane)){
                     this.getCurrentPlayerSchoolBoard().addProfessor(professor);
                     otherSchoolBoardMax.removeProfessor(professor);
+                    professorToPreviousOwnerMap.put(professor, otherSchoolBoardMax.getId());
                 }
-                //Rules interpretation established that the professor remains of the original possessor if contended.
             }
 
         }
 
+        return professorToPreviousOwnerMap;
+    }
+
+    protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane){
+        return currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane;
     }
 
     /**
@@ -269,11 +283,10 @@ public class GameState {
             throw new IllegalArgumentException();
 
         this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);
-        Archipelago chosenArchipelago = getArchipelagoFromIslandCodes(archipelagoIslandCodes);
+        Optional<Archipelago> chosenArchipelago = getArchipelagoFromIslandCodes(archipelagoIslandCodes);
+        if(chosenArchipelago.isEmpty()) throw new IllegalArgumentException("Invalid archipelago island codes given");
 
-        if(chosenArchipelago == null) throw new IllegalArgumentException("Invalid archipelago island codes given");
-
-        chosenArchipelago.addStudent(student);
+        chosenArchipelago.get().addStudent(student);
     }
 
     /**
@@ -283,16 +296,18 @@ public class GameState {
         this.motherNaturePosition = this.getNextArchipelago();
     }
 
+    protected int getAllowedStepsNumber(){
+        return this.schoolBoardIdsToCardsPlayedThisRound.get(this.currentPlayerSchoolBoardId).getSteps();
+    }
+
     /**
      * Shifts mother nature's position by the provided numberOfSteps
      * @throws InvalidNumberOfStepsException if (numberOfSteps <= 0 || numberOfSteps > maxStepsAllowed) where maxStepsAllowed depends on the card played in the round
      * @param numberOfSteps has to be a positive integer
      */
-    public void moveMotherNatureNStepsClockwise(int numberOfSteps) throws InvalidNumberOfStepsException{
+    public void moveMotherNatureNStepsClockwise(int numberOfSteps) throws InvalidNumberOfStepsException {
 
-        int maxStepsAllowed = this.schoolBoardIdsToCardsPlayedThisRound.get(this.currentPlayerSchoolBoardId).getSteps();
-
-        if(numberOfSteps <= 0 || numberOfSteps > maxStepsAllowed)
+        if(numberOfSteps <= 0 || numberOfSteps > this.getAllowedStepsNumber())
             throw new InvalidNumberOfStepsException();
         for (int i = 0; i < numberOfSteps; i++)
             this.moveMotherNatureOneStepClockwise();
@@ -302,34 +317,26 @@ public class GameState {
      * The current player conquers the archipelago mother nature is currently in, placing a tower of his own color
      * and substituting any tower that was previously placed on that archipelago
      */
-    public boolean conquerArchipelago(int schoolBoardId) {
+    public void conquerArchipelago(int schoolBoardId) {
         TowerColor playerTowerColor = this.getSchoolBoardFromSchoolBoardId(schoolBoardId).getTowerColor();
 
         this.motherNaturePosition.setTowerColor(playerTowerColor);
-
-        boolean mergeNextPerformed = this.mergeWithNext();
-        boolean mergePreviousPerformed = this.mergeWithPrevious();
-
-        return mergeNextPerformed || mergePreviousPerformed;
-
     }
 
     /**
      * Merges the archipelago mother nature is currently in with the archipelago on the left (one step counter-clockwise with respect to mother nature's position)
      * @return true if the archipelagos merged, false otherwise.
      */
-    public boolean mergeWithPrevious() /*throws NonMergeableArchipelagosException*/ {
-        boolean mergePerformed = false;
+    public boolean mergeWithPrevious() {
+        boolean mergePerformed;
         Archipelago previous = getPreviousArchipelago();
 
-        try {
-            // Substitute current archipelago with the merged archipelago
-            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, previous);
-            // Remove previous archipelago from the list
+        // Substitute current archipelago with the merged archipelago
+        mergePerformed = this.motherNaturePosition.merge(previous);
+        // Remove previous archipelago from the list
+        if(mergePerformed){
             this.archipelagos.remove(previous);
-
-            mergePerformed = true;
-        } catch (NonMergeableArchipelagosException ignored) {  }
+        }
 
         return mergePerformed;
     }
@@ -338,18 +345,15 @@ public class GameState {
      * Merges the archipelago mother nature is currently on with the archipelago on the right (one step clockwise with respect to mother nature's position)
      * @return true if the archipelagos merged, false otherwise.
      */
-    public boolean mergeWithNext() /*throws NonMergeableArchipelagosException*/ {
-        boolean mergePerformed = false;
+    public boolean mergeWithNext() {
+        boolean mergePerformed;
         Archipelago next = getNextArchipelago();
 
-        try {
-            // Substitute current archipelago with the merged archipelago
-            this.motherNaturePosition = Archipelago.merge(this.motherNaturePosition, next);
-            // Remove the next archipelago from the list
+        // Substitute current archipelago with the merged archipelago
+        mergePerformed = this.motherNaturePosition.merge(next);
+        // Remove the next archipelago from the list
+        if(mergePerformed)
             this.archipelagos.remove(next);
-
-            mergePerformed = true;
-        } catch (NonMergeableArchipelagosException ignored) {  }
 
         return mergePerformed;
     }
@@ -607,7 +611,7 @@ public class GameState {
      * @param schoolBoardId has to be an existing schoolBoardId
      * @return the reference to the schoolBoard corresponding to the inputted schoolBoardId
      */
-    private SchoolBoard getSchoolBoardFromSchoolBoardId(int schoolBoardId) {
+    protected SchoolBoard getSchoolBoardFromSchoolBoardId(int schoolBoardId) /*throws InvalidSchoolBoardIdException */{
         Optional<SchoolBoard> requestedSchoolBoard =
                 // get all school boards
                 this.schoolBoards.stream()
@@ -623,7 +627,7 @@ public class GameState {
     }
 
 
-    private Archipelago getPreviousArchipelago() {
+    protected Archipelago getPreviousArchipelago() {
         int pos =  this.archipelagos.indexOf(this.motherNaturePosition);
         int previous = pos == 0 ? this.archipelagos.size() - 1 : pos - 1;
 
@@ -636,15 +640,22 @@ public class GameState {
     }
 
 
-    private Archipelago getArchipelagoFromIslandCodes(List<Integer> archipelagoIslandCodes){
+    protected Optional<Archipelago> getArchipelagoFromIslandCodes(List<Integer> archipelagoIslandCodes){
         return this.archipelagos.stream()
                 // Filter out archipelagos that don't match archipelagoIslandCodes
                 .filter(archipelago -> archipelago.getIslandCodes().equals(archipelagoIslandCodes))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
-    private SchoolBoard getCurrentPlayerSchoolBoard() {
+    protected Optional<Archipelago> getArchipelagoFromSingleIslandCode(int archipelagoIslandCode){
+        return this.archipelagos.stream()
+                // Filter out archipelagos that don't match archipelagoIslandCodes
+                .filter(archipelago -> archipelago.getIslandCodes().contains(archipelagoIslandCode))
+                .findFirst();
+    }
+
+
+    protected SchoolBoard getCurrentPlayerSchoolBoard()/* throws InvalidSchoolBoardIdException*/ {
         return this.getSchoolBoardFromSchoolBoardId(this.currentPlayerSchoolBoardId);
     }
 
@@ -652,12 +663,13 @@ public class GameState {
     //Public Getters
 
     /**
-     * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputed archipelago
+     * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputted archipelago
      * @param archipelagoIslandCodes is a List<Integer> uniquely identifying an archipelago
-     * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
+     * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputted archipelago
      */
-    public Map<Integer, Integer> getInfluence(List<Integer> archipelagoIslandCodes){
-        return this.strategy.getInfluence(this.schoolBoards,this.getArchipelagoFromIslandCodes(archipelagoIslandCodes));
+    public Optional<Map<Integer, Integer>> getInfluence(List<Integer> archipelagoIslandCodes){
+        Optional<Archipelago> chosenArchipelago = this.getArchipelagoFromIslandCodes(archipelagoIslandCodes);
+        return chosenArchipelago.map(archipelago -> this.strategy.getInfluence(this.schoolBoards, archipelago));
     }
 
     public List<Integer> getRoundOrder() {
@@ -673,9 +685,7 @@ public class GameState {
         return !this.roundIterator.hasNext();
     }
 
-    public int getNextTurn(){
-        return this.roundIterator.next();
-    }
+    public int getNextTurn() { return this.roundIterator.next(); }
 
 
     public int getNumberOfStudentsInTheEntrance(){
@@ -738,7 +748,7 @@ public class GameState {
         this.motherNaturePosition = motherNaturePosition;
     }
 
-    public SchoolBoard getCurrentPlayerSchoolBoardForTesting() {
+    public SchoolBoard getCurrentPlayerSchoolBoardForTesting() /*throws InvalidSchoolBoardIdException*/ {
         SchoolBoard currentPlayerSchoolBoard =
                 // get all school boards
                 this.schoolBoards.stream()
@@ -750,7 +760,7 @@ public class GameState {
                         .orElse(null);
 
         if(currentPlayerSchoolBoard == null)
-            throw new InvalidSchoolBoardIdException("Could not find a school board that matches the current player's SchoolBoard ID");
+            throw new InvalidSchoolBoardIdException("Could not find a schoolboard that matches the current player's SchoolBoard ID");
 
         return currentPlayerSchoolBoard;
     }
@@ -774,4 +784,46 @@ public class GameState {
                 this.motherNaturePosition
         );
     }
+
+
+
+    /**
+     * This method verifies if there is a schoolBoard that is more influent than all the others on the archipelago on which motherNature is,
+     * and returns its schoolBoardId
+     * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
+     */
+    public Optional<Integer> getMostInfluentSchoolBoardId(List<Integer> archipelagoIslandCodes){
+        var influenceMap = this.getInfluence(archipelagoIslandCodes);
+        List<Map.Entry<Integer, Integer>> orderedPlayersInfluences;
+
+        if(influenceMap.isPresent()){
+            orderedPlayersInfluences = influenceMap.get().entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) //sorts the map using the influences in descending order
+                    .collect(Collectors.toList());
+        }
+        else
+            return Optional.empty();
+
+
+
+        //If the number of players is 2 or 3, the most influent is calculated between the most influent and the second most influent.
+
+        if(this.getNumberOfPlayers() == 2 || this.getNumberOfPlayers() == 3){
+            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(1).getValue())
+                return Optional.of(orderedPlayersInfluences.get(0).getKey());
+            else
+                return Optional.empty();
+        }
+        //if the number of players is 4, the most influent is calculated between the most influent and the third most influent, since the second most influent is certainly a teammate.
+        else {
+            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(2).getValue())
+                return Optional.of(orderedPlayersInfluences.get(0).getKey());
+            else
+                return Optional.empty();
+        }
+    }
+
+
+
 }

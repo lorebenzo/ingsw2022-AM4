@@ -15,6 +15,7 @@ import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingM
 import it.polimi.ingsw.server.controller.games_manager.messages.enums.ReturnMessage;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.controller.game_controller.GameController;
+import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.utils.multilist.MultiList;
 
@@ -86,7 +87,7 @@ public class GamesManager extends SugarMessageProcessor {
         if( filteredMatchMakingList.size() == numberOfPlayers ) {
             // Start match
             var gameRoomId = this.server.createRoom();
-            var gameController = new GameController(gameRoomId);
+            var gameController = new GameController(gameRoomId, expertMode);
             // Add players to the game controller
             filteredMatchMakingList.forEach((player, numPlayers, expMode) -> gameController.addPlayer(player));
 
@@ -106,6 +107,8 @@ public class GamesManager extends SugarMessageProcessor {
                     //todo: da fixare
                     this.server.multicastToRoom(gameRoomId, new KOMsg(ReturnMessage.DELETING_GAME.text));
                 } catch (IOException | RoomNotFoundException ignored) { }
+            } catch (EmptyStudentSupplyException e) {
+                e.printStackTrace();
             }
         }
     }

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.controller.game_state_controller;
 
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
+import it.polimi.ingsw.server.model.game_logic.ExpertGameState;
 import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.ActionPhaseSubTurn;
@@ -10,18 +11,19 @@ import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class GameStateController {
-    private final GameState gameState;
+public class GameStateController implements GameStateControllerCommonInterface {
+    protected final GameState gameState;
 
     public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
 
         //Create a new gameState
-        this.gameState = new GameState(playersNumber);
+        this.gameState = initializeGameState(playersNumber);
 
         this.gameState.setCurrentPhase(Phase.PLANNING);
         try {
-            this.gameState.fillClouds();
+            this.gameState.fillClouds();//TODO signal final round
         } catch (EmptyStudentSupplyException ignored) { }
         this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
@@ -30,6 +32,10 @@ public class GameStateController {
 
         //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
         //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
+    }
+
+    protected GameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
+        return new GameState(playersNumber);
     }
 
     /**
@@ -91,7 +97,7 @@ public class GameStateController {
 
         this.checkStudentsToBeMoved();
         //assignProfessor() verifies on its own if the player should get the professor and does nothing if not
-        this.assignProfessor(student);
+        this.gameState.assignProfessor(student);
     }
 
 
@@ -120,9 +126,9 @@ public class GameStateController {
      * @throws InvalidNumberOfStepsException if the player provides a number of steps that isn't between 0 and the maximum number of steps that the player chose during the planning phase.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException {
-
-        boolean mergePerformed = false;
+    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, /*InvalidSchoolBoardIdException,*/ WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException {
+        boolean mergePreviousPerformed = false;
+        boolean mergeNextPerformed = false;
 
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
@@ -136,11 +142,12 @@ public class GameStateController {
 
         //If there is a player that is the most influent on an archipelago, he will conquer the archipelago
         if(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().isPresent()){
-            mergePerformed = this.gameState.conquerArchipelago(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().get());
-
+            this.gameState.conquerArchipelago(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().get());
+            mergePreviousPerformed = this.gameState.mergeWithPrevious();
+            mergeNextPerformed = this.gameState.mergeWithNext();
         }
 
-        return  mergePerformed;
+        return mergePreviousPerformed || mergeNextPerformed;
 
     }
 
@@ -173,7 +180,6 @@ public class GameStateController {
      * @throws StudentsToBeGrabbedFromCloudException if the player didn't grab the students from a cloud before trying to end his turn.
      */
     public void endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
-        //TODO there may be more actions to be performed
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
         if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) == 0) throw new MoreStudentsToBeMovedException();
@@ -235,7 +241,7 @@ public class GameStateController {
     }
 
 
-    private void nextActionTurn() throws EmptyStudentSupplyException {
+    protected void nextActionTurn() throws EmptyStudentSupplyException {
         //If all the players played in this round, a new round will begin
         if(this.gameState.isLastTurnInThisRound()) {
             this.gameState.resetRoundIterator();
@@ -272,63 +278,14 @@ public class GameStateController {
      * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
      */
     private Optional<Integer> getMostInfluentSchoolBoardIdOnMotherNaturesPosition(){
-        return this.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());
-
-    }
-
-
-    /**
-     * This method verifies if there is a schoolBoard that is more influent than all the others on the archipelago on which motherNature is,
-     * and returns its schoolBoardId
-     * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
-     */
-    private Optional<Integer> getMostInfluentSchoolBoardId(List<Integer> archipelagoIslandCodes){
-        List<Map.Entry<Integer, Integer>> orderedPlayersInfluences = this.getInfluence(archipelagoIslandCodes).entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .toList();
-
-        //If the number of players is 2 or 3, the most influent is calculated between the most influent and the second most influent.
-
-        if(this.gameState.getNumberOfPlayers() == 2 || this.gameState.getNumberOfPlayers() == 3){
-            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(1).getValue())
-                return Optional.of(orderedPlayersInfluences.get(0).getKey());
-            else
-                return Optional.empty();
-        }
-        //if the number of players is 4, the most influent is calculated between the most influent and the third most influent, since the second most influent is certainly a teammate.
-        else {
-            if(orderedPlayersInfluences.get(0).getValue() > orderedPlayersInfluences.get(2).getValue())
-                return Optional.of(orderedPlayersInfluences.get(0).getKey());
-            else
-                return Optional.empty();
-        }
-
-    }
-
-
-    /**
-     * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputed archipelago
-     * @param archipelagoIslandCodes is a List<Integer> uniquely identifying an archipelago
-     * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
-     */
-    private Map<Integer, Integer> getInfluence(List<Integer> archipelagoIslandCodes){
-        return this.gameState.getInfluence(archipelagoIslandCodes);
-    }
-
-
-    /**
-     * This method assigns the professor of the specified color to the current player, verifying if all the conditions are met.
-     * @param professor indicates the color for which the professor may be assigned
-     */
-    private void assignProfessor(Color professor) {
-        this.gameState.assignProfessor(professor);
+        return this.gameState.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());
     }
 
     /**
      * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
      * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen
      */
+
     LightGameState getLightGameState() {
         return this.gameState.lightify();
     }
