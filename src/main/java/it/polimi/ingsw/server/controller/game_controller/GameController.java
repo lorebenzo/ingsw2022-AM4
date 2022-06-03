@@ -7,6 +7,7 @@ import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.game_state_controller.CommunicationController;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
+import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
 import it.polimi.ingsw.server.repository.UsersRepository;
 
@@ -15,16 +16,18 @@ import java.util.*;
 public class GameController extends SugarMessageProcessor {
     public final UUID roomId;
     private final List<Player> players = new LinkedList<>();
+    private final boolean isExpertMode;
     private CommunicationController communicationController = null;
     private final UsersRepository usersRepository = UsersRepository.getInstance();
     private boolean gameStarted = false;
 
-    public GameController(UUID roomId)
+    public GameController(UUID roomId, boolean isExpertMode)
     {
         this.roomId = roomId;
+        this.isExpertMode = isExpertMode;
     }
 
-    private void addPlayerEffective(Player player) {
+    private void addPlayerEffective( Player player) {
         this.players.add(player);
     }
 
@@ -40,14 +43,14 @@ public class GameController extends SugarMessageProcessor {
         if(!this.gameStarted) this.addPlayerEffective(player);
     }
 
-    public void startGame() throws GameStateInitializationFailureException {
+    public void startGame() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         this.gameStarted = true;
 
         for (int i = 0; i < players.size(); i++) {
             usersRepository.saveUserSchoolBardMap(this.roomId, players.get(i).username, i);
         }
 
-        this.communicationController = new CommunicationController(players);
+        this.communicationController = CommunicationController.createCommunicationController(this.players, this.isExpertMode);
     }
 
     public boolean containsPeer(Peer peer) {

@@ -24,11 +24,13 @@ public class ExpertGameState extends GameState {
      *                                                 or the schoolBoards,
      *                                                 or the clouds.
      */
-    public ExpertGameState(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+    public ExpertGameState(int playersNumber) throws GameStateInitializationFailureException {
         super(playersNumber);
         this.availableCharacters = new ArrayList<>();
 
-        this.extractCharacters();
+        try {
+            this.extractCharacters();
+        } catch(EmptyStudentSupplyException ignored) { throw new GameStateInitializationFailureException(); };
 
         this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);
         this.professorToOriginalOwnerMap = new HashMap<>();
@@ -75,8 +77,7 @@ public class ExpertGameState extends GameState {
      */
     private void extractCharacters() throws EmptyStudentSupplyException {
         List<Character> characters = new ArrayList<>(List.of(Character.values()));
-        Collections.shuffle(characters);
-
+//        Collections.shuffle(characters); todo: fix
 
         for (int i = 0; i < 3; i++){
             this.availableCharacters.add(PlayableCharacter.createCharacter(characters.get(i)));

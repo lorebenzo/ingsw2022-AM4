@@ -8,15 +8,15 @@ import java.util.List;
 
 public class CharacterIndexColorListsMsg extends SugarMessage {
     public final int characterIndex;
-    public final List<Color> students1;
-    public final List<Color> students2;
+    public final List<Color> studentsToGet;
+    public final List<Color> studentsToGive;
 
 
-    public CharacterIndexColorListsMsg(int characterIndex, List<Color> students1, List<Color> students2) {
+    public CharacterIndexColorListsMsg(int characterIndex, List<Color> studentsToGet, List<Color> studentsToGive) {
         super(SugarMethod.ACTION);
 
         this.characterIndex = characterIndex;
-        this.students1 = students1;
-        this.students2 = students2;
+        this.studentsToGet = studentsToGet;
+        this.studentsToGive = studentsToGive;
     }
 }

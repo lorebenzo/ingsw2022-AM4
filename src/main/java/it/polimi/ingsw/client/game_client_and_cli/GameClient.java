@@ -1,10 +1,8 @@
 package it.polimi.ingsw.client.game_client_and_cli;
 
-import com.google.gson.Gson;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
-import it.polimi.ingsw.client.gui.UserInputHandler;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -23,21 +21,20 @@ import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * CLI commands
  *
  * join-matchmaking --players=int[2-4] --expert=boolean
  * play-card --card=int[1-10]
- * mv-std-to-dining --color=string
- * mv-std-to-island --color=string --island=char
+ * mv-std-dining --color=string
+ * mv-std-island --color=string --island=char
  * mv-mother-nature --steps=int
- * grab-std-cloud --cloud=int
+ * grab-std --cloud=int
+ * play-char --index=int[0-2] --color=string{opt} --
  * end-turn
  * rollback
  * login --username=string --password=string
@@ -133,10 +130,10 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.log("  rollback");
         this.logger.log("  login  --username=string --password=string");
         this.logger.log("  signup --username=string --password=string");
-        this.logger.log("  grab-std-cloud --cloud=int");
+        this.logger.log("  grab-std --cloud=int");
         this.logger.log("  mv-mother-nature --steps=int");
-        this.logger.log("  mv-std-to-island --color=string --island=char");
-        this.logger.log("  mv-std-to-dining --color=string");
+        this.logger.log("  mv-std-island --color=string --island=char");
+        this.logger.log("  mv-std-dining --color=string");
         this.logger.log("  play-card --card=int[1-10]");
         this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
         this.logger.log("  CLI commands:");
@@ -156,7 +153,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.logSuccess(msg.text);
 
         // Update GUI
-        UserInputHandler.onOKMessage(msg.text);
+//        UserInputHandler.onOKMessage(msg.text);
     }
 
     @SugarMessageHandler
@@ -312,14 +309,14 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 else throw new SyntaxError();
                 break;
             }
-            case mv_std_to_dining: {
+            case mv_std_dining: {
                 var color = Optional.ofNullable(params.get("color"));
                 if(color.isPresent())
                     this.moveStudentFromEntranceToDiningRoom(color.get());
                 else throw new SyntaxError();
                 break;
             }
-            case mv_std_to_island: {
+            case mv_std_island: {
                 var color = Optional.ofNullable(params.get("color"));
                 var islandCode = Optional.ofNullable(params.get("island"));
                 if(this.arePresent(color, islandCode))
@@ -334,10 +331,31 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 else throw new SyntaxError();
                 break;
             }
-            case grab_std_cloud: {
+            case grab_std: {
                 var cloud = Optional.ofNullable(params.get("cloud"));
                 if(cloud.isPresent())
                     this.grabStudentsFromCloud(Integer.parseInt(cloud.get()));
+                else throw new SyntaxError();
+                break;
+            }
+            case play_char: {
+                var index = Optional.ofNullable(params.get("index"));
+                var color = Optional.ofNullable(params.get("color"));
+                var island = Optional.ofNullable(params.get("island"));
+                var getStudents = Optional.ofNullable(params.get("get-students"));
+                var giveStudents = Optional.ofNullable(params.get("give-students"));
+
+                Map<String, Object> parametersMap = new HashMap<>();
+
+                if(index.isPresent()) {
+                    parametersMap.put("index", Integer.parseInt(index.get()));
+                    color.ifPresent((col) -> parametersMap.put("color", col));
+                    island.ifPresent((isl) -> parametersMap.put("island", Integer.parseInt(isl)));
+                    getStudents.ifPresent((getS) -> parametersMap.put("get-students", Arrays.asList(getS.split(","))));
+                    giveStudents.ifPresent((givS) -> parametersMap.put("give-students", Arrays.asList(givS.split(","))));
+
+                    this.playChar(parametersMap);
+                }
                 else throw new SyntaxError();
                 break;
             }
@@ -350,6 +368,53 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 this.help();
                 break;
             }
+        }
+    }
+
+    private void playChar(Map<String, Object> parametersMap) throws SyntaxError {
+        var index = (Integer) parametersMap.get("index");
+
+        if(parametersMap.containsKey("color")) {
+            var color = Color.fromString((String) parametersMap.get("color"));
+            if(color.isPresent()) {
+                if(parametersMap.containsKey("island")) {
+                    var island = (Integer) parametersMap.get("island");
+                    this.sendAndHandleDisconnection(new CharacterIndexColorArchipelagoMsg(index, color.get(), island));
+                } else {
+                    this.sendAndHandleDisconnection(new CharacterIndexColorMsg(index, color.get()));
+                }
+            } else {
+                throw new SyntaxError();
+            }
+        } else if (parametersMap.containsKey("island")) {
+            var island = (Integer) parametersMap.get("island");
+            this.sendAndHandleDisconnection(new CharacterIndexArchipelagoMsg(index, island));
+        } else if (parametersMap.containsKey("get-students") && parametersMap.containsKey("give-students")) {
+            var getStudents = ((List<String>) parametersMap.get("get-students"))
+                    .stream()
+                    .map(Color::fromString)
+                    .toList();
+
+            var giveStudents = ((List<String>) parametersMap.get("give-students"))
+                    .stream()
+                    .map(Color::fromString)
+                    .toList();
+
+            var allStudentsAreCorrectColors = Stream.concat(getStudents.stream(), giveStudents.stream())
+                    .allMatch(Optional::isPresent);
+
+            if(allStudentsAreCorrectColors) {
+                this.sendAndHandleDisconnection(
+                        new CharacterIndexColorListsMsg(
+                            index,
+                            getStudents.stream().map(Optional::get).toList(),
+                            giveStudents.stream().map(Optional::get).toList()
+                        ));
+            } else {
+                throw new SyntaxError();
+            }
+        } else {
+            this.sendAndHandleDisconnection(new CharacterIndexMsg(index));
         }
     }
 }

@@ -87,7 +87,7 @@ public class GamesManager extends SugarMessageProcessor {
         if( filteredMatchMakingList.size() == numberOfPlayers ) {
             // Start match
             var gameRoomId = this.server.createRoom();
-            var gameController = new GameController(gameRoomId);
+            var gameController = new GameController(gameRoomId, expertMode);
             // Add players to the game controller
             filteredMatchMakingList.forEach((player, numPlayers, expMode) -> gameController.addPlayer(player));
 

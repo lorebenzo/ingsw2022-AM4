@@ -2,6 +2,7 @@ package it.polimi.ingsw.server.controller.game_state_controller;
 
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.ExpertGameState;
+import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
@@ -11,13 +12,13 @@ import java.util.List;
 
 public class ExpertGameStateController extends GameStateController {
 
-    public ExpertGameStateController(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+    public ExpertGameStateController(int playersNumber) throws GameStateInitializationFailureException {
         super(playersNumber);
     }
 
     @Override
-    protected void initializeGameState(int playersNumber) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
-        this.gameState = new ExpertGameState(playersNumber);
+    protected ExpertGameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
+        return new ExpertGameState(playersNumber);
     }
 
 
