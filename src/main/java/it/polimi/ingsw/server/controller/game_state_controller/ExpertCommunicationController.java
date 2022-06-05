@@ -22,7 +22,6 @@ public class ExpertCommunicationController extends CommunicationController {
         return new ExpertGameStateController(playersNumber);
     }
 
-
     //Handler that manages characterIds 2,4,6,8
     @SugarMessageHandler
     public SugarMessage characterIndexMsg(SugarMessage message, Peer peer){
@@ -33,7 +32,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(msg.characterIndex);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -58,22 +57,11 @@ public class ExpertCommunicationController extends CommunicationController {
         var msg = (CharacterIndexArchipelagoMsg) message;
         try {
             boolean merged = this.gameStateController.applyEffect(msg.characterIndex, msg.archipelagoIslandCode);
-            // Check winners
-//            fixme
-//            var winners = this.gameStateController.checkWinners(false);
-//            if(winners.containsValue(true) /* someone won */) {
-//                // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
-//                Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
-//                for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
-//                    peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
-//                return new GameOverMsg(peerToIsWinner);
-//            }
 
-            if(merged) {
-                return new OKAndUpdateMsg(new OKMsg(ReturnMessage.MERGE_PERFORMED.text), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-            }
-            else
-                return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+            return new OKAndUpdateMsg(
+                    new OKMsg(merged ? ReturnMessage.MERGE_PERFORMED.text : ReturnMessage.MERGE_NOT_PERFORMED.text),
+                    new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
+            );
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (NotEnoughCoinsException e) {
@@ -93,10 +81,7 @@ public class ExpertCommunicationController extends CommunicationController {
         } catch (WrongArgumentsException e) {
             return new KOMsg(ReturnMessage.WRONG_ARGUMENTS.text);
         }
-
     }
-
-
 
     //Handler that manages characterIds 9,11,12
     @SugarMessageHandler
@@ -108,7 +93,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(msg.characterIndex, msg.color);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -139,7 +124,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(msg.characterIndex, msg.color, msg.archipelagoIslandCode);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (InvalidCharacterIndexException e) {
             return new KOMsg(ReturnMessage.INVALID_CHARACTER_INDEX.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -169,6 +154,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(msg.characterIndex, msg.studentsToGet, msg.studentsToGive);
+            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (InvalidCharacterIndexException e) {
             return new KOMsg(ReturnMessage.INVALID_CHARACTER_INDEX.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -192,8 +178,6 @@ public class ExpertCommunicationController extends CommunicationController {
         } catch (NotEnoughCoinsException e) {
             return new KOMsg(ReturnMessage.NOT_ENOUGH_COINS.text);
         }
-        return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState()));
-
     }
 
 }

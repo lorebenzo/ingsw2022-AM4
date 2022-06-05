@@ -22,7 +22,9 @@ public enum ReturnMessage {
     MERGE_NOT_PERFORMED("Archipelagos not merged!"),
     STUDENTS_GRABBED_FROM_CLOUD("Students successfully grabbed from cloud"),
     INVALID_ARCHIPELAGO_ID("The archipelago island code provided is invalid"),
-    TURN_ENDED("Turn ended."),
+    TURN_ENDED("Turn ended"),
+    LAST_ROUND("There are no students left in the bag, therefore this is the final round of the game!"),
+    NO_MORE_CARDS("The last card was played, therefore this is the final round of the game."),
 
     //EXPERT MODE
     NOT_ENOUGH_COINS("You don't have enough coins to play the selected character"),
@@ -34,6 +36,7 @@ public enum ReturnMessage {
     WRONG_ARGUMENTS("The character index is incompatible with the arguments provided"),
     INVALID_STUDENT_LISTS_LENGTH("The lists of students to be swapped have to be of the same length"),
     STUDENTS_NOT_IN_THE_DINING_ROOM("One or more students you are trying to swap are not present in the dining room");
+
     public final String text;
 
     ReturnMessage(String text){

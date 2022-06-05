@@ -119,7 +119,7 @@ public class ExpertGameStateController extends GameStateController {
      * @throws WrongPhaseException           if the method is executed in the wrong phase.
      */
     @Override
-    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException {
+    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException, GameOverException {
         boolean merged = super.moveMotherNature(nSteps);
         this.gameState.unlockMotherNaturePosition();
 
@@ -127,8 +127,13 @@ public class ExpertGameStateController extends GameStateController {
     }
 
     @Override
-    protected void nextActionTurn() throws EmptyStudentSupplyException {
-        this.gameState.refillCharacter();
+    protected void nextActionTurn() throws LastRoundException, GameOverException {
+        try{
+            this.gameState.refillCharacter();
+        } catch (EmptyStudentSupplyException ignored){
+            throw new LastRoundException();
+        }
+
 
         this.gameState.resetCharacterPlayedThisTurn();
 

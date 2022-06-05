@@ -39,6 +39,13 @@ public class StudentFactory {
         return chosen;
     }
 
+    public Color getStudent(Color student) throws EmptyStudentSupplyException {
+        if(studentSupply.get(student) <= 0) throw new EmptyStudentSupplyException();
+
+        studentSupply.put(student, studentSupply.get(student) - 1);
+        return student;
+    }
+
     /**
      * @return a random student, each color is equally likely to spawn, this method DOES NOT update the studentSupply
      */
