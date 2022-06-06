@@ -13,4 +13,6 @@ public class NumberOfPlayersStrategyFactory {
             default -> throw new IllegalArgumentException();
         };
     }
+
+
 }

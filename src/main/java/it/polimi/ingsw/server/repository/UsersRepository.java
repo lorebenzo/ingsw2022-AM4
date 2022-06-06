@@ -3,12 +3,13 @@ package it.polimi.ingsw.server.repository;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.polimi.ingsw.server.repository.exceptions.DBNotFoundException;
 import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
+import it.polimi.ingsw.server.repository.interfaces.UsersRepositoryInterface;
 
 import java.sql.*;
 import java.util.UUID;
 
-public class UsersRepository {
-    public Connection c;
+public class UsersRepository implements UsersRepositoryInterface {
+    private final Connection c;
     private static UsersRepository instance;
     private static final Dotenv dotenv = Dotenv.configure().load();
 

@@ -169,6 +169,10 @@ public class Terminal {
         this.logWithColor(s, ANSI_RED);
     }
 
+    public void logCyan(String s) { this.logWithColor(s, ANSI_CYAN); }
+
+    public void logPurple(String s) { this.logWithColor(s, ANSI_PURPLE); }
+
     public void logWarning(String s) {
         this.logWithColor(s, ANSI_YELLOW);
     }

@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model.game_logic;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.CardIsNotInTheDeckException;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
+import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
@@ -214,6 +215,42 @@ public class SchoolBoardTest {
         catch (IllegalArgumentException e){
             e.printStackTrace();
         }
+
+    }
+
+    @Test
+    public void containsAllStudents() {
+       SchoolBoard schoolBoard = new SchoolBoard(0,new ArrayList<>(List.of(Color.GREEN)),TowerColor.BLACK);
+       assertFalse(schoolBoard.containsAllStudentsInTheEntrance(List.of(Color.GREEN, Color.GREEN)));
+    }
+
+    @Test
+    public void containsAllStudents2() {
+        SchoolBoard schoolBoard = new SchoolBoard(0,new ArrayList<>(List.of(Color.GREEN)),TowerColor.BLACK);
+        assertTrue(schoolBoard.containsAllStudentsInTheEntrance(List.of(Color.GREEN)));
+    }
+
+    @Test
+    public void containsAllStudents3() {
+        SchoolBoard schoolBoard = new SchoolBoard(0,new ArrayList<>(List.of(Color.GREEN,Color.GREEN,Color.RED)),TowerColor.BLACK);
+
+        assertTrue(schoolBoard.containsAllStudentsInTheEntrance(List.of(Color.GREEN, Color.RED)));
+
+    }
+
+    @Test
+    public void containsAllStudents4() {
+        SchoolBoard schoolBoard = new SchoolBoard(0,new ArrayList<>(List.of(Color.GREEN,Color.GREEN,Color.RED)),TowerColor.BLACK);
+
+        assertFalse(schoolBoard.containsAllStudentsInTheEntrance(List.of(Color.RED, Color.RED)));
+
+    }
+
+    @Test
+    public void containsAllStudents5() {
+        SchoolBoard schoolBoard = new SchoolBoard(0,new ArrayList<>(List.of(Color.GREEN,Color.GREEN,Color.RED)),TowerColor.BLACK);
+
+        assertFalse(schoolBoard.containsAllStudentsInTheEntrance(List.of(Color.CYAN, Color.RED)));
 
     }
 }

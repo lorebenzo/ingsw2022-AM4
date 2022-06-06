@@ -11,7 +11,7 @@ import java.util.*;
  * an island is an archipelago with a single island and
  * multiple archipelagos merge into a single archipelago
  */
-public class Archipelago {
+public class Archipelago implements ArchipelagoCommonInterface {
     private final List<Integer> islandCodes;
     private final Map<Color, Integer> studentToNumber;
     private TowerColor towerColor;
@@ -49,28 +49,29 @@ public class Archipelago {
     }
 
     /**
-     * @throws  IllegalArgumentException if(a1 == null || a2 == null)
      * //@throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
      *                                              if the two archipelagos have intersecting islandCodes
-     * @param a1 first archipelago to merge
      * @param a2 second archipelago
      * @return an Archipelago that has first islandCodes + second islandCodes
      */
-    public static Archipelago merge(Archipelago a1, Archipelago a2) throws NonMergeableArchipelagosException {
-        if(a1 == null || a2 == null) throw new IllegalArgumentException();
-        if(!a1.towerColor.equals(a2.towerColor) || a1.towerColor.equals(TowerColor.NONE) || a1.islandCodes.stream().anyMatch(a2.islandCodes::contains))
-            throw new NonMergeableArchipelagosException();
+    public boolean merge(Archipelago a2) {
+        if(a2 == null) throw new IllegalArgumentException();
 
-        a1.islandCodes.addAll(a2.islandCodes);
-        a1.studentToNumber.replaceAll((k, v) -> a1.studentToNumber.get(k) + a2.studentToNumber.get(k));
+        if(this.towerColor.equals(a2.towerColor) && !this.towerColor.equals(TowerColor.NONE) && this.islandCodes.stream().noneMatch(a2.islandCodes::contains)){
+            this.islandCodes.addAll(a2.islandCodes);
+            this.islandCodes.sort(Comparator.naturalOrder());
+            this.studentToNumber.replaceAll((k, v) -> this.studentToNumber.get(k) + a2.studentToNumber.get(k));
+            return true;
+        }
+        return false;
+    }
 
-        return a1;
-
-/*        return new Archipelago(
-                a1.islandCodes, a2.islandCodes,
-                a1.studentToNumber, a2.studentToNumber,
-                a1.towerColor
-        );*/
+    public List<Color> getStudents() {
+        var students = new LinkedList<Color>();
+        for(var key : this.studentToNumber.keySet())
+            for(int i = 0; i < this.studentToNumber.get(key); i++)
+                students.add(key);
+        return students;
     }
 
     /**
@@ -97,11 +98,19 @@ public class Archipelago {
                 playerProfessors == null || playerProfessors.contains(null) ||
                 playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE)
         ) throw new IllegalArgumentException();
-        return studentToNumber.keySet().stream()        // get student colors
+        return getStudentsInfluence(playerProfessors)
+                + getTowersInfluence(playerTowerColor); // add tower score
+    }
+
+    protected int getTowersInfluence(TowerColor playerTowerColor){
+        return (playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0;
+    }
+
+    protected int getStudentsInfluence(Set<Color> playerProfessors){
+        return this.studentToNumber.keySet().stream()        // get student colors
                 .filter(playerProfessors::contains)     // filter the ones that match given professors colors
                 .mapToInt(this.studentToNumber::get)    // map each student to the number of occurrences in this archipelago
-                .sum()                                  // sum the occurrences
-                + ((playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0); // add tower score
+                .sum();                                  // sum the occurrences
     }
 
     public List<Integer> getIslandCodes() {
@@ -121,11 +130,9 @@ public class Archipelago {
         return this.towerColor;
     }
 
-    public List<Color> getStudents() {
-        var students = new LinkedList<Color>();
-        for(var key : this.studentToNumber.keySet())
-            for(int i = 0; i < this.studentToNumber.get(key); i++)
-                students.add(key);
-        return students;
+    public void removeStudent(Color student){
+        if(this.studentToNumber.get(student) >= 1)
+            this.studentToNumber.put(student, this.studentToNumber.get(student) -1);
     }
+
 }

@@ -9,9 +9,9 @@ import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyExce
 import java.util.*;
 
 public class FourPlayerStrategy implements NumberOfPlayersStrategy {
-    private final int numberOfPlayers = 4;
+    protected final int numberOfPlayers = 4;
     private final int numberOfStudentsInEachCloud = 3;
-    private final int numberOfStudentsInTheEntrance = 7;
+    protected final int numberOfStudentsInTheEntrance = 7;
     private final int numberOfTowers = 8;
 
     @Override

@@ -2,6 +2,8 @@ package it.polimi.ingsw.utils.multilist;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Filter;
 
 /**
  * Implements a list whose elements are tuples of 3 elements
@@ -9,7 +11,7 @@ import java.util.List;
  * @param <U> second element type
  * @param <V> third element type
  */
-public class MultiList<T, U, V> {
+public class MultiList<T extends Comparable<T>, U, V> {
     private final List<T> first = new LinkedList<>();
     private final List<U> second = new LinkedList<>();
     private final List<V> third = new LinkedList<>();
@@ -64,11 +66,16 @@ public class MultiList<T, U, V> {
      * @param firstKey the first element of the tuple to remove
      */
     public void remove(T firstKey) {
-        int index = this.first.indexOf(firstKey);
-        if(index != -1) {
-            this.first.remove(index);
-            this.second.remove(index);
-            this.third.remove(index);
+        Optional<T> objectFound = this.first.stream().filter(x -> x.compareTo(firstKey) == 0)
+                .findFirst();
+
+        if(objectFound.isPresent()) {
+            var index = this.first.indexOf(objectFound.get());
+            if(index != -1) {
+                this.first.remove(index);
+                this.second.remove(index);
+                this.third.remove(index);
+            }
         }
     }
 
@@ -111,3 +118,4 @@ public class MultiList<T, U, V> {
         }
     }
 }
+

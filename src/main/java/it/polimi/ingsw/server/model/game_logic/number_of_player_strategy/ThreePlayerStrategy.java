@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ThreePlayerStrategy implements NumberOfPlayersStrategy {
-    private final int numberOfPlayers = 3;
+    protected final int numberOfPlayers = 3;
     private final int numberOfStudentsInEachCloud = 4;
-    private final int numberOfStudentsInTheEntrance = 9;
+    protected final int numberOfStudentsInTheEntrance = 9;
     private final int numberOfTowers = 6;
 
     @Override

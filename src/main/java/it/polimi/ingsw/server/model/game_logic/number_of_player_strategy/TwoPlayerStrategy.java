@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 public class TwoPlayerStrategy implements NumberOfPlayersStrategy {
-    private final int numberOfPlayers = 2;
+    protected final int numberOfPlayers = 2;
     private final int numberOfStudentsInEachCloud = 3;
-    private final int numberOfStudentsInTheEntrance = 7;
+    protected final int numberOfStudentsInTheEntrance = 7;
     private final int numberOfTowers = 8;
 
     @Override
