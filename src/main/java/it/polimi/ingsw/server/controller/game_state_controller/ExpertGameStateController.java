@@ -2,7 +2,6 @@ package it.polimi.ingsw.server.controller.game_state_controller;
 
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.ExpertGameState;
-import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
@@ -127,11 +126,11 @@ public class ExpertGameStateController extends GameStateController {
     }
 
     @Override
-    protected void nextActionTurn() throws LastRoundException, GameOverException {
+    protected void nextActionTurn() throws GameOverException {
         try{
             this.gameState.refillCharacter();
         } catch (EmptyStudentSupplyException ignored){
-            throw new LastRoundException();
+            this.gameState.setLastRoundTrue();
         }
 
 

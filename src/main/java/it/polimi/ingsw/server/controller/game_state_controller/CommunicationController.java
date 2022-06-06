@@ -69,8 +69,8 @@ public class CommunicationController extends SugarMessageProcessor {
         var msg = (PlayCardMsg) message;
 
         try {
-            this.gameStateController.playCard(msg.card);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            boolean lastRound = this.gameStateController.playCard(msg.card);
+            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ""), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e){
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (CardIsNotInTheDeckException e) {
@@ -186,14 +186,18 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
-
     @SugarMessageHandler
     public SugarMessage endTurnMsg(SugarMessage message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
         try {
-            this.gameStateController.endActionTurn();
+            boolean lastRound = this.gameStateController.endActionTurn();
+
+            return new OKAndUpdateMsg(
+                    new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
+                    new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
+            );
         } catch (MoreStudentsToBeMovedException e){
             return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
         } catch (MotherNatureToBeMovedException e){
@@ -202,20 +206,12 @@ public class CommunicationController extends SugarMessageProcessor {
             return new KOMsg(ReturnMessage.STUDENTS_TO_BE_GRABBED_FROM_CLOUD.text);
         } catch (CardNotPlayedException e){
             return new KOMsg(ReturnMessage.CARD_NOT_PLAYED.text);
-        } catch (LastRoundException e) {
-            return new OKAndUpdateMsg(
-                    new OKMsg(ReturnMessage.LAST_ROUND.text),
-                    new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
-            );
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (GameOverException e) {
             return new GameOverMsg(this.getUsernameToWinnerMap(e.schoolBoardIdToWinnerMap), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         }
-        return new OKAndUpdateMsg(
-                new OKMsg(ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
-                new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
-        );
+
     }
 
     private Map<String, Boolean> getUsernameToWinnerMap(Map<Integer, Boolean> schoolBoardIdToWinnerMap){

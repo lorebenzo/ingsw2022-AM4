@@ -66,13 +66,16 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
+    public boolean playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
         if(this.gameState.getCurrentPhase() != Phase.PLANNING) throw new WrongPhaseException();
 
         if(this.cardPlayed()) throw new MoveAlreadyPlayedException();
 
         this.gameState.playCard(card);
+
         this.nextPlanningTurn();
+
+        return this.gameState.isLastRound();
     }
 
     /**
@@ -176,7 +179,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws MotherNatureToBeMovedException if the player didn't move motherNature before trying to end his turn.
      * @throws StudentsToBeGrabbedFromCloudException if the player didn't grab the students from a cloud before trying to end his turn.
      */
-    public void endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, LastRoundException, WrongPhaseException, GameOverException {
+    public boolean endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, WrongPhaseException, GameOverException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
         if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) == 0) throw new MoreStudentsToBeMovedException();
@@ -188,6 +191,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
         //Block rollback option
         this.nextActionTurn();
+
+        return this.gameState.isLastRound();
     }
 
     //Private methods
@@ -231,6 +236,10 @@ public class GameStateController implements GameStateControllerCommonInterface {
             this.gameState.setCurrentPhase(Phase.ACTION);
         }
 
+        if(this.gameState.getCurrentRound() >= Card.values().length){
+            this.gameState.setLastRoundTrue();
+        }
+
         //There is still someone that didn't play, so they will play
         this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
@@ -238,21 +247,22 @@ public class GameStateController implements GameStateControllerCommonInterface {
     }
 
 
-    protected void nextActionTurn() throws LastRoundException, GameOverException {
+    protected void nextActionTurn() throws GameOverException {
         //If all the players played in this round, a new round will begin
         if(this.gameState.isLastTurnInThisRound()) {
-            if(!this.gameState.isGamesLastRound()){
+            if(!this.gameState.isLastRound()){
                 this.gameState.resetRoundIterator();
                 this.gameState.resetSchoolBoardIdsToCardsPlayerThisRound();
 
                 //If an actual round was completed, the round count has to be increased and a new round will begin with the planning phase
                 this.gameState.increaseRoundCount();
+
                 this.gameState.setCurrentPhase(Phase.PLANNING);
+
                 try{
                     this.gameState.fillClouds();
                 }catch (EmptyStudentSupplyException ignored){
-                    this.gameState.setGamesLastRound();
-                    throw new LastRoundException();
+                    this.gameState.setLastRoundTrue();
                 }
             }
             else{
@@ -303,7 +313,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
     }
 
     public boolean isGamesLastRound(){
-        return this.gameState.isGamesLastRound();
+        return this.gameState.isLastRound();
     }
 
 

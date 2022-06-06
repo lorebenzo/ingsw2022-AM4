@@ -24,7 +24,7 @@ public class GameState implements GameStateCommonInterface {
     private List<Integer> roundOrder;
     private Iterator<Integer> roundIterator;
     private ActionPhaseSubTurn actionPhaseSubTurn;
-    private boolean isGamesLastRound;
+    private boolean isLastRound;
 
     private Phase currentPhase;
     protected final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
@@ -60,7 +60,7 @@ public class GameState implements GameStateCommonInterface {
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
         this.numberOfTowers = this.strategy.getNumberOfTowers();
 
-        this.currentRound = 0;
+        this.currentRound = 1;
         this.actionPhaseSubTurn = ActionPhaseSubTurn.STUDENTS_TO_MOVE;
 
 
@@ -81,7 +81,7 @@ public class GameState implements GameStateCommonInterface {
         //Preparation of the roundOrder that will support the turns
         this.roundOrder = this.schoolBoards.stream().map(SchoolBoard::getId).toList();
         this.roundIterator = this.getRoundOrder().listIterator();
-        this.isGamesLastRound = false;
+        this.isLastRound = false;
 
     }
 
@@ -416,7 +416,7 @@ public class GameState implements GameStateCommonInterface {
             //If there is a winner for the number of towers placed, then prepare the winners map with it.
             for (var schoolBoard : this.schoolBoards)
                 schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), possibleWinningSchoolBoards.contains(schoolBoard));
-        } else if(this.onlyThreeAchipelagosLeft() || (this.isGamesLastRound && !this.roundIterator.hasNext())) {
+        } else if(this.onlyThreeAchipelagosLeft() || (this.isLastRound && !this.roundIterator.hasNext())) {
 
             if (possibleWinningSchoolBoards.size() > 1) {
                 if (this.numberOfPlayers != GameConstants.MAX_NUMBER_OF_PLAYERS.value) {
@@ -483,6 +483,10 @@ public class GameState implements GameStateCommonInterface {
 
     public void increaseRoundCount(){
         this.currentRound++;
+    }
+
+    public int getCurrentRound(){
+        return this.currentRound;
     }
 
     /**
@@ -685,12 +689,12 @@ public class GameState implements GameStateCommonInterface {
         return this.schoolBoardIdsToCardsPlayedThisRound;
     }
 
-    public void setGamesLastRound(){
-        this.isGamesLastRound = true;
+    public void setLastRoundTrue(){
+        this.isLastRound = true;
     }
 
-    public boolean isGamesLastRound(){
-        return this.isGamesLastRound;
+    public boolean isLastRound(){
+        return this.isLastRound;
     }
 
     public LightGameState lightify(){

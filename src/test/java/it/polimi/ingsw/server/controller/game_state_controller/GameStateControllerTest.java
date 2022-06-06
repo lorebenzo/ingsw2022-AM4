@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.controller.game_state_controller;
 
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
+import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
@@ -391,7 +392,7 @@ public class GameStateControllerTest {
 
 
     @Test
-    public void oneCompleteRound() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException, LastRoundException {
+    public void oneCompleteRound() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.playCard(Card.DOG);
@@ -422,7 +423,7 @@ public class GameStateControllerTest {
 
     //Should throw CardIsNotInTheDeckException
     @Test
-    public void twoCompleteRoundsFail() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException, LastRoundException {
+    public void twoCompleteRoundsFail() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.playCard(Card.DOG);
@@ -453,7 +454,7 @@ public class GameStateControllerTest {
     }
 
     @Test
-    public void twoCompleteRoundsSuccess() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException, LastRoundException {
+    public void twoCompleteRoundsSuccess() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException {
         GameStateController gameStateController = new GameStateController();
 
         gameStateController.playCard(Card.DOG);
@@ -504,26 +505,225 @@ public class GameStateControllerTest {
         gameStateController.endActionTurn();
     }
 
-/*    @Test
-    public void gameOver() throws GameStateInitializationFailureException, EmptyStudentSupplyException, InvalidNumberOfStepsException {
+    @Test
+    public void gameOverTowers() throws GameStateInitializationFailureException, EmptyStudentSupplyException, InvalidNumberOfStepsException, InvalidCardPlayedException, CardIsNotInTheDeckException, MoveAlreadyPlayedException, WrongPhaseException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException {
         GameStateController gameStateController = new GameStateController();
 
         for (int i = 0; i < 7; i++) {
-            gameStateController.gameState.moveMotherNatureNStepsClockwise(1);
-            gameStateController.gameState.conquerArchipelago(0);
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
         }
 
-        for (Color color: Color.values()) {
-
-        }
         gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.RED);
 
-        for (:
-             ) {
-
+        for(Archipelago archipelago: gameStateController.gameState.getArchipelagosForTesting()) {
+            archipelago.addStudent(Color.RED);
         }
 
+        gameStateController.playCard(Card.DOG);
+        gameStateController.playCard(Card.GOOSE);
+
+        for (int i = 0; i < 3; i++) {
+            gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        }
+
+        try{
+            gameStateController.moveMotherNature(1);
+        }catch (GameOverException e){
+            assertTrue(e.schoolBoardIdToWinnerMap.get(0));
+            assertFalse(e.schoolBoardIdToWinnerMap.get(1));
+        }
+    }
+
+    @Test
+    public void gameOverThreeArchipelagos() throws GameStateInitializationFailureException, EmptyStudentSupplyException, InvalidNumberOfStepsException, InvalidCardPlayedException, CardIsNotInTheDeckException, MoveAlreadyPlayedException, WrongPhaseException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException {
+        GameStateController gameStateController = new GameStateController();
+
+        for (int i = 0; i < 6; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(1);
+
+        for (int i = 0; i < 4; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.RED);
+
+        for(Archipelago archipelago: gameStateController.gameState.getArchipelagosForTesting()) {
+            archipelago.addStudent(Color.RED);
+        }
+
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(0);
+        gameStateController.playCard(Card.GOOSE);
+        gameStateController.playCard(Card.DOG);
 
 
-    }*/
+        for (int i = 0; i < 3; i++) {
+            gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        }
+
+        try{
+            gameStateController.moveMotherNature(1);
+        }catch (GameOverException e){
+            assertTrue(e.schoolBoardIdToWinnerMap.get(0));
+            assertFalse(e.schoolBoardIdToWinnerMap.get(1));
+        }
+    }
+
+    @Test
+    public void gameOverSameTowers() throws GameStateInitializationFailureException, InvalidNumberOfStepsException, InvalidCardPlayedException, CardIsNotInTheDeckException, MoveAlreadyPlayedException, WrongPhaseException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException {
+        GameStateController gameStateController = new GameStateController(3);
+
+        for (int i = 0; i < 5; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.GREEN);
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.CYAN);
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(1);
+
+        for (int i = 0; i < 5; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.YELLOW);
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(2);
+
+        for (int i = 0; i < 1; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.RED);
+
+        for(Archipelago archipelago: gameStateController.gameState.getArchipelagosForTesting()) {
+            archipelago.addStudent(Color.RED);
+        }
+
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(0);
+        gameStateController.playCard(Card.FOX);
+        gameStateController.playCard(Card.GOOSE);
+        gameStateController.playCard(Card.DOG);
+
+
+        for (int i = 0; i < 4; i++) {
+            gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        }
+
+        try{
+            gameStateController.moveMotherNature(1);
+        }catch (GameOverException e){
+            assertTrue(e.schoolBoardIdToWinnerMap.get(0));
+            assertFalse(e.schoolBoardIdToWinnerMap.get(1));
+            assertFalse(e.schoolBoardIdToWinnerMap.get(2));
+        }
+    }
+
+    @Test
+    public void gameOverSameTowersAndProfessors() throws GameStateInitializationFailureException, InvalidNumberOfStepsException, InvalidCardPlayedException, CardIsNotInTheDeckException, MoveAlreadyPlayedException, WrongPhaseException, TooManyStudentsMovedException, StudentNotInTheEntranceException, FullDiningRoomLaneException, MoreStudentsToBeMovedException {
+        GameStateController gameStateController = new GameStateController(3);
+
+        for (int i = 0; i < 5; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.GREEN);
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.CYAN);
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(1);
+
+        for (int i = 0; i < 5; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.YELLOW);
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.PURPLE);
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(2);
+
+        for (int i = 0; i < 1; i++) {
+            gameStateController.gameState.setMotherNaturePositionForTesting(gameStateController.gameState.getArchipelagosForTesting().get(i));
+            gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
+        }
+
+        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addProfessor(Color.RED);
+
+        for(Archipelago archipelago: gameStateController.gameState.getArchipelagosForTesting()) {
+            archipelago.addStudent(Color.RED);
+        }
+
+        gameStateController.gameState.setCurrentPlayerSchoolBoardId(0);
+        gameStateController.playCard(Card.FOX);
+        gameStateController.playCard(Card.GOOSE);
+        gameStateController.playCard(Card.DOG);
+
+
+        for (int i = 0; i < 4; i++) {
+            gameStateController.moveStudentFromEntranceToDiningRoom(gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0));
+        }
+
+        try{
+            gameStateController.moveMotherNature(1);
+        }catch (GameOverException e){
+            assertTrue(e.schoolBoardIdToWinnerMap.get(0));
+            assertTrue(e.schoolBoardIdToWinnerMap.get(1));
+            assertFalse(e.schoolBoardIdToWinnerMap.get(2));
+        }
+    }
+
+    @Test
+    public void gameOverCards() throws GameStateInitializationFailureException, WrongPhaseException, MoveAlreadyPlayedException, InvalidCardPlayedException, CardIsNotInTheDeckException, TooManyStudentsMovedException, StudentNotInTheEntranceException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MotherNatureToBeMovedException, EmptyCloudException, StudentsToBeGrabbedFromCloudException, GameOverException, CardNotPlayedException, EmptyStudentSupplyException {
+        GameStateController gameStateController = new GameStateController();
+
+        for (int j = 0; j < Card.values().length-1; j++) {
+            gameStateController.playCard(List.of(Card.values()).get(j));
+            gameStateController.playCard(List.of(Card.values()).get(j+1));
+
+            assertEquals(0, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+            for (int i = 0; i < 3; i++) {
+                gameStateController.moveStudentFromEntranceToArchipelago(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0),gameStateController.gameState.getArchipelagosForTesting().get(0).getIslandCodes());
+            }
+
+            gameStateController.moveMotherNature(1);
+            gameStateController.grabStudentsFromCloud(0);
+            gameStateController.endActionTurn();
+
+            assertEquals(1, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+            for (int i = 0; i < 3; i++) {
+                gameStateController.moveStudentFromEntranceToArchipelago(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0),gameStateController.gameState.getArchipelagosForTesting().get(0).getIslandCodes());
+            }
+
+            gameStateController.moveMotherNature(1);
+            gameStateController.grabStudentsFromCloud(1);
+            gameStateController.endActionTurn();
+        }
+
+        assertTrue(gameStateController.playCard(List.of(Card.values()).get(9)));
+        assertTrue(gameStateController.playCard(List.of(Card.values()).get(0)));
+
+
+        assertEquals(1, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        for (int i = 0; i < 3; i++) {
+            gameStateController.moveStudentFromEntranceToArchipelago(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0),gameStateController.gameState.getArchipelagosForTesting().get(0).getIslandCodes());
+        }
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(1);
+        gameStateController.endActionTurn();
+
+        assertEquals(0, gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardId());
+
+        for (int i = 0; i < 3; i++) {
+            gameStateController.moveStudentFromEntranceToArchipelago(gameStateController.getGameStateForTesting().getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0),gameStateController.gameState.getArchipelagosForTesting().get(0).getIslandCodes());
+        }
+
+        gameStateController.moveMotherNature(1);
+        gameStateController.grabStudentsFromCloud(0);
+        assertThrows(GameOverException.class, gameStateController::endActionTurn);
+    }
 }
