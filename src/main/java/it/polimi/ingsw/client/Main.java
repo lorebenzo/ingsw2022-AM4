@@ -1,7 +1,6 @@
 package it.polimi.ingsw.client;
 
 import it.polimi.ingsw.client.game_client_and_cli.GameClient;
-import it.polimi.ingsw.client.gui.App;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,8 +21,7 @@ public class Main {
             new Thread(gameClient).start();
 
             if(!input.equals("cli")) {
-                // Start gui
-                App.main(new String[0]);
+                // TODO: Start gui
             }
 
             // Handle user input
