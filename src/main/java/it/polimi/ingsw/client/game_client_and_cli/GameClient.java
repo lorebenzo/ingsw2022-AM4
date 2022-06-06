@@ -20,7 +20,6 @@ import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMs
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
-import javafx.application.Platform;
 
 import java.util.*;
 import java.util.regex.Pattern;
