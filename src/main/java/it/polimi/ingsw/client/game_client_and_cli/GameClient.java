@@ -3,7 +3,6 @@ package it.polimi.ingsw.client.game_client_and_cli;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
-import it.polimi.ingsw.client.gui.UserInputHandler;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -21,6 +20,7 @@ import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMs
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
+import javafx.application.Platform;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -151,8 +151,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (OKMsg) message;
         this.logger.logSuccess(msg.text);
 
-        // Update GUI
-        UserInputHandler.onOKMessage(msg.text);
+        // TODO: Update GUI
     }
 
     @SugarMessageHandler
@@ -184,8 +183,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         // Gson gson = new GsonBuilder().setPrettyPrinting().create();
         // System.out.println(gson.toJson(msg.lightGameState));
 
-        // Update GUI
-        UserInputHandler.onGameStateUpdate(msg.lightGameState);
+        // TODO: Update GUI
     }
 
     @SugarMessageHandler
@@ -194,6 +192,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.jwt = msg.jwtAuthCode;
         this.logger.logSuccess("Successfully logged in");
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
+
+        // TODO: Update GUI
     }
     @SugarMessageHandler
     public void peerUPIMessage(SugarMessage message) {}
