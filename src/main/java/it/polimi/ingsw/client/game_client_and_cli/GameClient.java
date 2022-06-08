@@ -310,14 +310,14 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 else throw new SyntaxError();
                 break;
             }
-            case mv_std_to_dining: {
+            case mv_std_dining: {
                 var color = Optional.ofNullable(params.get("color"));
                 if(color.isPresent())
                     this.moveStudentFromEntranceToDiningRoom(color.get());
                 else throw new SyntaxError();
                 break;
             }
-            case mv_std_to_island: {
+            case mv_std_island: {
                 var color = Optional.ofNullable(params.get("color"));
                 var islandCode = Optional.ofNullable(params.get("island"));
                 if(this.arePresent(color, islandCode))
@@ -332,7 +332,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 else throw new SyntaxError();
                 break;
             }
-            case grab_std_cloud: {
+            case grab_std: {
                 var cloud = Optional.ofNullable(params.get("cloud"));
                 if(cloud.isPresent())
                     this.grabStudentsFromCloud(Integer.parseInt(cloud.get()));
