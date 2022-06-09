@@ -6,7 +6,6 @@ import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertNumberOfPlayersStrategyFactory;
-import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
 
 import java.util.*;
 
@@ -30,7 +29,7 @@ public class ExpertGameState extends GameState {
 
         try {
             this.extractCharacters();
-        } catch(EmptyStudentSupplyException ignored) { throw new GameStateInitializationFailureException(); };
+        } catch(EmptyStudentSupplyException ignored) { throw new GameStateInitializationFailureException(); }
 
         this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);
         this.professorToOriginalOwnerMap = new HashMap<>();
@@ -77,7 +76,7 @@ public class ExpertGameState extends GameState {
      */
     private void extractCharacters() throws EmptyStudentSupplyException {
         List<Character> characters = new ArrayList<>(List.of(Character.values()));
-//        Collections.shuffle(characters); todo: fix
+        //Collections.shuffle(characters); //fixme - use seed
 
         for (int i = 0; i < 3; i++){
             this.availableCharacters.add(PlayableCharacter.createCharacter(characters.get(i)));
@@ -105,12 +104,12 @@ public class ExpertGameState extends GameState {
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
 
-        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
+        Optional<Archipelago> selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);
+        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();
 
         if(!selectedCharacter.get().getStudents().contains(color)) throw new StudentNotOnCharacterException();
 
-        Optional<Archipelago> selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);
-        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         selectedCharacter.get().removeStudent(color);
         selectedArchipelago.get().addStudent(color);

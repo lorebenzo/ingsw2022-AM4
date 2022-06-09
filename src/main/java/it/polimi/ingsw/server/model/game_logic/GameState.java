@@ -23,25 +23,21 @@ import java.util.stream.Collectors;
 public class GameState extends Aggregate implements GameStateCommonInterface {
     protected int numberOfPlayers;
     protected NumberOfPlayersStrategy strategy;
-    private int numberOfStudentsInEachCloud;
-    private int numberOfStudentsInTheEntrance;
     private int numberOfTowers;
 
+    private int numberOfStudentsInEachCloud;
+    private int numberOfStudentsInTheEntrance;
 
     // Game flow attributes
-    private int currentRound; // rounds start at 0, and get incremented when all players play a turn
-    private List<Integer> roundOrder;
-    private ActionPhaseSubTurn actionPhaseSubTurn;
+    private Round round;
 
-    private Phase currentPhase;
-    protected Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
+    protected Map<Integer, Card> schoolBoardIdsToCardPlayedThisRound;
 
     protected List<Archipelago> archipelagos;
     protected List<SchoolBoard> schoolBoards;
     private List<List<Color>> clouds;
 
-    //fixme to protected
-    public StudentFactory studentFactory;
+    protected StudentFactory studentFactory;
     protected Archipelago motherNaturePosition;
 
     protected int currentPlayerSchoolBoardId;
@@ -82,33 +78,29 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         var parentUUID = event.parentEvent;
         if(
                 numberOfPlayers < GameConstants.MIN_NUMBER_OF_PLAYERS.value ||
-                        numberOfPlayers > GameConstants.MAX_NUMBER_OF_PLAYERS.value
+                numberOfPlayers > GameConstants.MAX_NUMBER_OF_PLAYERS.value
         ) throw new IllegalArgumentException();
 
         this.numberOfPlayers = numberOfPlayers;
         this.chooseStrategy();
 
-
         this.numberOfStudentsInEachCloud = this.strategy.getNumberOfStudentsInEachCloud();
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
-        this.numberOfTowers = this.strategy.getNumberOfTowers();
 
-        this.currentRound = 0;
-        this.actionPhaseSubTurn = ActionPhaseSubTurn.STUDENTS_TO_MOVE;
-
-        this.schoolBoardIdsToCardsPlayedThisRound = new HashMap<>();
-
+        this.schoolBoardIdsToCardPlayedThisRound = new HashMap<>();
         this.studentFactory = new StudentFactory(this.id.getLeastSignificantBits());
         try {
             this.archipelagos = this.initializeArchipelagos();
             this.schoolBoards = this.initializeSchoolBoards();
             this.clouds = this.initializeClouds();
+            this.fillClouds();
         } catch (EmptyStudentSupplyException e) {
             throw new GameStateInitializationFailureException();
         }
 
         //Preparation of the roundOrder that will support the turns
-        this.roundOrder = this.schoolBoards.stream().map(SchoolBoard::getId).toList();
+        this.round = new Round(this.schoolBoards.stream().map(SchoolBoard::getId).toList());
+        this.currentPlayerSchoolBoardId = this.round.next();
 
     }
 
@@ -145,6 +137,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      */
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         // TODO: randomize initial mother nature position
+        Archipelago newArchipelago;
         int motherNatureIndex = 0;
 
         // lambda to get, given an island index, the index of the opposite island
@@ -152,15 +145,27 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                 (islandIndex) -> (islandIndex + GameConstants.NUMBER_OF_ISLANDS.value / 2) % GameConstants.NUMBER_OF_ISLANDS.value;
 
         List<Archipelago> archipelagos = new LinkedList<>();
+
+        List<Color> studentsForArchipelagos = new LinkedList<>();
+
+        for (Color color: Color.values()) {
+            studentsForArchipelagos.add(color);
+            studentsForArchipelagos.add(color);
+        }
+
+        Collections.shuffle(studentsForArchipelagos);
+        ListIterator<Color> studentsForArchipelagosIterator = studentsForArchipelagos.listIterator();
+
         for(int i = 0; i < GameConstants.NUMBER_OF_ISLANDS.value; i++) {
-            Archipelago newArchipelago = this.createArchipelago(i);
-            if(i == motherNatureIndex)
-                this.motherNaturePosition = newArchipelago; // put mother nature in the first island
+            newArchipelago = this.createArchipelago(i);
             if(i != motherNatureIndex && i != getOppositeIslandIndex.apply(motherNatureIndex))
                 // Put a student into each island except for mother nature's island and mother nature's opposite island
-                newArchipelago.addStudent(this.studentFactory.getStudent());
+                newArchipelago.addStudent(this.studentFactory.getStudent(studentsForArchipelagosIterator.next()));
             archipelagos.add(newArchipelago);
         }
+
+        this.motherNaturePosition = archipelagos.get(motherNatureIndex);
+
         return archipelagos;
     }
 
@@ -210,12 +215,13 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     public void playCardHandler(PlayCardEvent event) throws CardIsNotInTheDeckException, InvalidCardPlayedException {
         var card = event.card;
-        if(this.getSchoolBoardIdsToCardsPlayedThisRound().containsValue(card) && this.getCurrentPlayerSchoolBoard().getDeck().size() > 1) throw new InvalidCardPlayedException();
+        if(this.getSchoolBoardIdsToCardPlayedThisRound().containsValue(card) && this.getCurrentPlayerSchoolBoard().getDeck().size() > 1) throw new InvalidCardPlayedException();
 
 
         //If no other player already played the same card as the one in input in this round, or if the card in input is the last available
         this.getCurrentPlayerSchoolBoard().playCard(card);
-        this.schoolBoardIdsToCardsPlayedThisRound.put(this.currentPlayerSchoolBoardId, card);
+        this.schoolBoardIdsToCardPlayedThisRound.put(this.currentPlayerSchoolBoardId, card);
+
     }
 
     public void apply(Event event) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -387,8 +393,12 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         this.motherNaturePosition = this.getNextArchipelago();
     }
 
+    public void moveMotherNatureOneStepClockwiseForTesting() {
+        this.motherNaturePosition = this.getNextArchipelago();
+    }
+
     protected int getAllowedStepsNumber(){
-        return this.schoolBoardIdsToCardsPlayedThisRound.get(this.currentPlayerSchoolBoardId).getSteps();
+        return this.schoolBoardIdsToCardPlayedThisRound.get(this.currentPlayerSchoolBoardId).getSteps();
     }
 
     /**
@@ -453,61 +463,59 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      *
      * @return a map schoolBoardId -> isWinner
      */
-    public Optional<Map<Integer, Boolean>> checkImmediateWinners(){
-        Map<Integer, Boolean> schoolBoardIdToIsWinnerMap = null;
-        List<SchoolBoard> winnerSchoolBoards = null;
+    public Map<Integer, Boolean> checkWinners(){
+        Map<Integer, Boolean> schoolBoardIdToIsWinnerMap = new HashMap<>();
+        List<SchoolBoard> possibleWinningSchoolBoards;
 
-        if(this.getCertainWinners().isPresent()) {
-            winnerSchoolBoards = this.getCertainWinners().get();
+
+        Map<SchoolBoard, Integer> schoolBoardToTowersPlaced = new HashMap<>();
+
+        //Initialize a map in which every schoolBoard is linked to how many towers of the corresponding color were placed
+        for (SchoolBoard schoolBoard: this.schoolBoards) {
+            schoolBoardToTowersPlaced.put(schoolBoard, this.getNumberOfTowersPlaced(schoolBoard.getId()));
         }
-        else if(this.onlyThreeAchipelagosLeft()) {
-            var schoolboardToNumberOfTowersPlaced = new HashMap<SchoolBoard, Integer>();
 
-            for (var schoolboard : this.schoolBoards) {
-                var towersPlaced = this.archipelagos
-                        .stream()
-                        .filter(archipelago -> archipelago.getTowerColor().equals(schoolboard.getTowerColor()))
-                        .mapToInt(archipelagoWithThisTowerColor -> archipelagoWithThisTowerColor.getIslandCodes().size())
-                        .sum();
-                schoolboardToNumberOfTowersPlaced.put(schoolboard, towersPlaced);
-            }
+        //Find the maximum number of towers placed between all the players
+        var maxTowersPlaced = schoolBoardToTowersPlaced.values()
+                .stream()
+                .mapToInt(Integer::intValue)
+                .max();
 
-            int maxTowersPlaced = schoolboardToNumberOfTowersPlaced
-                    .entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                    .toList()
-                    .get(0)
-                    .getValue();
+        //Every player that placed the maximum number of towers could be a winner
+        possibleWinningSchoolBoards = schoolBoardToTowersPlaced.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() == maxTowersPlaced.getAsInt())
+                .map(Map.Entry::getKey)
+                .toList();
 
 
-            winnerSchoolBoards = schoolboardToNumberOfTowersPlaced.entrySet()
-                    .stream()
-                    .filter(entry -> entry.getValue() == maxTowersPlaced)
-                    .map(Map.Entry::getKey)
-                    .toList();
+        if(maxTowersPlaced.isPresent() && maxTowersPlaced.getAsInt() >= this.strategy.getNumberOfTowers()){
+            //If there is a winner for the number of towers placed, then prepare the winners map with it.
+            for (var schoolBoard : this.schoolBoards)
+                schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), possibleWinningSchoolBoards.contains(schoolBoard));
 
-
-            List<TowerColor> towerColors = winnerSchoolBoards.stream().map(SchoolBoard::getTowerColor).toList();
-
-            if (winnerSchoolBoards.size() > 1) {
-                if (this.numberOfPlayers != GameConstants.MAX_NUMBER_OF_PLAYERS.value) {
+        } else if (this.onlyThreeArchipelagoLeft() || this.round.isLastRoundDone()) {
+            if (possibleWinningSchoolBoards.size() > 1) {
+                if (this.numberOfPlayers < GameConstants.MAX_NUMBER_OF_PLAYERS.value) {
                     // Filter by number of professors
-                    var maxNumberOfProfessors = winnerSchoolBoards
+                    var maxNumberOfProfessors = possibleWinningSchoolBoards
                             .stream()
                             .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
                             .max();
 
-                    winnerSchoolBoards = winnerSchoolBoards
+                    //possibleWinningSchoolBoards.removeIf(schoolBoard -> schoolBoard.getProfessors().size() < maxNumberOfProfessors.getAsInt());
+
+                    possibleWinningSchoolBoards = possibleWinningSchoolBoards
                             .stream()
                             .filter(schoolBoard -> schoolBoard.getProfessors().size() == maxNumberOfProfessors.getAsInt())
                             .toList();
+
                 } else {
-                    var whiteSchoolBoards = winnerSchoolBoards
+                    var whiteSchoolBoards = possibleWinningSchoolBoards
                             .stream()
                             .filter(schoolBoard -> schoolBoard.getTowerColor().equals(TowerColor.WHITE));
 
-                    var blackSchoolBoards = winnerSchoolBoards
+                    var blackSchoolBoards = possibleWinningSchoolBoards
                             .stream()
                             .filter(schoolBoard -> schoolBoard.getTowerColor().equals(TowerColor.BLACK));
 
@@ -519,156 +527,44 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                             .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
                             .sum();
 
-                    winnerSchoolBoards = (whiteProfessors >= blackProfessors ? whiteSchoolBoards : blackSchoolBoards).toList();
+                    possibleWinningSchoolBoards = (whiteProfessors > blackProfessors ? whiteSchoolBoards : blackSchoolBoards).toList();
                 }
             }
-        }
-
-        if(winnerSchoolBoards != null){
-            schoolBoardIdToIsWinnerMap = new HashMap<>();
             for (var schoolBoard : this.schoolBoards)
-                schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), winnerSchoolBoards.contains(schoolBoard));
+                schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), possibleWinningSchoolBoards.contains(schoolBoard));
         }
-
-        return Optional.ofNullable(schoolBoardIdToIsWinnerMap);
+        return schoolBoardIdToIsWinnerMap;
     }
 
-
-/*
-    *//**
-     *
-     * @return a map schoolBoardId -> isWinner
-     *//*
-    public Optional<Map<Integer, Boolean>> checkImmediateWinners(){
-        Map<Integer, Boolean> schoolBoardIdToIsWinnerMap = null;
-
-
-        if(this.isGameImmediatelyOver()) {
-            var schoolboardToNumberOfTowersPlaced = new HashMap<SchoolBoard, Integer>();
-
-            for(var schoolboard : this.schoolBoards) {
-                var towersPlaced = this.archipelagos
-                        .stream()
-                        .filter(archipelago -> archipelago.getTowerColor().equals(schoolboard.getTowerColor()))
-                        .mapToInt(archipelagoWithThisTowerColor -> archipelagoWithThisTowerColor.getIslandCodes().size())
-                        .sum();
-                schoolboardToNumberOfTowersPlaced.put(schoolboard,towersPlaced);
-            }
-
-            int maxTowersPlaced = schoolboardToNumberOfTowersPlaced
-                    .entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                    .toList()
-                    .get(0)
-                    .getValue();
-
-            List<SchoolBoard> winnerSchoolBoards = schoolboardToNumberOfTowersPlaced.entrySet()
-                    .stream()
-                    .filter(entry -> entry.getValue() == maxTowersPlaced)
-                    .map(Map.Entry::getKey)
-                    .toList();
-
-
-
-            if (winnerSchoolBoards.stream().map(schoolBoard -> schoolBoard.getTowerColor()). > 1) {
-                if (this.numberOfPlayers != GameConstants.MAX_NUMBER_OF_PLAYERS.value) {
-                    // Filter by number of professors
-                    var maxNumberOfProfessors = winnerSchoolBoards
-                            .stream()
-                            .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
-                            .max();
-
-                    winnerSchoolBoards = winnerSchoolBoards
-                            .stream()
-                            .filter(schoolBoard -> schoolBoard.getProfessors().size() == maxNumberOfProfessors.getAsInt())
-                            .toList();
-                } else {
-                    var whiteSchoolBoards = winnerSchoolBoards
-                            .stream()
-                            .filter(schoolBoard -> schoolBoard.getTowerColor().equals(TowerColor.WHITE));
-
-                    var blackSchoolBoards = winnerSchoolBoards
-                            .stream()
-                            .filter(schoolBoard -> schoolBoard.getTowerColor().equals(TowerColor.BLACK));
-
-                    var whiteProfessors = whiteSchoolBoards
-                            .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
-                            .sum();
-
-                    var blackProfessors = blackSchoolBoards
-                            .mapToInt(schoolBoard -> schoolBoard.getProfessors().size())
-                            .sum();
-
-                    winnerSchoolBoards = (whiteProfessors >= blackProfessors ? whiteSchoolBoards : blackSchoolBoards).toList();
-                }
-            }
-
-            schoolBoardIdToIsWinnerMap = new HashMap<>();
-            for (var schoolBoard : this.schoolBoards)
-                schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), winnerSchoolBoards.contains(schoolBoard));
-        }
-
-        return Optional.ofNullable(schoolBoardIdToIsWinnerMap);
-    }
-    */
-    private boolean onlyThreeAchipelagosLeft(){
+    private boolean onlyThreeArchipelagoLeft(){
         return this.archipelagos.size() <= 3;
     }
 
-    private Optional<List<SchoolBoard>> getCertainWinners(){
-        List<SchoolBoard> winners = new LinkedList<>();
-
-        for(var schoolBoard : this.schoolBoards) {
-            var towersPlaced = this.archipelagos
-                    .stream()
-                    .filter(archipelago -> archipelago.getTowerColor().equals(schoolBoard.getTowerColor()))
-                    .mapToInt(archipelagoWithThisTowerColor -> archipelagoWithThisTowerColor.getIslandCodes().size())
-                    .sum();
-
-            if(towersPlaced >= this.numberOfTowers) winners.add(schoolBoard);
-        }
-
-        if(winners.size() > 0)
-            return Optional.of(winners);
-        else
-            return Optional.empty();
-
+    private int getNumberOfTowersPlaced(int schoolBoardId){
+        return this.archipelagos
+                .stream()
+                .filter(archipelago -> archipelago.getTowerColor().equals(this.getSchoolBoardFromSchoolBoardId(schoolBoardId).getTowerColor()))
+                .mapToInt(archipelagoWithThisTowerColor -> archipelagoWithThisTowerColor.getIslandCodes().size())
+                .sum();
     }
-
-    private boolean isGameImmediatelyOver() {
-        // There are only 3 archipelagos left
-        if(this.archipelagos.size() <= 3)
-            return true;
-
-        // A player places his last tower
-        for(var schoolboard : this.schoolBoards) {
-            var towersPlaced = this.archipelagos
-                    .stream()
-                    .filter(archipelago -> archipelago.getTowerColor().equals(schoolboard.getTowerColor()))
-                    .mapToInt(archipelagoWithThisTowerColor -> archipelagoWithThisTowerColor.getIslandCodes().size())
-                    .sum();
-
-            if(towersPlaced >= this.numberOfTowers) return true;
-        }
-
-        return false;
-    }
-
 
     //Setters
 
 
     public void setRoundOrder(List<Integer> roundOrder) {
-        this.roundOrder = roundOrder;
+        this.round.setNewRoundOrder(roundOrder);
     }
 
     public void resetRoundIterator() {
-//        this.currentPlayerIndex = 0;
+        this.round.resetIterator();
     }
 
     public void increaseRoundCount(){
-        this.currentRound++;
+        this.round.increaseRoundCount();
+    }
+
+    public int getCurrentRound(){
+        return this.round.getCurrentRound();
     }
 
     /**
@@ -695,7 +591,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         var currentPhase = event.phase;
 
         if(currentPhase == null) throw new IllegalArgumentException();
-        this.currentPhase = currentPhase;
+        this.round.setCurrentPhase(currentPhase);
     }
 
     /**
@@ -754,7 +650,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                 .findFirst();
     }
 
-    protected Optional<Archipelago> getArchipelagoFromSingleIslandCode(int archipelagoIslandCode){
+    public Optional<Archipelago> getArchipelagoFromSingleIslandCode(int archipelagoIslandCode){
         return this.archipelagos.stream()
                 // Filter out archipelagos that don't match archipelagoIslandCodes
                 .filter(archipelago -> archipelago.getIslandCodes().contains(archipelagoIslandCode))
@@ -779,14 +675,11 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return chosenArchipelago.map(archipelago -> this.strategy.getInfluence(this.schoolBoards, archipelago));
     }
 
-
     public boolean isLastTurnInThisRound(){
-//        return this.currentPlayerIndex == this.numberOfPlayers - 1;
+        return this.round.isRoundDone();
     }
 
-    public int getNextTurn() {
-//        return this.currentPlayerIndex++;
-    }
+    public int getNextTurn() { return this.round.next(); }
 
 
     public int getNumberOfStudentsInTheEntrance(){
@@ -802,7 +695,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     }
 
     public Phase getCurrentPhase() {
-        return this.currentPhase;
+        return this.round.getCurrentPhase();
     }
 
     public List<Integer> getMotherNaturePositionIslandCodes() {
@@ -823,12 +716,12 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                 .collect(Collectors.toSet());
     }
 
-    public Map<Integer, Card> getSchoolBoardIdsToCardsPlayedThisRound() {
-        return new HashMap<>(this.schoolBoardIdsToCardsPlayedThisRound);
+    public Map<Integer, Card> getSchoolBoardIdsToCardPlayedThisRound() {
+        return new HashMap<>(this.schoolBoardIdsToCardPlayedThisRound);
     }
 
     public void resetSchoolBoardIdsToCardsPlayerThisRound(){
-        this.schoolBoardIdsToCardsPlayedThisRound.clear();
+        this.schoolBoardIdsToCardPlayedThisRound.clear();
     }
 
     public int getCurrentPlayerSchoolBoardId() {
@@ -836,11 +729,11 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     }
 
     public void setActionPhaseSubTurn(ActionPhaseSubTurn actionPhaseSubTurn) {
-        this.actionPhaseSubTurn = actionPhaseSubTurn;
+        this.round.setActionPhaseSubTurn(actionPhaseSubTurn);
     }
 
     public ActionPhaseSubTurn getActionPhaseSubTurn() {
-        return this.actionPhaseSubTurn;
+        return this.round.getActionPhaseSubTurn();
     }
 
     //Created for testing - could be useful or dangerous
@@ -878,7 +771,15 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     }
 
     public Map<Integer, Card> getSchoolBoardIdsToCardsPlayedThisRoundForTesting() {
-        return this.schoolBoardIdsToCardsPlayedThisRound;
+        return this.schoolBoardIdsToCardPlayedThisRound;
+    }
+
+    public void setLastRoundTrue(){
+        this.round.setIsLastRoundTrue();
+    }
+
+    public boolean isLastRound(){
+        return this.round.isLastRound();
     }
 
     public LightGameState lightify(){
@@ -887,9 +788,10 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                 this.schoolBoards,
                 this.clouds,
                 this.currentPlayerSchoolBoardId,
-                this.currentPhase,
-                this.roundOrder,
-                this.motherNaturePosition
+                this.round.getCurrentPhase(),
+                this.round.getRoundOrder(),
+                this.motherNaturePosition,
+                this.schoolBoardIdsToCardPlayedThisRound
         );
     }
 

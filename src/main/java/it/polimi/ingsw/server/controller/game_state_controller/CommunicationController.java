@@ -12,10 +12,8 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.Re
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
-import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 import it.polimi.ingsw.server.repository.GamesRepository;
-import it.polimi.ingsw.server.repository.UsersRepository;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -26,7 +24,7 @@ public class CommunicationController extends SugarMessageProcessor {
     private final Map<String, Integer> usernameToSchoolBoardID;
     private GamesRepository gamesRepository = GamesRepository.getInstance();
 
-    public CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
+    protected CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
         this.gameStateController = initializeGameStateController(players.size());
         this.usernameToSchoolBoardID = new HashMap<>();
 
@@ -52,6 +50,9 @@ public class CommunicationController extends SugarMessageProcessor {
         });
     }
 
+    protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
+        return new GameStateController(playersNumber);
+    }
 
     public static CommunicationController createCommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException {
         if(isExpertMode)
@@ -80,7 +81,7 @@ public class CommunicationController extends SugarMessageProcessor {
      * @return true if the move has to be processed, because it is performed by the current player, false otherwise.
      */
     boolean isOthersPlayersTurn(String player){
-        return this.getSchoolBoardIdFromPeer(player) != this.gameStateController.getCurrentPlayerSchoolBoardId();
+        return this.getSchoolBoardIdFromUsername(player) != this.gameStateController.getCurrentPlayerSchoolBoardId();
     }
 
     @SugarMessageHandler
@@ -91,8 +92,8 @@ public class CommunicationController extends SugarMessageProcessor {
         var msg = (PlayCardMsg) message;
 
         try {
-            this.gameStateController.playCard(msg.card);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            boolean lastRound = this.gameStateController.playCard(msg.card);
+            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ""), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e){
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (CardIsNotInTheDeckException e) {
@@ -171,19 +172,6 @@ public class CommunicationController extends SugarMessageProcessor {
         try {
             boolean merged = this.gameStateController.moveMotherNature(msg.numberOfSteps);
 
-            // Check winners
-            Optional<Map<Integer, Boolean>> schoolBoardIdToIsWinnerMap = this.gameStateController.checkImmediateWinners();
-
-            //If someone won
-            if(schoolBoardIdToIsWinnerMap.isPresent()) {
-                // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
-                Map<String, Boolean> peerToIsWinner = new HashMap<>();
-
-                for(var _peer : this.usernameToSchoolBoardID.keySet())
-                    peerToIsWinner.put(_peer, schoolBoardIdToIsWinnerMap.get().get(this.usernameToSchoolBoardID.get(_peer)));
-                return new GameOverMsg(peerToIsWinner, new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
-            }
-
             return new OKAndUpdateMsg(
                     new OKMsg(merged ? ReturnMessage.MERGE_PERFORMED.text : ReturnMessage.MERGE_NOT_PERFORMED.text),
                     new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
@@ -196,6 +184,8 @@ public class CommunicationController extends SugarMessageProcessor {
             return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
         } catch (MoveAlreadyPlayedException e) {
             return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);
+        } catch (GameOverException e) {
+            return new GameOverMsg(this.getUsernameToWinnerMap(e.schoolBoardIdToWinnerMap), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         }
     }
 
@@ -223,25 +213,18 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
-
     @SugarMessageHandler
     public SugarMessage endTurnMsg(SugarMessage message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
-        if(!isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+        if(isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
         try {
-            this.gameStateController.endActionTurn();
+            boolean lastRound = this.gameStateController.endActionTurn();
 
-            // Check winners
-//            todo: fix
-//            var winners = this.gameStateController.checkWinners(false);
-//            if(winners.containsValue(true) /* someone won */) {
-//                // perform map composition: (peer->schoolBoard) ° (schoolBoard->isWinner) = (peer->isWinner)
-//                Map<Peer, Boolean> peerToIsWinner = new HashMap<>();
-//                for(var _peer : this.peersToSchoolBoardIdsMap.keySet())
-//                    peerToIsWinner.put(_peer, winners.get(this.peersToSchoolBoardIdsMap.get(_peer)));
-//                return new GameOverMsg(peerToIsWinner);
-//            }
+            return new OKAndUpdateMsg(
+                    new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
+                    new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
+            );
         } catch (MoreStudentsToBeMovedException e){
             return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
         } catch (MotherNatureToBeMovedException e){
@@ -250,12 +233,21 @@ public class CommunicationController extends SugarMessageProcessor {
             return new KOMsg(ReturnMessage.STUDENTS_TO_BE_GRABBED_FROM_CLOUD.text);
         } catch (CardNotPlayedException e){
             return new KOMsg(ReturnMessage.CARD_NOT_PLAYED.text);
-        } catch (EmptyStudentSupplyException e) {
-            return new KOMsg("Empty student supply"); //TODO transform this message in a GameOver condition
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+        } catch (GameOverException e) {
+            return new GameOverMsg(this.getUsernameToWinnerMap(e.schoolBoardIdToWinnerMap), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         }
-        return new OKMsg();
+
+    }
+
+    protected Map<String, Boolean> getUsernameToWinnerMap(Map<Integer, Boolean> schoolBoardIdToWinnerMap){
+        Map<String, Boolean> usernameToWinnerMap = new HashMap<>();
+
+        for (int schoolBoardId: schoolBoardIdToWinnerMap.keySet()) {
+            usernameToWinnerMap.put(this.getUsernameFromSchoolBoardId(schoolBoardId), schoolBoardIdToWinnerMap.get(schoolBoardId));
+        }
+        return usernameToWinnerMap;
     }
 
     /**
@@ -286,6 +278,17 @@ public class CommunicationController extends SugarMessageProcessor {
         return this.gameStateController.getLightGameState().addUsernames(usernameToSchoolBoardID);
     }
 
+    private int getSchoolBoardIdFromUsername(String player){
+        return this.usernameToSchoolBoardID.get(player);
+    }
+
+    private String getUsernameFromSchoolBoardId(int schoolBoardId){
+        var returnString = this.usernameToSchoolBoardID.entrySet().stream().filter(entry -> entry.getValue() == schoolBoardId).map(Map.Entry::getKey).findFirst();
+
+        if(returnString.isEmpty()) throw new InvalidSchoolBoardIdException("Fatal error - invalid schoolBoard ID.");
+
+        return returnString.get();
+    }
 
     @SugarMessageHandler
     public void base(SugarMessage message, Peer peer) throws UnhandledMessageAtLowestLayerException {

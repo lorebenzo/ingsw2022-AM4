@@ -11,18 +11,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
     protected GameState gameState;
 
     public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
-
         //Create a new gameState
         this.gameState = initializeGameState(playersNumber);
-
-        this.gameState.setCurrentPhase(Phase.PLANNING);
-        try {
-            this.gameState.fillClouds();//TODO signal final round
-        } catch (EmptyStudentSupplyException ignored) { }
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
-
-
-        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
 
         //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
         //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
@@ -40,30 +30,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
         return new GameState(playersNumber);
     }
 
-    /**
-     * ONLY FOR TESTING!
-     * Creates a GameStateController for a game with 2 players
-     */
-    public GameStateController() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
-
-        //Create a new gameState
-        this.gameState = new GameState(2);
-
-        //Preparation of the roundOrder that will support the turns
-        this.gameState.setRoundOrder(this.gameState.getSchoolBoardIds().stream().toList());
-        this.gameState.resetRoundIterator();
-
-
-        this.gameState.setCurrentPhase(Phase.PLANNING);
-        this.gameState.fillClouds();
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
-
-        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
-
-        //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
-        //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.roundOrder
-    }
-
     //Supported player moves that are package-private
 
     /**
@@ -73,13 +39,16 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
+    public boolean playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
         if(this.gameState.getCurrentPhase() != Phase.PLANNING) throw new WrongPhaseException();
 
         if(this.cardPlayed()) throw new MoveAlreadyPlayedException();
 
         this.gameState.playCard(card);
+
         this.nextPlanningTurn();
+
+        return this.gameState.isLastRound();
     }
 
     /**
@@ -128,7 +97,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws InvalidNumberOfStepsException if the player provides a number of steps that isn't between 0 and the maximum number of steps that the player chose during the planning phase.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, /*InvalidSchoolBoardIdException,*/ WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException {
+    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException, GameOverException {
         boolean mergePreviousPerformed = false;
         boolean mergeNextPerformed = false;
 
@@ -147,6 +116,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
             this.gameState.conquerArchipelago(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().get());
             mergePreviousPerformed = this.gameState.mergeWithPrevious();
             mergeNextPerformed = this.gameState.mergeWithNext();
+
+            if(this.gameState.checkWinners().containsValue(true)) throw new GameOverException(this.gameState.checkWinners());
         }
 
         return mergePreviousPerformed || mergeNextPerformed;
@@ -181,7 +152,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws MotherNatureToBeMovedException if the player didn't move motherNature before trying to end his turn.
      * @throws StudentsToBeGrabbedFromCloudException if the player didn't grab the students from a cloud before trying to end his turn.
      */
-    public void endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, EmptyStudentSupplyException, WrongPhaseException {
+    public boolean endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, WrongPhaseException, GameOverException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
         if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) == 0) throw new MoreStudentsToBeMovedException();
@@ -193,13 +164,15 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
         //Block rollback option
         this.nextActionTurn();
+
+        return this.gameState.isLastRound();
     }
 
     //Private methods
 
 
     public boolean cardPlayed(){
-        return this.gameState.getSchoolBoardIdsToCardsPlayedThisRound().containsKey(this.gameState.getCurrentPlayerSchoolBoardId());
+        return this.gameState.getSchoolBoardIdsToCardPlayedThisRound().containsKey(this.gameState.getCurrentPlayerSchoolBoardId());
     }
 
     private void checkStudentsToBeMoved(){
@@ -213,7 +186,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      */
     private void defineRoundOrder(){
 
-        List<Map.Entry<Integer, Card>> orderedSchoolBoardsToCardPlayed = this.gameState.getSchoolBoardIdsToCardsPlayedThisRound().entrySet().stream()
+        List<Map.Entry<Integer, Card>> orderedSchoolBoardsToCardPlayed = this.gameState.getSchoolBoardIdsToCardPlayedThisRound().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))
                 .toList();
 
@@ -234,23 +207,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
             this.gameState.setCurrentPhase(Phase.ACTION);
         }
 
-        //There is still someone that didn't play, so they will play
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
-
-        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
-    }
-
-
-    protected void nextActionTurn() throws EmptyStudentSupplyException {
-        //If all the players played in this round, a new round will begin
-        if(this.gameState.isLastTurnInThisRound()) {
-            this.gameState.resetRoundIterator();
-            this.gameState.resetSchoolBoardIdsToCardsPlayerThisRound();
-
-            //If an actual round was completed, the round count has to be increased and a new round will begin with the planning phase
-            this.gameState.increaseRoundCount();
-            this.gameState.setCurrentPhase(Phase.PLANNING);
-            this.gameState.fillClouds();
+        if(this.gameState.getCurrentRound() >= Card.values().length){
+            this.gameState.setLastRoundTrue();
         }
 
         //There is still someone that didn't play, so they will play
@@ -259,10 +217,37 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
 
-    Optional<Map<Integer, Boolean>> checkImmediateWinners(){
-        return this.gameState.checkImmediateWinners();
-    }
 
+    protected void nextActionTurn() throws GameOverException {
+        //If all the players played in this round, a new round will begin
+        if(this.gameState.isLastTurnInThisRound()) {
+            if(!this.gameState.isLastRound()){
+                this.gameState.resetRoundIterator();
+                this.gameState.resetSchoolBoardIdsToCardsPlayerThisRound();
+
+                //If an actual round was completed, the round count has to be increased and a new round will begin with the planning phase
+                this.gameState.increaseRoundCount();
+
+                this.gameState.setCurrentPhase(Phase.PLANNING);
+
+                try{
+                    this.gameState.fillClouds();
+                }catch (EmptyStudentSupplyException ignored){
+                    this.gameState.setLastRoundTrue();
+                }
+            }
+            else{
+                if(this.gameState.checkWinners().containsValue(true)) throw new GameOverException(this.gameState.checkWinners());
+            }
+
+
+        }
+
+        //There is still someone that didn't play, so they will play
+        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
+
+        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
+    }
 
     int getCurrentPlayerSchoolBoardId(){
         return this.gameState.getCurrentPlayerSchoolBoardId();
@@ -297,6 +282,14 @@ public class GameStateController implements GameStateControllerCommonInterface {
                 .getTowerColorFromSchoolBoardID(schoolBoardID)
                 .orElse(TowerColor.NONE);
     }
+
+    public boolean isGamesLastRound(){
+        return this.gameState.isLastRound();
+    }
+
+
+
+
     /**
      * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
      * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen
