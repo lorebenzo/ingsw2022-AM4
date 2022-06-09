@@ -9,17 +9,28 @@ import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.ReturnMessage;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+import org.javatuples.Pair;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ExpertCommunicationController extends CommunicationController {
     protected ExpertCommunicationController(List<Player> players) throws GameStateInitializationFailureException {
         super(players);
     }
 
+    public ExpertCommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) throws GameStateInitializationFailureException {
+        super(players, gameUUID);
+    }
+
     @Override
     protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
         return new ExpertGameStateController(playersNumber);
+    }
+
+    @Override
+    protected GameStateController initializeGameStateController(UUID gameUUID) {
+        return new ExpertGameStateController(gameUUID);
     }
 
 

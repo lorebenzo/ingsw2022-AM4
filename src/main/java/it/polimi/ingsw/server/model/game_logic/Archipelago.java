@@ -4,6 +4,7 @@ import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.model.game_logic.exceptions.NonMergeableArchipelagosException;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**

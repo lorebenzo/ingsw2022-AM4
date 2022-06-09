@@ -9,11 +9,16 @@ import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ExpertGameStateController extends GameStateController {
 
     public ExpertGameStateController(int playersNumber) throws GameStateInitializationFailureException {
         super(playersNumber);
+    }
+
+    public ExpertGameStateController(UUID gameUUID) {
+        super(gameUUID);
     }
 
     @Override

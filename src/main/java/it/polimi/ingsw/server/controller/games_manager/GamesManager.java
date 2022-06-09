@@ -18,6 +18,7 @@ import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.controller.game_controller.GameController;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
+import it.polimi.ingsw.server.repository.GamesRepository;
 import it.polimi.ingsw.utils.multilist.MultiList;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +29,7 @@ public class GamesManager extends SugarMessageProcessor {
     private final List<GameController> games = new LinkedList<>();
     private final SugarServer server;
     private final MultiList<Player, Integer, Boolean> matchMakingList = new MultiList<>();
+    private final GamesRepository gamesRepository = GamesRepository.getInstance();
 
     public GamesManager(SugarServer server) {
         this.server = server;
@@ -71,6 +73,24 @@ public class GamesManager extends SugarMessageProcessor {
         this.createMatchIfPossible(msg.numberOfPlayers, msg.expertMode);
 
         return new OKMsg(ReturnMessage.JOIN_MATCHMAKING_SUCCESS.text);
+    }
+
+    public void recoverCurrentGames() {
+        var currentGames = this.gamesRepository.getCurrentGames();
+        for(var game : currentGames.keySet()) {
+            var players = currentGames.get(game);
+
+            GameController gameController = null;
+            var gameUUID = game.getValue0();
+            var expertMode = game.getValue1();
+
+            try {
+                gameController = new GameController(UUID.fromString(gameUUID), players, expertMode);
+            } catch (GameStateInitializationFailureException e) {
+                e.printStackTrace();
+            }
+            if(gameController != null) this.games.add(gameController);
+        }
     }
 
     private void createMatchIfPossible(int numberOfPlayers, boolean expertMode) {
@@ -187,29 +207,6 @@ public class GamesManager extends SugarMessageProcessor {
             this.server.send(message, peer);
         } catch (IOException ignored) {}
     }
-
-
-    // Handling messages from lower layers
-//    @SugarMessageFromLowerLayersHandler
-//    public void gameOverMsg(SugarMessage message) { // From CommunicationController
-//        GameOverMsg msg = (GameOverMsg) message;
-//
-//        String aPeerFromThisGame = null;
-//
-//        // Notify clients
-//        for(var peer : msg.peerToIsWinner.keySet()) {
-//            aPeerFromThisGame = peer;
-//            try {
-//                this.server.send(new NotifyGameOverMsg(
-//                        msg.peerToIsWinner.get(peer) ? ReturnMessage.YOU_WIN.text : ReturnMessage.YOU_LOSE.text
-//                ).serialize(), );
-//            } catch (IOException ignored) { }
-//        }
-//
-//        // Close game
-//        var game = this.findGameInvolvingPeer(aPeerFromThisGame);
-//        game.ifPresent(this.games::remove);
-//    }
 
     private void gameLogicMulticast(GameController gameController, SugarMessage message) {
         var players = gameController.getPlayers();

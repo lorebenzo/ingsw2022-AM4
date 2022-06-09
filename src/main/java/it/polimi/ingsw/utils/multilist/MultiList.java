@@ -3,7 +3,6 @@ package it.polimi.ingsw.utils.multilist;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Filter;
 
 /**
  * Implements a list whose elements are tuples of 3 elements

@@ -10,9 +10,20 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.event_sourcing.Aggregate;
+import it.polimi.ingsw.server.event_sourcing.Event;
+import it.polimi.ingsw.server.model.game_logic.GameState;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy;
+import it.polimi.ingsw.utils.iterator.CustomArrayList;
 
+import javax.sound.sampled.Control;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Iterator;
+import java.util.Random;
 
 /**
  * Serializer/Deserializer for sugar messages
@@ -41,7 +52,16 @@ public class SerDes {
             throw new MessageDeserializationException(e.getMessage());
         }
     }
+
+    public static Object deserialize(String s, Type t) {
+        return gson.fromJson(s, t);
+    }
+
+    public static String serialize(Object o) {
+        return gson.toJson(o);
+    }
 }
+
 
 class GenericTypeAdapter extends TypeAdapter<Class<?>> {
     @Override
@@ -63,6 +83,8 @@ class GenericTypeAdapter extends TypeAdapter<Class<?>> {
         if(genericClass == null){
             jsonWriter.nullValue();
             return;
+        } else if(genericClass.equals(CustomArrayList.CustomIterator.class)) {
+            jsonWriter.value("diocane");
         }
         jsonWriter.value(genericClass.getName());
     }

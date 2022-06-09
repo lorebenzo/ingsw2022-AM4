@@ -4,38 +4,52 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.CardIs
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidCardPlayedException;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidNumberOfStepsException;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
+import it.polimi.ingsw.server.event_sourcing.Aggregate;
+import it.polimi.ingsw.server.event_sourcing.Event;
 import it.polimi.ingsw.server.model.game_logic.enums.*;
+import it.polimi.ingsw.server.model.game_logic.events.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
+import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class GameState implements GameStateCommonInterface {
-    protected final int numberOfPlayers;
+public class GameState extends Aggregate implements GameStateCommonInterface {
+    protected int numberOfPlayers;
     protected NumberOfPlayersStrategy strategy;
-    private final int numberOfStudentsInEachCloud;
-    private final int numberOfStudentsInTheEntrance;
-    private final int numberOfTowers;
+    private int numberOfStudentsInEachCloud;
+    private int numberOfStudentsInTheEntrance;
+    private int numberOfTowers;
+
 
     // Game flow attributes
     private int currentRound; // rounds start at 0, and get incremented when all players play a turn
     private List<Integer> roundOrder;
-    private Iterator<Integer> roundIterator;
     private ActionPhaseSubTurn actionPhaseSubTurn;
 
     private Phase currentPhase;
-    protected final Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
+    protected Map<Integer, Card> schoolBoardIdsToCardsPlayedThisRound;
 
-    protected final List<Archipelago> archipelagos;
-    protected final List<SchoolBoard> schoolBoards;
-    private final List<List<Color>> clouds;
+    protected List<Archipelago> archipelagos;
+    protected List<SchoolBoard> schoolBoards;
+    private List<List<Color>> clouds;
 
-    protected final StudentFactory studentFactory;
+    //fixme to protected
+    public StudentFactory studentFactory;
     protected Archipelago motherNaturePosition;
 
     protected int currentPlayerSchoolBoardId;
+
+
+    public GameState(UUID uuid) {
+        this.id = uuid;
+    }
 
     /**
      * @throws IllegalArgumentException if the argument representing the number of players is not between 2 and 4
@@ -45,9 +59,30 @@ public class GameState implements GameStateCommonInterface {
      * @param numberOfPlayers number of players in the game, must be between 2 (inclusive) and 4 (inclusive)
      */
     public GameState(int numberOfPlayers) throws GameStateInitializationFailureException {
+        UUID parentUuid = UUID.randomUUID();
+
+        try {
+            repository.storeAggregate(this.id, this.getClass().getName());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        var event = new InitGameStateEvent(parentUuid, numberOfPlayers);
+
+        try {
+            this.addEventAndApply(event);
+        } catch (Exception ignored) {} catch (Throwable e) {
+            e.printStackTrace();
+        }
+        ;
+    }
+
+    public void initGameState(InitGameStateEvent event) throws GameStateInitializationFailureException {
+        var numberOfPlayers = event.numberOfPlayers;
+        var parentUUID = event.parentEvent;
         if(
                 numberOfPlayers < GameConstants.MIN_NUMBER_OF_PLAYERS.value ||
-                numberOfPlayers > GameConstants.MAX_NUMBER_OF_PLAYERS.value
+                        numberOfPlayers > GameConstants.MAX_NUMBER_OF_PLAYERS.value
         ) throw new IllegalArgumentException();
 
         this.numberOfPlayers = numberOfPlayers;
@@ -61,13 +96,9 @@ public class GameState implements GameStateCommonInterface {
         this.currentRound = 0;
         this.actionPhaseSubTurn = ActionPhaseSubTurn.STUDENTS_TO_MOVE;
 
-
-
-        //this.currentTurn = 0;
-        //this.currentSubTurn = 0;
         this.schoolBoardIdsToCardsPlayedThisRound = new HashMap<>();
 
-        this.studentFactory = new StudentFactory();
+        this.studentFactory = new StudentFactory(this.id.getLeastSignificantBits());
         try {
             this.archipelagos = this.initializeArchipelagos();
             this.schoolBoards = this.initializeSchoolBoards();
@@ -78,7 +109,6 @@ public class GameState implements GameStateCommonInterface {
 
         //Preparation of the roundOrder that will support the turns
         this.roundOrder = this.schoolBoards.stream().map(SchoolBoard::getId).toList();
-        this.roundIterator = this.getRoundOrder().listIterator();
 
     }
 
@@ -160,28 +190,72 @@ public class GameState implements GameStateCommonInterface {
      * //@throws InvalidSchoolBoardIdException if the current player's school board id is invalid
      * @param card the card to be played by the current player
      */
-    public void playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException {
+    public void playCard(Card card) throws InvalidCardPlayedException, CardIsNotInTheDeckException {
         if(card == null) throw new IllegalArgumentException();
 
+        UUID parentUuid = UUID.randomUUID();
+
+        var event = new PlayCardEvent(parentUuid, card);
+
+        this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+
+        this.playCardHandler(event);
+
+        try {
+            repository.addEvent(this.id, event, ++this.version);
+        } catch (DBQueryException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void playCardHandler(PlayCardEvent event) throws CardIsNotInTheDeckException, InvalidCardPlayedException {
+        var card = event.card;
         if(this.getSchoolBoardIdsToCardsPlayedThisRound().containsValue(card) && this.getCurrentPlayerSchoolBoard().getDeck().size() > 1) throw new InvalidCardPlayedException();
 
 
         //If no other player already played the same card as the one in input in this round, or if the card in input is the last available
         this.getCurrentPlayerSchoolBoard().playCard(card);
         this.schoolBoardIdsToCardsPlayedThisRound.put(this.currentPlayerSchoolBoardId, card);
-
     }
 
+    public void apply(Event event) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        if(this.studentFactory != null)
+            this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+        Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
+        handler.invoke(this, event);
+    }
 
 
     /**
      * This method gets int cloudIndex in input identifying a cloud and fills the cloud with students taken from the studentSupply
      * @throws IllegalArgumentException if the cloudIndex parameter is not valid
-     * //@throws FullCloudException if the cloud identified through cloudIndex is not completely empty
      * @throws EmptyStudentSupplyException if the student supply representing the bag cannot fulfill the request for students
      * @param cloudIndex is the index of the cloud to fill with students
      */
-    public void fillCloud(int cloudIndex) throws EmptyStudentSupplyException {
+    public void fillCloud(int cloudIndex) throws EmptyStudentSupplyException, IllegalArgumentException {
+        UUID parentUuid = UUID.randomUUID();
+        var event = new FillCloudEvent(parentUuid, cloudIndex);
+
+        this.updateSeed(event);
+        this.fillCloudHandler(event);
+        this.addEvent(event);
+    }
+
+    private void addEvent(Event event) {
+        try {
+            repository.addEvent(this.id, event, ++this.version);
+        } catch (DBQueryException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateSeed(Event event) {
+        this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+    }
+
+    public void fillCloudHandler(FillCloudEvent event) throws EmptyStudentSupplyException, IllegalArgumentException {
+        var cloudIndex = event.cloudIndex;
+
         if(cloudIndex >= this.numberOfPlayers || cloudIndex < 0) throw new IllegalArgumentException();
         List<Color> chosenCloud = this.clouds.get(cloudIndex);
         if(!chosenCloud.isEmpty()) throw new FullCloudException();
@@ -204,10 +278,20 @@ public class GameState implements GameStateCommonInterface {
      * @param cloudIndex is the index of the cloud to pick the students from
      * @throws EmptyCloudException if the cloud is empty
      */
-    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException {
+    public void grabStudentsFromCloud(int cloudIndex) {
+        try {
+            UUID parentUuid = UUID.randomUUID();
+            this.addEventAndApply(new GrabStudentsFromCloudEvent(parentUuid, cloudIndex));
+        } catch(Exception ignored) {} catch (Throwable e) {
+            e.printStackTrace();
+        }
+        ;
+    }
+
+    public void grabStudentsFromCloudHandler(GrabStudentsFromCloudEvent event) throws EmptyCloudException {
+        var cloudIndex = event.cloudIndex;
+
         if(cloudIndex < 0 || cloudIndex >= this.numberOfPlayers) throw new IllegalArgumentException();
-
-
 
         if(this.clouds.get(cloudIndex).isEmpty()) throw new EmptyCloudException();
 
@@ -580,7 +664,7 @@ public class GameState implements GameStateCommonInterface {
     }
 
     public void resetRoundIterator() {
-        this.roundIterator = this.getRoundOrder().listIterator();
+//        this.currentPlayerIndex = 0;
     }
 
     public void increaseRoundCount(){
@@ -592,6 +676,24 @@ public class GameState implements GameStateCommonInterface {
      * @throws IllegalArgumentException if(currentPhase == null)
      */
     public void setCurrentPhase(Phase currentPhase) {
+        UUID parentUuid = UUID.randomUUID();
+
+        var event = new SetCurrentPhaseEvent(parentUuid, currentPhase);
+
+        this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+
+        this.setCurrentPhaseHandler(event);
+
+        try {
+            repository.addEvent(this.id, event, ++this.version);
+        } catch (DBQueryException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setCurrentPhaseHandler(SetCurrentPhaseEvent event) {
+        var currentPhase = event.phase;
+
         if(currentPhase == null) throw new IllegalArgumentException();
         this.currentPhase = currentPhase;
     }
@@ -604,8 +706,6 @@ public class GameState implements GameStateCommonInterface {
 
         this.currentPlayerSchoolBoardId = schoolBoardId;
     }
-
-
 
 
     // Getters
@@ -679,20 +779,14 @@ public class GameState implements GameStateCommonInterface {
         return chosenArchipelago.map(archipelago -> this.strategy.getInfluence(this.schoolBoards, archipelago));
     }
 
-    public List<Integer> getRoundOrder() {
-        return new LinkedList<>(roundOrder);
-    }
-
-    //TODO check exposed reference
-    public Iterator<Integer> getRoundIterator() {
-        return roundIterator;
-    }
 
     public boolean isLastTurnInThisRound(){
-        return !this.roundIterator.hasNext();
+//        return this.currentPlayerIndex == this.numberOfPlayers - 1;
     }
 
-    public int getNextTurn() { return this.roundIterator.next(); }
+    public int getNextTurn() {
+//        return this.currentPlayerIndex++;
+    }
 
 
     public int getNumberOfStudentsInTheEntrance(){
@@ -835,6 +929,16 @@ public class GameState implements GameStateCommonInterface {
                 return Optional.of(orderedPlayersInfluences.get(0).getKey());
             else
                 return Optional.empty();
+        }
+    }
+
+
+    private void addEventAndApply(Event event) {
+        try {
+            this.apply(event);
+            repository.addEvent(this.id, event, ++this.version);
+        } catch (DBQueryException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 }

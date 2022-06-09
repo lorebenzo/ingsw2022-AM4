@@ -8,14 +8,15 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class StudentFactory {
-    protected final Map<Color, Integer> studentSupply;
-    private final Random randomizer;
+    // fixme: private
+    public final Map<Color, Integer> studentSupply;
+    private transient final Random randomizer;
 
-    public StudentFactory() {
+    public StudentFactory(long seed) {
         this.studentSupply = new HashMap<>();
         for(Color color : Color.values())
             studentSupply.put(color, GameConstants.INITIAL_STUDENTS_PER_COLOR.value);
-        this.randomizer = new Random();
+        this.randomizer = new Random(seed);
     }
 
     /**
@@ -87,6 +88,14 @@ public class StudentFactory {
         Collections.shuffle(colors);
 
         return colors;
+    }
+
+    /**
+     * Used for event sourcing purposes, it changes the randomizer's seed
+     * @param seed changed
+     */
+    public void setSeed(long seed) {
+        this.randomizer.setSeed(seed);
     }
 
     public boolean isEmpty() {

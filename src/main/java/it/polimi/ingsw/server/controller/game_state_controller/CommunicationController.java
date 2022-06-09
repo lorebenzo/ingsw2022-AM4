@@ -14,14 +14,17 @@ import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+import it.polimi.ingsw.server.repository.GamesRepository;
+import it.polimi.ingsw.server.repository.UsersRepository;
+import org.javatuples.Pair;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class CommunicationController extends SugarMessageProcessor {
 
     protected GameStateController gameStateController;
     private final Map<String, Integer> usernameToSchoolBoardID;
+    private GamesRepository gamesRepository = GamesRepository.getInstance();
 
     public CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
         this.gameStateController = initializeGameStateController(players.size());
@@ -33,8 +36,21 @@ public class CommunicationController extends SugarMessageProcessor {
         for (var player : players) {
             this.usernameToSchoolBoardID.put(player.username, schoolBoardIdsSetIterator.next());
         }
+
+        var gameUUID = gameStateController.getGameUUID();
+        for (int i = 0; i < players.size(); i++) {
+            gamesRepository.saveUserSchoolBardMap(gameUUID, players.get(i).username, i);
+        }
     }
 
+    public CommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) throws GameStateInitializationFailureException {
+        this.gameStateController = initializeGameStateController(gameUUID);
+        this.usernameToSchoolBoardID = new HashMap<>();
+
+        players.forEach(player -> {
+            this.usernameToSchoolBoardID.put(player.getValue0(), player.getValue1());
+        });
+    }
 
 
     public static CommunicationController createCommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException {
@@ -42,6 +58,13 @@ public class CommunicationController extends SugarMessageProcessor {
             return new ExpertCommunicationController(players);
         else
             return new CommunicationController(players);
+    }
+
+    public static CommunicationController createCommunicationController(List<Pair<String, Integer>> players, boolean isExpertMode, UUID gameUUID) throws GameStateInitializationFailureException {
+        if(isExpertMode)
+            return new ExpertCommunicationController(players, gameUUID);
+        else
+            return new CommunicationController(players, gameUUID);
     }
 
     private int getSchoolBoardIdFromPeer(String player){
@@ -131,6 +154,10 @@ public class CommunicationController extends SugarMessageProcessor {
 
     protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
         return new GameStateController(playersNumber);
+    }
+
+    protected GameStateController initializeGameStateController(UUID gameUUID) {
+        return new GameStateController(gameUUID);
     }
 
 

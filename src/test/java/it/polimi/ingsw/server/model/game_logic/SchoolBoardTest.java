@@ -20,7 +20,7 @@ public class SchoolBoardTest {
 
     @Test
     public void playCard() throws EmptyStudentSupplyException {
-        StudentFactory s = new StudentFactory();
+        StudentFactory s = new StudentFactory(UUID.randomUUID().getLeastSignificantBits());
         SchoolBoard schoolBoard = new SchoolBoard(0, s.getNStudents(7), TowerColor.BLACK);
 
         int expectedDeckSize = GameConstants.MAX_NUMBER_OF_CARDS.value;
@@ -41,7 +41,7 @@ public class SchoolBoardTest {
 
     @Test
     public void moveFromEntranceToDiningRoom() {
-        StudentFactory s = new StudentFactory();
+        StudentFactory s = new StudentFactory(UUID.randomUUID().getLeastSignificantBits());
         List<Color> entrance = new LinkedList<>();
         for(int i = 0; i < 1000; i++) {
             entrance.add(s.generateStudent());

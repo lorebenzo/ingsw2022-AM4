@@ -1,18 +1,14 @@
 package it.polimi.ingsw.server.controller.game_state_controller;
 
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
-import it.polimi.ingsw.server.model.game_logic.ExpertGameState;
 import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
-import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.enums.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GameStateController implements GameStateControllerCommonInterface {
-    protected final GameState gameState;
+    protected GameState gameState;
 
     public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
 
@@ -30,6 +26,14 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
         //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
         //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
+    }
+
+    public GameStateController(UUID gameUUID) {
+        try {
+            this.gameState = (GameState) GameState.loadFromUuid(gameUUID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected GameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
@@ -227,8 +231,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
             this.gameState.resetRoundIterator();
             //If a planning round was completed, now the round order has to be defined and the phase has to be set to action
 
-
-
             this.gameState.setCurrentPhase(Phase.ACTION);
         }
 
@@ -312,5 +314,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.setCurrentPhase(phase);
     }
 
+    public UUID getGameUUID() {
+        return this.gameState.id;
+    }
 }
 

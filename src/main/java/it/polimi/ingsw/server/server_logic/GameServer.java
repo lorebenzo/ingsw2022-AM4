@@ -12,6 +12,7 @@ public class GameServer extends SugarServer {
 
     public GameServer() throws IOException {
         super();
+        this.authController.gamesManager.recoverCurrentGames();
     }
 
     @Override
