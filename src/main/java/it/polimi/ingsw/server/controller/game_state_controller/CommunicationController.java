@@ -21,7 +21,7 @@ public class CommunicationController extends SugarMessageProcessor {
     protected GameStateController gameStateController;
     protected final Map<String, Integer> usernameToSchoolBoardID;
 
-    public CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
+    protected CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
         this.gameStateController = initializeGameStateController(players.size());
         this.usernameToSchoolBoardID = new HashMap<>();
 
@@ -33,21 +33,15 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
-
+    protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
+        return new GameStateController(playersNumber);
+    }
 
     public static CommunicationController createCommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException {
         if(isExpertMode)
             return new ExpertCommunicationController(players);
         else
             return new CommunicationController(players);
-    }
-
-    private int getSchoolBoardIdFromUsername(String player){
-        return this.usernameToSchoolBoardID.get(player);
-    }
-
-    private String getUsernameFromSchoolBoardId(int schoolBoardId){
-        return this.usernameToSchoolBoardID.entrySet().stream().filter(entry -> entry.getValue() == schoolBoardId).map(Map.Entry::getKey).findFirst().get();
     }
 
     //Necessary to CommunicationController
@@ -130,11 +124,6 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
-    protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
-        return new GameStateController(playersNumber);
-    }
-
-
     @SugarMessageHandler
     public SugarMessage moveMotherNatureMsg(SugarMessage message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -214,7 +203,13 @@ public class CommunicationController extends SugarMessageProcessor {
 
     }
 
-    private Map<String, Boolean> getUsernameToWinnerMap(Map<Integer, Boolean> schoolBoardIdToWinnerMap){
+    @SugarMessageHandler
+    public void base(SugarMessage message, Peer peer) throws UnhandledMessageAtLowestLayerException {
+        System.out.println("Dropping message : " + message.serialize());
+        throw new UnhandledMessageAtLowestLayerException(message);
+    }
+
+    protected Map<String, Boolean> getUsernameToWinnerMap(Map<Integer, Boolean> schoolBoardIdToWinnerMap){
         Map<String, Boolean> usernameToWinnerMap = new HashMap<>();
 
         for (int schoolBoardId: schoolBoardIdToWinnerMap.keySet()) {
@@ -222,7 +217,6 @@ public class CommunicationController extends SugarMessageProcessor {
         }
         return usernameToWinnerMap;
     }
-
 
     /**
      * Returns the usernames in my team
@@ -252,10 +246,11 @@ public class CommunicationController extends SugarMessageProcessor {
         return this.gameStateController.getLightGameState().addUsernames(usernameToSchoolBoardID);
     }
 
+    private int getSchoolBoardIdFromUsername(String player){
+        return this.usernameToSchoolBoardID.get(player);
+    }
 
-    @SugarMessageHandler
-    public void base(SugarMessage message, Peer peer) throws UnhandledMessageAtLowestLayerException {
-        System.out.println("Dropping message : " + message.serialize());
-        throw new UnhandledMessageAtLowestLayerException(message);
+    private String getUsernameFromSchoolBoardId(int schoolBoardId){
+        return this.usernameToSchoolBoardID.entrySet().stream().filter(entry -> entry.getValue() == schoolBoardId).map(Map.Entry::getKey).findFirst().get();
     }
 }

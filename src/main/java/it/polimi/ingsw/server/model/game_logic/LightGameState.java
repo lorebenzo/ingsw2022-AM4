@@ -1,6 +1,7 @@
 package it.polimi.ingsw.server.model.game_logic;
 
 
+import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 
@@ -17,8 +18,9 @@ public class LightGameState {
     public final List<Integer> roundOrder;
     public final int motherNaturePosition;
     public Map<String, Integer> usernameToSchoolBoardID;
+    public final Map<Integer, Card> schoolBoardIdsToCardPlayedThisRound;
 
-    public LightGameState(List<Archipelago> archipelagos, List<SchoolBoard> schoolBoards, List<List<Color>> clouds, int currentPlayerSchoolBoardId, Phase currentPhase, List<Integer> roundOrder, Archipelago motherNaturePosition) {
+    public LightGameState(List<Archipelago> archipelagos, List<SchoolBoard> schoolBoards, List<List<Color>> clouds, int currentPlayerSchoolBoardId, Phase currentPhase, List<Integer> roundOrder, Archipelago motherNaturePosition, Map<Integer, Card> schoolBoardIdsToCardPlayedThisRound) {
         this.archipelagos = archipelagos;
         this.schoolBoards = schoolBoards;
         this.clouds = clouds;
@@ -26,6 +28,7 @@ public class LightGameState {
         this.currentPhase = currentPhase;
         this.roundOrder = roundOrder;
         this.motherNaturePosition = archipelagos.indexOf(motherNaturePosition);
+        this.schoolBoardIdsToCardPlayedThisRound = schoolBoardIdsToCardPlayedThisRound;
     }
 
     public LightGameState addUsernames(Map<String, Integer> usernameToSchoolBoardID) {

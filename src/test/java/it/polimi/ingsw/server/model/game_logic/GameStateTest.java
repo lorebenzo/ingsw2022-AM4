@@ -17,66 +17,8 @@ import static org.junit.Assert.*;
 public class GameStateTest {
 
     @Test
-    public void fillCloud() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
-        GameState g2 = new GameState(2);
-        GameState g21 = new GameState(2);
-
-        GameState g3 = new GameState(3);
-
-        GameState g4 = new GameState(4);
-
-        int cloudsCount, cloudCapacity;
-
-        // 2 players
-        cloudsCount = 2;
-        cloudCapacity = 3;
-        try {
-            for(int i = 0; i < cloudsCount; i++)
-                g2.fillCloud(i);
-
-            for(int i = 0; i < cloudsCount; i++)
-                assertEquals(cloudCapacity, g2.getClouds().get(i).size());
-        } catch (FullCloudException | EmptyStudentSupplyException e) {
-            fail();
-        }
-
-        // 2 players - should throw FullCloudException
-        g21.fillCloud(0);
-        assertThrows(FullCloudException.class, () -> g21.fillCloud(0));
-
-        // 3 players
-        cloudsCount = 3;
-        cloudCapacity = 4;
-        try {
-            for(int i = 0; i < cloudsCount; i++)
-                g3.fillCloud(i);
-
-            for(int i = 0; i < cloudsCount; i++)
-                assertEquals(cloudCapacity, g3.getClouds().get(i).size());
-        } catch (FullCloudException | EmptyStudentSupplyException e) {
-            e.printStackTrace();
-            fail();
-        }
-
-        // 4 players
-        cloudsCount = 4;
-        cloudCapacity = 3;
-        try {
-            for(int i = 0; i < cloudsCount; i++)
-                g4.fillCloud(i);
-
-            for(int i = 0; i < cloudsCount; i++)
-                assertEquals(cloudCapacity, g4.getClouds().get(i).size());
-        } catch (FullCloudException | EmptyStudentSupplyException e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(2);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
@@ -86,10 +28,8 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(2);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(1);
         assertTrue(gameState.getClouds().get(1).isEmpty());
@@ -99,10 +39,8 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(3);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
@@ -115,10 +53,8 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud4() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloud4() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(3);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(2);
         assertTrue(gameState.getClouds().get(2).isEmpty());
@@ -132,10 +68,8 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud5() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloud5() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(4);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
@@ -151,10 +85,8 @@ public class GameStateTest {
     }
 
     @Test
-    public void grabStudentsFromCloud6() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloud6() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(4);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(2);
         assertTrue(gameState.getClouds().get(2).isEmpty());
@@ -173,10 +105,8 @@ public class GameStateTest {
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudEmptyCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloudEmptyCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(2);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
@@ -188,10 +118,8 @@ public class GameStateTest {
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudEmptyCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloudEmptyCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(3);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
@@ -205,10 +133,8 @@ public class GameStateTest {
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudEmptyCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloudEmptyCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(4);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
@@ -225,10 +151,8 @@ public class GameStateTest {
 
     //THIS TEST SHOULD THROW AN EXCEPTION
     @Test
-    public void grabStudentsFromCloudIllegalArgument() throws GameStateInitializationFailureException, FullCloudException, EmptyStudentSupplyException, EmptyCloudException {
+    public void grabStudentsFromCloudIllegalArgument() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
         GameState gameState = new GameState(2);
-
-        gameState.fillClouds();
 
         gameState.grabStudentsFromCloud(0);
         assertTrue(gameState.getClouds().get(0).isEmpty());
@@ -247,7 +171,7 @@ public class GameStateTest {
                 for(Card card : Card.values()) {
                     try {
                         g.playCard(card);
-                        assertEquals(card, g.getSchoolBoardIdsToCardsPlayedThisRound().get(id));
+                        assertEquals(card, g.getSchoolBoardIdsToCardPlayedThisRound().get(id));
                     } catch (CardIsNotInTheDeckException | InvalidCardPlayedException e) {
                         fail();
                     }
@@ -992,6 +916,7 @@ public class GameStateTest {
         assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3).intValue());
 
     }
+
     @Test
     public void mergeWithPrevious1() throws GameStateInitializationFailureException {
         GameState gameState = new GameState(2);
@@ -1044,6 +969,54 @@ public class GameStateTest {
         assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getStudents().contains(Color.RED));
         assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getStudents().contains(Color.GREEN));
         assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getStudents().contains(Color.GREEN));
+    }
+
+    @Test
+    public void checkWinnersTowers2() throws GameStateInitializationFailureException {
+        GameState gameState = new GameState(2);
+
+        for (int i = 0; i < gameState.strategy.getNumberOfTowers(); i++) {
+            assertFalse(gameState.checkWinners().containsValue(true));
+            gameState.archipelagos.get(i).setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());
+        }
+
+        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+        gameState.setCurrentPlayerSchoolBoardId(1);
+        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+    }
+
+    @Test
+    public void checkWinnersTowers3() throws GameStateInitializationFailureException {
+        GameState gameState = new GameState(3);
+
+        for (int i = 0; i < gameState.strategy.getNumberOfTowers(); i++) {
+            assertFalse(gameState.checkWinners().containsValue(true));
+            gameState.archipelagos.get(i).setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());
+        }
+
+        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+        gameState.setCurrentPlayerSchoolBoardId(1);
+        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+        gameState.setCurrentPlayerSchoolBoardId(2);
+        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+    }
+
+    @Test
+    public void checkWinnersTowers4() throws GameStateInitializationFailureException {
+        GameState gameState = new GameState(4);
+
+        for (int i = 0; i < gameState.strategy.getNumberOfTowers(); i++) {
+            assertFalse(gameState.checkWinners().containsValue(true));
+            gameState.archipelagos.get(i).setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());
+        }
+
+        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+        gameState.setCurrentPlayerSchoolBoardId(1);
+        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+        gameState.setCurrentPlayerSchoolBoardId(2);
+        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
+        gameState.setCurrentPlayerSchoolBoardId(3);
+        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
     }
 
 }

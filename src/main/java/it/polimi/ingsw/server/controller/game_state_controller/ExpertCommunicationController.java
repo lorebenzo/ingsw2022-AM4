@@ -80,6 +80,8 @@ public class ExpertCommunicationController extends CommunicationController {
             return new KOMsg(ReturnMessage.MOVE_NOT_AVAILABLE.text);
         } catch (WrongArgumentsException e) {
             return new KOMsg(ReturnMessage.WRONG_ARGUMENTS.text);
+        } catch (GameOverException e) {
+            return new GameOverMsg(this.getUsernameToWinnerMap(e.schoolBoardIdToWinnerMap), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         }
     }
 

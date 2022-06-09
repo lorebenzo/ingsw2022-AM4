@@ -360,7 +360,7 @@ public class ExpertGameStateTest {
 
         //Play card that normally allows the player to move motherNature for 1 step
         gameState.setCurrentPlayerSchoolBoardId(0);
-        gameState.schoolBoardIdsToCardsPlayedThisRound.put(gameState.getCurrentPlayerSchoolBoardId(), Card.DOG);
+        gameState.schoolBoardIdsToCardPlayedThisRound.put(gameState.getCurrentPlayerSchoolBoardId(), Card.DOG);
 
         //Check that it's possible to move motherNature normally
         gameState.moveMotherNatureNStepsClockwise(1);

@@ -20,7 +20,6 @@ public class ExpertGameStateController extends GameStateController {
         return new ExpertGameState(playersNumber);
     }
 
-
     private void applyEffectGenericChecks(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
@@ -28,6 +27,7 @@ public class ExpertGameStateController extends GameStateController {
 
         if(characterIndex < 0 || characterIndex >= this.gameState.getAvailableCharacters().size()) throw new InvalidCharacterIndexException();
     }
+
     @Override
     public void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException, WrongArgumentsException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
@@ -46,8 +46,9 @@ public class ExpertGameStateController extends GameStateController {
             throw new WrongArgumentsException();
 
     }
+
     @Override
-    public boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws InvalidCharacterIndexException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, WrongPhaseException, MoveAlreadyPlayedException, MoveNotAvailableException, NoAvailableLockException, WrongArgumentsException, NotEnoughCoinsException {
+    public boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws InvalidCharacterIndexException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, WrongPhaseException, MoveAlreadyPlayedException, MoveNotAvailableException, NoAvailableLockException, WrongArgumentsException, NotEnoughCoinsException, GameOverException {
 
         boolean mergePerformed = false;
 
@@ -60,12 +61,14 @@ public class ExpertGameStateController extends GameStateController {
         }
         else if(characterId == Character.MOVE_MOTHER_NATURE_TO_ANY_ARCHIPELAGO.characterId){
             mergePerformed = this.gameState.playMoveMotherNatureToAnyArchipelago(archipelagoIslandCode);
+            if(this.gameState.checkWinners().containsValue(true)) throw new GameOverException(this.gameState.checkWinners());
         }
         else
             throw new WrongArgumentsException();
 
         return mergePerformed;
     }
+
     @Override
     public void applyEffect(int characterIndex, Color color) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException {
         this.applyEffectGenericChecks(characterIndex);
@@ -82,6 +85,7 @@ public class ExpertGameStateController extends GameStateController {
         else
             throw new WrongArgumentsException();
     }
+
     @Override
     public void applyEffect(int characterIndex, Color color, int archipelagoIslandCode) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, WrongArgumentsException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
@@ -92,8 +96,8 @@ public class ExpertGameStateController extends GameStateController {
             this.gameState.playPutOneStudentFromCharacterToArchipelago(color, archipelagoIslandCode);
         else
             throw new WrongArgumentsException();
-
     }
+
     @Override
     public void applyEffect(int characterIndex, List<Color> students1, List<Color> students2) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
@@ -106,9 +110,7 @@ public class ExpertGameStateController extends GameStateController {
             this.gameState.playSwapTwoStudentsBetweenEntranceAndDiningRoom(students1, students2);
         else
             throw new WrongArgumentsException();
-
     }
-
 
     /**
      * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState moving motherNature.
@@ -133,7 +135,6 @@ public class ExpertGameStateController extends GameStateController {
             this.gameState.setLastRoundTrue();
         }
 
-
         this.gameState.resetCharacterPlayedThisTurn();
 
         this.gameState.assignProfessorsAfterEffect();
@@ -142,6 +143,4 @@ public class ExpertGameStateController extends GameStateController {
 
         super.nextActionTurn();
     }
-
-
 }

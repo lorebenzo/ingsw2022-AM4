@@ -16,45 +16,23 @@ public class GameStateController implements GameStateControllerCommonInterface {
         //Create a new gameState
         this.gameState = initializeGameState(playersNumber);
 
-        this.gameState.setCurrentPhase(Phase.PLANNING);
-        try {
-            this.gameState.fillClouds();//TODO signal final round
-        } catch (EmptyStudentSupplyException ignored) { }
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
+        //this.gameState.setCurrentPhase(Phase.PLANNING);
+/*        try {
+            this.gameState.fillClouds();
+        } catch (EmptyStudentSupplyException ignored) { }*/
+        //this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
 
 
-        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
+        //this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
 
         //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
         //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
     }
 
+
+
     protected GameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
         return new GameState(playersNumber);
-    }
-
-    /**
-     * ONLY FOR TESTING!
-     * Creates a GameStateController for a game with 2 players
-     */
-    public GameStateController() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
-
-        //Create a new gameState
-        this.gameState = new GameState(2);
-
-        //Preparation of the roundOrder that will support the turns
-        this.gameState.setRoundOrder(this.gameState.getSchoolBoardIds().stream().toList());
-        this.gameState.resetRoundIterator();
-
-
-        this.gameState.setCurrentPhase(Phase.PLANNING);
-        this.gameState.fillClouds();
-        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
-
-        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
-
-        //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
-        //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.roundOrder
     }
 
     //Supported player moves that are package-private
@@ -124,7 +102,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      * @throws InvalidNumberOfStepsException if the player provides a number of steps that isn't between 0 and the maximum number of steps that the player chose during the planning phase.
      * @throws WrongPhaseException if the method is executed in the wrong phase.
      */
-    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, /*InvalidSchoolBoardIdException,*/ WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException, GameOverException {
+    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException, GameOverException {
         boolean mergePreviousPerformed = false;
         boolean mergeNextPerformed = false;
 
@@ -199,7 +177,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
 
     public boolean cardPlayed(){
-        return this.gameState.getSchoolBoardIdsToCardsPlayedThisRound().containsKey(this.gameState.getCurrentPlayerSchoolBoardId());
+        return this.gameState.getSchoolBoardIdsToCardPlayedThisRound().containsKey(this.gameState.getCurrentPlayerSchoolBoardId());
     }
 
     private void checkStudentsToBeMoved(){
@@ -213,7 +191,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
      */
     private void defineRoundOrder(){
 
-        List<Map.Entry<Integer, Card>> orderedSchoolBoardsToCardPlayed = this.gameState.getSchoolBoardIdsToCardsPlayedThisRound().entrySet().stream()
+        List<Map.Entry<Integer, Card>> orderedSchoolBoardsToCardPlayed = this.gameState.getSchoolBoardIdsToCardPlayedThisRound().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))
                 .toList();
 
@@ -230,8 +208,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
             this.defineRoundOrder();
             this.gameState.resetRoundIterator();
             //If a planning round was completed, now the round order has to be defined and the phase has to be set to action
-
-
 
             this.gameState.setCurrentPhase(Phase.ACTION);
         }
