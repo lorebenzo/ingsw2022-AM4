@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -222,7 +223,17 @@ public class ExpertGameStateControllerTest {
 
         gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().payCharacter(-10);
 
-        gameStateController.applyEffect(1,gameStateController.gameState.getAvailableCharacters().get(1).getStudents().get(0), 0);
+        Optional<PlayableCharacter> tmp = gameStateController.gameState.getAvailableCharacters().stream().filter(playableCharacter -> playableCharacter.getCharacterId() == 1).findFirst();
+
+        Color studentToGet = null;
+        if(tmp.isPresent()){
+            studentToGet = tmp.get().getStudents().get(0);
+        }
+        else
+            fail();
+
+
+        gameStateController.applyEffect(1,studentToGet, 0);
 
         assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(2));
         assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(9,Color.RED));
@@ -262,7 +273,18 @@ public class ExpertGameStateControllerTest {
 
         gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().payCharacter(1);
 
-        assertThrows(NotEnoughCoinsException.class, () -> gameStateController.applyEffect(1,gameStateController.gameState.getAvailableCharacters().get(1).getStudents().get(0),0));
+
+        Optional<PlayableCharacter> tmp = gameStateController.gameState.getAvailableCharacters().stream().filter(playableCharacter -> playableCharacter.getCharacterId() == 1).findFirst();
+
+        Color studentToGet = null;
+        if(tmp.isPresent()){
+            studentToGet = tmp.get().getStudents().get(0);
+        }
+        else
+            fail();
+
+        Color finalStudentToGet = studentToGet;
+        assertThrows(NotEnoughCoinsException.class, () -> gameStateController.applyEffect(1, finalStudentToGet,0));
     }
 
     //CharacterIndexColorList

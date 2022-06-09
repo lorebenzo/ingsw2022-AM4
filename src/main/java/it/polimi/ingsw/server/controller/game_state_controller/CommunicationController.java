@@ -251,6 +251,10 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     private String getUsernameFromSchoolBoardId(int schoolBoardId){
-        return this.usernameToSchoolBoardID.entrySet().stream().filter(entry -> entry.getValue() == schoolBoardId).map(Map.Entry::getKey).findFirst().get();
+        var returnString = this.usernameToSchoolBoardID.entrySet().stream().filter(entry -> entry.getValue() == schoolBoardId).map(Map.Entry::getKey).findFirst();
+
+        if(returnString.isEmpty()) throw new InvalidSchoolBoardIdException("Fatal error - invalid schoolBoard ID.");
+
+        return returnString.get();
     }
 }

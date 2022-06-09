@@ -17,13 +17,9 @@ public class GameState implements GameStateCommonInterface {
     protected NumberOfPlayersStrategy strategy;
     private final int numberOfStudentsInEachCloud;
     private final int numberOfStudentsInTheEntrance;
-    //private final int numberOfTowers;
 
     // Game flow attributes
     private final Round round;
-
-    //private Phase currentPhase;
-    //private ActionPhaseSubTurn actionPhaseSubTurn;
 
     protected final Map<Integer, Card> schoolBoardIdsToCardPlayedThisRound;
 
@@ -54,12 +50,8 @@ public class GameState implements GameStateCommonInterface {
         this.numberOfPlayers = numberOfPlayers;
         this.chooseStrategy();
 
-
         this.numberOfStudentsInEachCloud = this.strategy.getNumberOfStudentsInEachCloud();
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
-        //this.numberOfTowers = this.strategy.getNumberOfTowers();
-
-
 
         this.schoolBoardIdsToCardPlayedThisRound = new HashMap<>();
 
@@ -76,7 +68,6 @@ public class GameState implements GameStateCommonInterface {
         //Preparation of the roundOrder that will support the turns
         this.round = new Round(this.schoolBoards.stream().map(SchoolBoard::getId).toList());
         this.currentPlayerSchoolBoardId = this.round.next();
-        //this.round.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
 
     }
 

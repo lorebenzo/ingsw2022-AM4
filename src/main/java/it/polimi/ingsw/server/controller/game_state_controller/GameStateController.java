@@ -12,18 +12,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
     protected final GameState gameState;
 
     public GameStateController(int playersNumber) throws GameStateInitializationFailureException {
-
         //Create a new gameState
         this.gameState = initializeGameState(playersNumber);
-
-        //this.gameState.setCurrentPhase(Phase.PLANNING);
-/*        try {
-            this.gameState.fillClouds();
-        } catch (EmptyStudentSupplyException ignored) { }*/
-        //this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());
-
-
-        //this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
 
         //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
         //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
