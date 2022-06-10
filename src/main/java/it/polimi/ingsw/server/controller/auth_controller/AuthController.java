@@ -28,7 +28,6 @@ public class AuthController extends SugarMessageProcessor {
     private final UsersRepositoryInterface usersRepository = UsersRepository.getInstance();
     private static final Dotenv dotenv = Dotenv.configure().load();
     private static final String hashedKey = DigestUtils.sha256Hex(dotenv.get("JWT_KEY"));
-    //fixme
     public final GamesManager gamesManager;
     private static final SecretKey key = Keys.hmacShaKeyFor(hashedKey.getBytes(StandardCharsets.UTF_8));
 
@@ -122,6 +121,13 @@ public class AuthController extends SugarMessageProcessor {
         } catch(Exception e) {
             throw new IllegalArgumentException("Jwt malformed");
         }
+    }
+
+    public static String createFakeJWT() {
+        return Jwts.builder()
+                .claim("username", "username")
+                .signWith(key)
+                .compact();
     }
 
     @SugarMessageHandler

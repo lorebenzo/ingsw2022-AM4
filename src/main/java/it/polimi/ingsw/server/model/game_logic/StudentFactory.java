@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model.game_logic;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
+import it.polimi.ingsw.server.model.game_logic.utils.Randomizer;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -10,13 +11,13 @@ import java.util.stream.IntStream;
 public class StudentFactory {
     // fixme: private
     public final Map<Color, Integer> studentSupply;
-    private transient final Random randomizer;
+
 
     public StudentFactory(long seed) {
         this.studentSupply = new HashMap<>();
         for(Color color : Color.values())
             studentSupply.put(color, GameConstants.INITIAL_STUDENTS_PER_COLOR.value);
-        this.randomizer = new Random(seed);
+        Randomizer.setSeed(seed);
     }
 
     /**
@@ -35,7 +36,7 @@ public class StudentFactory {
             for(int i = 0; i < studentSupply.get(color); i++) students.add(color);
         });
 
-        Color chosen = students.get(this.randomizer.nextInt(students.size()));
+        Color chosen = students.get(Randomizer.nextInt(students.size()));
         studentSupply.put(chosen, studentSupply.get(chosen) - 1);
         return chosen;
     }
@@ -51,7 +52,7 @@ public class StudentFactory {
      * @return a random student, each color is equally likely to spawn, this method DOES NOT update the studentSupply
      */
     public Color generateStudent() {
-        return Color.values()[this.randomizer.nextInt(Color.values().length)];
+        return Color.values()[Randomizer.nextInt(Color.values().length)];
     }
 
     /**
@@ -95,14 +96,6 @@ public class StudentFactory {
         Collections.shuffle(colors);
 
         return colors;
-    }
-
-    /**
-     * Used for event sourcing purposes, it changes the randomizer's seed
-     * @param seed changed
-     */
-    public void setSeed(long seed) {
-        this.randomizer.setSeed(seed);
     }
 
     public boolean isEmpty() {

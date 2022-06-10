@@ -24,12 +24,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class GamesManager extends SugarMessageProcessor {
     private final List<GameController> games = new LinkedList<>();
     private final SugarServer server;
     private final MultiList<Player, Integer, Boolean> matchMakingList = new MultiList<>();
     private final GamesRepository gamesRepository = GamesRepository.getInstance();
+    ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(4);
+
 
     public GamesManager(SugarServer server) {
         this.server = server;
@@ -218,6 +222,20 @@ public class GamesManager extends SugarMessageProcessor {
             }
         }
     }
+
+    @SugarMessageHandler
+    public void peerDisconnectedFromGameMsg(SugarMessage message, Peer peer) {
+        var gameController = findGameInvolvingPeer(peer);
+
+        gameController.ifPresent(controller -> executorService.schedule(() -> {
+            if (controller.activePlayers() < controller.getPlayers().size()) {
+                this.gameLogicMulticast(controller, new OKMsg("User left the game, you won!"));
+                this.gamesRepository.removeFromCurrentGames(controller.getGameUUID());
+                this.games.remove(controller);
+            }
+        }, 1, TimeUnit.MINUTES));
+    }
+
 
     @SugarMessageFromLowerLayersHandler
     public void okAndUpdateMsg(SugarMessage message, Peer receiver) {

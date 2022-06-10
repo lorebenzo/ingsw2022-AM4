@@ -21,8 +21,7 @@ import java.util.*;
 public class CommunicationController extends SugarMessageProcessor {
 
     protected GameStateController gameStateController;
-    private final Map<String, Integer> usernameToSchoolBoardID;
-    private GamesRepository gamesRepository = GamesRepository.getInstance();
+    protected final Map<String, Integer> usernameToSchoolBoardID;
 
     protected CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
         this.gameStateController = initializeGameStateController(players.size());
@@ -37,7 +36,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
         var gameUUID = gameStateController.getGameUUID();
         for (int i = 0; i < players.size(); i++) {
-            gamesRepository.saveUserSchoolBardMap(gameUUID, players.get(i).username, i);
+            GamesRepository.getInstance().saveUserSchoolBardMap(gameUUID, players.get(i).username, i);
         }
     }
 
@@ -151,10 +150,6 @@ public class CommunicationController extends SugarMessageProcessor {
         } catch (InvalidArchipelagoIdException e) {
             return new KOMsg(ReturnMessage.INVALID_ARCHIPELAGO_ID.text);
         }
-    }
-
-    protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
-        return new GameStateController(playersNumber);
     }
 
     protected GameStateController initializeGameStateController(UUID gameUUID) {
@@ -276,6 +271,10 @@ public class CommunicationController extends SugarMessageProcessor {
      */
     public LightGameState getLightGameState() {
         return this.gameStateController.getLightGameState().addUsernames(usernameToSchoolBoardID);
+    }
+
+    public UUID getGameUUID() {
+        return this.gameStateController.getGameUUID();
     }
 
     private int getSchoolBoardIdFromUsername(String player){

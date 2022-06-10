@@ -11,6 +11,7 @@ import it.polimi.ingsw.server.model.game_logic.events.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
+import it.polimi.ingsw.server.model.game_logic.utils.Randomizer;
 import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -67,10 +68,10 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         try {
             this.addEventAndApply(event);
+            this.fillClouds();
         } catch (Exception ignored) {} catch (Throwable e) {
             e.printStackTrace();
         }
-        ;
     }
 
     public void initGameState(InitGameStateEvent event) throws GameStateInitializationFailureException {
@@ -93,7 +94,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
             this.archipelagos = this.initializeArchipelagos();
             this.schoolBoards = this.initializeSchoolBoards();
             this.clouds = this.initializeClouds();
-            this.fillClouds();
         } catch (EmptyStudentSupplyException e) {
             throw new GameStateInitializationFailureException();
         }
@@ -188,7 +188,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     /**
      * The current player plays the given card
-     * @requires school board ID exists
+     * @requires Card to be played
      * @throws IllegalArgumentException if the card parameter is null
      * @throws CardIsNotInTheDeckException if the current player does not actually own the card to be played.
      * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
@@ -202,7 +202,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         var event = new PlayCardEvent(parentUuid, card);
 
-        this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+        Randomizer.setSeed(event.id.getLeastSignificantBits());
 
         this.playCardHandler(event);
 
@@ -226,7 +226,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     public void apply(Event event) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if(this.studentFactory != null)
-            this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+            Randomizer.setSeed(event.id.getLeastSignificantBits());
         Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
         handler.invoke(this, event);
     }
@@ -256,7 +256,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     }
 
     private void updateSeed(Event event) {
-        this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+        Randomizer.setSeed(event.id.getLeastSignificantBits());
     }
 
     public void fillCloudHandler(FillCloudEvent event) throws EmptyStudentSupplyException, IllegalArgumentException {
@@ -284,14 +284,13 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * @param cloudIndex is the index of the cloud to pick the students from
      * @throws EmptyCloudException if the cloud is empty
      */
-    public void grabStudentsFromCloud(int cloudIndex) {
-        try {
-            UUID parentUuid = UUID.randomUUID();
-            this.addEventAndApply(new GrabStudentsFromCloudEvent(parentUuid, cloudIndex));
-        } catch(Exception ignored) {} catch (Throwable e) {
-            e.printStackTrace();
-        }
-        ;
+    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException {
+        UUID parentUuid = UUID.randomUUID();
+        var event = new GrabStudentsFromCloudEvent(parentUuid, cloudIndex);
+
+        this.updateSeed(event);
+        this.grabStudentsFromCloudHandler(event);
+        this.addEvent(event);
     }
 
     public void grabStudentsFromCloudHandler(GrabStudentsFromCloudEvent event) throws EmptyCloudException {
@@ -317,6 +316,17 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
         if(student == null) throw new IllegalArgumentException();
 
+        UUID parentUuid = UUID.randomUUID();
+        var event = new MoveStudentsFromEntranceToDiningEvent(parentUuid, student);
+
+        this.updateSeed(event);
+        this.moveStudentFromEntranceToDiningHandler(event);
+        this.addEvent(event);
+    }
+
+    public void moveStudentFromEntranceToDiningHandler(MoveStudentsFromEntranceToDiningEvent event) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+        var student = event.student;
+
         this.getCurrentPlayerSchoolBoard().moveFromEntranceToDiningRoom(student);
     }
 
@@ -325,6 +335,18 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * @param professor indicates the color of the professor the player should get and/or remove from another player
      */
     public Map<Color, Integer> assignProfessor(Color professor) /*throws InvalidSchoolBoardIdException*/ {
+        UUID parentUuid = UUID.randomUUID();
+        var event = new AssignProfessorEvent(parentUuid, professor);
+
+        this.updateSeed(event);
+        var handlerReturn = this.assignProfessorHandler(event);
+        this.addEvent(event);
+        return handlerReturn;
+    }
+
+
+    public Map<Color, Integer> assignProfessorHandler(AssignProfessorEvent event) {
+        var professor = event.professor;
         Map<Color, Integer> professorToPreviousOwnerMap = new HashMap<>();
 
         if(professor == null) throw new IllegalArgumentException();
@@ -363,7 +385,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         return professorToPreviousOwnerMap;
     }
-
     protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane){
         return currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane;
     }
@@ -376,6 +397,18 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * @param archipelagoIslandCodes represents the islandCodes of the archipelago into which the student is being moved
      */
     public void moveStudentFromEntranceToArchipelago(Color student, List<Integer> archipelagoIslandCodes) throws StudentNotInTheEntranceException {
+        var parentUuid = UUID.randomUUID();
+
+        var event = new MoveStudentFromEntranceToArchipelagoEvent(parentUuid, student, archipelagoIslandCodes);
+        this.updateSeed(event);
+        this.moveStudentFromEntranceToArchipelagoHandler(event);
+        this.addEvent(event);
+    }
+
+    public void moveStudentFromEntranceToArchipelagoHandler(MoveStudentFromEntranceToArchipelagoEvent event) throws StudentNotInTheEntranceException {
+        var student = event.student;
+        var archipelagoIslandCodes = event.archipelagoIslandCodes;
+
         if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes.contains(null))
             throw new IllegalArgumentException();
 
@@ -407,6 +440,16 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * @param numberOfSteps has to be a positive integer
      */
     public void moveMotherNatureNStepsClockwise(int numberOfSteps) throws InvalidNumberOfStepsException {
+        var parentUuid = UUID.randomUUID();
+
+        var event = new MoveMotherNatureNStepsClockwiseEvent(parentUuid, numberOfSteps);
+        this.updateSeed(event);
+        this.moveMotherNatureNStepsClockwiseHandler(event);
+        this.addEvent(event);
+    }
+
+    public void moveMotherNatureNStepsClockwiseHandler(MoveMotherNatureNStepsClockwiseEvent event) throws InvalidNumberOfStepsException {
+        var numberOfSteps = event.steps;
 
         if(numberOfSteps <= 0 || numberOfSteps > this.getAllowedStepsNumber())
             throw new InvalidNumberOfStepsException();
@@ -419,16 +462,38 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * and substituting any tower that was previously placed on that archipelago
      */
     public void conquerArchipelago(int schoolBoardId) {
+        var parentUuid = UUID.randomUUID();
+
+        var event = new ConquerArchipelagoEvent(parentUuid, schoolBoardId);
+        this.updateSeed(event);
+        this.conquerArchipelagoHandler(event);
+        this.addEvent(event);
+    }
+
+    public void conquerArchipelagoHandler(ConquerArchipelagoEvent event) {
+        var schoolBoardId = event.schoolBoardID;
+
         TowerColor playerTowerColor = this.getSchoolBoardFromSchoolBoardId(schoolBoardId).getTowerColor();
 
         this.motherNaturePosition.setTowerColor(playerTowerColor);
     }
+
 
     /**
      * Merges the archipelago mother nature is currently in with the archipelago on the left (one step counter-clockwise with respect to mother nature's position)
      * @return true if the archipelagos merged, false otherwise.
      */
     public boolean mergeWithPrevious() {
+        var parentUuid = UUID.randomUUID();
+
+        var event = new MergeWithPreviousEvent(parentUuid);
+        this.updateSeed(event);
+        var handlerReturn = this.mergeWithPreviousHandler(event);
+        this.addEvent(event);
+        return handlerReturn;
+    }
+
+    public boolean mergeWithPreviousHandler(MergeWithPreviousEvent event) {
         boolean mergePerformed;
         Archipelago previous = getPreviousArchipelago();
 
@@ -447,6 +512,16 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * @return true if the archipelagos merged, false otherwise.
      */
     public boolean mergeWithNext() {
+        var parentUuid = UUID.randomUUID();
+
+        var event = new MergeWithNextEvent(parentUuid);
+        this.updateSeed(event);
+        var handlerReturn = this.mergeWithNextHandler(event);
+        this.addEvent(event);
+        return handlerReturn;
+    }
+
+    public boolean mergeWithNextHandler(MergeWithNextEvent event) {
         boolean mergePerformed;
         Archipelago next = getNextArchipelago();
 
@@ -552,14 +627,43 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
 
     public void setRoundOrder(List<Integer> roundOrder) {
+        var parentUuid = UUID.randomUUID();
+
+        var event = new SetRoundOrderEvent(parentUuid, roundOrder);
+        this.updateSeed(event);
+        this.setRoundOrderHandler(event);
+        this.addEvent(event);
+    }
+
+    public void setRoundOrderHandler(SetRoundOrderEvent event) {
+        var roundOrder = event.roundOrder;
+
         this.round.setNewRoundOrder(roundOrder);
     }
 
     public void resetRoundIterator() {
+        var parentUuid = UUID.randomUUID();
+
+        var event = new ResetRoundIteratorEvent(parentUuid);
+        this.updateSeed(event);
+        this.resetRoundIteratorHandler(event);
+        this.addEvent(event);
+    }
+
+    public void resetRoundIteratorHandler(ResetRoundIteratorEvent event) {
         this.round.resetIterator();
     }
 
     public void increaseRoundCount(){
+        var parentUuid = UUID.randomUUID();
+
+        var event = new IncreaseRoundCountEvent(parentUuid);
+        this.updateSeed(event);
+        this.increaseRoundCountHandler(event);
+        this.addEvent(event);
+    }
+
+    public void increaseRoundCountHandler(IncreaseRoundCountEvent event) {
         this.round.increaseRoundCount();
     }
 
@@ -576,15 +680,10 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         var event = new SetCurrentPhaseEvent(parentUuid, currentPhase);
 
-        this.studentFactory.setSeed(event.id.getLeastSignificantBits());
+        Randomizer.setSeed(event.id.getLeastSignificantBits());
 
         this.setCurrentPhaseHandler(event);
-
-        try {
-            repository.addEvent(this.id, event, ++this.version);
-        } catch (DBQueryException e) {
-            e.printStackTrace();
-        }
+        this.addEvent(event);
     }
 
     public void setCurrentPhaseHandler(SetCurrentPhaseEvent event) {
@@ -598,6 +697,16 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * @param schoolBoardId has to be a valid id of an existing schoolBoard
      */
     public void setCurrentPlayerSchoolBoardId(int schoolBoardId) {
+        var parentUUID = UUID.randomUUID();
+        var event = new SetCurrentPlayerSchoolBoardIDEvent(parentUUID, schoolBoardId);
+
+        this.updateSeed(event);
+        this.setCurrentPlayerSchoolBoardIdHandler(event);
+        this.addEvent(event);
+    }
+
+    public void setCurrentPlayerSchoolBoardIdHandler(SetCurrentPlayerSchoolBoardIDEvent event) {
+        var schoolBoardId = event.schoolBoardID;
         if(!this.getSchoolBoardIds().contains(schoolBoardId)) throw new InvalidSchoolBoardIdException("Invalid schoolboardId in input.");
 
         this.currentPlayerSchoolBoardId = schoolBoardId;
@@ -679,7 +788,18 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return this.round.isRoundDone();
     }
 
-    public int getNextTurn() { return this.round.next(); }
+    public int getNextTurn() {
+        var parentUUID = UUID.randomUUID();
+        var event = new GetNextTurnEvent(parentUUID);
+
+        this.updateSeed(event);
+        var handlerReturn = this.getNextTurnHandler(event);
+        this.addEvent(event);
+        return handlerReturn;
+    }
+
+
+    public int getNextTurnHandler(GetNextTurnEvent event) { return this.round.next(); }
 
 
     public int getNumberOfStudentsInTheEntrance(){
@@ -721,6 +841,15 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     }
 
     public void resetSchoolBoardIdsToCardsPlayerThisRound(){
+        var parentUUID = UUID.randomUUID();
+        var event = new ResetSchoolBoardIdsToCardsPlayerThisRoundEvent(parentUUID);
+
+        this.updateSeed(event);
+        this.resetSchoolBoardIdsToCardsPlayerThisRoundHandler(event);
+        this.addEvent(event);
+    }
+
+    public void resetSchoolBoardIdsToCardsPlayerThisRoundHandler(ResetSchoolBoardIdsToCardsPlayerThisRoundEvent event) {
         this.schoolBoardIdsToCardPlayedThisRound.clear();
     }
 
@@ -728,7 +857,19 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return this.currentPlayerSchoolBoardId;
     }
 
+
+
     public void setActionPhaseSubTurn(ActionPhaseSubTurn actionPhaseSubTurn) {
+        var parentUUID = UUID.randomUUID();
+        var event = new SetActionPhaseSubTurnEvent(parentUUID, actionPhaseSubTurn);
+
+        this.updateSeed(event);
+        this.setActionPhaseSubTurnHandler(event);
+        this.addEvent(event);
+    }
+
+    public void setActionPhaseSubTurnHandler(SetActionPhaseSubTurnEvent event) {
+        var actionPhaseSubTurn = event.actionPhaseSubTurn;
         this.round.setActionPhaseSubTurn(actionPhaseSubTurn);
     }
 

@@ -38,10 +38,11 @@
           <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>com.google.code.gson</groupId>
-          <artifactId>gson</artifactId>
-          <version>2.9.0</version>
+        <groupId>org.danilopianini</groupId>
+        <artifactId>gson-extras</artifactId>
+        <version>0.2.1</version>
       </dependency>
+
 
       <dependency>
         <groupId>org.postgresql</groupId>
@@ -80,6 +81,7 @@
       <artifactId>javatuples</artifactId>
       <version>1.2</version>
     </dependency>
+
   </dependencies>
 
   <build>

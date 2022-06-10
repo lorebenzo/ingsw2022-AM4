@@ -15,6 +15,7 @@ import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 public class GameController extends SugarMessageProcessor {
     public final UUID roomId;
@@ -22,6 +23,7 @@ public class GameController extends SugarMessageProcessor {
     private final boolean isExpertMode;
     private CommunicationController communicationController = null;
     private boolean gameStarted = false;
+
 
     public GameController(UUID roomId, boolean isExpertMode)
     {
@@ -31,15 +33,19 @@ public class GameController extends SugarMessageProcessor {
 
     public GameController(UUID gameUUID, List<Pair<String, Integer>> players, boolean isExpertMode) throws GameStateInitializationFailureException {
         this(gameUUID, isExpertMode);
-        players.forEach(player -> {
-            addPlayer(new Player(null, player.getValue0()));
-        });
+        players.forEach(player -> addPlayer(new Player(null, player.getValue0())));
         this.gameStarted = true;
         this.communicationController = CommunicationController.createCommunicationController(players, this.isExpertMode, gameUUID);
     }
 
     private void addPlayerEffective(Player player) {
         this.players.add(player);
+    }
+
+    public int activePlayers() {
+        return (int) this.players.stream()
+                .filter(p -> p.associatedPeer != null)
+                .count();
     }
 
     public void removePlayer(String username) {
@@ -67,7 +73,7 @@ public class GameController extends SugarMessageProcessor {
      */
     public boolean containsPeer(Peer peer) {
         for(var player : this.players)
-            if(player.associatedPeer.equals(peer)) return true;
+            if(player.associatedPeer != null && player.associatedPeer.equals(peer)) return true;
         return false;
     }
 
@@ -128,8 +134,13 @@ public class GameController extends SugarMessageProcessor {
                 .toList();
     }
 
+
     public LightGameState getLightGameState() {
         return this.communicationController.getLightGameState();
+    }
+
+    public UUID getGameUUID() {
+        return this.communicationController.getGameUUID();
     }
 
     @SugarMessageHandler

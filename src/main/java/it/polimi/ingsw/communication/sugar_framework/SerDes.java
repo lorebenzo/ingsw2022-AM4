@@ -8,22 +8,16 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
-import it.polimi.ingsw.server.event_sourcing.Aggregate;
-import it.polimi.ingsw.server.event_sourcing.Event;
-import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy;
-import it.polimi.ingsw.utils.iterator.CustomArrayList;
 
-import javax.sound.sampled.Control;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Iterator;
-import java.util.Random;
 
 /**
  * Serializer/Deserializer for sugar messages
@@ -33,8 +27,15 @@ public class SerDes {
 
     static {
         GsonBuilder gsonBuilder = new GsonBuilder();
+        final RuntimeTypeAdapterFactory<NumberOfPlayersStrategy> typeFactory = RuntimeTypeAdapterFactory
+                .of(NumberOfPlayersStrategy.class, "type")
+                .registerSubtype(TwoPlayerStrategy.class)
+                .registerSubtype(ThreePlayerStrategy.class)
+                .registerSubtype(FourPlayerStrategy.class);
+
         gsonBuilder.registerTypeAdapterFactory(new GenericTypeAdapterFactory());
         gsonBuilder.registerTypeAdapter(Class.class, new GenericTypeAdapter());
+        gsonBuilder.registerTypeAdapterFactory(typeFactory);
         gson = gsonBuilder.create();
     }
 
@@ -80,11 +81,9 @@ class GenericTypeAdapter extends TypeAdapter<Class<?>> {
 
     @Override
     public void write(JsonWriter jsonWriter, Class<?> genericClass) throws IOException {
-        if(genericClass == null){
+        if(genericClass == null) {
             jsonWriter.nullValue();
             return;
-        } else if(genericClass.equals(CustomArrayList.CustomIterator.class)) {
-            jsonWriter.value("diocane");
         }
         jsonWriter.value(genericClass.getName());
     }

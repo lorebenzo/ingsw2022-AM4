@@ -49,8 +49,8 @@ public abstract class Aggregate {
         if(lastSnap == null) {
             lastSnap = this;
         }
-        for(Event event: repository.getEvents(this.id, this.version)) {
-            this.apply(event);
+        for(Event event: repository.getEvents(this.id, lastSnap.version)) {
+            lastSnap.apply(event);
         }
         return lastSnap;
     }
@@ -63,15 +63,16 @@ public abstract class Aggregate {
     public void createSnapshot() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, DBQueryException, SQLException {
         this.getCurrentState();
         repository.generateSnapshot(this);
-    };
+    }
 
-    public void rollback() {
+    public Aggregate rollback() {
         try {
             Aggregate lastSnapVersion = repository.getSnapshot(this.id);
             repository.rollback(this.id, lastSnapVersion.version);
-            this.getCurrentState();
+            return this.getCurrentState();
         } catch (SQLException | DBQueryException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
+        return null;
     }
 }

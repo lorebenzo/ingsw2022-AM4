@@ -165,7 +165,6 @@ public class EventsRepository {
         }
         rs.close();
         stmt.close();
-//        return version;
         return aggregateParsed;
     }
 }
