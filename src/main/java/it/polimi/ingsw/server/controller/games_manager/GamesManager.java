@@ -216,7 +216,8 @@ public class GamesManager extends SugarMessageProcessor {
         var players = gameController.getPlayers();
         for(var player: players) {
             try {
-                this.server.send(message, player.associatedPeer);
+                if(player.associatedPeer != null)
+                    this.server.send(message, player.associatedPeer);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -226,14 +227,16 @@ public class GamesManager extends SugarMessageProcessor {
     @SugarMessageHandler
     public void peerDisconnectedFromGameMsg(SugarMessage message, Peer peer) {
         var gameController = findGameInvolvingPeer(peer);
-
-        gameController.ifPresent(controller -> executorService.schedule(() -> {
-            if (controller.activePlayers() < controller.getPlayers().size()) {
-                this.gameLogicMulticast(controller, new OKMsg("User left the game, you won!"));
-                this.gamesRepository.removeFromCurrentGames(controller.getGameUUID());
-                this.games.remove(controller);
-            }
-        }, 1, TimeUnit.MINUTES));
+        gameController.ifPresent(controller -> {
+                controller.setInactivePlayer(peer);
+                executorService.schedule(() -> {
+                    if (controller.activePlayers() < controller.getPlayers().size()) {
+                        this.gameLogicMulticast(controller, new OKMsg("User left the game, you won!"));
+                        this.gamesRepository.removeFromCurrentGames(controller.getGameUUID());
+                        this.games.remove(controller);
+                    }
+                }, 10, TimeUnit.SECONDS);
+        });
     }
 
 

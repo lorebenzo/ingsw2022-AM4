@@ -4,7 +4,7 @@ import it.polimi.ingsw.communication.sugar_framework.Peer;
 import org.jetbrains.annotations.NotNull;
 
 public class Player implements Comparable<Player> {
-    public final Peer associatedPeer;
+    public Peer associatedPeer;
     public final String username;
 
     public Player(Peer associatedPeer, String username) {

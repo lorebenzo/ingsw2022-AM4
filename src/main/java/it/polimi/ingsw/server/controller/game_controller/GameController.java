@@ -147,4 +147,12 @@ public class GameController extends SugarMessageProcessor {
     public SugarMessage base(SugarMessage message, Peer peer) {
         return this.communicationController.process(message, peer);
     }
+
+    public void setInactivePlayer(Peer peer) {
+        var player = this.players.stream()
+                .filter(p -> p.associatedPeer != null && p.associatedPeer.equals(peer))
+                .findFirst();
+
+        player.ifPresent(p -> p.associatedPeer = null);
+    }
 }

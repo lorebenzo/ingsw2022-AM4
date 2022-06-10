@@ -13,11 +13,10 @@ public class StudentFactory {
     public final Map<Color, Integer> studentSupply;
 
 
-    public StudentFactory(long seed) {
+    public StudentFactory() {
         this.studentSupply = new HashMap<>();
         for(Color color : Color.values())
             studentSupply.put(color, GameConstants.INITIAL_STUDENTS_PER_COLOR.value);
-        Randomizer.setSeed(seed);
     }
 
     /**

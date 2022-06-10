@@ -38,7 +38,8 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     protected List<SchoolBoard> schoolBoards;
     private List<List<Color>> clouds;
 
-    protected StudentFactory studentFactory;
+    //todo:fix
+    public StudentFactory studentFactory;
     protected Archipelago motherNaturePosition;
 
     protected int currentPlayerSchoolBoardId;
@@ -66,12 +67,14 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         var event = new InitGameStateEvent(parentUuid, numberOfPlayers);
 
+        this.updateSeed(event);
+        this.initGameState(event);
+        this.addEvent(event);
         try {
-            this.addEventAndApply(event);
             this.fillClouds();
-        } catch (Exception ignored) {} catch (Throwable e) {
-            e.printStackTrace();
-        }
+
+            this.createSnapshot();
+        } catch(Exception ignored) {}
     }
 
     public void initGameState(InitGameStateEvent event) throws GameStateInitializationFailureException {
@@ -89,7 +92,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
 
         this.schoolBoardIdsToCardPlayedThisRound = new HashMap<>();
-        this.studentFactory = new StudentFactory(this.id.getLeastSignificantBits());
+        this.studentFactory = new StudentFactory();
         try {
             this.archipelagos = this.initializeArchipelagos();
             this.schoolBoards = this.initializeSchoolBoards();
