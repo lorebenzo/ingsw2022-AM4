@@ -40,7 +40,7 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
-    public CommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) throws GameStateInitializationFailureException {
+    public CommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) {
         this.gameStateController = initializeGameStateController(gameUUID);
         this.usernameToSchoolBoardID = new HashMap<>();
 
@@ -135,7 +135,7 @@ public class CommunicationController extends SugarMessageProcessor {
         try {
             var archipelagoIslandCodes = this.gameStateController.getLightGameState().archipelagos
                     .stream()
-                    .map(Archipelago::getIslandCodes)
+                    .map(lightArchipelago -> lightArchipelago.islandCodes)
                     .filter(ic -> ic.contains(msg.archipelagoIslandCode))
                     .findFirst()
                     .orElseThrow(InvalidArchipelagoIdException::new);

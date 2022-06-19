@@ -50,4 +50,17 @@ public class PlayableCharacterWithStudents extends PlayableCharacter {
     public List<Color> getStudents() {
         return new ArrayList<>(students);
     }
+
+    @Override
+    public LightPlayableCharacter lightify() {
+        return new LightPlayableCharacter(
+                super.characterId,
+                super.initialCost,
+                super.currentCost,
+                super.effect,
+                null,
+                this.students,
+                null
+        );
+    }
 }

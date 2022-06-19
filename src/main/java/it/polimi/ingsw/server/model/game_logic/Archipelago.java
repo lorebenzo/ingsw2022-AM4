@@ -13,9 +13,9 @@ import java.util.*;
  * multiple archipelagos merge into a single archipelago
  */
 public class Archipelago implements ArchipelagoCommonInterface {
-    private final List<Integer> islandCodes;
-    private final Map<Color, Integer> studentToNumber;
-    private TowerColor towerColor;
+    protected final List<Integer> islandCodes;
+    protected final Map<Color, Integer> studentToNumber;
+    protected TowerColor towerColor;
 
     private Archipelago() {
         this.islandCodes = new ArrayList<>();
@@ -136,4 +136,13 @@ public class Archipelago implements ArchipelagoCommonInterface {
             this.studentToNumber.put(student, this.studentToNumber.get(student) -1);
     }
 
+    public LightArchipelago lightify(){
+        return new LightArchipelago(
+                this.islandCodes,
+                this.studentToNumber,
+                this.towerColor,
+                false,
+                true,
+                null);
+    }
 }

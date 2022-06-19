@@ -30,13 +30,13 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     private int numberOfStudentsInTheEntrance;
 
     // Game flow attributes
-    private Round round;
+    protected Round round;
 
     protected Map<Integer, Card> schoolBoardIdsToCardPlayedThisRound;
 
     protected List<Archipelago> archipelagos;
     protected List<SchoolBoard> schoolBoards;
-    private List<List<Color>> clouds;
+    protected List<List<Color>> clouds;
 
     //todo:fix
     public StudentFactory studentFactory;
@@ -928,14 +928,16 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     public LightGameState lightify(){
         return new LightGameState(
-                this.archipelagos,
-                this.schoolBoards,
+                this.archipelagos.stream().map(Archipelago::lightify).toList(),
+                this.schoolBoards.stream().map(SchoolBoard::lightify).toList(),
                 this.clouds,
                 this.currentPlayerSchoolBoardId,
                 this.round.getCurrentPhase(),
                 this.round.getRoundOrder(),
-                this.motherNaturePosition,
-                this.schoolBoardIdsToCardPlayedThisRound
+                this.archipelagos.indexOf(motherNaturePosition),
+                this.schoolBoardIdsToCardPlayedThisRound,
+                null,
+                null
         );
     }
 

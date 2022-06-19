@@ -45,4 +45,18 @@ public class ExpertSchoolBoard extends SchoolBoard {
         if(this.diningRoomLaneColorToNumberOfStudents.get(student) < 1) throw new StudentsNotInTheDiningRoomException();
             this.diningRoomLaneColorToNumberOfStudents.put(student, this.diningRoomLaneColorToNumberOfStudents.get(student)-1);
     }
+
+    @Override
+    public LightSchoolBoard lightify() {
+        return new LightSchoolBoard(
+                super.id,
+                super.diningRoomLaneColorToNumberOfStudents,
+                super.towerColor,
+                super.studentsInTheEntrance,
+                super.professorsTable,
+                super.deck,
+
+                this.coins
+        );
+    }
 }

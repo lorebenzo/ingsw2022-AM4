@@ -11,12 +11,12 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.Studen
 import java.util.*;
 
 public class SchoolBoard implements SchoolBoardCommonInterface{
-    private final int id; // must be unique for each GameState
+    protected final int id; // must be unique for each GameState
     protected final Map<Color, Integer> diningRoomLaneColorToNumberOfStudents;
-    private final TowerColor towerColor;
-    private final List<Color> studentsInTheEntrance;
-    private final Set<Color> professorsTable;
-    private final List<Card> deck;
+    protected final TowerColor towerColor;
+    protected final List<Color> studentsInTheEntrance;
+    protected final Set<Color> professorsTable;
+    protected final List<Card> deck;
 
     /**
      *
@@ -195,4 +195,14 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         return new HashMap<>(diningRoomLaneColorToNumberOfStudents);
     }
 
+    public LightSchoolBoard lightify() {
+        return new LightSchoolBoard(
+                this.id,
+                this.diningRoomLaneColorToNumberOfStudents,
+                this.towerColor,
+                this.studentsInTheEntrance,
+                this.professorsTable,
+                this.deck,
+                null);
+    }
 }

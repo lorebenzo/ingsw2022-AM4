@@ -1,8 +1,6 @@
 package it.polimi.ingsw.client.cli_graphics;
 
-import it.polimi.ingsw.server.model.game_logic.Archipelago;
-import it.polimi.ingsw.server.model.game_logic.LightGameState;
-import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
+import it.polimi.ingsw.server.model.game_logic.*;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
@@ -242,7 +240,7 @@ public class Terminal {
         return Optional.empty();
     }
 
-    private void renderSchoolBoards(List<SchoolBoard> schoolBoards, Map<String, Integer> usernameToSchoolBoardID, int currentPlayerSchId, int row, int col) {
+    private void renderSchoolBoards(List<LightSchoolBoard> schoolBoards, Map<String, Integer> usernameToSchoolBoardID, int currentPlayerSchId, int row, int col) {
         // Display schoolBoards
         int printed = 0;
         for(var schoolBoard : schoolBoards) {
@@ -250,19 +248,19 @@ public class Terminal {
             var _col = printed == 0 || printed == 2 ? col : col + 32;
 
 
-            var username = getUsernameFromSchoolBoardID(usernameToSchoolBoardID, schoolBoard.getId());
+            var username = getUsernameFromSchoolBoardID(usernameToSchoolBoardID, schoolBoard.id);
 
             // Display schoolBoard name
             var name = new UnicodeString()
                     .appendNonUnicodeString("Schoolboard " + username.get());
-            if(schoolBoard.getId() == currentPlayerSchId)
+            if(schoolBoard.id == currentPlayerSchId)
                 name.color(ANSI_GREEN);
             this.putStringAsComponent(name.getUnicodeString(), _row++, _col);
 
             // Display owned professors
             var professors = new UnicodeString()
                     .appendNonUnicodeString("Professors: ");
-            for(var professor : schoolBoard.getProfessors())
+            for(var professor : schoolBoard.professorsTable)
                 professors.appendUnicodeChar(
                         this.color(professorSymbol, studentColorToANSI.get(professor))
                 ).appendNonUnicodeString(" ");
@@ -274,7 +272,7 @@ public class Terminal {
                         .appendUnicodeChar(
                                 this.color(filledCircleSymbol, studentColorToANSI.get(color))
                         ).appendNonUnicodeString(": ");
-                for(int i = 0; i < schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(color); i++)
+                for(int i = 0; i < schoolBoard.diningRoomLaneColorToNumberOfStudents.get(color); i++)
                     diningRoomLane.appendUnicodeChar(
                             this.color(studentSymbol, studentColorToANSI.get(color))
                     ).appendNonUnicodeString(" ");
@@ -284,7 +282,7 @@ public class Terminal {
             // Display entrance
             var entrance = new UnicodeString()
                     .appendNonUnicodeString("Entrance: ");
-            for(var student : schoolBoard.getStudentsInTheEntrance())
+            for(var student : schoolBoard.studentsInTheEntrance)
                 entrance.appendUnicodeChar(
                         this.color(studentSymbol, studentColorToANSI.get(student))
                 ).appendNonUnicodeString(" ");
@@ -293,7 +291,7 @@ public class Terminal {
             // Display cards
             var cards = new UnicodeString()
                     .appendNonUnicodeString(
-                            schoolBoard.getDeck()
+                            schoolBoard.deck
                                     .stream()
                                     .map(Card::getValue)
                                     .toList()
@@ -309,7 +307,7 @@ public class Terminal {
     }
 
 
-    private void renderArchipelagos(List<Archipelago> archipelagos, int motherNatPos, int row, int col) {
+    private void renderArchipelagos(List<LightArchipelago> archipelagos, int motherNatPos, int row, int col) {
         // Display header
         var header = new UnicodeString()
                 .appendNonUnicodeString("Archipelagos:")
@@ -323,24 +321,26 @@ public class Terminal {
             UnicodeString archipelagoRepresentation = new UnicodeString();
 
             // Add island codes
-            archipelagoRepresentation.appendNonUnicodeString(archipelago.getIslandCodes().toString() + ": ");
+            archipelagoRepresentation.appendNonUnicodeString(archipelago.islandCodes.toString() + ": ");
             if(archipelago.equals(archipelagos.get(motherNatPos))) archipelagoRepresentation.color(ANSI_GREEN); // TODO: fix, does not work
 
             // Add towers
-            String towerColor = towerColorToANSI.get(archipelago.getTowerColor());
-            if(!archipelago.getTowerColor().equals(TowerColor.NONE))
-                for(var islandCodes : archipelago.getIslandCodes())
+            String towerColor = towerColorToANSI.get(archipelago.towerColor);
+            if(!archipelago.towerColor.equals(TowerColor.NONE))
+                for(var islandCodes : archipelago.islandCodes)
                     archipelagoRepresentation.appendUnicodeChar(
                             this.color(towerSymbol, towerColor)
                     );
             archipelagoRepresentation.appendNonUnicodeString("  ");
 
             // Add students
-            for(var student : archipelago.getStudents()) {
-                String studentColor = studentColorToANSI.get(student);
-                archipelagoRepresentation.appendUnicodeChar(
-                        this.color(studentSymbol, studentColor)
-                ).appendNonUnicodeString(" ");
+            for(var entry : archipelago.studentToNumber.entrySet()) {
+                String studentColor = studentColorToANSI.get(entry.getKey());
+                for (int j = 0; j < entry.getValue(); j++) {
+                    archipelagoRepresentation.appendUnicodeChar(
+                            this.color(studentSymbol, studentColor)
+                    ).appendNonUnicodeString(" ");
+                }
             }
 
             // Display data
