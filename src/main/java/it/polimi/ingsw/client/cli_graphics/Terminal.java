@@ -26,6 +26,7 @@ public class Terminal {
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_YELLOW = "\u001B[33m";
     private static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_GREY = "\u001B[61m";
     private static final String ANSI_PURPLE = "\u001B[35m";
     private static final String ANSI_CYAN = "\u001B[36m";
     private static final String ANSI_WHITE = "\u001B[37m";
@@ -44,7 +45,7 @@ public class Terminal {
 
         towerColorToANSI.put(TowerColor.BLACK, ANSI_BLACK);
         towerColorToANSI.put(TowerColor.WHITE, ANSI_WHITE);
-        towerColorToANSI.put(TowerColor.GRAY, ANSI_BLUE); // TODO: find gray code
+        towerColorToANSI.put(TowerColor.GRAY, ANSI_GREY);
         towerColorToANSI.put(TowerColor.NONE, "");
     }
 
@@ -160,7 +161,7 @@ public class Terminal {
     }
 
     public void logSuccess(String s) {
-        this.logWithColor(s, ANSI_GREEN);
+        this.logWithColor(s, ANSI_GREY);
     }
 
     public void logError(String s) {
@@ -322,7 +323,7 @@ public class Terminal {
 
             // Add island codes
             archipelagoRepresentation.appendNonUnicodeString(archipelago.islandCodes.toString() + ": ");
-            if(archipelago.equals(archipelagos.get(motherNatPos))) archipelagoRepresentation.color(ANSI_GREEN); // TODO: fix, does not work
+            if(archipelago.equals(archipelagos.get(motherNatPos))) archipelagoRepresentation.color(ANSI_GREEN);
 
             // Add towers
             String towerColor = towerColorToANSI.get(archipelago.towerColor);

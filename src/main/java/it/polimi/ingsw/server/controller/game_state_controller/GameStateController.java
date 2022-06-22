@@ -26,6 +26,10 @@ public class GameStateController implements GameStateControllerCommonInterface {
         }
     }
 
+    public void rollback() {
+        this.gameState = (GameState) this.gameState.rollback();
+    }
+
     protected GameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
         return new GameState(playersNumber);
     }

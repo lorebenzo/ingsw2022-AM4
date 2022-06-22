@@ -140,6 +140,20 @@ public class GamesManager extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
+    public SugarMessage reJoinMsg(SugarMessage sugarMessage, Peer peer) {
+        var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);
+        var gameInvolvingPlayer = findGameInvolvingPlayer(username);
+
+        if(gameInvolvingPlayer.isPresent()) {
+            gameInvolvingPlayer.get().updatePeerIfOlder(username, peer);
+
+            return  new UpdateClientMsg(gameInvolvingPlayer.get().getLightGameState());
+        }
+
+        return new KOMsg("No game found");
+    }
+
+    @SugarMessageHandler
     public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
         var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);
         var gameInvolvingPlayer = findGameInvolvingPlayer(username);
@@ -231,11 +245,11 @@ public class GamesManager extends SugarMessageProcessor {
                 controller.setInactivePlayer(peer);
                 executorService.schedule(() -> {
                     if (controller.activePlayers() < controller.getPlayers().size()) {
-                        this.gameLogicMulticast(controller, new OKMsg("User left the game, you won!"));
+                        this.gameLogicMulticast(controller, new OKMsg("User left the game, game closed."));
                         this.gamesRepository.removeFromCurrentGames(controller.getGameUUID());
                         this.games.remove(controller);
                     }
-                }, 10, TimeUnit.SECONDS);
+                }, 30, TimeUnit.SECONDS);
         });
     }
 

@@ -43,25 +43,6 @@ public class FourPlayerStrategy implements NumberOfPlayersStrategy {
         return schoolBoards;
     }
 
-/*    @Override
-    public int getInfluence(List<SchoolBoard> schoolBoards, Archipelago archipelago, int currentPlayerSchoolBoardId) {
-        SchoolBoard currentPlayerSchoolBoard = schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getId() == currentPlayerSchoolBoardId)
-                .collect(Collectors.toList())
-                .get(0);
-        SchoolBoard currentPlayerPartnerSchoolBoard = schoolBoards.stream()
-                .filter(schoolBoard -> schoolBoard.getTowerColor().equals(currentPlayerSchoolBoard.getTowerColor()))
-                .collect(Collectors.toList())
-                .get(0);
-
-        Set<Color> totalProfessors = new HashSet<>();
-        totalProfessors.addAll(currentPlayerSchoolBoard.getProfessors());
-        totalProfessors.addAll(currentPlayerPartnerSchoolBoard.getProfessors());
-
-        return archipelago.getInfluence(totalProfessors, currentPlayerSchoolBoard.getTowerColor());
-    }*/
-
-    //TODO da migliorare
     /**
      * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputed archipelago
      * @param schoolBoards is a List<SchoolBoard> containing the list of all schoolBoards

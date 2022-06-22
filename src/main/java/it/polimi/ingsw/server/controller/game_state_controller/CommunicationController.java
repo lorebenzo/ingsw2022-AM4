@@ -84,6 +84,19 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
+    public SugarMessage rollbackMsg(SugarMessage message, Peer peer) {
+        var username = AuthController.getUsernameFromJWT(message.jwt);
+        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+
+        var msg = (RollbackMsg) message;
+
+        this.gameStateController.rollback();
+
+        return new OKAndUpdateMsg(new OKMsg("Successfully rolled back"), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+
+    }
+
+    @SugarMessageHandler
     public SugarMessage playCardMsg(SugarMessage message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
@@ -215,6 +228,12 @@ public class CommunicationController extends SugarMessageProcessor {
 
         try {
             boolean lastRound = this.gameStateController.endActionTurn();
+            //todo: fix
+            try {
+                this.gameStateController.gameState.createSnapshot();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             return new OKAndUpdateMsg(
                     new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
