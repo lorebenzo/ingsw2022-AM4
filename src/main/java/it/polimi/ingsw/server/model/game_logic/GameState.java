@@ -38,7 +38,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     protected List<SchoolBoard> schoolBoards;
     protected List<List<Color>> clouds;
 
-    //todo:fix
     public StudentFactory studentFactory;
     protected Archipelago motherNaturePosition;
 

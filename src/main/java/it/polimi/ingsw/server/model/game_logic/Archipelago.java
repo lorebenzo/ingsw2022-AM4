@@ -136,13 +136,21 @@ public class Archipelago implements ArchipelagoCommonInterface {
             this.studentToNumber.put(student, this.studentToNumber.get(student) -1);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Archipelago a)) return false;
+
+        return a.islandCodes.equals(this.islandCodes);
+    }
+
     public LightArchipelago lightify(){
         return new LightArchipelago(
-                this.islandCodes,
-                this.studentToNumber,
-                this.towerColor,
-                false,
-                true,
-                null);
+            this.islandCodes,
+            this.studentToNumber,
+            this.towerColor,
+            false,
+            true,
+            null
+        );
     }
 }

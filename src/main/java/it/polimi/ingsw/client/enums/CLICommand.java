@@ -13,6 +13,7 @@ public enum CLICommand {
     chat(3),
     end_turn,
     rollback,
+    rejoin,
     help,
     ;
 

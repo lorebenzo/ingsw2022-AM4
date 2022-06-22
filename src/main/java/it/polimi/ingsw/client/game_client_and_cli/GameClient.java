@@ -12,12 +12,8 @@ import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
 import it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg;
-import it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg;
+import it.polimi.ingsw.server.controller.games_manager.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
-import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
-import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
-import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
-import it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
@@ -39,6 +35,7 @@ import java.util.stream.Stream;
  * play-char --index=int[0-2] --color=string{opt} --
  * end-turn
  * rollback
+ * rejoin
  * chat --to=string[all, team, username] --message=string
  * login --username=string --password=string
  * signup --username=string --password=string
@@ -131,6 +128,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void help() {
         this.logger.log("  help");
         this.logger.log("  rollback");
+        this.logger.log("  rejoin");
         this.logger.log("  login  --username=string --password=string");
         this.logger.log("  signup --username=string --password=string");
         this.logger.log("  grab-std --cloud=int");
@@ -141,6 +139,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.log("  chat --to=string[all, team, username] --message=string");
         this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
         this.logger.log("  CLI commands:");
+
     }
 
     private void sendAndHandleDisconnection(SugarMessage message) {
@@ -361,14 +360,13 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                     this.playChar(parametersMap);
                 } else throw new SyntaxError();
             }
-            case end_turn -> {
-                this.endTurn();
-            }
+            case end_turn -> this.endTurn();
 
-            // TODO: rollback
-            case help -> {
-                this.help();
-            }
+            case rejoin -> this.rejoinMatch();
+
+            case rollback -> this.rollback();
+
+            case help -> this.help();
         }
     }
 
@@ -380,6 +378,14 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     private void sendChatMessage(@NotNull String to, @NotNull String message) {
         this.sendAndHandleDisconnection(new ChatMsg("me", to, message, this.jwt));
+    }
+
+    private void rejoinMatch() {
+        this.sendAndHandleDisconnection(new ReJoinMsg(this.jwt));
+    }
+
+    private void rollback() {
+        this.sendAndHandleDisconnection(new RollbackMsg(this.jwt));
     }
 
     /**
