@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * CLI commands
@@ -139,7 +138,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.log("  chat --to=string[all, team, username] --message=string");
         this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
         this.logger.log("  CLI commands:");
-
     }
 
     private void sendAndHandleDisconnection(SugarMessage message) {
@@ -155,8 +153,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (OKMsg) message;
         this.logger.logSuccess(msg.text);
 
-        // Update GUI
-//        UserInputHandler.onOKMessage(msg.text);
+        // TODO: Update GUI
     }
 
     @SugarMessageHandler
@@ -184,9 +181,11 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);
+        // TODO: remove (debug)
+        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        // System.out.println(gson.toJson(msg.lightGameState));
 
-        // Update GUI
-//        UserInputHandler.onGameStateUpdate(msg.lightGameState);
+        // TODO: Update GUI
     }
 
     @SugarMessageHandler
@@ -195,8 +194,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.jwt = msg.jwtAuthCode;
         this.logger.logSuccess("Successfully logged in");
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
+
+        // TODO: Update GUI
     }
-    
     @SugarMessageHandler
     public void peerUPIMessage(SugarMessage message) {}
 
