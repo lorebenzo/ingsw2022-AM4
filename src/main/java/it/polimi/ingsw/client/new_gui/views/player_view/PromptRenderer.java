@@ -3,23 +3,30 @@ package it.polimi.ingsw.client.new_gui.views.player_view;
 import it.polimi.ingsw.client.new_gui.AssetHolder;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
+import it.polimi.ingsw.server.model.game_logic.LightArchipelago;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.pbkdf2.Integers;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PromptRenderer {
     /************************ Archipelago prompt *****************************/
-    public static Pane renderArchipelagoPrompt(Archipelago archipelago) {
+    public static Pane renderArchipelagoPrompt(LightArchipelago archipelago) {
         var pane = new Pane();
 
         // Render students
-        renderStudentsIntoPrompt(archipelago.getStudents(), pane);
+        var students = new LinkedList<Color>();
+        for(var key : archipelago.studentToNumber.keySet())
+            for(int i = 0; i < archipelago.studentToNumber.get(key); i++)
+                students.add(key);
+        renderStudentsIntoPrompt(students, pane);
 
         // Render size of archipelago
         var sizeTextRect = Layout.promptRect.relativeToThis(
@@ -29,7 +36,7 @@ public class PromptRenderer {
                 40
         );
         var sizeTextJavaFXRect = sizeTextRect.toJavaFXRect();
-        var sizeText = new Text("Size " + archipelago.getIslandCodes().size());
+        var sizeText = new Text("Size " + archipelago.islandCodes.size());
         var sizePane = new StackPane();
         sizePane.getChildren().add(sizeText);
         sizePane.setLayoutX(sizeTextJavaFXRect.getX());
@@ -39,12 +46,12 @@ public class PromptRenderer {
         pane.getChildren().add(sizePane);
 
         // Render towers if they are present
-        if(!archipelago.getTowerColor().equals(TowerColor.NONE)) {
-            for(int i = 0; i < 3 /* safety */ && i < archipelago.getIslandCodes().size(); i++) {
+        if(!archipelago.towerColor.equals(TowerColor.NONE)) {
+            for(int i = 0; i < 3 /* safety */ && i < archipelago.islandCodes.size(); i++) {
                 var towerRect = Layout.promptRect.relativeToThis(
                         60 + i * 13.33, 40, 13.33, 22
                 );
-                var towerImgView = new ImageView(AssetHolder.towerColorImageMap.get(archipelago.getTowerColor()));
+                var towerImgView = new ImageView(AssetHolder.towerColorImageMap.get(archipelago.towerColor));
                 towerRect.fitImageViewToThis(towerImgView);
                 pane.getChildren().add(towerImgView);
             }

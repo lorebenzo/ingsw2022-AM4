@@ -21,13 +21,13 @@ public class ChooseSchoolBoardButtonRenderer {
 
         var enemySchoolBoards = lgs.schoolBoards
                 .stream()
-                .filter(schoolBoard -> schoolBoard.getId() != lgs.currentPlayerSchoolBoardId)
+                .filter(schoolBoard -> schoolBoard.id != lgs.currentPlayerSchoolBoardId)
                 .toList();
         for(var enemySchoolBoard : enemySchoolBoards) {
             var playerName = lgs.usernameToSchoolBoardID
                     .keySet()
                     .stream()
-                    .filter(plyrName -> lgs.usernameToSchoolBoardID.get(plyrName) == enemySchoolBoard.getId())
+                    .filter(plyrName -> lgs.usernameToSchoolBoardID.get(plyrName) == enemySchoolBoard.id)
                     .findFirst()
                     .get();
             var menuItem = new MenuItem(playerName);
@@ -38,7 +38,7 @@ public class ChooseSchoolBoardButtonRenderer {
                 // Mouse click sound
                 UserExperience.playSound(AssetHolder.mouseClickSound);
 
-                EnemySchoolBoardsRenderer.schoolBoardChosenId = enemySchoolBoard.getId();
+                EnemySchoolBoardsRenderer.schoolBoardChosenId = enemySchoolBoard.id;
                 GUI.render();
             });
         }

@@ -9,6 +9,7 @@ import it.polimi.ingsw.client.new_gui.input_handler.InputHandler;
 import it.polimi.ingsw.client.new_gui.input_handler.InputParams;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
+import it.polimi.ingsw.server.model.game_logic.LightSchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import javafx.scene.image.ImageView;
@@ -64,7 +65,7 @@ public class SchoolBoardRenderer {
                 );
     }
 
-    public static Pane renderSchoolBoard(SchoolBoard schoolBoard) {
+    public static Pane renderSchoolBoard(LightSchoolBoard schoolBoard) {
         var pane = new Pane();
 
         // Layer 0: schoolboard
@@ -85,7 +86,7 @@ public class SchoolBoardRenderer {
 
         // Layer 1: entrance students
         int entranceIterationIndex = 0;
-        for(var student : schoolBoard.getStudentsInTheEntrance()) {
+        for(var student : schoolBoard.studentsInTheEntrance) {
             var renderCoord = entranceCoordinates.get(entranceIterationIndex++);
             var studentImgView = renderStudent(
                     student, schoolboardRect, schoolBoardImgView.getX(), schoolBoardImgView.getY(),
@@ -99,7 +100,7 @@ public class SchoolBoardRenderer {
 
         // Layer 2: dining room students
         for(var color : Color.values()) {
-            var numberOfStudents = schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(color);
+            var numberOfStudents = schoolBoard.diningRoomLaneColorToNumberOfStudents.get(color);
             for(int i = 0; i < numberOfStudents; i++) {
                 var coords = studentColorToDiningLaneCoords.get(color)[i];
                 var studentImgView = renderStudent(
@@ -115,7 +116,7 @@ public class SchoolBoardRenderer {
 
         // Layer 3: professors
         for(var color : Color.values()) {
-            if(schoolBoard.getProfessors().contains(color)) {
+            if(schoolBoard.professorsTable.contains(color)) {
                 var coords = studentColorToProfessorCoords.get(color);
                 var professorImgView = renderStudent(
                         color, schoolboardRect, schoolBoardImgView.getX(), schoolBoardImgView.getY(),

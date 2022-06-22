@@ -4,6 +4,7 @@ import it.polimi.ingsw.client.new_gui.AssetHolder;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.client.new_gui.views.player_view.SchoolBoardRenderer;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
+import it.polimi.ingsw.server.model.game_logic.LightSchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import javafx.scene.image.ImageView;
@@ -19,16 +20,16 @@ public class EnemySchoolBoardsRenderer {
 
         var enemySchoolBoards = lgs.schoolBoards
                 .stream()
-                .filter(schoolBoard -> schoolBoard.getId() != lgs.currentPlayerSchoolBoardId)
+                .filter(schoolBoard -> schoolBoard.id != lgs.currentPlayerSchoolBoardId)
                 .toList();
 
-        Optional<SchoolBoard> chosenSchoolBoardOptional = enemySchoolBoards
+        var chosenSchoolBoardOptional = enemySchoolBoards
                 .stream()
-                .filter(schoolBoard -> schoolBoard.getId() == schoolBoardChosenId)
+                .filter(schoolBoard -> schoolBoard.id == schoolBoardChosenId)
                 .findFirst();
 
         if(chosenSchoolBoardOptional.isEmpty()) {
-            schoolBoardChosenId = enemySchoolBoards.get(0).getId();
+            schoolBoardChosenId = enemySchoolBoards.get(0).id;
             pane.getChildren().add(SchoolBoardRenderer.renderSchoolBoard(enemySchoolBoards.get(0)));
 
             // Add last card played
@@ -43,7 +44,7 @@ public class EnemySchoolBoardsRenderer {
         return pane;
     }
 
-    public static Pane renderLastCardPlayed(SchoolBoard schoolBoard, Card lastCardPlayed) {
+    public static Pane renderLastCardPlayed(LightSchoolBoard schoolBoard, Card lastCardPlayed) {
         var pane = new Pane();
 
         var cardImg = new ImageView(AssetHolder.cardImageMap.get(lastCardPlayed));

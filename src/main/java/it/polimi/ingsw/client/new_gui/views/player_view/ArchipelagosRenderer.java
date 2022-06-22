@@ -9,6 +9,7 @@ import it.polimi.ingsw.client.new_gui.input_handler.InputHandler;
 import it.polimi.ingsw.client.new_gui.input_handler.InputParams;
 import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
+import it.polimi.ingsw.server.model.game_logic.LightArchipelago;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
@@ -25,7 +26,7 @@ public class ArchipelagosRenderer {
     );
     private final static double gapInRadiants = 0;
 
-    public static Pane renderArchipelagos(List<Archipelago> archipelagos, int motherNatureListIndex) {
+    public static Pane renderArchipelagos(List<LightArchipelago> archipelagos, int motherNatureListIndex) {
         // Render archipelagos on a circle
         var pane = new Pane();
 
@@ -97,7 +98,7 @@ public class ArchipelagosRenderer {
             // Click listener
             int archipelagoIndex = i;
             archipelagoImageView.setOnMouseClicked(e ->
-                    onArchipelagoClicked(archipelagoImageView, archipelagos.get(archipelagoIndex).getIslandCodes().get(0)));
+                    onArchipelagoClicked(archipelagoImageView, archipelagos.get(archipelagoIndex).islandCodes.get(0)));
 
             // Hover listener
             archipelagoImageView.hoverProperty().addListener((obs, oldVal, hovering) -> {
