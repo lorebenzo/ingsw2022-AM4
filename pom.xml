@@ -29,6 +29,12 @@
       <version>17.0.0.1</version>
     </dependency>
     <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>15</version>
+      <type>pom</type>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
