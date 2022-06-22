@@ -8,8 +8,13 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -22,8 +27,15 @@ public class SerDes {
 
     static {
         GsonBuilder gsonBuilder = new GsonBuilder();
+        final RuntimeTypeAdapterFactory<NumberOfPlayersStrategy> typeFactory = RuntimeTypeAdapterFactory
+                .of(NumberOfPlayersStrategy.class, "type")
+                .registerSubtype(TwoPlayerStrategy.class)
+                .registerSubtype(ThreePlayerStrategy.class)
+                .registerSubtype(FourPlayerStrategy.class);
+
         gsonBuilder.registerTypeAdapterFactory(new GenericTypeAdapterFactory());
         gsonBuilder.registerTypeAdapter(Class.class, new GenericTypeAdapter());
+        gsonBuilder.registerTypeAdapterFactory(typeFactory);
         gson = gsonBuilder.create();
     }
 
@@ -41,7 +53,16 @@ public class SerDes {
             throw new MessageDeserializationException(e.getMessage());
         }
     }
+
+    public static Object deserialize(String s, Type t) {
+        return gson.fromJson(s, t);
+    }
+
+    public static String serialize(Object o) {
+        return gson.toJson(o);
+    }
 }
+
 
 class GenericTypeAdapter extends TypeAdapter<Class<?>> {
     @Override
@@ -60,7 +81,7 @@ class GenericTypeAdapter extends TypeAdapter<Class<?>> {
 
     @Override
     public void write(JsonWriter jsonWriter, Class<?> genericClass) throws IOException {
-        if(genericClass == null){
+        if(genericClass == null) {
             jsonWriter.nullValue();
             return;
         }

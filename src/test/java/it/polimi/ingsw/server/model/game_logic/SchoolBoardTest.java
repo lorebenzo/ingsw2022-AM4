@@ -103,14 +103,8 @@ public class SchoolBoardTest {
 
         SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
 
-        try{
-            schoolBoard.removeStudentFromEntrance(Color.RED);
-            fail();
-        }catch (StudentNotInTheEntranceException e)
-        {
-            e.printStackTrace();
-        }
 
+        assertThrows(StudentNotInTheEntranceException.class, () -> schoolBoard.removeStudentFromEntrance(Color.RED));
         assertTrue(entrance.containsAll(schoolBoard.getStudentsInTheEntrance()));
         assertTrue(schoolBoard.getStudentsInTheEntrance().containsAll(entrance));
         assertEquals(initialEntranceSize, schoolBoard.getStudentsInTheEntrance().size());
@@ -145,26 +139,16 @@ public class SchoolBoardTest {
 
         SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
 
-        try{
-            schoolBoard.removeStudentFromEntrance(Color.PURPLE);
-            fail();
-        }catch (StudentNotInTheEntranceException e) {
-            e.printStackTrace();
-        }
+        assertThrows(StudentNotInTheEntranceException.class, () -> schoolBoard.removeStudentFromEntrance(Color.PURPLE));
     }
 
     @Test
-    public void removeStudentFromEntrance5() throws StudentNotInTheEntranceException{
+    public void removeStudentFromEntrance5() {
         List<Color> entrance = Stream.of(Color.RED).collect(Collectors.toList());
 
         SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
 
-        try{
-            schoolBoard.removeStudentFromEntrance(null);
-            fail();
-        }catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        assertThrows(IllegalArgumentException.class, () ->schoolBoard.removeStudentFromEntrance(null));
     }
 
     @Test
@@ -208,13 +192,7 @@ public class SchoolBoardTest {
 
         SchoolBoard schoolBoard = new SchoolBoard(0,entrance,TowerColor.BLACK);
 
-        try{
-            schoolBoard.grabStudentsFromCloud(cloud);
-            fail();
-        }
-        catch (IllegalArgumentException e){
-            e.printStackTrace();
-        }
+        assertThrows(IllegalArgumentException.class, () -> schoolBoard.grabStudentsFromCloud(cloud) );
 
     }
 

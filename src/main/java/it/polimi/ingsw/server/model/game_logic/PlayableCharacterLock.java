@@ -3,7 +3,8 @@ package it.polimi.ingsw.server.model.game_logic;
 import it.polimi.ingsw.server.model.game_logic.enums.Character;
 
 public class PlayableCharacterLock extends PlayableCharacter{
-    int availableLocks;
+    private int availableLocks;
+
     protected PlayableCharacterLock(Character character) {
         super(character);
         this.availableLocks = 4;
@@ -22,5 +23,18 @@ public class PlayableCharacterLock extends PlayableCharacter{
     @Override
     public void useLock() {
         this.availableLocks--;
+    }
+
+    @Override
+    public LightPlayableCharacter lightify() {
+        return new LightPlayableCharacter(
+                super.characterId,
+                super.initialCost,
+                super.currentCost,
+                super.effect,
+                this.availableLocks,
+                null,
+                null
+        );
     }
 }

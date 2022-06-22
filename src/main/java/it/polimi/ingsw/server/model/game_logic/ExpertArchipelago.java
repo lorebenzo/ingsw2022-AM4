@@ -87,4 +87,15 @@ public class ExpertArchipelago extends Archipelago{
         this.lock = this.lock || a2.isLocked();
         return super.merge(a2);
     }
+
+    @Override
+    public LightArchipelago lightify() {
+            return new LightArchipelago(
+                    super.islandCodes,
+                    super.studentToNumber,
+                    super.towerColor,
+                    this.lock,
+                    this.doTowersCount,
+                    this.colorThatDoesntCount);
+    }
 }

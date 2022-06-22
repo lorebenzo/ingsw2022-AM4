@@ -52,7 +52,7 @@ public class UsersRepository implements UsersRepositoryInterface {
             Statement stmt = c.createStatement();
 
             String sql = "INSERT INTO users.users (username, password)\n"
-                    + "VALUES ('" + username + "', '"+ password +"');";
+                       + "VALUES ('" + username + "', '"+ password +"');";
 
             stmt.executeUpdate(sql);
             stmt.close();
@@ -80,28 +80,6 @@ public class UsersRepository implements UsersRepositoryInterface {
             return hashedPwd.trim();
         } catch(Exception e) {
             throw new DBQueryException();
-        }
-    }
-
-    /**
-     * Save the map from username to the gameUUID and the schoolBoardID
-     * @param gameUUID of the game
-     * @param username of the user
-     * @param schoolBoardID of the user
-     */
-    public void saveUserSchoolBardMap(UUID gameUUID, String username, int schoolBoardID) {
-        try {
-            Statement stmt = c.createStatement();
-            String sql = "INSERT INTO users.user_game (username, \"gameUUID\", \"schoolBoardID\")\n"
-                    + "VALUES ('"
-                    + username + "', '"
-                    + gameUUID +"', '"
-                    + schoolBoardID + "');";
-
-            stmt.executeUpdate(sql);
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }

@@ -9,18 +9,21 @@ import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
+import it.polimi.ingsw.server.repository.GamesRepository;
 import it.polimi.ingsw.server.repository.UsersRepository;
+import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 public class GameController extends SugarMessageProcessor {
     public final UUID roomId;
     private final List<Player> players = new LinkedList<>();
     private final boolean isExpertMode;
     private CommunicationController communicationController = null;
-    private final UsersRepository usersRepository = UsersRepository.getInstance();
     private boolean gameStarted = false;
+
 
     public GameController(UUID roomId, boolean isExpertMode)
     {
@@ -28,8 +31,21 @@ public class GameController extends SugarMessageProcessor {
         this.isExpertMode = isExpertMode;
     }
 
-    private void addPlayerEffective( Player player) {
+    public GameController(UUID gameUUID, List<Pair<String, Integer>> players, boolean isExpertMode) throws GameStateInitializationFailureException {
+        this(gameUUID, isExpertMode);
+        players.forEach(player -> addPlayer(new Player(null, player.getValue0())));
+        this.gameStarted = true;
+        this.communicationController = CommunicationController.createCommunicationController(players, this.isExpertMode, gameUUID);
+    }
+
+    private void addPlayerEffective(Player player) {
         this.players.add(player);
+    }
+
+    public int activePlayers() {
+        return (int) this.players.stream()
+                .filter(p -> p.associatedPeer != null)
+                .count();
     }
 
     public void removePlayer(String username) {
@@ -47,10 +63,6 @@ public class GameController extends SugarMessageProcessor {
     public void startGame() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         this.gameStarted = true;
 
-        for (int i = 0; i < players.size(); i++) {
-            usersRepository.saveUserSchoolBardMap(this.roomId, players.get(i).username, i);
-        }
-
         this.communicationController = CommunicationController.createCommunicationController(this.players, this.isExpertMode);
     }
 
@@ -61,7 +73,7 @@ public class GameController extends SugarMessageProcessor {
      */
     public boolean containsPeer(Peer peer) {
         for(var player : this.players)
-            if(player.associatedPeer.equals(peer)) return true;
+            if(player.associatedPeer != null && player.associatedPeer.equals(peer)) return true;
         return false;
     }
 
@@ -98,7 +110,7 @@ public class GameController extends SugarMessageProcessor {
         for(int i = 0; i < this.players.size(); i++) {
             var player = this.players.get(i);
             if (player.username.equals(username)) {
-                if (!player.associatedPeer.upi.equals(peer.upi)) {
+                if (player.associatedPeer == null || !player.associatedPeer.upi.equals(peer.upi)) {
                     this.players.set(i, new Player(peer, username));
                 }
                 break;
@@ -122,12 +134,25 @@ public class GameController extends SugarMessageProcessor {
                 .toList();
     }
 
+
     public LightGameState getLightGameState() {
         return this.communicationController.getLightGameState();
+    }
+
+    public UUID getGameUUID() {
+        return this.communicationController.getGameUUID();
     }
 
     @SugarMessageHandler
     public SugarMessage base(SugarMessage message, Peer peer) {
         return this.communicationController.process(message, peer);
+    }
+
+    public void setInactivePlayer(Peer peer) {
+        var player = this.players.stream()
+                .filter(p -> p.associatedPeer != null && p.associatedPeer.equals(peer))
+                .findFirst();
+
+        player.ifPresent(p -> p.associatedPeer = null);
     }
 }

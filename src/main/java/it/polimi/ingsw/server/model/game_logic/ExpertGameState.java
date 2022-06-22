@@ -6,15 +6,13 @@ import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
 import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertNumberOfPlayersStrategyFactory;
-import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
 
 import java.util.*;
 
 public class ExpertGameState extends GameState {
 
     private final List<PlayableCharacter> availableCharacters;
-    private PlayableCharacter characterPlayedInCurrentTurn;
-    private Map<Color, Integer> professorToOriginalOwnerMap;
+    protected PlayableCharacter characterPlayedInCurrentTurn;
 
 
     /**
@@ -30,10 +28,9 @@ public class ExpertGameState extends GameState {
 
         try {
             this.extractCharacters();
-        } catch(EmptyStudentSupplyException ignored) { throw new GameStateInitializationFailureException(); };
+        } catch(EmptyStudentSupplyException ignored) { throw new GameStateInitializationFailureException(); }
 
         this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);
-        this.professorToOriginalOwnerMap = new HashMap<>();
     }
 
     /**
@@ -48,7 +45,6 @@ public class ExpertGameState extends GameState {
         }
 
         this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);
-        this.professorToOriginalOwnerMap = new HashMap<>();
     }
 
     @Override
@@ -77,7 +73,7 @@ public class ExpertGameState extends GameState {
      */
     private void extractCharacters() throws EmptyStudentSupplyException {
         List<Character> characters = new ArrayList<>(List.of(Character.values()));
-//        Collections.shuffle(characters); todo: fix
+        //Collections.shuffle(characters); //fixme - use seed
 
         for (int i = 0; i < 3; i++){
             this.availableCharacters.add(PlayableCharacter.createCharacter(characters.get(i)));
@@ -105,12 +101,12 @@ public class ExpertGameState extends GameState {
 
         if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();
 
-        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
+        Optional<Archipelago> selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);
+        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();
 
         if(!selectedCharacter.get().getStudents().contains(color)) throw new StudentNotOnCharacterException();
 
-        Optional<Archipelago> selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);
-        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();
+        if(this.getCurrentPlayerSchoolBoard().getCoins() < selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();
 
         selectedCharacter.get().removeStudent(color);
         selectedArchipelago.get().addStudent(color);
@@ -146,17 +142,17 @@ public class ExpertGameState extends GameState {
 
     protected void assignProfessorsWithEffect(){
         for (Color professor: Color.values()) {
-            Integer tmp = this.assignProfessor(professor).get(professor);
-            if(tmp != null)
-                this.professorToOriginalOwnerMap.put(professor,tmp);
+            Integer previousOwnerSchoolBoardId = this.assignProfessor(professor).get(professor);
+            if(previousOwnerSchoolBoardId != null)
+                this.characterPlayedInCurrentTurn.putProfessor(professor, previousOwnerSchoolBoardId);
         }
     }
 
     @Override
     public void assignProfessorsAfterEffect() {
         Integer professorToOriginalOwnerSchoolBoardId;
-        for (Color color : this.professorToOriginalOwnerMap.keySet()) {
-            professorToOriginalOwnerSchoolBoardId = this.professorToOriginalOwnerMap.get(color);
+        for (Color color : this.characterPlayedInCurrentTurn.getProfessorToOriginalOwnerMap().keySet()) {
+            professorToOriginalOwnerSchoolBoardId = this.characterPlayedInCurrentTurn.getProfessorToOriginalOwnerMap().get(color);
             SchoolBoard originalProfessorOwnerSchoolBoard = this.getSchoolBoardFromSchoolBoardId(professorToOriginalOwnerSchoolBoardId);
 
             if(this.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().get(color).intValue() == originalProfessorOwnerSchoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(color).intValue()){
@@ -166,6 +162,7 @@ public class ExpertGameState extends GameState {
 
 
         }
+        this.characterPlayedInCurrentTurn.clearProfessorsToOriginalOwnerMap();
     }
 
     //3 OK AND TESTED
@@ -476,5 +473,22 @@ public class ExpertGameState extends GameState {
             this.getCurrentPlayerSchoolBoard().payCharacter(this.characterPlayedInCurrentTurn.getCurrentCost());
             this.characterPlayedInCurrentTurn.increaseCost();
         }
+    }
+
+    @Override
+    public LightGameState lightify() {
+        return new LightGameState(
+                super.archipelagos.stream().map(Archipelago::lightify).toList(),
+                super.schoolBoards.stream().map(SchoolBoard::lightify).toList(),
+                super.clouds,
+                super.currentPlayerSchoolBoardId,
+                super.round.getCurrentPhase(),
+                super.round.getRoundOrder(),
+                super.archipelagos.indexOf(motherNaturePosition),
+                super.schoolBoardIdsToCardPlayedThisRound,
+
+                this.availableCharacters.stream().map(PlayableCharacter::lightify).toList(),
+                this.characterPlayedInCurrentTurn.lightify()
+        );
     }
 }

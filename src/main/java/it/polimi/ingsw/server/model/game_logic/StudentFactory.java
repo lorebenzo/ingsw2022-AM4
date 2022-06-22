@@ -3,19 +3,20 @@ package it.polimi.ingsw.server.model.game_logic;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
+import it.polimi.ingsw.server.model.game_logic.utils.Randomizer;
 
 import java.util.*;
 import java.util.stream.IntStream;
 
 public class StudentFactory {
-    protected final Map<Color, Integer> studentSupply;
-    private final Random randomizer;
+    // fixme: private
+    public final Map<Color, Integer> studentSupply;
+
 
     public StudentFactory() {
         this.studentSupply = new HashMap<>();
         for(Color color : Color.values())
             studentSupply.put(color, GameConstants.INITIAL_STUDENTS_PER_COLOR.value);
-        this.randomizer = new Random();
     }
 
     /**
@@ -34,16 +35,23 @@ public class StudentFactory {
             for(int i = 0; i < studentSupply.get(color); i++) students.add(color);
         });
 
-        Color chosen = students.get(this.randomizer.nextInt(students.size()));
+        Color chosen = students.get(Randomizer.nextInt(students.size()));
         studentSupply.put(chosen, studentSupply.get(chosen) - 1);
         return chosen;
+    }
+
+    public Color getStudent(Color student) throws EmptyStudentSupplyException {
+        if(studentSupply.get(student) <= 0) throw new EmptyStudentSupplyException();
+
+        studentSupply.put(student, studentSupply.get(student) - 1);
+        return student;
     }
 
     /**
      * @return a random student, each color is equally likely to spawn, this method DOES NOT update the studentSupply
      */
     public Color generateStudent() {
-        return Color.values()[this.randomizer.nextInt(Color.values().length)];
+        return Color.values()[Randomizer.nextInt(Color.values().length)];
     }
 
     /**
