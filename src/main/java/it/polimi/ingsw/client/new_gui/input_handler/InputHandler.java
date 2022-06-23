@@ -55,6 +55,10 @@ public class InputHandler {
                 if(state.equals(State.RST)) state = State.ClickedEntrance;
                 else reset();
             }
+            else if(type.equals(InputEventType.MyStudentInEntranceRightClick)) {
+                GUI.gameClient.moveStudentFromEntranceToDiningRoom(inputEvent.inputParams.color.get().toString());
+                reset();
+            }
             else if(type.equals(InputEventType.MyStudentInDiningRoomClick)) {
                 if(state.equals(State.ClickedEntrance)) {
                     // Discard last event

@@ -13,6 +13,8 @@ import it.polimi.ingsw.server.model.game_logic.LightSchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 import java.util.*;
@@ -93,7 +95,7 @@ public class SchoolBoardRenderer {
                     renderCoord.x, renderCoord.y
             );
 
-            studentImgView.setOnMouseClicked(event -> onMouseClickEntrance(studentImgView, student));
+            studentImgView.setOnMouseClicked(event -> onMouseClickEntrance(event, studentImgView, student));
 
             pane.getChildren().add(studentImgView);
         }
@@ -155,18 +157,25 @@ public class SchoolBoardRenderer {
         ));
     }
 
-    private static void onMouseClickEntrance(ImageView studentImageView, Color studentColor) {
+    private static void onMouseClickEntrance(MouseEvent event, ImageView studentImageView, Color studentColor) {
         // Down-Up effect
         UserExperience.doDownUpEffect(studentImageView, 3, 100);
 
         // Play click sound
         UserExperience.playSound(AssetHolder.mouseClickSound);
 
-        // Create input event
-        InputHandler.add(new InputEvent(
-                InputEventType.MyStudentInEntranceClick,
-                new InputParams().color(studentColor)
-        ));
+        if(event.getButton().equals(MouseButton.PRIMARY)) {
+            // Create input event
+            InputHandler.add(new InputEvent(
+                    InputEventType.MyStudentInEntranceClick,
+                    new InputParams().color(studentColor)
+            ));
+        } else {
+            InputHandler.add(new InputEvent(
+                    InputEventType.MyStudentInEntranceRightClick,
+                    new InputParams().color(studentColor)
+            ));
+        }
     }
 
     private static void onMouseClickDiningRoom(ImageView studentImgView, Color studentColor) {

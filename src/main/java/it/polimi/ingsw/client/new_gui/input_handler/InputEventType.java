@@ -3,6 +3,7 @@ package it.polimi.ingsw.client.new_gui.input_handler;
 public enum InputEventType {
     Reset,
     MyStudentInEntranceClick,
+    MyStudentInEntranceRightClick,
     MyStudentInDiningRoomClick,
     MyProfessorClick,
     ArchipelagoClick,
@@ -14,5 +15,6 @@ public enum InputEventType {
     JoinMatchMaking,
     EndTurn,
     Login,
-    SignUp;
+    SignUp
+    ;
 }
