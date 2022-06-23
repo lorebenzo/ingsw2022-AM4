@@ -3,6 +3,7 @@ package it.polimi.ingsw.client.game_client_and_cli;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
+import it.polimi.ingsw.client.new_gui.GUI;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -19,6 +20,7 @@ import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
+import javafx.application.Platform;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -200,6 +202,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);
         this.lastSnapshot = msg.lightGameState;
+        Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
         // TODO: Update GUI
     }
 
@@ -209,6 +212,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.jwt = msg.jwtAuthCode;
         this.username = AuthController.getUsernameFromJWT(this.jwt);
         this.logger.logSuccess("Successfully logged in");
+        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
     }
 

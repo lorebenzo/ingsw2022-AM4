@@ -38,8 +38,8 @@ public class GUI extends Application {
 
     public static GameClient gameClient = null;
 
-    public static void initGUI(String[] args, GameClient gameClient) {
-        GUI.gameClient = gameClient;
+    public static void init(String[] args, GameClient gc) {
+        gameClient = gc;
         launch(args);
     }
 
@@ -122,7 +122,9 @@ public class GUI extends Application {
 
     public static void switchView(View view) {
         currentView = view;
+        System.out.println("Current view: " + view.toString());
         render();
+        System.out.println("Rendered successfully");
     }
 
     private void setIconAndTitle(Stage stage) {
