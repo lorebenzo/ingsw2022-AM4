@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 public class SugarClient extends TcpClient {
-    private static final int                port = 33400;
+    private static final int                port = 19809;//33400; TODO: change
     private UUID                            upi = null;
     private final GameClient                gameClient;
 
