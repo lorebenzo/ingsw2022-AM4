@@ -398,15 +398,15 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.logChat(msg);
     }
 
-    private void sendChatMessage(@NotNull String to, @NotNull String message) {
+    public void sendChatMessage(@NotNull String to, @NotNull String message) {
         this.sendAndHandleDisconnection(new ChatMsg("me", to, message, this.jwt));
     }
 
-    private void rejoinMatch() {
+    public void rejoinMatch() {
         this.sendAndHandleDisconnection(new ReJoinMsg(this.jwt));
     }
 
-    private void rollback() {
+    public void rollback() {
         this.sendAndHandleDisconnection(new RollbackMsg(this.jwt));
     }
 

@@ -47,6 +47,11 @@ public class InputHandler {
 
                 reset();
             }
+            else if(type.equals(InputEventType.RejoinClicked)) {
+                GUI.gameClient.rejoinMatch();
+
+                reset();
+            }
             else if(type.equals(InputEventType.CardClick)) {
                 GUI.gameClient.playCard(inputEvent.inputParams.card.get().getValue());
                 reset();
