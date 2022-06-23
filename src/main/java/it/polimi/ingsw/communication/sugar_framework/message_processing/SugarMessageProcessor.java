@@ -19,7 +19,7 @@ public abstract class SugarMessageProcessor {
         List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(SugarMessageHandler.class))  // Get annotated methods
                 .filter(method -> method.getParameterCount() == 2)  // Get methods that take exactly two parameters
-                .filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a Message as first parameter
+                //.filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a Message as first parameter
                 .filter(method -> method.getParameterTypes()[1].equals(Peer.class)) // Get methods that take a Peer as second parameter
                 .collect(Collectors.toList());
 
@@ -61,7 +61,7 @@ public abstract class SugarMessageProcessor {
         List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(SugarMessageFromLowerLayersHandler.class))  // Get annotated methods
                 .filter(method -> method.getParameterCount() == 2)  // Get methods that take exactly two parameters
-                .filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a Message as first parameter
+                //.filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a Message as first parameter
                 .filter(method -> method.getParameterTypes()[1].equals(Peer.class)) // Get methods that take a Peer as second parameter
                 .collect(Collectors.toList());
 
@@ -107,7 +107,7 @@ public abstract class SugarMessageProcessor {
         List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(SugarMessageHandler.class))  // Get annotated methods
                 .filter(method -> method.getParameterCount() == 1)  // Get methods that take exactly one parameter
-                .filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a SugarMessage as parameter
+                //.filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a SugarMessage as parameter
                 .collect(Collectors.toList());
 
 

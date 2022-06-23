@@ -58,72 +58,84 @@ public class Terminal {
 
     /**
      * Minimum width 10
-     * @param rows
-     * @param cols
-     * @param target
+     * @param maxRowsNumber is the maximum number of rows that can be used in the terminal.
+     * @param maxColumnsNumber is the maximum number of columns that can be used in the terminal.
+     * @param target represents where the terminal will be printed.
      */
-    public Terminal(int rows, int cols, PrintStream target) {
-        this.rows = rows;
-        this.cols = cols;
+    public Terminal(int maxRowsNumber, int maxColumnsNumber, PrintStream target) {
+        this.rows = maxRowsNumber;
+        this.cols = maxColumnsNumber;
         this.target = target;
-        this.terminal = new String[rows][cols];
-        this.loggerWidth = cols/10*3; // TODO: fix bug: logs are displayed also if they go outside the log box
-        this.loggerHeight = rows;
+        this.terminal = new String[maxRowsNumber][maxColumnsNumber];
+        this.loggerWidth = maxColumnsNumber/10*3; // TODO: fix bug: logs are displayed also if they go outside the log box
+        this.loggerHeight = maxRowsNumber;
         this.cleanEverything();
     }
 
-    private void put(int x, int y, String ch) {
-        this.terminal[x][y] = ch;
+    /**
+     * This method puts the given character in the given position in the terminal.
+     * @param row is the parameter that indicates the row coordinate in which the given character will be written.
+     * @param column is the parameter that indicates the column coordinate in which the given character will be written.
+     * @param character is the character that will be written.
+     */
+    private void put(int row, int column, String character) {
+        this.terminal[row][column] = character;
     }
 
+    /**
+     * This method gets a character in input (in the form of a String) and applies the given color to it.
+     * @param s is the character that will be returned
+     * @param textColorANSI is the color with which the character will be written
+     * @return the given character with the given color applied to it
+     */
     private String color(String s, String textColorANSI) {
         return textColorANSI + s + ANSI_RESET;
     }
 
-    private String color(String s, String textColorANSI, String backgroundColorANSI) {
-        return backgroundColorANSI + textColorANSI + s + ANSI_RESET;
+    private String color(String string, String textColorANSI, String backgroundColorANSI) {
+        return backgroundColorANSI + textColorANSI + string + ANSI_RESET;
     }
 
     /**
      * Prints the hyperString to the terminal
      * @param hyperString list of characters, represented as a list of strings
-     * @param x
-     * @param y
+     * @param row is the row coordinate from which the printing process will start
+     * @param column is the column coordinate from which the printing process will start
      */
-    public void putStringAsComponent(List<String> hyperString, int x, int y) {
-        final var _y = y;
-        for(var ch : hyperString) {
-            if(ch.equals("\n")) {
-                x++;
-                y = _y;
+    public void putStringAsComponent(List<String> hyperString, int row, int column) {
+        final int startingColumn = column;
+        for(var character : hyperString) {
+            if(character.equals("\n")) {
+                row++;
+                column = startingColumn;
             } else {
-                this.put(x, y, ch);
-                y++;
-                if(y >= this.cols - this.loggerWidth) {
-                    y = _y;
-                    x++;
+                this.put(row, column, character);
+                column++;
+                if(column >= this.cols - this.loggerWidth) {
+                    column = startingColumn;
+                    row++;
                 }
             }
         }
     }
 
     /**
-     * Flushes the content of the terminal to the real terminal
+     * This method flushes the content of the terminal to the target.
      */
     public void flush() {
         System.out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-        StringBuilder s = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         for(int row = 0; row < this.rows; row++) {
             for(int col = 0; col < this.cols; col++)
-                s.append(this.terminal[row][col]);
-            s.append('\n');
+                stringBuilder.append(this.terminal[row][col]);
+            stringBuilder.append('\n');
         }
-        this.target.println(s);
+        this.target.println(stringBuilder);
     }
 
     /**
-     * Cleans everyhthing except the logs window in the terminal
+     * This method cleans everything in the terminal except the logs window in the terminal.
      */
     private void clean() {
         for(int row = 0; row < this.rows; row++)
@@ -132,7 +144,7 @@ public class Terminal {
     }
 
     /**
-     * Cleans the logs window in the terminal
+     * This method cleans the logs window in the terminal.
      */
     private void cleanLogs() {
         for(int row = 0; row < this.rows; row++)
@@ -141,7 +153,7 @@ public class Terminal {
     }
 
     /**
-     * Cleans the entire terminal
+     * This method cleans the entire terminal.
      */
     private void cleanEverything() {
         for(int row = 0; row < this.rows; row++)
@@ -153,52 +165,78 @@ public class Terminal {
     // Logging
 
     /**
-     * Logs the string s
-     * @param s
+     * This method logs the given string with the default color.
+     * @param stringToBeLogged is the string to be logged.
      */
-    public void log(String s) {
-        this.logWithColor(s, ANSI_RESET);
+    public void log(String stringToBeLogged) {
+        this.logWithColor(stringToBeLogged, ANSI_RESET);
     }
 
-    public void logSuccess(String s) {
-        this.logWithColor(s, ANSI_GREY);
+    /**
+     * This method logs the given string with the color indicating success.
+     * @param stringToBeLogged is the string to be logged.
+     */
+    public void logSuccess(String stringToBeLogged) {
+        this.logWithColor(stringToBeLogged, ANSI_GREY);
     }
 
-    public void logError(String s) {
-        this.logWithColor(s, ANSI_RED);
+    /**
+     * This method logs the given string with the color indicating an error.
+     * @param stringToBeLogged is the string to be logged.
+     */
+    public void logError(String stringToBeLogged) {
+        this.logWithColor(stringToBeLogged, ANSI_RED);
     }
 
-    public void logCyan(String s) { this.logWithColor(s, ANSI_CYAN); }
+    /**
+     * This method logs the given string with the cyan color.
+     * @param stringToBeLogged is the string to be logged.
+     */
+    public void logCyan(String stringToBeLogged) { this.logWithColor(stringToBeLogged, ANSI_CYAN); }
 
-    public void logPurple(String s) { this.logWithColor(s, ANSI_PURPLE); }
+    /**
+     * This method logs the given string with the purple color.
+     * @param stringToBeLogged is the string to be logged.
+     */
+    public void logPurple(String stringToBeLogged) { this.logWithColor(stringToBeLogged, ANSI_PURPLE); }
 
-    public void logWarning(String s) {
-        this.logWithColor(s, ANSI_YELLOW);
+    /**
+     * This method logs the given string with the color indicating a warning.
+     * @param stringToBeLogged is the string to be logged.
+     */
+    public void logWarning(String stringToBeLogged) {
+        this.logWithColor(stringToBeLogged, ANSI_YELLOW);
     }
 
-    private void logWithColor(String s, String ansiColorCode) {
+    /**
+     * This method logs the given string with the given color (represented with a string).
+     * @param stringToBeLogged is the string to be logged.
+     * @param ansiColorCode is the color in which the given string will be logged.
+     */
+    private void logWithColor(String stringToBeLogged, String ansiColorCode) {
         UnicodeString log = new UnicodeString();
-        for(var ch : s.toCharArray())
+        for(var ch : stringToBeLogged.toCharArray())
             log.appendUnicodeChar(ansiColorCode + ch + ANSI_RESET);
         this.logs.add(0, log);
         this.updateLogs(this.logs);
     }
 
     /**
-     * Prints the logs to the terminal
-     * @param logs
+     * This method prints the logs to the terminal.
+     * @param logs represents the list of logs that will be printed to the terminal.
      */
     private void updateLogs(List<UnicodeString> logs) {
         this.cleanLogs();
 
         List<String> characters = new LinkedList<>();
         for(var log : logs) {
-            List<String> logCharacters = log.getCharacters();
+            //List<String> logCharacters = log.getCharacters();
+            //List<String> logCharacters = log.getUnicodeString();
 
             characters.add(">");
             characters.add(" ");
-            for(var ch : logCharacters)
-                characters.add(ch);
+            //characters.addAll(logCharacters);
+            characters.addAll(log.getUnicodeString());
             characters.add("\n");
         }
 
@@ -224,24 +262,83 @@ public class Terminal {
      */
 
 
-    // Print Game State
-    public void updateGS(LightGameState lightGameState) {
+    /**
+     * This method updates the terminal with the new lightGameState.
+     * @param lightGameState is the new lightGameState that will be rendered on the terminal.
+     */
+    public void updateGameState(LightGameState lightGameState) {
         this.clean();
         this.renderSchoolBoards(lightGameState.schoolBoards, lightGameState.usernameToSchoolBoardID, lightGameState.currentPlayerSchoolBoardId, 0, 0);
+        this.renderAvailableCharacters(lightGameState.availableCharacters, 15, 0);
         this.renderArchipelagos(lightGameState.archipelagos, lightGameState.motherNaturePosition, 0, 65);
         this.renderClouds(lightGameState.clouds, 15, 65);
     }
 
-    private Optional<String> getUsernameFromSchoolBoardID(Map<String, Integer> usernameToSchoolBoardID, int schoolBoardID) {
-        for (Map.Entry<String, Integer> username : usernameToSchoolBoardID.entrySet()) {
-            if (Objects.equals(schoolBoardID, username.getValue())) {
+    private void renderAvailableCharacters(List<LightPlayableCharacter> availableCharacters, int row, int col) {
+
+        var header = new UnicodeString()
+                .appendNonUnicodeString("Available Characters:")
+                .getUnicodeString();
+        this.putStringAsComponent(header, row++, col);
+
+        var header2 = new UnicodeString()
+                .appendNonUnicodeString("ID:    Cost:")
+                .getUnicodeString();
+        this.putStringAsComponent(header2, row++, col);
+
+
+        for(int i = 0; i < availableCharacters.size(); i++) {
+            var character = availableCharacters.get(i);
+
+            // Display archipelago
+            UnicodeString characterRepresentation = new UnicodeString();
+
+            // Add island codes
+            characterRepresentation.appendNonUnicodeString(character.characterId + "      " + character.currentCost + "      ");
+            if(character.availableLocks != null)
+                characterRepresentation.appendNonUnicodeString("Available locks: " + character.availableLocks);
+
+            if(character.students != null){
+                characterRepresentation.appendNonUnicodeString("Students: ");
+                for(var student : character.students)
+                    characterRepresentation.appendUnicodeChar(
+                            this.color(studentSymbol, studentColorToANSI.get(student))
+                    ).appendNonUnicodeString(" ");
+            }
+
+
+            // Display data
+            this.putStringAsComponent(characterRepresentation.getUnicodeString(), row + i + 1, col);
+
+
+        }
+    }
+
+    /**
+     * This method returns the username corresponding to the given schoolBoardId wrapped in an Optional, if it exists. Optional.empty() if the provided
+     * schoolBoardId doesn't exist.
+     * @param usernameToSchoolBoardId is the map that maps usernames to schoolBoardIds.
+     * @param schoolBoardId represents the schoolBoardId for which you want to get the username.
+     * @return the username corresponding to the given schoolBoardId
+     */
+    private Optional<String> getUsernameFromSchoolBoardID(Map<String, Integer> usernameToSchoolBoardId, int schoolBoardId) {
+        for (Map.Entry<String, Integer> username : usernameToSchoolBoardId.entrySet()) {
+            if (Objects.equals(schoolBoardId, username.getValue())) {
                 return Optional.of(username.getKey());
             }
         }
         return Optional.empty();
     }
 
-    private void renderSchoolBoards(List<LightSchoolBoard> schoolBoards, Map<String, Integer> usernameToSchoolBoardID, int currentPlayerSchId, int row, int col) {
+    /**
+     * This method renders all the schoolBoards in the terminal.
+     * @param schoolBoards is a list containing the schoolBoard of every player.
+     * @param usernameToSchoolBoardId is a map that maps the username to the schoolBoardId of each player.
+     * @param currentPlayerSchoolBoardId indicates the schoolBoardId of the current player.
+     * @param row indicates the row from which the schoolBoards will be printed.
+     * @param col indicates the column from which the schoolBoards will be printed.
+     */
+    private void renderSchoolBoards(List<LightSchoolBoard> schoolBoards, Map<String, Integer> usernameToSchoolBoardId, int currentPlayerSchoolBoardId, int row, int col) {
         // Display schoolBoards
         int printed = 0;
         for(var schoolBoard : schoolBoards) {
@@ -249,12 +346,12 @@ public class Terminal {
             var _col = printed == 0 || printed == 2 ? col : col + 32;
 
 
-            var username = getUsernameFromSchoolBoardID(usernameToSchoolBoardID, schoolBoard.id);
+            var username = getUsernameFromSchoolBoardID(usernameToSchoolBoardId, schoolBoard.id);
 
             // Display schoolBoard name
             var name = new UnicodeString()
                     .appendNonUnicodeString("Schoolboard " + username.get());
-            if(schoolBoard.id == currentPlayerSchId)
+            if(schoolBoard.id == currentPlayerSchoolBoardId)
                 name.color(ANSI_GREEN);
             this.putStringAsComponent(name.getUnicodeString(), _row++, _col);
 
@@ -298,17 +395,36 @@ public class Terminal {
                                     .toList()
                                     .toString()
                     );
+
             this.putStringAsComponent(
                     new UnicodeString().appendNonUnicodeString("Cards:").getUnicodeString(), _row++, _col
             );
             this.putStringAsComponent(cards.getUnicodeString(), _row++, _col);
+
+            var cardsSteps = new UnicodeString()
+                    .appendNonUnicodeString(
+                            schoolBoard.deck
+                                    .stream()
+                                    .map(Card::getSteps)
+                                    .toList()
+                                    .toString()
+                    );
+
+            this.putStringAsComponent(cardsSteps.getUnicodeString(), _row++, _col);
 
             printed++;
         }
     }
 
 
-    private void renderArchipelagos(List<LightArchipelago> archipelagos, int motherNatPos, int row, int col) {
+    /**
+     * This method renders all the archipelagos in the terminal.
+     * @param archipelagos is a list containing all the archipelagos.
+     * @param motherNaturePosition is an integer that indicates the index of archipelagos in which motherNature finds itself.
+     * @param row indicates the row from which the archipelagos will be printed.
+     * @param col indicates the column from which the archipelagos will be printed.
+     */
+    private void renderArchipelagos(List<LightArchipelago> archipelagos, int motherNaturePosition, int row, int col) {
         // Display header
         var header = new UnicodeString()
                 .appendNonUnicodeString("Archipelagos:")
@@ -322,8 +438,8 @@ public class Terminal {
             UnicodeString archipelagoRepresentation = new UnicodeString();
 
             // Add island codes
-            archipelagoRepresentation.appendNonUnicodeString(archipelago.islandCodes.toString() + ": ");
-            if(archipelago.equals(archipelagos.get(motherNatPos))) archipelagoRepresentation.color(ANSI_GREEN);
+            archipelagoRepresentation.appendNonUnicodeString(archipelago.islandCodes.toString() + ":    ");
+            if(archipelago.equals(archipelagos.get(motherNaturePosition))) archipelagoRepresentation.color(ANSI_GREEN);
 
             // Add towers
             String towerColor = towerColorToANSI.get(archipelago.towerColor);
@@ -349,6 +465,12 @@ public class Terminal {
         }
     }
 
+    /**
+     * This method renders all the clouds in the terminal.
+     * @param clouds is a list containing all the clouds.
+     * @param row indicates the row from which the clouds will be printed.
+     * @param col indicates the column from which the clouds will be printed.
+     */
     private void renderClouds(List<List<Color>> clouds, int row, int col) {
         this.putStringAsComponent(
                 new UnicodeString().appendNonUnicodeString("Clouds").getUnicodeString(), row++, col
@@ -368,7 +490,7 @@ public class Terminal {
 }
 
 /**
- * Represents a unicode string
+ * This class represents a string composed by unicode characters.
  */
 class UnicodeString {
     private final List<String> string;
@@ -379,27 +501,46 @@ class UnicodeString {
         this.string = new LinkedList<>();
     }
 
-    public UnicodeString appendNonUnicodeString(String s) {
-        for(var ch : s.toCharArray())
+    /**
+     * This method gets a String in input and appends it to this UnicodeString.
+     * @param string is the string that will be appended to this UnicodeString.
+     * @return this, a UnicodeString made up with the previous UnicodeString and the newly added String.
+     */
+    public UnicodeString appendNonUnicodeString(String string) {
+        for(var ch : string.toCharArray())
             this.string.add(Character.toString(ch));
         return this;
     }
 
+    /**
+     * This method gets a character in input (represented as a String) and appends it to this UnicodeString.
+     * @param unicodeRepresentation is the string representing the character with its color.
+     * @return this, a UnicodeString made up with the previoys UnicodeString and the newly added character.
+     */
     public UnicodeString appendUnicodeChar(String unicodeRepresentation) {
         this.string.add(unicodeRepresentation);
         return this;
     }
 
+    /**
+     * This method returns this UnicodeString.
+     * @return an ArrayList representing the current string.
+     */
     public List<String> getUnicodeString() {
         return new ArrayList<>(string);
     }
 
+    /**
+     * This method gets a color in input (represented as a String) and modifies the color of this string accordingly.
+     * @param ansiColorCode is the string representing the color that this string will be modified to.
+     */
     public void color(String ansiColorCode) {
         this.string.set(0, ansiColorCode + this.string.get(0));
         this.string.set(this.string.size() - 1, this.string.get(this.string.size() - 1) + ANSI_RESET);
     }
 
-    public List<String> getCharacters() {
+    //TODO: verify that it's actually useless
+/*    public List<String> getCharacters() {
         return string;
-    }
+    }*/
 }

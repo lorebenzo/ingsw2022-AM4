@@ -44,9 +44,7 @@ public class CommunicationController extends SugarMessageProcessor {
         this.gameStateController = initializeGameStateController(gameUUID);
         this.usernameToSchoolBoardID = new HashMap<>();
 
-        players.forEach(player -> {
-            this.usernameToSchoolBoardID.put(player.getValue0(), player.getValue1());
-        });
+        players.forEach(player -> this.usernameToSchoolBoardID.put(player.getValue0(), player.getValue1()));
     }
 
     protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
@@ -60,7 +58,7 @@ public class CommunicationController extends SugarMessageProcessor {
             return new CommunicationController(players);
     }
 
-    public static CommunicationController createCommunicationController(List<Pair<String, Integer>> players, boolean isExpertMode, UUID gameUUID) throws GameStateInitializationFailureException {
+    public static CommunicationController createCommunicationController(List<Pair<String, Integer>> players, boolean isExpertMode, UUID gameUUID) {
         if(isExpertMode)
             return new ExpertCommunicationController(players, gameUUID);
         else
@@ -84,11 +82,9 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
-    public SugarMessage rollbackMsg(SugarMessage message, Peer peer) {
+    public SugarMessage rollbackMsg(RollbackMsg message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
-
-        var msg = (RollbackMsg) message;
 
         this.gameStateController.rollback();
 
@@ -97,14 +93,12 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
-    public SugarMessage playCardMsg(SugarMessage message, Peer peer){
+    public SugarMessage playCardMsg(PlayCardMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (PlayCardMsg) message;
-
         try {
-            boolean lastRound = this.gameStateController.playCard(msg.card);
+            boolean lastRound = this.gameStateController.playCard(message.card);
             return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ""), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e){
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
@@ -119,13 +113,12 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
-    public SugarMessage moveStudentFromEntranceToDiningRoomMsg(SugarMessage message, Peer peer){
+    public SugarMessage moveStudentFromEntranceToDiningRoomMsg(MoveStudentFromEntranceToDiningRoomMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
-        var msg = (MoveStudentFromEntranceToDiningRoomMsg) message;
 
         try {
-            this.gameStateController.moveStudentFromEntranceToDiningRoom(msg.student);
+            this.gameStateController.moveStudentFromEntranceToDiningRoom(message.student);
             return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
@@ -139,20 +132,18 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
-    public SugarMessage moveStudentFromEntranceToArchipelagoMsg(SugarMessage message, Peer peer) {
+    public SugarMessage moveStudentFromEntranceToArchipelagoMsg(MoveStudentFromEntranceToArchipelagoMsg message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
-
-        var msg = (MoveStudentFromEntranceToArchipelagoMsg) message;
 
         try {
             var archipelagoIslandCodes = this.gameStateController.getLightGameState().archipelagos
                     .stream()
                     .map(lightArchipelago -> lightArchipelago.islandCodes)
-                    .filter(ic -> ic.contains(msg.archipelagoIslandCode))
+                    .filter(ic -> ic.contains(message.archipelagoIslandCode))
                     .findFirst()
                     .orElseThrow(InvalidArchipelagoIdException::new);
-            this.gameStateController.moveStudentFromEntranceToArchipelago(msg.student, archipelagoIslandCodes);
+            this.gameStateController.moveStudentFromEntranceToArchipelago(message.student, archipelagoIslandCodes);
             return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
@@ -171,14 +162,12 @@ public class CommunicationController extends SugarMessageProcessor {
 
 
     @SugarMessageHandler
-    public SugarMessage moveMotherNatureMsg(SugarMessage message, Peer peer) {
+    public SugarMessage moveMotherNatureMsg(MoveMotherNatureMsg message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (MoveMotherNatureMsg) message;
-
         try {
-            boolean merged = this.gameStateController.moveMotherNature(msg.numberOfSteps);
+            boolean merged = this.gameStateController.moveMotherNature(message.numberOfSteps);
 
             return new OKAndUpdateMsg(
                     new OKMsg(merged ? ReturnMessage.MERGE_PERFORMED.text : ReturnMessage.MERGE_NOT_PERFORMED.text),
@@ -198,14 +187,12 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
-    public SugarMessage grabStudentsFromCloudMsg(SugarMessage message, Peer peer){
+    public SugarMessage grabStudentsFromCloudMsg(GrabStudentsFromCloudMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (GrabStudentsFromCloudMsg) message;
-
         try {
-            this.gameStateController.grabStudentsFromCloud(msg.cloudIndex);
+            this.gameStateController.grabStudentsFromCloud(message.cloudIndex);
             return new OKAndUpdateMsg(
                     new OKMsg(ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
                     new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
@@ -222,7 +209,7 @@ public class CommunicationController extends SugarMessageProcessor {
     }
 
     @SugarMessageHandler
-    public SugarMessage endTurnMsg(SugarMessage message, Peer peer){
+    public SugarMessage endTurnMsg(EndTurnMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
