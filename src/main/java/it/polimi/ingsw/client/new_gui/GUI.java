@@ -1,13 +1,16 @@
 package it.polimi.ingsw.client.new_gui;
 
 import com.google.gson.Gson;
+import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.client.new_gui.views.enemies_view.EnemyViewRenderer;
 import it.polimi.ingsw.client.new_gui.views.login_view.LoginViewRenderer;
+import it.polimi.ingsw.client.new_gui.views.matchmaking_view.MatchMakingRenderer;
 import it.polimi.ingsw.client.new_gui.views.player_view.*;
 import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -24,14 +27,21 @@ import java.util.HashMap;
 public class GUI extends Application {
     private static Boolean preventResize = false;
 
-    public static final HashMap<Rectangle, Parent> rectangleToComponent = new HashMap<>();
+    public static final HashMap<Rectangle, Node> rectangleToComponent = new HashMap<>();
 
     private static Stage stage;
 
     public enum View {
-        LoginView, PlayerView, EnemiesView
+        LoginView, PlayerView, EnemiesView, MatchMakingView
     }
-    public static View currentView = View.LoginView;
+    public static View currentView = View.MatchMakingView;
+
+    public static GameClient gameClient = null;
+
+    public static void initGUI(String[] args, GameClient gameClient) {
+        GUI.gameClient = gameClient;
+        launch(args);
+    }
 
     public static void main(String[] args) {
         launch(args); // Remember this is blocking
@@ -90,18 +100,22 @@ public class GUI extends Application {
         // Test
         LightGameState lgs = null;
         try {
-            lgs = new Gson().fromJson(Files.readString(Path.of("src/main/resources/jsonviewer (1).json")), LightGameState.class);
+            lgs = new Gson().fromJson(Files.readString(Path.of("src/main/resources/expert.json")), LightGameState.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         Pane pane;
-        if(currentView.equals(View.PlayerView))
+        if(currentView.equals(View.LoginView))
+            pane = LoginViewRenderer.renderLoginView();
+        else if(currentView.equals(View.PlayerView))
             pane = PlayerViewRenderer.renderGameState(lgs);
         else if(currentView.equals(View.EnemiesView))
             pane = EnemyViewRenderer.renderEnemyView(lgs);
+        else if(currentView.equals(View.MatchMakingView))
+            pane = MatchMakingRenderer.renderMatchMaking();
         else
-            pane = PlayerViewRenderer.renderGameState(lgs); //LoginViewRenderer.renderLoginView();
+            pane = new Pane();
 
         // Add focus listener
         pane.setOnMouseMoved(event -> setFocusInputWhen(event.getX(), event.getY()));
@@ -180,6 +194,12 @@ public class GUI extends Application {
                     SizeHandler.getX(this.relX + this.relW) >= absX &&
                     SizeHandler.getY(this.relY) <= absY &&
                     SizeHandler.getY(this.relY + this.relH) >= absY;
+        }
+
+        public Rectangle sameToTheRight() {
+            return new Rectangle(
+                    this.relX + this.relW, this.relY, this.relW, this.relH
+            );
         }
 
         /**

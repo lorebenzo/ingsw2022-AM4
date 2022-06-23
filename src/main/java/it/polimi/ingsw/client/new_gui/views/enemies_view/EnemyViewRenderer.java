@@ -18,7 +18,11 @@ public class EnemyViewRenderer {
         GUI.rectangleToComponent.put(Layout.chooseButtonRect, chooseEnemySchoolBoardButton);
         GUI.rectangleToComponent.put(Layout.switchButtonToEnemyRect, switchViewButton);
 
-        pane.getChildren().addAll(enemyChosenSchoolBoard, chooseEnemySchoolBoardButton, switchViewButton);
+        pane.getChildren().addAll(
+                enemyChosenSchoolBoard,
+                chooseEnemySchoolBoardButton,
+                switchViewButton
+        );
 
         return pane;
     }

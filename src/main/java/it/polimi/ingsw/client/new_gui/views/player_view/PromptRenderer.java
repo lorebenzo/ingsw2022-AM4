@@ -4,6 +4,8 @@ import it.polimi.ingsw.client.new_gui.AssetHolder;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.LightArchipelago;
+import it.polimi.ingsw.server.model.game_logic.LightPlayableCharacter;
+import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import javafx.scene.image.ImageView;
@@ -60,20 +62,6 @@ public class PromptRenderer {
         return pane;
     }
 
-
-    /******************* Cloud Prompt ***********************/
-    public static Pane renderCloudPrompt(List<Color> cloud) {
-        var pane = new Pane();
-
-        renderStudentsIntoPrompt(cloud, pane);
-
-        return pane;
-    }
-
-
-    /********************************************************/
-
-
     private static void renderStudentsIntoPrompt(List<Color> students, Pane promptPane) {
         // Create student to number map
         var studentToNumber = new HashMap<Color, Integer>();
@@ -116,4 +104,29 @@ public class PromptRenderer {
             }
         }
     }
+
+
+    /******************* Cloud Prompt ***********************/
+    public static Pane renderCloudPrompt(List<Color> cloud) {
+        var pane = new Pane();
+
+        renderStudentsIntoPrompt(cloud, pane);
+
+        return pane;
+    }
+
+
+    /********************************************************/
+
+
+    /******************** Characters Prompt *******************/
+    public static Pane renderCharacterPrompt(LightPlayableCharacter character) {
+        var prompt = new Pane();
+
+        if(character.students != null) renderStudentsIntoPrompt(character.students, prompt);
+
+        return prompt;
+    }
+
+    /**********************************************************/
 }

@@ -13,8 +13,20 @@ public class InputParams {
     public Optional<String> text = Optional.empty();
     public Optional<String> username = Optional.empty();
     public Optional<String> password = Optional.empty();
+    public Optional<Boolean> isExpert = Optional.empty();
+    public Optional<Integer> numberOfPlayers = Optional.empty();
 
     // Builders
+    public InputParams numberOfPlayers(int n) {
+        this.numberOfPlayers = Optional.of(n);
+        return this;
+    }
+
+    public InputParams isExpert(boolean b) {
+        this.isExpert = Optional.of(b);
+        return this;
+    }
+
     public InputParams color(Color color) {
         this.color = Optional.of(color);
         return this;
@@ -59,6 +71,8 @@ public class InputParams {
         text.ifPresent(printParam);
         username.ifPresent(printParam);
         password.ifPresent(printParam);
+        isExpert.ifPresent(printParam);
+        numberOfPlayers.ifPresent(printParam);
 
         return stringRef.s.substring(0, Math.max(0, stringRef.s.length() - 2));
     }

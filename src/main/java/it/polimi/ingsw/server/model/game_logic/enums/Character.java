@@ -1,7 +1,11 @@
 package it.polimi.ingsw.server.model.game_logic.enums;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 public enum Character {
-    NONE(0,
+    NONE(
+            0,
             0,
             "",
             0),
@@ -79,4 +83,9 @@ public enum Character {
         this.studentsNumberOnCharacter = studentsNumberOnCharacter;
     }
 
+    public static Optional<Character> fromId(int i) {
+        return Arrays.stream(Character.values())
+                .filter(character -> character.characterId == i)
+                .findFirst();
+    }
 }

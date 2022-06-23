@@ -101,4 +101,13 @@ public class Layout {
     public static final GUI.Rectangle switchButtonToPlayerRect = new GUI.Rectangle(
             switchButtonToPlayerRelX, switchButtonToPlayerRelY, switchButtonToPlayerRelW, switchButtonToPlayerRelH
     );
+
+    // First character card rect
+    public static final double firstCharacterRelX = 75;
+    public static final double firstCharacterRelY = 80;
+    public static final double firstCharacterRelW = 6;
+    public static final double firstCharacterRelH = 17.25;
+    public static final GUI.Rectangle firstCharacterRect = new GUI.Rectangle(
+            firstCharacterRelX, firstCharacterRelY, firstCharacterRelW, firstCharacterRelH
+    );
 }

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client.new_gui;
 
+import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
@@ -22,6 +23,8 @@ public class AssetHolder {
     public static Map<TowerColor, Image> towerColorImageMap = new HashMap<>();
     public static Image cloud;
     public static Map<Card, Image> cardImageMap = new HashMap<>();
+    private static Map<Character, String> characterToAssetFileNameMap = new HashMap<>();
+    public static Map<Character, Image> characterToImage = new HashMap<>();
 
     // Sounds
     public static Media mouseClickSound;
@@ -61,6 +64,25 @@ public class AssetHolder {
             mouseClickSound = new Media(new File("src/main/resources/assets/sounds/mouse_click.mp3").toURI().toString());
             // Background music
             backgroundMusic = new Media(new File("src/main/resources/assets/music/background_music.mp3").toURI().toString());
+
+            // Characters
+            int i = 1;
+            for (Character c : Character.values())
+                if(!c.equals(Character.NONE)) {
+                    characterToAssetFileNameMap.put(c, "character_" + i + ".jpg");
+                    i++;
+                }
+
+            for(Character c : Character.values())
+                if(!c.equals(Character.NONE))
+                    characterToImage.put(
+                            c,
+                            new Image(
+                                    new FileInputStream(
+                                            "src/main/resources/assets/characters/" + characterToAssetFileNameMap.get(c)
+                                    )
+                            )
+                    );
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

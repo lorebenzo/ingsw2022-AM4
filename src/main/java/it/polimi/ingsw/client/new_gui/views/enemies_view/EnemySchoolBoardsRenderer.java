@@ -5,12 +5,9 @@ import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.client.new_gui.views.player_view.SchoolBoardRenderer;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.LightSchoolBoard;
-import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-
-import java.util.Optional;
 
 public class EnemySchoolBoardsRenderer {
     public static int schoolBoardChosenId = 0;

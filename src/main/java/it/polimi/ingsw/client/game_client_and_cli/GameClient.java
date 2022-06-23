@@ -9,11 +9,13 @@ import io.github.cdimascio.dotenv.Dotenv;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+import it.polimi.ingsw.server.controller.auth_controller.AuthController;
 import it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
@@ -53,11 +55,15 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
     private final Logger logger = new GameLogger(new Terminal(23, 150, System.out));
     private String jwt;
+    public String username;
 
     // CLI Attributes
     private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
     private static final Pattern parameter = Pattern.compile("--[a-zA-Z]+=[,a-zA-Z0-9 ]+( )*");
     private static final Pattern keyValue = Pattern.compile("[,a-zA-Z0-9 ]+");
+
+    // Utils
+    private LightGameState lastSnapshot = null;
 
     public GameClient() {
         var dotenv = Dotenv.configure().load();
@@ -115,6 +121,17 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     public void moveMotherNature(int numberOfSteps){
         this.sendAndHandleDisconnection(new MoveMotherNatureMsg(numberOfSteps, this.jwt));
+    }
+
+    public void moveMotherNatureToDest(int archipelagoId) {
+        int numberOfSteps = 0;
+        var archipelagos = this.lastSnapshot.archipelagos;
+        for(int i = lastSnapshot.motherNaturePosition; numberOfSteps <= 7; i++, numberOfSteps++) {
+            if(archipelagoId == archipelagos.get(i).islandCodes.get(0)) {
+                this.sendAndHandleDisconnection(new MoveMotherNatureMsg(numberOfSteps, this.jwt));
+                break;
+            }
+        }
     }
 
     public void grabStudentsFromCloud(int cloudIndex){
@@ -182,10 +199,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);
-        // TODO: remove (debug)
-        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        // System.out.println(gson.toJson(msg.lightGameState));
-
+        this.lastSnapshot = msg.lightGameState;
         // TODO: Update GUI
     }
 
@@ -193,11 +207,11 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void JWTMsg(SugarMessage message) {
         var msg = (JWTMsg) message;
         this.jwt = msg.jwtAuthCode;
+        this.username = AuthController.getUsernameFromJWT(this.jwt);
         this.logger.logSuccess("Successfully logged in");
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
-
-        // TODO: Update GUI
     }
+
     @SugarMessageHandler
     public void peerUPIMessage(SugarMessage message) {}
 
