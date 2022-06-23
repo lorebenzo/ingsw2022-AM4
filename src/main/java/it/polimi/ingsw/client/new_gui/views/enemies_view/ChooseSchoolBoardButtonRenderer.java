@@ -21,7 +21,7 @@ public class ChooseSchoolBoardButtonRenderer {
 
         var enemySchoolBoards = lgs.schoolBoards
                 .stream()
-                .filter(schoolBoard -> schoolBoard.id != lgs.currentPlayerSchoolBoardId)
+                .filter(schoolBoard -> schoolBoard.id != lgs.usernameToSchoolBoardID.get(GUI.gameClient.username))
                 .toList();
         for(var enemySchoolBoard : enemySchoolBoards) {
             var playerName = lgs.usernameToSchoolBoardID

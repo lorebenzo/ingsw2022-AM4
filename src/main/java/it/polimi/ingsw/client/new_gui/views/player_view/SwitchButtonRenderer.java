@@ -2,6 +2,10 @@ package it.polimi.ingsw.client.new_gui.views.player_view;
 
 import it.polimi.ingsw.client.new_gui.AssetHolder;
 import it.polimi.ingsw.client.new_gui.GUI;
+import it.polimi.ingsw.client.new_gui.input_handler.InputEvent;
+import it.polimi.ingsw.client.new_gui.input_handler.InputEventType;
+import it.polimi.ingsw.client.new_gui.input_handler.InputHandler;
+import it.polimi.ingsw.client.new_gui.input_handler.InputParams;
 import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
@@ -16,7 +20,7 @@ public class SwitchButtonRenderer {
         switchButton.setMaxWidth(GUI.SizeHandler.getX(dstRect.relW));
         switchButton.setMaxHeight(GUI.SizeHandler.getY(dstRect.relH));
 
-        pane.getChildren().add(switchButton);
+        pane.getChildren().addAll(switchButton);
 
         // Event listeners
         switchButton.setOnMouseClicked(mouseEvent -> {

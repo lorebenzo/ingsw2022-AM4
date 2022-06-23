@@ -11,6 +11,5 @@ public class MainGUI {
         new Thread(() -> GUI.init(args, gc)).start();
 
         GUI.switchView(GUI.View.LoginView);
-        //GUI.switchView(GUI.View.MatchMakingView);
     }
 }

@@ -54,7 +54,7 @@ public class Layout {
     // Chat panel
     public static final double chatRelX = 75;
     public static final double chatRelY = 0;
-    public static final double chatRelW = 25;
+    public static final double chatRelW = 22;
     public static final double chatRelH = 65;
     public static final GUI.Rectangle chatRect = new GUI.Rectangle(
             chatRelX, chatRelY, chatRelW, chatRelH
@@ -109,5 +109,14 @@ public class Layout {
     public static final double firstCharacterRelH = 17.25;
     public static final GUI.Rectangle firstCharacterRect = new GUI.Rectangle(
             firstCharacterRelX, firstCharacterRelY, firstCharacterRelW, firstCharacterRelH
+    );
+
+    // End Turn button
+    public static final double endTurnButtonRelX = 25;
+    public static final double endTurnButtonRelY = 0;
+    public static final double endTurnButtonRelW = 5;
+    public static final double endTurnButtonRelH = 7;
+    public static final GUI.Rectangle endTurnButtonRect = new GUI.Rectangle(
+            endTurnButtonRelX, endTurnButtonRelY, endTurnButtonRelW, endTurnButtonRelH
     );
 }

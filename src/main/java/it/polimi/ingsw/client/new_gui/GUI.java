@@ -78,12 +78,13 @@ public class GUI extends Application {
         this.setIconAndTitle(stage);
 
         // Start music
-        UserExperience.playSoundLoop(AssetHolder.backgroundMusic);
+        // UserExperience.playSoundLoop(AssetHolder.backgroundMusic); // TODO: play sound
 
         render();
     }
 
     public static void render() {
+        while(stage == null);  // Wait until stage is created
         // Set correct screen size
         preventResize = true;
         stage.setWidth(SizeHandler.realWidth);

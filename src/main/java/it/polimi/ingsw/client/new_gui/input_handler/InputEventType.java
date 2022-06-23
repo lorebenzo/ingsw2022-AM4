@@ -12,6 +12,7 @@ public enum InputEventType {
     SendMessageInChat,
     CharacterClick,
     JoinMatchMaking,
+    EndTurn,
     Login,
-    SignUp
+    SignUp;
 }

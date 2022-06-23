@@ -105,6 +105,11 @@ public class InputHandler {
 
                 reset();
             }
+            else if(type.equals(InputEventType.EndTurn)) {
+                GUI.gameClient.endTurn();
+
+                reset();
+            }
         }
     }
 

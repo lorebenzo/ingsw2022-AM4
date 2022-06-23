@@ -172,8 +172,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void OKMsg(SugarMessage message) {
         var msg = (OKMsg) message;
         this.logger.logSuccess(msg.text);
-
-        // TODO: Update GUI
     }
 
     @SugarMessageHandler
@@ -186,7 +184,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void notifyGameOverMsg(SugarMessage message) {
         var msg = (NotifyGameOverMsg) message;
         this.logger.logSuccess(msg.text);
-        // TODO: Close game
+
+        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
     @SugarMessageHandler
@@ -194,7 +193,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (GameOverMsg) message;
         this.logger.logGameState(msg.updateClientMsg.lightGameState);
         this.logger.log("GAME OVER!");
-        // TODO: Close game
+
+        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
     @SugarMessageHandler
@@ -202,8 +202,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (UpdateClientMsg) message;
         this.logger.logGameState(msg.lightGameState);
         this.lastSnapshot = msg.lightGameState;
+
         Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
-        // TODO: Update GUI
     }
 
     @SugarMessageHandler
@@ -212,8 +212,10 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.jwt = msg.jwtAuthCode;
         this.username = AuthController.getUsernameFromJWT(this.jwt);
         this.logger.logSuccess("Successfully logged in");
-        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
+
+        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
+
     }
 
     @SugarMessageHandler
