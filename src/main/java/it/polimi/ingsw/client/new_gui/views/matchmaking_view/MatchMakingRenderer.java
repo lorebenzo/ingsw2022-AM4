@@ -42,14 +42,6 @@ public class MatchMakingRenderer {
             ));
         });
 
-        var rejoinButton = renderRejoinButton();
-
-        pane.getChildren().addAll(mode, radio, numberOfPlayers, radio2, radio3, radio4, joinMatchMaking, rejoinButton);
-
-        return pane;
-    }
-
-    public static Pane renderRejoinButton() {
         var rejoinButton = new Button("REJOIN");
 
         rejoinButton.setLayoutX(GUI.SizeHandler.getX(50));
@@ -62,6 +54,8 @@ public class MatchMakingRenderer {
                 )
         ));
 
-        return new Pane(rejoinButton);
+        pane.getChildren().addAll(mode, radio, numberOfPlayers, radio2, radio3, radio4, joinMatchMaking, rejoinButton);
+
+        return pane;
     }
 }
