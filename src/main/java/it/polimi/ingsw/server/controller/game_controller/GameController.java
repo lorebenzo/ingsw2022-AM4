@@ -9,13 +9,10 @@ import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
-import it.polimi.ingsw.server.repository.GamesRepository;
-import it.polimi.ingsw.server.repository.UsersRepository;
 import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 public class GameController extends SugarMessageProcessor {
     public final UUID roomId;
@@ -93,7 +90,8 @@ public class GameController extends SugarMessageProcessor {
      * @param username of the player
      * @return an Optional<Peer> that contains the peer, or it can be empty
      */
-    public Optional<Peer> getPeerFromPlayer(String username) {
+    public Optional<Peer> getPeerFromPlayer(@NotNull String username) throws IllegalArgumentException {
+        if(username == null || username.isBlank()) throw new IllegalArgumentException();
         return this.players.stream()
                 .filter(player -> player.username.equals(username))
                 .map(player -> player.associatedPeer)
@@ -107,6 +105,9 @@ public class GameController extends SugarMessageProcessor {
      * @param peer to check if it has changed
      */
     public void updatePeerIfOlder(@NotNull String username, @NotNull Peer peer) {
+        if(username == null || username.isBlank()) throw new IllegalArgumentException();
+        if(peer == null) throw new IllegalArgumentException();
+
         for(int i = 0; i < this.players.size(); i++) {
             var player = this.players.get(i);
             if (player.username.equals(username)) {
@@ -143,16 +144,16 @@ public class GameController extends SugarMessageProcessor {
         return this.communicationController.getGameUUID();
     }
 
-    @SugarMessageHandler
-    public SugarMessage base(SugarMessage message, Peer peer) {
-        return this.communicationController.process(message, peer);
-    }
-
     public void setInactivePlayer(Peer peer) {
         var player = this.players.stream()
                 .filter(p -> p.associatedPeer != null && p.associatedPeer.equals(peer))
                 .findFirst();
 
         player.ifPresent(p -> p.associatedPeer = null);
+    }
+
+    @SugarMessageHandler
+    public SugarMessage base(SugarMessage message, Peer peer) {
+        return this.communicationController.process(message, peer);
     }
 }
