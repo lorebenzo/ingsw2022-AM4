@@ -1,11 +1,15 @@
 package it.polimi.ingsw.client.game_client_and_cli;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
+import it.polimi.ingsw.communication.sugar_framework.SerDes;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
+import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
@@ -14,6 +18,7 @@ import it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg;
 import it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
+import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
@@ -181,11 +186,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     @SugarMessageHandler
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
+
         this.logger.logGameState(msg.lightGameState);
         // TODO: remove (debug)
-        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        // System.out.println(gson.toJson(msg.lightGameState));
-
         // TODO: Update GUI
     }
 

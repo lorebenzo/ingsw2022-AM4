@@ -194,4 +194,41 @@ public class ExpertCommunicationController extends CommunicationController {
         }
     }
 
+    @SugarMessageHandler
+    @Override
+    public SugarMessage rollbackMsg(SugarMessage message, Peer peer) {
+        var username = AuthController.getUsernameFromJWT(message.jwt);
+        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+
+        return new OKAndUpdateMsg(new OKMsg("Expert Mode has not rollback enabled"), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+    }
+
+    @SugarMessageHandler
+    @Override
+    public SugarMessage endTurnMsg(SugarMessage message, Peer peer) {
+            var username = AuthController.getUsernameFromJWT(message.jwt);
+            if(isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
+
+            try {
+                boolean lastRound = this.gameStateController.endActionTurn();
+
+                return new OKAndUpdateMsg(
+                        new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
+                        new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
+                );
+            } catch (MoreStudentsToBeMovedException e){
+                return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);
+            } catch (MotherNatureToBeMovedException e){
+                return new KOMsg(ReturnMessage.MOTHER_NATURE_TO_BE_MOVED.text);
+            } catch (StudentsToBeGrabbedFromCloudException e){
+                return new KOMsg(ReturnMessage.STUDENTS_TO_BE_GRABBED_FROM_CLOUD.text);
+            } catch (CardNotPlayedException e){
+                return new KOMsg(ReturnMessage.CARD_NOT_PLAYED.text);
+            } catch (WrongPhaseException e) {
+                return new KOMsg(ReturnMessage.WRONG_PHASE.text);
+            } catch (GameOverException e) {
+                return new GameOverMsg(this.getUsernameToWinnerMap(e.schoolBoardIdToWinnerMap), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            }
+
+    }
 }

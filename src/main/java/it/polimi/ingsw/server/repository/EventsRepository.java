@@ -1,7 +1,5 @@
 package it.polimi.ingsw.server.repository;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.polimi.ingsw.communication.sugar_framework.SerDes;
 import it.polimi.ingsw.server.event_sourcing.Aggregate;

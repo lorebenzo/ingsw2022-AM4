@@ -16,12 +16,12 @@ public abstract class SugarMessageProcessor {
      */
     public synchronized final SugarMessage process(SugarMessage message, Peer sender) {
         // Get the methods of this class marked with the @Process annotation
-        List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
+        List<Method> methods = Arrays.stream(this.getClass().getMethods())
                 .filter(method -> method.isAnnotationPresent(SugarMessageHandler.class))  // Get annotated methods
                 .filter(method -> method.getParameterCount() == 2)  // Get methods that take exactly two parameters
                 .filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a Message as first parameter
                 .filter(method -> method.getParameterTypes()[1].equals(Peer.class)) // Get methods that take a Peer as second parameter
-                .collect(Collectors.toList());
+                .toList();
 
         // Invoke the method whose annotation parameter matches message type
         for(var method : methods) {

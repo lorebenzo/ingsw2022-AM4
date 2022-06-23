@@ -140,12 +140,19 @@ public class ExpertGameStateController extends GameStateController {
             this.gameState.setLastRoundTrue();
         }
 
+        this.gameState.assignProfessorsAfterEffect();
+
         this.gameState.resetCharacterPlayedThisTurn();
 
-        this.gameState.assignProfessorsAfterEffect();
+
         this.gameState.setTowersInfluenceForAllArchipelagos(true);
         this.gameState.resetColorThatDoesntCountForAllArchipelagos();
 
         super.nextActionTurn();
     }
+
+    @Override
+    public void rollback() {}
+
+
 }
