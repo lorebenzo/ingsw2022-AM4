@@ -43,10 +43,6 @@ public class GUI extends Application {
         launch(args);
     }
 
-    public static void main(String[] args) {
-        launch(args); // Remember this is blocking
-    }
-
     @Override
     public void start(Stage stage) {
         GUI.stage = stage;
