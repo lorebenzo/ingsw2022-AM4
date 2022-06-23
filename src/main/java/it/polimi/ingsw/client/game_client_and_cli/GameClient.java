@@ -63,7 +63,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private static final Pattern keyValue = Pattern.compile("[,a-zA-Z0-9 ]+");
 
     // Utils
-    private LightGameState lastSnapshot = null;
+    public LightGameState lastSnapshot = null;
 
     public GameClient() {
         var dotenv = Dotenv.configure().load();

@@ -98,20 +98,20 @@ public class GUI extends Application {
         rectangleToComponent.clear();
 
         // Test
-        LightGameState lgs = null;
-        try {
-            lgs = new Gson().fromJson(Files.readString(Path.of("src/main/resources/expert.json")), LightGameState.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //LightGameState lgs = null;
+        //try {
+        //    lgs = new Gson().fromJson(Files.readString(Path.of("src/main/resources/expert.json")), LightGameState.class);
+        //} catch (IOException e) {
+        //    e.printStackTrace();
+        //}
 
         Pane pane;
         if(currentView.equals(View.LoginView))
             pane = LoginViewRenderer.renderLoginView();
         else if(currentView.equals(View.PlayerView))
-            pane = PlayerViewRenderer.renderGameState(lgs);
+            pane = PlayerViewRenderer.renderGameState(gameClient.lastSnapshot);
         else if(currentView.equals(View.EnemiesView))
-            pane = EnemyViewRenderer.renderEnemyView(lgs);
+            pane = EnemyViewRenderer.renderEnemyView(gameClient.lastSnapshot);
         else if(currentView.equals(View.MatchMakingView))
             pane = MatchMakingRenderer.renderMatchMaking();
         else
