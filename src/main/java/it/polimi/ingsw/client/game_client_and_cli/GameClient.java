@@ -128,8 +128,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void moveMotherNatureToDest(int archipelagoId) {
         int numberOfSteps = 0;
         var archipelagos = this.lastSnapshot.archipelagos;
-        for(int i = lastSnapshot.motherNaturePosition; numberOfSteps <= 7; i++, numberOfSteps++) {
-            if(i == 12) i = 0;
+        for(int i = lastSnapshot.motherNaturePosition; ; i++, numberOfSteps++) {
+            if(i == lastSnapshot.archipelagos.size()) i = 0;
             if(archipelagoId == archipelagos.get(i).islandCodes.get(0)) {
                 this.sendAndHandleDisconnection(new MoveMotherNatureMsg(numberOfSteps, this.jwt));
                 break;

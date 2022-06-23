@@ -15,6 +15,6 @@ public enum InputEventType {
     JoinMatchMaking,
     EndTurn,
     Login,
-    SignUp
-    ;
+    SignUp,
+    RejoinClicked;
 }

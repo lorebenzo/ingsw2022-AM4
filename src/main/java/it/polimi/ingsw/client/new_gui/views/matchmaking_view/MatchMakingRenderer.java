@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client.new_gui.views.matchmaking_view;
 
+import it.polimi.ingsw.client.new_gui.GUI;
 import it.polimi.ingsw.client.new_gui.input_handler.InputEvent;
 import it.polimi.ingsw.client.new_gui.input_handler.InputEventType;
 import it.polimi.ingsw.client.new_gui.input_handler.InputHandler;
@@ -41,8 +42,26 @@ public class MatchMakingRenderer {
             ));
         });
 
-        pane.getChildren().addAll(mode, radio, numberOfPlayers, radio2, radio3, radio4, joinMatchMaking);
+        var rejoinButton = renderRejoinButton();
+
+        pane.getChildren().addAll(mode, radio, numberOfPlayers, radio2, radio3, radio4, joinMatchMaking, rejoinButton);
 
         return pane;
+    }
+
+    public static Pane renderRejoinButton() {
+        var rejoinButton = new Button("REJOIN");
+
+        rejoinButton.setLayoutX(GUI.SizeHandler.getX(50));
+        rejoinButton.setLayoutY(GUI.SizeHandler.getY(50));
+
+        rejoinButton.setOnMouseClicked(mouseEvent -> InputHandler.add(
+                new InputEvent(
+                        InputEventType.RejoinClicked,
+                        new InputParams()
+                )
+        ));
+
+        return new Pane(rejoinButton);
     }
 }
