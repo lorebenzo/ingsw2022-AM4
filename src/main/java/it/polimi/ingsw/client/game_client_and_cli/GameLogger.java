@@ -42,7 +42,7 @@ public class GameLogger implements Logger {
 
     @Override
     public void logGameState(LightGameState lightGameState) {
-        this.terminal.updateGS(lightGameState);
+        this.terminal.updateGameState(lightGameState);
         this.terminal.flush();
     }
 }

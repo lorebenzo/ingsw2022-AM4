@@ -488,7 +488,7 @@ public class ExpertGameState extends GameState {
                 super.schoolBoardIdsToCardPlayedThisRound,
 
                 this.availableCharacters.stream().map(PlayableCharacter::lightify).toList(),
-                this.characterPlayedInCurrentTurn.lightify()
+                this.characterPlayedInCurrentTurn != null ? this.characterPlayedInCurrentTurn.lightify() : null
         );
     }
 }

@@ -75,6 +75,10 @@ public class Archipelago implements ArchipelagoCommonInterface {
         return students;
     }
 
+    public Map<Color, Integer> getStudentToNumber() {
+        return new HashMap<>(studentToNumber);
+    }
+
     /**
      * Adds a student to the archipelago
      * @throws IllegalArgumentException if(student == null)

@@ -154,4 +154,26 @@ public class ExpertArchipelagoTest {
         archipelago.setColorThatDoesntCount(null);
         assertEquals(6, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));
     }
+
+    @Test
+    public void lightify() throws ArchipelagoAlreadyLockedException {
+        Archipelago archipelago = new ExpertArchipelago(0);
+
+        archipelago.addStudent(Color.RED);
+        archipelago.addStudent(Color.RED);
+        archipelago.addStudent(Color.GREEN);
+
+        archipelago.setTowerColor(TowerColor.BLACK);
+
+        archipelago.setColorThatDoesntCount(Color.RED);
+        archipelago.lock();
+        archipelago.setTowersInfluence(false);
+
+        LightArchipelago lightArchipelago = archipelago.lightify();
+
+        assertEquals(archipelago.getIslandCodes(), lightArchipelago.islandCodes);
+        assertEquals(archipelago.getStudentToNumber(), lightArchipelago.studentToNumber);
+        assertEquals(archipelago.getTowerColor(), lightArchipelago.towerColor);
+
+    }
 }

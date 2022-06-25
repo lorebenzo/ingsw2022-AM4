@@ -19,7 +19,7 @@ public class ExpertCommunicationController extends CommunicationController {
         super(players);
     }
 
-    public ExpertCommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) throws GameStateInitializationFailureException {
+    public ExpertCommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) {
         super(players, gameUUID);
     }
 
@@ -33,17 +33,14 @@ public class ExpertCommunicationController extends CommunicationController {
         return new ExpertGameStateController(gameUUID);
     }
 
-
     //Handler that manages characterIds 2,4,6,8
     @SugarMessageHandler
-    public SugarMessage characterIndexMsg(SugarMessage message, Peer peer){
+    public SugarMessage characterIndexMsg(CharacterIndexMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (CharacterIndexMsg)message;
-
         try {
-            this.gameStateController.applyEffect(msg.characterIndex);
+            this.gameStateController.applyEffect(message.characterIndex);
             return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
@@ -62,13 +59,12 @@ public class ExpertCommunicationController extends CommunicationController {
 
     //Handler that manages characterIds 3 and 5 - specifically conquer archipelago of choice and lock archipelago
     @SugarMessageHandler
-    public SugarMessage characterIndexArchipelagoMsg(SugarMessage message, Peer peer){
+    public SugarMessage characterIndexArchipelagoMsg(CharacterIndexArchipelagoMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (CharacterIndexArchipelagoMsg) message;
         try {
-            boolean merged = this.gameStateController.applyEffect(msg.characterIndex, msg.archipelagoIslandCode);
+            boolean merged = this.gameStateController.applyEffect(message.characterIndex, message.archipelagoIslandCode);
 
             return new OKAndUpdateMsg(
                     new OKMsg(merged ? ReturnMessage.MERGE_PERFORMED.text : ReturnMessage.MERGE_NOT_PERFORMED.text),
@@ -99,14 +95,12 @@ public class ExpertCommunicationController extends CommunicationController {
 
     //Handler that manages characterIds 9,11,12
     @SugarMessageHandler
-    public SugarMessage characterIndexColorMsg(SugarMessage message, Peer peer){
+    public SugarMessage characterIndexColorMsg(CharacterIndexColorMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (CharacterIndexColorMsg)message;
-
         try {
-            this.gameStateController.applyEffect(msg.characterIndex, msg.color);
+            this.gameStateController.applyEffect(message.characterIndex, message.color);
             return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
@@ -130,14 +124,12 @@ public class ExpertCommunicationController extends CommunicationController {
     }
 
     @SugarMessageHandler
-    public SugarMessage characterIndexColorArchipelagoMsg(SugarMessage message, Peer peer){
+    public SugarMessage characterIndexColorArchipelagoMsg(CharacterIndexColorArchipelagoMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (CharacterIndexColorArchipelagoMsg)message;
-
         try {
-            this.gameStateController.applyEffect(msg.characterIndex, msg.color, msg.archipelagoIslandCode);
+            this.gameStateController.applyEffect(message.characterIndex, message.color, message.archipelagoIslandCode);
             return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (InvalidCharacterIndexException e) {
             return new KOMsg(ReturnMessage.INVALID_CHARACTER_INDEX.text);
@@ -160,14 +152,12 @@ public class ExpertCommunicationController extends CommunicationController {
     }
 
     @SugarMessageHandler
-    public SugarMessage characterIndexColorListsMsg(SugarMessage message, Peer peer){
+    public SugarMessage characterIndexColorListsMsg(CharacterIndexColorListsMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        var msg = (CharacterIndexColorListsMsg)message;
-
         try {
-            this.gameStateController.applyEffect(msg.characterIndex, msg.studentsToGet, msg.studentsToGive);
+            this.gameStateController.applyEffect(message.characterIndex, message.studentsToGet, message.studentsToGive);
             return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (InvalidCharacterIndexException e) {
             return new KOMsg(ReturnMessage.INVALID_CHARACTER_INDEX.text);

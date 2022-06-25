@@ -192,4 +192,24 @@ public class ArchipelagoTest {
         assertEquals(1, influence7);
         assertEquals(0, influence8);
     }
+
+    @Test
+    public void lightify() {
+        Archipelago archipelago = new Archipelago(0);
+
+        archipelago.addStudent(Color.RED);
+        archipelago.addStudent(Color.RED);
+        archipelago.addStudent(Color.GREEN);
+
+        archipelago.setTowerColor(TowerColor.BLACK);
+
+        LightArchipelago lightArchipelago = archipelago.lightify();
+
+        assertEquals(archipelago.getIslandCodes(), lightArchipelago.islandCodes);
+
+        assertEquals(archipelago.getStudentToNumber(), lightArchipelago.studentToNumber);
+
+        assertEquals(archipelago.getTowerColor(), lightArchipelago.towerColor);
+
+    }
 }
