@@ -186,7 +186,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
     @SugarMessageHandler
     @Override
-    public SugarMessage rollbackMsg(SugarMessage message, Peer peer) {
+    public SugarMessage rollbackMsg(RollbackMsg message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
@@ -195,7 +195,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
     @SugarMessageHandler
     @Override
-    public SugarMessage endTurnMsg(SugarMessage message, Peer peer) {
+    public SugarMessage endTurnMsg(EndTurnMsg message, Peer peer) {
             var username = AuthController.getUsernameFromJWT(message.jwt);
             if(isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
