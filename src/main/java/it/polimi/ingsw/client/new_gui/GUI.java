@@ -50,7 +50,7 @@ public class GUI extends Application {
     public enum View {
         LoginView, PlayerView, EnemiesView, MatchMakingView
     }
-    public static View currentView = View.MatchMakingView;
+    public static View currentView = View.LoginView;
 
     public static GameClient gameClient = null;
 
@@ -94,7 +94,7 @@ public class GUI extends Application {
         this.setIconAndTitle(stage);
 
         // Start music
-        UserExperience.playSoundLoop(AssetHolder.backgroundMusic);
+//        UserExperience.playSoundLoop(AssetHolder.backgroundMusic);
 
         render();
     }

@@ -202,8 +202,11 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
     @SugarMessageHandler
     public void updateClientMsg(SugarMessage message) {
-        var msg = (UpdateClientMsg) message;
-        this.logger.logGameState(msg.lightGameState);
+            var msg = (UpdateClientMsg) message;
+        try {
+            this.logger.logGameState(msg.lightGameState);
+
+        } catch (Exception ignored) {}
         this.lastSnapshot = msg.lightGameState;
 
         Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
