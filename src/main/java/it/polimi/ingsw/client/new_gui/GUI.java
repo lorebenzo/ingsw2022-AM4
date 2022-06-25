@@ -50,7 +50,7 @@ public class GUI extends Application {
     public enum View {
         LoginView, PlayerView, EnemiesView, MatchMakingView
     }
-    public static View currentView = View.MatchMakingView;
+    public static View currentView = View.LoginView;
 
     public static GameClient gameClient = null;
 

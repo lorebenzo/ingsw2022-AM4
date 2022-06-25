@@ -2,6 +2,7 @@ package it.polimi.ingsw.client;
 
 import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.client.new_gui.GUI;
+import javafx.application.Platform;
 
 public class MainGUI {
     public static void main(String[] args) {
@@ -10,6 +11,6 @@ public class MainGUI {
 
         new Thread(() -> GUI.init(args, gc)).start();
 
-        GUI.switchView(GUI.View.LoginView);
+        Platform.runLater(() -> GUI.switchView(GUI.View.LoginView));
     }
 }

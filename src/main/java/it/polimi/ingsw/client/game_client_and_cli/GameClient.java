@@ -203,7 +203,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     @SugarMessageHandler
     public void updateClientMsg(SugarMessage message) {
         var msg = (UpdateClientMsg) message;
-        this.logger.logGameState(msg.lightGameState);
+        try {
+            this.logger.logGameState(msg.lightGameState); // TODO: fix
+        } catch (Throwable ignored) { }
         this.lastSnapshot = msg.lightGameState;
 
         Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
@@ -218,7 +220,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
 
         Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
-
     }
 
     @SugarMessageHandler
