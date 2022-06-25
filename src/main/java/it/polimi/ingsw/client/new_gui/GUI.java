@@ -8,14 +8,19 @@ import it.polimi.ingsw.client.new_gui.views.matchmaking_view.MatchMakingRenderer
 import it.polimi.ingsw.client.new_gui.views.player_view.*;
 import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
+import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.File;

@@ -67,7 +67,7 @@ public class Layout {
     // Switch view button to enemy
     public static final double switchButtonToEnemyRelX = 75;
     public static final double switchButtonToEnemyRelY = 75;
-    public static final double switchButtonToEnemyRelW = 25;
+    public static final double switchButtonToEnemyRelW = 10;
     public static final double switchButtonToEnemyRelH = 5;
     public static final GUI.Rectangle switchButtonToEnemyRect = new GUI.Rectangle(
             switchButtonToEnemyRelX, switchButtonToEnemyRelY, switchButtonToEnemyRelW, switchButtonToEnemyRelH
@@ -112,8 +112,8 @@ public class Layout {
     );
 
     // End Turn button
-    public static final double endTurnButtonRelX = 90;
-    public static final double endTurnButtonRelY = 90;
+    public static final double endTurnButtonRelX = switchButtonToEnemyRect.sameToTheRight().relX;
+    public static final double endTurnButtonRelY = switchButtonToEnemyRelY;
     public static final double endTurnButtonRelW = 5;
     public static final double endTurnButtonRelH = 7;
     public static final GUI.Rectangle endTurnButtonRect = new GUI.Rectangle(
