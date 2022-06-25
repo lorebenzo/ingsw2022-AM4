@@ -128,5 +128,14 @@ public class Layout {
     public static final GUI.Rectangle characterPromptRect = new GUI.Rectangle(
             characterPromptRelX, characterPromptRelY, characterPromptRelW, characterPromptRelH
     );
+
+    // Alert prompt
+    public static final double alertPromptRelW = 20;
+    public static final double alertPromptRelH = 40;
+    public static final double alertPromptRelX = 50 - alertPromptRelW / 2;
+    public static final double alertPromptRelY = 50 - alertPromptRelH / 2;
+    public static final GUI.Rectangle alertPromptRect = new GUI.Rectangle(
+            alertPromptRelX, alertPromptRelY, alertPromptRelW, alertPromptRelH
+    );
 }
 

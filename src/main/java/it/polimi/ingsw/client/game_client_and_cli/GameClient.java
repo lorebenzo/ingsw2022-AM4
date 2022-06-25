@@ -180,6 +180,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void KOMsg(SugarMessage message) {
         var msg = (KOMsg) message;
         this.logger.logError(msg.reason);
+        Platform.runLater(() -> GUI.alert(msg.reason));
     }
 
     @SugarMessageHandler

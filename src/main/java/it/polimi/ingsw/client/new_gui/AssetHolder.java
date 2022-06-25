@@ -17,6 +17,7 @@ public class AssetHolder {
     // Images
     public static Image schoolBoardAsset;
     public static Map<Color, Image> studentColorToStudentAsset = new HashMap<>();
+    public static Map<Color, Image> professorColorToProfessorAsset = new HashMap<>();
     public static Image island;
     public static Image motherNatureCard;
     public static Image motherNaturePawn;
@@ -25,6 +26,7 @@ public class AssetHolder {
     public static Map<Card, Image> cardImageMap = new HashMap<>();
     private static Map<Character, String> characterToAssetFileNameMap = new HashMap<>();
     public static Map<Character, Image> characterToImage = new HashMap<>();
+    public static Image trumpCursor;
 
     // Sounds
     public static Media mouseClickSound;
@@ -41,6 +43,14 @@ public class AssetHolder {
             studentColorToStudentAsset.put(Color.GREEN, new Image(new FileInputStream("src/main/resources/assets/students/student_green.png")));
             studentColorToStudentAsset.put(Color.PURPLE, new Image(new FileInputStream("src/main/resources/assets/students/student_pink.png")));
             studentColorToStudentAsset.put(Color.RED, new Image(new FileInputStream("src/main/resources/assets/students/student_red.png")));
+
+            // Professors
+            professorColorToProfessorAsset.put(Color.YELLOW, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_yellow.png")));
+            professorColorToProfessorAsset.put(Color.CYAN, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_blue.png")));
+            professorColorToProfessorAsset.put(Color.GREEN, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_green.png")));
+            professorColorToProfessorAsset.put(Color.PURPLE, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_pink.png")));
+            professorColorToProfessorAsset.put(Color.RED, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_red.png")));
+
 
             // Island
             island = new Image(new FileInputStream("src/main/resources/assets/archipelago/island1.png"));
@@ -63,6 +73,9 @@ public class AssetHolder {
 
             // Mouse click
             mouseClickSound = new Media(new File("src/main/resources/assets/sounds/mouse_click.mp3").toURI().toString());
+            // Cursors
+            trumpCursor = new Image(new FileInputStream("src/main/resources/assets/cursors/peo1041.png"));
+
             // Background music
             backgroundMusic = new Media(new File("src/main/resources/assets/music/background_music.mp3").toURI().toString());
             // Character activation

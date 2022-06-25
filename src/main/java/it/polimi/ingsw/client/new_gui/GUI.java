@@ -10,8 +10,10 @@ import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
+import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -37,7 +39,12 @@ public class GUI extends Application {
     private static Stage stage;
 
     public static void alert(String s) {
-        System.err.println("ALERT: " + s);
+        AlertNotifyRenderer.alert(s);
+        GUI.render();
+    }
+
+    public static void notify(String s) {
+        alert(s); // TODO: differentiate between alert and notify
     }
 
     public enum View {
@@ -87,13 +94,12 @@ public class GUI extends Application {
         this.setIconAndTitle(stage);
 
         // Start music
-        UserExperience.playSoundLoop(AssetHolder.backgroundMusic); // TODO: play sound
+        UserExperience.playSoundLoop(AssetHolder.backgroundMusic);
 
         render();
     }
 
     public static void render() {
-        while(stage == null);  // Wait until stage is created
         // Set correct screen size
         preventResize = true;
         stage.setWidth(SizeHandler.realWidth);
@@ -126,15 +132,25 @@ public class GUI extends Application {
         // Add focus listener
         pane.setOnMouseMoved(event -> setFocusInputWhen(event.getX(), event.getY()));
 
+        var scene = new StackPane();
+        scene.getChildren().add(pane);
+
+        // Render alert if present
+        AlertNotifyRenderer.getAlert().ifPresent(alert -> {
+            scene.getChildren().add(alert);
+            System.out.println("Added alert pane");
+        });
+
+        // Change cursor
+        scene.setCursor(new ImageCursor(AssetHolder.trumpCursor));
+
         // Set scene
-        stage.setScene(new Scene(pane));
+        stage.setScene(new Scene(scene));
     }
 
     public static void switchView(View view) {
         currentView = view;
-        System.out.println("Current view: " + view.toString());
         render();
-        System.out.println("Rendered successfully");
     }
 
     private void setIconAndTitle(Stage stage) {

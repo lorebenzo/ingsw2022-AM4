@@ -12,10 +12,14 @@ import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
 import it.polimi.ingsw.server.model.game_logic.LightSchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.transform.Scale;
 
 import java.util.*;
 
@@ -29,6 +33,10 @@ public class SchoolBoardRenderer {
     private final static Map<Color, Coordinates[]> studentColorToDiningLaneCoords = new HashMap<>();
     private final static Map<Color, Coordinates> studentColorToProfessorCoords = new HashMap<>();
     private final static List<Coordinates> entranceCoordinates = new LinkedList<>();
+
+    private enum TargetType {
+        Entrance, Dining, Professor
+    }
 
     static {
         Map<Integer, Color> indexToColor = new HashMap<>();
@@ -90,12 +98,10 @@ public class SchoolBoardRenderer {
         int entranceIterationIndex = 0;
         for(var student : schoolBoard.studentsInTheEntrance) {
             var renderCoord = entranceCoordinates.get(entranceIterationIndex++);
-            var studentImgView = renderStudent(
+            var studentImgView = renderStudentAndAddEventHandler(
                     student, schoolboardRect, schoolBoardImgView.getX(), schoolBoardImgView.getY(),
-                    renderCoord.x, renderCoord.y
+                    renderCoord.x, renderCoord.y, TargetType.Entrance
             );
-
-            studentImgView.setOnMouseClicked(event -> onMouseClickEntrance(event, studentImgView, student));
 
             pane.getChildren().add(studentImgView);
         }
@@ -105,12 +111,10 @@ public class SchoolBoardRenderer {
             var numberOfStudents = schoolBoard.diningRoomLaneColorToNumberOfStudents.get(color);
             for(int i = 0; i < numberOfStudents; i++) {
                 var coords = studentColorToDiningLaneCoords.get(color)[i];
-                var studentImgView = renderStudent(
+                var studentImgView = renderStudentAndAddEventHandler(
                         color, schoolboardRect, schoolBoardImgView.getX(), schoolBoardImgView.getY(),
-                        coords.x, coords.y
+                        coords.x, coords.y, TargetType.Dining
                 );
-
-                studentImgView.setOnMouseClicked(event -> onMouseClickDiningRoom(studentImgView, color));
 
                 pane.getChildren().add(studentImgView);
             }
@@ -120,12 +124,10 @@ public class SchoolBoardRenderer {
         for(var color : Color.values()) {
             if(schoolBoard.professorsTable.contains(color)) {
                 var coords = studentColorToProfessorCoords.get(color);
-                var professorImgView = renderStudent(
+                var professorImgView = renderStudentAndAddEventHandler(
                         color, schoolboardRect, schoolBoardImgView.getX(), schoolBoardImgView.getY(),
-                        coords.x, coords.y
+                        coords.x, coords.y, TargetType.Professor
                 );
-
-                professorImgView.setOnMouseClicked(event -> onMouseClickProfessor(professorImgView, color));
 
                 pane.getChildren().add(professorImgView);
             }
@@ -137,15 +139,60 @@ public class SchoolBoardRenderer {
 
     private static ImageView renderStudent(
             Color color, GUI.Rectangle schoolBoardRect, double schoolBoardAbsX, double schoolBoardAbsY, double relX, double relY) {
-        var student = new ImageView(AssetHolder.studentColorToStudentAsset.get(color));
+        return renderPawn(schoolBoardRect, schoolBoardAbsX, schoolBoardAbsY, relX, relY, AssetHolder.studentColorToStudentAsset.get(color));
+    }
 
-        student.setX(schoolBoardAbsX + schoolBoardRect.getX(relX));
-        student.setY(schoolBoardAbsY + schoolBoardRect.getY(relY));
+    private static ImageView renderProfessor(
+            Color color, GUI.Rectangle schoolBoardRect, double schoolBoardAbsX, double schoolBoardAbsY, double relX, double relY) {
+        var img = renderPawn(schoolBoardRect, schoolBoardAbsX, schoolBoardAbsY, relX, relY, AssetHolder.professorColorToProfessorAsset.get(color));
+        return img;
+    }
 
-        student.setFitWidth(schoolBoardRect.getX(studentPercentWidthRelativeToSchoolBoard));
-        student.setFitHeight(schoolBoardRect.getY(studentPercentHeightRelativeToSchoolBoard));
 
-        return student;
+    private static ImageView renderPawn(
+        GUI.Rectangle schoolBoardRect, double schoolBoardAbsX, double schoolBoardAbsY, double relX, double relY, Image asset_img
+    ) {
+        var asset = new ImageView(asset_img);
+
+        asset.setX(schoolBoardAbsX + schoolBoardRect.getX(relX));
+        asset.setY(schoolBoardAbsY + schoolBoardRect.getY(relY));
+
+        asset.setFitWidth(schoolBoardRect.getX(studentPercentWidthRelativeToSchoolBoard));
+        asset.setFitHeight(schoolBoardRect.getY(studentPercentHeightRelativeToSchoolBoard));
+
+        return asset;
+    }
+
+    private static Button renderStudentAndAddEventHandler(
+            Color color, GUI.Rectangle schoolBoardRect, double schoolBoardAbsX, double schoolBoardAbsY, double relX, double relY,
+            TargetType targetType
+    ) {
+        var img = targetType.equals(TargetType.Professor) ?
+                renderProfessor(color, schoolBoardRect, schoolBoardAbsX, schoolBoardAbsY, relX, relY) :
+                renderStudent(color, schoolBoardRect, schoolBoardAbsX, schoolBoardAbsY, relX, relY);
+        var studentImgAsButton = new Button("", img);
+
+        studentImgAsButton.setLayoutX(img.getX());
+        studentImgAsButton.setLayoutY(img.getY());
+
+        //studentImgAsButton.layoutXProperty().bind(img.layoutXProperty());
+        //studentImgAsButton.layoutYProperty().bind(img.layoutYProperty());
+
+        studentImgAsButton.setStyle(
+            "-fx-border-color: black;" +
+            "-fx-border-width: 0;" +
+            "-fx-background-radius: 0;" +
+            "-fx-background-color: transparent;" +
+            "-fx-padding: 0"
+        );
+
+        switch (targetType) {
+            case Entrance -> studentImgAsButton.setOnMouseClicked(event -> onMouseClickEntrance(event, img, color));
+            case Dining -> studentImgAsButton.setOnMouseClicked(event -> onMouseClickDiningRoom(img, color));
+            case Professor -> studentImgAsButton.setOnMouseClicked(event -> onMouseClickProfessor(img, color));
+        }
+
+        return studentImgAsButton;
     }
 
 
@@ -157,9 +204,9 @@ public class SchoolBoardRenderer {
         ));
     }
 
-    private static void onMouseClickEntrance(MouseEvent event, ImageView studentImageView, Color studentColor) {
+    private static void onMouseClickEntrance(MouseEvent event, ImageView studentImgView, Color studentColor) {
         // Down-Up effect
-        UserExperience.doDownUpEffect(studentImageView, 3, 100);
+        UserExperience.doDownUpEffect(studentImgView, 3, 100);
 
         // Play click sound
         UserExperience.playSound(AssetHolder.mouseClickSound);
