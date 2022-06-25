@@ -68,4 +68,76 @@ public class PlayableCharacterTest {
         assertFalse(playableCharacter.containsAllStudents(List.of(Color.CYAN, Color.RED)));
 
     }
+
+    @Test
+    public void lightify() {
+        PlayableCharacter playableCharacter = PlayableCharacter.createCharacter(Character.TOWERS_DONT_COUNT);
+
+        LightPlayableCharacter lightPlayableCharacter = playableCharacter.lightify();
+
+        assertEquals(playableCharacter.getCharacterId(), lightPlayableCharacter.characterId);
+        assertEquals(playableCharacter.initialCost, lightPlayableCharacter.initialCost);
+        assertEquals(playableCharacter.getCurrentCost(), lightPlayableCharacter.currentCost);
+        assertEquals(playableCharacter.effect, lightPlayableCharacter.effect);
+        assertNull(playableCharacter.getProfessorToOriginalOwnerMap());
+        assertFalse(playableCharacter.isLockAvailable());
+        assertNull(playableCharacter.getStudents());
+        assertNull(lightPlayableCharacter.students);
+
+    }
+    @Test
+    public void lightify2() {
+        PlayableCharacter playableCharacter = PlayableCharacter.createCharacter(Character.GET_PROFESSORS_WITH_SAME_STUDENTS);
+
+        LightPlayableCharacter lightPlayableCharacter = playableCharacter.lightify();
+
+        assertEquals(playableCharacter.getCharacterId(), lightPlayableCharacter.characterId);
+        assertEquals(playableCharacter.initialCost, lightPlayableCharacter.initialCost);
+        assertEquals(playableCharacter.getCurrentCost(), lightPlayableCharacter.currentCost);
+        assertEquals(playableCharacter.effect, lightPlayableCharacter.effect);
+        assertEquals(playableCharacter.getProfessorToOriginalOwnerMap(), lightPlayableCharacter.professorToOriginalOwnerMap);
+        assertFalse(playableCharacter.isLockAvailable());
+        assertNull(playableCharacter.getStudents());
+        assertNull(lightPlayableCharacter.students);
+
+    }
+    @Test
+    public void lightify3() {
+        PlayableCharacter playableCharacter = PlayableCharacter.createCharacter(Character.LOCK_ARCHIPELAGO);
+
+        LightPlayableCharacter lightPlayableCharacter = playableCharacter.lightify();
+
+        assertEquals(playableCharacter.getCharacterId(), lightPlayableCharacter.characterId);
+        assertEquals(playableCharacter.initialCost, lightPlayableCharacter.initialCost);
+        assertEquals(playableCharacter.getCurrentCost(), lightPlayableCharacter.currentCost);
+        assertEquals(playableCharacter.effect, lightPlayableCharacter.effect);
+        assertNull(playableCharacter.getProfessorToOriginalOwnerMap());
+        assertTrue(playableCharacter.isLockAvailable());
+        assertNull(playableCharacter.getStudents());
+        assertNull(lightPlayableCharacter.students);
+
+    }
+    @Test
+    public void lightify4() {
+
+        PlayableCharacter playableCharacter = PlayableCharacter.createCharacter(Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE);
+
+        playableCharacter.addStudent(Color.RED);
+
+        LightPlayableCharacter lightPlayableCharacter = playableCharacter.lightify();
+
+        assertEquals(playableCharacter.getCharacterId(), lightPlayableCharacter.characterId);
+        assertEquals(playableCharacter.initialCost, lightPlayableCharacter.initialCost);
+        assertEquals(playableCharacter.getCurrentCost(), lightPlayableCharacter.currentCost);
+        assertEquals(playableCharacter.effect, lightPlayableCharacter.effect);
+        assertNull(playableCharacter.getProfessorToOriginalOwnerMap());
+        assertFalse(playableCharacter.isLockAvailable());
+
+        assertTrue(playableCharacter.getStudents().containsAll(lightPlayableCharacter.students));
+        assertTrue(lightPlayableCharacter.students.containsAll(playableCharacter.getStudents()));
+        assertEquals(playableCharacter.getStudents().size(), lightPlayableCharacter.students.size());
+        assertTrue(playableCharacter.getStudents().size() > 0);
+
+
+    }
 }

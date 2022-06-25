@@ -61,4 +61,34 @@ public class ExpertSchoolBoardTest {
         assertThrows(StudentsNotInTheDiningRoomException.class, () -> schoolBoard.removeStudentFromDiningRoom(Color.RED));
 
     }
+
+    @Test
+    public void lightify() throws FullDiningRoomLaneException {
+        SchoolBoard schoolBoard = new ExpertSchoolBoard(0, new ArrayList<>(List.of(Color.RED, Color.GREEN)),TowerColor.BLACK,1);
+
+
+        schoolBoard.addStudentToEntrance(Color.CYAN);
+        schoolBoard.addStudentToEntrance(Color.CYAN);
+
+        schoolBoard.addStudentToDiningRoom(Color.RED);
+        schoolBoard.addProfessor(Color.RED);
+
+
+
+        LightSchoolBoard lightSchoolBoard = schoolBoard.lightify();
+
+        assertTrue(schoolBoard.getProfessors().containsAll(lightSchoolBoard.professorsTable));
+        assertTrue(lightSchoolBoard.professorsTable.containsAll(schoolBoard.getProfessors()));
+        assertEquals(schoolBoard.getProfessors().size(), lightSchoolBoard.professorsTable.size());
+
+        for (Color c: Color.values() ) {
+            assertEquals(schoolBoard.getDiningRoomLaneColorToNumberOfStudents(), lightSchoolBoard.diningRoomLaneColorToNumberOfStudents);
+        }
+
+        assertTrue(schoolBoard.getStudentsInTheEntrance().containsAll(lightSchoolBoard.studentsInTheEntrance));
+        assertTrue(lightSchoolBoard.studentsInTheEntrance.containsAll(schoolBoard.getStudentsInTheEntrance()));
+        assertEquals(schoolBoard.getStudentsInTheEntrance().size(), lightSchoolBoard.studentsInTheEntrance.size());
+
+        assertEquals(schoolBoard.getCoins(), lightSchoolBoard.coins.intValue());
+    }
 }

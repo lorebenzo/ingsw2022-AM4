@@ -1018,6 +1018,5 @@ public class GameStateTest {
         gameState.setCurrentPlayerSchoolBoardId(3);
         assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
     }
-
 }
 
