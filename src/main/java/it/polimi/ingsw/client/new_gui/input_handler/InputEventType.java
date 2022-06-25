@@ -11,7 +11,7 @@ public enum InputEventType {
     CloudClick,
     CardClick,
     SendMessageInChat,
-    CharacterClick,
+    CharacterActivation,
     JoinMatchMaking,
     EndTurn,
     Login,

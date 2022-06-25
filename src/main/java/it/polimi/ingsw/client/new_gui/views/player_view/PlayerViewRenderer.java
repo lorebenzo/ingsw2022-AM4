@@ -2,7 +2,7 @@ package it.polimi.ingsw.client.new_gui.views.player_view;
 
 import it.polimi.ingsw.client.new_gui.GUI;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
-import it.polimi.ingsw.client.new_gui.views.enemies_view.CharactersRenderer;
+import it.polimi.ingsw.client.new_gui.views.player_view.CharactersRenderer;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.LightSchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.SchoolBoard;

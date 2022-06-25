@@ -119,4 +119,14 @@ public class Layout {
     public static final GUI.Rectangle endTurnButtonRect = new GUI.Rectangle(
             endTurnButtonRelX, endTurnButtonRelY, endTurnButtonRelW, endTurnButtonRelH
     );
+
+    // Character prompt
+    public static final double characterPromptRelW = 20;
+    public static final double characterPromptRelH = 40;
+    public static final double characterPromptRelX = 50 - characterPromptRelW / 2;
+    public static final double characterPromptRelY = 50 - characterPromptRelH / 2;
+    public static final GUI.Rectangle characterPromptRect = new GUI.Rectangle(
+            characterPromptRelX, characterPromptRelY, characterPromptRelW, characterPromptRelH
+    );
 }
+

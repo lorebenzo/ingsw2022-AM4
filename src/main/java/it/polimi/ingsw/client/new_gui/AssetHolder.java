@@ -29,6 +29,7 @@ public class AssetHolder {
     // Sounds
     public static Media mouseClickSound;
     public static Media backgroundMusic;
+    public static Media characterActivation;
 
     static {
         try {
@@ -64,6 +65,8 @@ public class AssetHolder {
             mouseClickSound = new Media(new File("src/main/resources/assets/sounds/mouse_click.mp3").toURI().toString());
             // Background music
             backgroundMusic = new Media(new File("src/main/resources/assets/music/background_music.mp3").toURI().toString());
+            // Character activation
+            characterActivation = new Media(new File("src/main/resources/assets/sounds/character_activation.mp3").toURI().toString());
 
             // Characters
             int i = 1;

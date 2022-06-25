@@ -36,6 +36,10 @@ public class GUI extends Application {
 
     private static Stage stage;
 
+    public static void alert(String s) {
+        System.err.println("ALERT: " + s);
+    }
+
     public enum View {
         LoginView, PlayerView, EnemiesView, MatchMakingView
     }
@@ -83,7 +87,7 @@ public class GUI extends Application {
         this.setIconAndTitle(stage);
 
         // Start music
-        // UserExperience.playSoundLoop(AssetHolder.backgroundMusic); // TODO: play sound
+        UserExperience.playSoundLoop(AssetHolder.backgroundMusic); // TODO: play sound
 
         render();
     }

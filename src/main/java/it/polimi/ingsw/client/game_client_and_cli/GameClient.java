@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client.game_client_and_cli;
 
+import com.google.gson.Gson;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
@@ -468,4 +469,65 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             this.sendAndHandleDisconnection(new CharacterIndexMsg(index, this.jwt));
         }
     }
+
+    // GUI-friendly character invocation methods
+    public void playChar(int characterId) {
+        var msg = new CharacterIndexMsg(this.getCharacterIndexFromId(characterId), this.jwt);
+        this.sendAndHandleDisconnection(msg);
+    }
+
+    public void playChar(int characterId, Color color) {
+        var msg = new CharacterIndexColorMsg(
+            this.getCharacterIndexFromId(characterId),
+            color,
+            this.jwt
+        );
+        this.sendAndHandleDisconnection(msg);
+    }
+
+    public void playChar(int characterId, int archipelago) {
+        var msg = new CharacterIndexArchipelagoMsg(
+            this.getCharacterIndexFromId(characterId),
+            archipelago,
+            this.jwt
+        );
+        this.sendAndHandleDisconnection(msg);
+    }
+
+    public void playChar(int characterId, Color color, int archipelago) {
+        var msg = new CharacterIndexColorArchipelagoMsg(
+            this.getCharacterIndexFromId(characterId),
+            color,
+            archipelago,
+            this.jwt
+        );
+        this.sendAndHandleDisconnection(msg);
+    }
+
+    public void playChar(int characterId, List<Color> studentsToGet, List<Color> studentsToGive) {
+        var msg = new CharacterIndexColorListsMsg(
+            this.getCharacterIndexFromId(characterId),
+            studentsToGet,
+            studentsToGive,
+            this.jwt
+        );
+        this.sendAndHandleDisconnection(msg);
+    }
+
+    /**
+     *
+     * @param id character id
+     * @return the position on the available characters list of the character with the given id, if not present -1 is returned
+     */
+    public int getCharacterIndexFromId(int id) {
+        var character = this.lastSnapshot.availableCharacters
+                .stream()
+                .filter(_character -> _character.characterId == id)
+                .findFirst();
+
+        return character.map(
+            lightPlayableCharacter -> this.lastSnapshot.availableCharacters.indexOf(lightPlayableCharacter)
+        ).orElse(-1);
+    }
+
 }

@@ -1,28 +1,61 @@
 package it.polimi.ingsw.client.new_gui.input_handler;
 
-import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.client.new_gui.GUI;
-import it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Stack;
 
 public class InputHandler {
     private static Stack<InputEvent> inputEvents = new Stack<>();
 
     private enum State {
-        RST, ClickedEntrance, ClickedMotherNature
+        RST, ClickedEntrance, ClickedMotherNature, ActivatedEffect
     }
 
     private static State state = State.RST;
+
+    private final static List<Integer> oneClickActivationCharacterIds = List.of(2, 4, 6, 7, 8, 9, 10, 11, 12);
 
     public static void add(InputEvent inputEvent) {
         inputEvents.push(inputEvent);
         if(!GUI.currentView.equals(GUI.View.EnemiesView) /* do not listen to events in enemy view */) {
             var type = inputEvent.inputEventType;
-            if(type.equals(InputEventType.Reset)) {
+            if(type.equals(InputEventType.CharacterActivation)) {
+                state = State.ActivatedEffect;
+                int characterId = inputEvent.inputParams.id.get();
+                if(oneClickActivationCharacterIds.contains(characterId)) {
+                    if(characterId == 9 || characterId == 11 || characterId == 12) {
+                        var colors = inputEvent.inputParams.colors;
+                        if(colors.size() != 1) GUI.alert("You must choose exactly 1 student/color");
+                        else {
+                            var color = colors.get(0);
+                            GUI.gameClient.playChar(characterId, color);
+                        }
+                    } else if(characterId == 7) {
+                        var entrance = inputEvent.inputParams.studentsFromEntrance;
+                        var studentsOnCard = inputEvent.inputParams.colors;
+                        if(entrance.size() > 3 || studentsOnCard.size() > 3 || entrance.size() != studentsOnCard.size())
+                            GUI.alert("You must choose an equal number of students, and a maximum of 3");
+                        else {
+                            GUI.gameClient.playChar(characterId, studentsOnCard, entrance);
+                        }
+                    } else if(characterId == 10) {
+                        var chosenStudentsInTheEntrance = inputEvent.inputParams.studentsFromEntrance;
+                        var chosenStudentsInDiningRoom = inputEvent.inputParams.studentsFromDining;
+
+                        if(chosenStudentsInTheEntrance.size() > 2 || chosenStudentsInDiningRoom.size() > 2 ||
+                        chosenStudentsInDiningRoom.size() != chosenStudentsInTheEntrance.size())
+                            GUI.alert("You ust chose an equal number of students, and a maximum of 2");
+                        else {
+                            GUI.gameClient.playChar(characterId, chosenStudentsInTheEntrance, chosenStudentsInDiningRoom);
+                        }
+                    } else {
+                        GUI.gameClient.playChar(characterId);
+                    }
+                    reset();
+                }
+            }
+            else if(type.equals(InputEventType.Reset)) {
                reset();
             }
             else if(type.equals(InputEventType.Login)) {
@@ -61,7 +94,7 @@ public class InputHandler {
                 else reset();
             }
             else if(type.equals(InputEventType.MyStudentInEntranceRightClick)) {
-                GUI.gameClient.moveStudentFromEntranceToDiningRoom(inputEvent.inputParams.color.get().toString());
+                GUI.gameClient.moveStudentFromEntranceToDiningRoom(inputEvent.inputParams.colors.get(0).toString());
                 reset();
             }
             else if(type.equals(InputEventType.MyStudentInDiningRoomClick)) {
@@ -70,7 +103,7 @@ public class InputHandler {
                     inputEvents.pop();
 
                     // Now the top of the stack contains the student that has to be moved t the dining room
-                    var student = inputEvents.pop().inputParams.color.get();
+                    var student = inputEvents.pop().inputParams.colors.get(0);
                     GUI.gameClient.moveStudentFromEntranceToDiningRoom(student.toString());
 
                     reset();
@@ -79,25 +112,35 @@ public class InputHandler {
             }
             else if(type.equals(InputEventType.MyProfessorClick)) { }
             else if(type.equals(InputEventType.ArchipelagoClick)) {
-                if(state.equals(State.ClickedEntrance)) {
-                    // Get archipelago
-                    var archipelago = inputEvents.pop().inputParams.id.get();
+                // Get archipelago
+                var archipelago = inputEvents.pop().inputParams.id.get();
 
+                if(state.equals(State.ClickedEntrance)) {
                     // Get student
-                    var student = inputEvents.pop().inputParams.color.get();
+                    var student = inputEvents.pop().inputParams.colors.get(0);
 
                     GUI.gameClient.moveStudentFromEntranceToArchipelago(student.toString(), archipelago);
 
                     reset();
                 }
                 else if(state.equals(State.ClickedMotherNature)) {
-                    // Get archipelago
-                    var archipelago = inputEvents.pop().inputParams.id.get();
-
-                    int numberOfSteps = 0;
-                    for(int i = 0; i < 12; i++) {
-                        GUI.gameClient.moveMotherNatureToDest(archipelago);
+                    GUI.gameClient.moveMotherNatureToDest(archipelago);
+                    reset();
+                }
+                else if(state.equals(State.ActivatedEffect)) {
+                    var previousEvent = inputEvents.pop();
+                    int characterId = previousEvent.inputParams.id.get();
+                    if(characterId == 1) {
+                        var colors = previousEvent.inputParams.colors;
+                        if(colors.size() != 1) GUI.alert("You must choose exactly 1 student");
+                        else {
+                            var color = colors.get(0);
+                            GUI.gameClient.playChar(characterId, color, archipelago);
+                        }
+                    } else /* 3, 4 */ {
+                        GUI.gameClient.playChar(characterId, archipelago);
                     }
+                    reset();
                 }
                 else reset();
             }

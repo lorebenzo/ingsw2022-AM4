@@ -114,19 +114,4 @@ public class PromptRenderer {
 
         return pane;
     }
-
-
-    /********************************************************/
-
-
-    /******************** Characters Prompt *******************/
-    public static Pane renderCharacterPrompt(LightPlayableCharacter character) {
-        var prompt = new Pane();
-
-        if(character.students != null) renderStudentsIntoPrompt(character.students, prompt);
-
-        return prompt;
-    }
-
-    /**********************************************************/
 }

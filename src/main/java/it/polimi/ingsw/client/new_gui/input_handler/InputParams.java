@@ -3,11 +3,13 @@ package it.polimi.ingsw.client.new_gui.input_handler;
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public class InputParams {
-    public Optional<Color> color = Optional.empty();
+    public List<Color> colors = new LinkedList<>();
     public Optional<Integer> id = Optional.empty();
     public Optional<Card> card = Optional.empty();
     public Optional<String> text = Optional.empty();
@@ -15,6 +17,10 @@ public class InputParams {
     public Optional<String> password = Optional.empty();
     public Optional<Boolean> isExpert = Optional.empty();
     public Optional<Integer> numberOfPlayers = Optional.empty();
+
+    // Expert mode
+    public List<Color> studentsFromEntrance = new LinkedList<>();
+    public List<Color> studentsFromDining = new LinkedList<>();
 
     // Builders
     public InputParams numberOfPlayers(int n) {
@@ -28,7 +34,17 @@ public class InputParams {
     }
 
     public InputParams color(Color color) {
-        this.color = Optional.of(color);
+        this.colors.add(color);
+        return this;
+    }
+
+    public InputParams studentFromEntrance(Color color) {
+        this.studentsFromEntrance.add(color);
+        return this;
+    }
+
+    public InputParams studentFromDining(Color color) {
+        this.studentsFromDining.add(color);
         return this;
     }
 
@@ -65,8 +81,10 @@ public class InputParams {
 
         Consumer printParam = param ->  stringRef.s += param.toString() + ", ";
 
-        color.ifPresent(printParam);
         id.ifPresent(printParam);
+        if(!colors.isEmpty()) printParam.accept(colors);
+        if(!studentsFromEntrance.isEmpty()) printParam.accept(studentsFromEntrance);
+        if(!studentsFromDining.isEmpty()) printParam.accept(studentsFromDining);
         card.ifPresent(printParam);
         text.ifPresent(printParam);
         username.ifPresent(printParam);
