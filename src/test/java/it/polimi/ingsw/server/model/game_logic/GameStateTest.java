@@ -1018,5 +1018,106 @@ public class GameStateTest {
         gameState.setCurrentPlayerSchoolBoardId(3);
         assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));
     }
+
+    @Test
+    public void lastCardPlayed2() throws GameStateInitializationFailureException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+        GameState gameState = new GameState(2);
+
+        assertEquals(Map.of(), gameState.schoolBoardIdsToLastCardPlayed);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.playCard(Card.DOG);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+
+        gameState.setCurrentPlayerSchoolBoardId(1);
+        gameState.playCard(Card.GOOSE);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.playCard(Card.CAT);
+        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+
+    }
+
+    @Test
+    public void lastCardPlayed3() throws GameStateInitializationFailureException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+        GameState gameState = new GameState(3);
+
+        assertEquals(Map.of(), gameState.schoolBoardIdsToLastCardPlayed);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.playCard(Card.DOG);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+
+        gameState.setCurrentPlayerSchoolBoardId(1);
+        gameState.playCard(Card.GOOSE);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+
+        gameState.setCurrentPlayerSchoolBoardId(2);
+        gameState.playCard(Card.OCTOPUS);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.playCard(Card.CAT);
+        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));
+
+        gameState.setCurrentPlayerSchoolBoardId(2);
+        gameState.playCard(Card.DOG);
+        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(2));
+
+    }
+
+    @Test
+    public void lastCardPlayed4() throws GameStateInitializationFailureException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+        GameState gameState = new GameState(4);
+
+        assertEquals(Map.of(), gameState.schoolBoardIdsToLastCardPlayed);
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.playCard(Card.DOG);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+
+        gameState.setCurrentPlayerSchoolBoardId(1);
+        gameState.playCard(Card.GOOSE);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+
+        gameState.setCurrentPlayerSchoolBoardId(2);
+        gameState.playCard(Card.OCTOPUS);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));
+
+        gameState.setCurrentPlayerSchoolBoardId(3);
+        gameState.playCard(Card.TURTLE);
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));
+        assertEquals(Card.TURTLE, gameState.schoolBoardIdsToLastCardPlayed.get(3));
+
+        gameState.setCurrentPlayerSchoolBoardId(0);
+        gameState.playCard(Card.CAT);
+        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));
+        assertEquals(Card.TURTLE, gameState.schoolBoardIdsToLastCardPlayed.get(3));
+
+        gameState.setCurrentPlayerSchoolBoardId(2);
+        gameState.playCard(Card.DOG);
+        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));
+        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));
+        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(2));
+        assertEquals(Card.TURTLE, gameState.schoolBoardIdsToLastCardPlayed.get(3));
+
+    }
 }
 

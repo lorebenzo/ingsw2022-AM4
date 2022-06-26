@@ -382,7 +382,7 @@ public class ExpertGameState extends GameState {
 
     //10 OK AND TESTED
     @Override
-    public void playSwapTwoStudentsBetweenEntranceAndDiningRoom(List<Color> studentsFromDiningRoom, List<Color> studentFromEntrance) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotInTheEntranceException, FullDiningRoomLaneException, StudentsNotInTheDiningRoomException, NotEnoughCoinsException {
+    public void playSwapTwoStudentsBetweenEntranceAndDiningRoom(List<Color> studentFromEntrance, List<Color> studentsFromDiningRoom) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotInTheEntranceException, FullDiningRoomLaneException, StudentsNotInTheDiningRoomException, NotEnoughCoinsException {
         if(studentsFromDiningRoom == null || studentFromEntrance == null || studentsFromDiningRoom.contains(null) || studentFromEntrance.contains(null)) throw new IllegalArgumentException();
 
         if(studentsFromDiningRoom.size() != studentFromEntrance.size() || studentFromEntrance.size() > 3) throw new InvalidStudentListsLengthException();
