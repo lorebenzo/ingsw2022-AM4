@@ -57,13 +57,6 @@ public class ChatRenderer {
                             new InputParams().text(text.substring(0, text.length() - 1))
                     ));
                     inputBox.setText("");
-
-                    // Update messages and scroll
-                    log(text);
-                    chatLogs.getChildren().add(new Text(text));
-
-                    // Send message to gameClient for parsing
-                    GUI.gameClient.parseLine(text);
                 }
             }
         );

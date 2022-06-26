@@ -412,6 +412,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
         // Update GUI
         Platform.runLater(() -> GUI.log(this.logger.getChat(msg)));
+        Platform.runLater(GUI::render);
     }
 
     public void sendChatMessage(@NotNull String to, @NotNull String message) {
