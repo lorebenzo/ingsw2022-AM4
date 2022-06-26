@@ -27,6 +27,7 @@ public class AssetHolder {
     private static Map<Character, String> characterToAssetFileNameMap = new HashMap<>();
     public static Map<Character, Image> characterToImage = new HashMap<>();
     public static Image trumpCursor;
+    public static Image eryantis_background;
 
     // Sounds
     public static Media mouseClickSound;
@@ -36,6 +37,9 @@ public class AssetHolder {
     static {
         try {
             schoolBoardAsset = new Image(new FileInputStream("src/main/resources/assets/plancia.png"));
+
+            // Background
+            eryantis_background = new Image(new FileInputStream("src/main/resources/assets/backgrounds/eryantis_background.png"));
 
             // Students
             studentColorToStudentAsset.put(Color.YELLOW, new Image(new FileInputStream("src/main/resources/assets/students/student_yellow.png")));

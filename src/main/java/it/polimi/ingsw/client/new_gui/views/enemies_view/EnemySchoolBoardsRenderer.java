@@ -35,7 +35,7 @@ public class EnemySchoolBoardsRenderer {
             pane.getChildren().add(SchoolBoardRenderer.renderSchoolBoard(chosenSchoolBoardOptional.get()));
 
             // Add last card played
-            pane.getChildren().add(renderLastCardPlayed(chosenSchoolBoardOptional.get(), Card.GOOSE));
+            pane.getChildren().add(renderLastCardPlayed(chosenSchoolBoardOptional.get(), lgs.schoolBoardIdsToCardPlayedThisRound.get(schoolBoardChosenId)));
         }
 
         return pane;

@@ -1,17 +1,13 @@
 package it.polimi.ingsw.client.game_client_and_cli;
 
 import com.google.gson.Gson;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import it.polimi.ingsw.client.cli_graphics.Terminal;
 import it.polimi.ingsw.client.enums.CLICommand;
 import it.polimi.ingsw.client.exceptions.SyntaxError;
 import it.polimi.ingsw.client.new_gui.GUI;
-import it.polimi.ingsw.communication.sugar_framework.SerDes;
 import it.polimi.ingsw.communication.sugar_framework.SugarClient;
 import it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException;
 import io.github.cdimascio.dotenv.Dotenv;
-import it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
@@ -63,6 +59,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final Logger logger = new GameLogger(new Terminal(23, 150, System.out));
     private String jwt;
     public String username;
+    public boolean currentlyPlaying = false;
 
     // CLI Attributes
     private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
@@ -192,6 +189,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (NotifyGameOverMsg) message;
         this.logger.logSuccess(msg.text);
 
+        this.currentlyPlaying = false;
         Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
@@ -201,19 +199,22 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.logGameState(msg.updateClientMsg.lightGameState);
         this.logger.log("GAME OVER!");
 
+        this.currentlyPlaying = false;
         Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
     @SugarMessageHandler
     public void updateClientMsg(SugarMessage message) {
-            var msg = (UpdateClientMsg) message;
+        var msg = (UpdateClientMsg) message;
         try {
-            this.logger.logGameState(msg.lightGameState);
-
-        } catch (Exception ignored) {}
+            this.logger.logGameState(msg.lightGameState); // TODO: fix
+        } catch (Throwable ignored) { }
         this.lastSnapshot = msg.lightGameState;
 
-        Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
+        if(!this.currentlyPlaying) {
+            this.currentlyPlaying = true;
+            Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
+        }
     }
 
     @SugarMessageHandler
@@ -225,7 +226,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
 
         Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
-
     }
 
     @SugarMessageHandler

@@ -55,7 +55,7 @@ public class Layout {
     public static final double chatRelX = 75;
     public static final double chatRelY = 0;
     public static final double chatRelW = 22;
-    public static final double chatRelH = 65;
+    public static final double chatRelH = 40;
     public static final GUI.Rectangle chatRect = new GUI.Rectangle(
             chatRelX, chatRelY, chatRelW, chatRelH
     );
@@ -66,7 +66,7 @@ public class Layout {
 
     // Switch view button to enemy
     public static final double switchButtonToEnemyRelX = 75;
-    public static final double switchButtonToEnemyRelY = 75;
+    public static final double switchButtonToEnemyRelY = 50;
     public static final double switchButtonToEnemyRelW = 10;
     public static final double switchButtonToEnemyRelH = 5;
     public static final GUI.Rectangle switchButtonToEnemyRect = new GUI.Rectangle(
@@ -118,6 +118,15 @@ public class Layout {
     public static final double endTurnButtonRelH = 7;
     public static final GUI.Rectangle endTurnButtonRect = new GUI.Rectangle(
             endTurnButtonRelX, endTurnButtonRelY, endTurnButtonRelW, endTurnButtonRelH
+    );
+
+    // Undo button
+    public static final double undoButtonRelX = switchButtonToEnemyRelX;
+    public static final double undoButtonRelY = switchButtonToEnemyRelY + switchButtonToEnemyRelH + 10;
+    public static final double undoButtonRelW = 5;
+    public static final double undoButtonRelH = 7;
+    public static final GUI.Rectangle undoButtonRect = new GUI.Rectangle(
+            undoButtonRelX, undoButtonRelY, undoButtonRelW, undoButtonRelH
     );
 
     // Character prompt

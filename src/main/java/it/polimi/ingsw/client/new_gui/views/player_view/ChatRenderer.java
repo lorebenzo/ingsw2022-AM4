@@ -44,7 +44,9 @@ public class ChatRenderer {
         var inputBox = new TextArea();
         inputBox.setLayoutX(GUI.SizeHandler.getX(Layout.chatInputBoxRect.relX));
         inputBox.setLayoutY(GUI.SizeHandler.getY(Layout.chatInputBoxRect.relY));
-        inputBox.setPrefSize(GUI.SizeHandler.getX(Layout.chatInputBoxRect.relW), GUI.SizeHandler.getY(Layout.chatInputBoxRect.relH));
+        inputBox.setPrefWidth(GUI.SizeHandler.getX(Layout.chatInputBoxRect.relW));
+        inputBox.setPrefHeight(GUI.SizeHandler.getY(Layout.chatInputBoxRect.relH));
+        //inputBox.setPrefSize(GUI.SizeHandler.getX(Layout.chatInputBoxRect.relW), GUI.SizeHandler.getY(Layout.chatInputBoxRect.relH));
         fatherPane.getChildren().add(inputBox);
 
         inputBox.setOnKeyPressed(keyEvent -> {
@@ -59,10 +61,15 @@ public class ChatRenderer {
                     // Update messages and scroll
                     log(text);
                     chatLogs.getChildren().add(new Text(text));
-
                 }
             }
         );
+
+        inputBox.setOnMouseClicked(mouseEvent -> {
+            inputBox.requestFocus();
+        });
+
+        GUI.rectangleToComponent.put(Layout.chatInputBoxRect, inputBox);
 
         return fatherPane;
     }

@@ -19,7 +19,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.transform.Scale;
 
 import java.util.*;
 
@@ -78,7 +77,7 @@ public class SchoolBoardRenderer {
     public static Pane renderSchoolBoard(LightSchoolBoard schoolBoard) {
         var pane = new Pane();
 
-        // Layer 0: schoolboard
+        // Layer 0: schoolboard and coins
         var schoolBoardImgView = new ImageView(AssetHolder.schoolBoardAsset);
         var schoolboardRect = new GUI.Rectangle(
                 Layout.schoolRelX, Layout.schoolRelY,

@@ -26,4 +26,17 @@ public class ButtonsRenderer {
 
         return new Pane(endTurnButton);
     }
+
+    public static Pane renderUndoButton() {
+        var undoButton = new Button("Undo");
+
+        undoButton.setLayoutX(GUI.SizeHandler.getX(Layout.undoButtonRelX));
+        undoButton.setLayoutY(GUI.SizeHandler.getY(Layout.undoButtonRelY));
+
+        undoButton.setOnMouseClicked(mouseEvent -> {
+            GUI.gameClient.rollback();
+        });
+
+        return new Pane(undoButton);
+    }
 }
