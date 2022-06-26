@@ -191,6 +191,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
         this.currentlyPlaying = false;
         Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
+        Platform.runLater(() -> GUI.notify("Game Over: " + msg.text));
     }
 
     @SugarMessageHandler
@@ -209,7 +210,10 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         try {
             this.logger.logGameState(msg.lightGameState); // TODO: fix
         } catch (Throwable ignored) { }
+
+        // Update GUI
         this.lastSnapshot = msg.lightGameState;
+        Platform.runLater(GUI::render);
 
         if(!this.currentlyPlaying) {
             this.currentlyPlaying = true;
