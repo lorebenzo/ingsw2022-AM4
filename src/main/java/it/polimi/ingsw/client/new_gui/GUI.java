@@ -51,7 +51,7 @@ public class GUI extends Application {
     public enum View {
         LoginView, PlayerView, EnemiesView, MatchMakingView
     }
-    public static View currentView = View.PlayerView;
+    public static View currentView = View.LoginView;
 
     public static GameClient gameClient = null;
 
@@ -144,18 +144,18 @@ public class GUI extends Application {
         // Change cursor
         scene.setCursor(new ImageCursor(AssetHolder.trumpCursor));
 
-        // Display current player's name on the title
-        var currentPlayer = gameClient.lastSnapshot.usernameToSchoolBoardID
-                        .keySet()
-                        .stream()
-                        .filter(username ->
-                                gameClient.lastSnapshot.usernameToSchoolBoardID.get(username)
-                                        == gameClient.lastSnapshot.currentPlayerSchoolBoardId)
-                        .findFirst().get();
-
         String playerTurn = "";
-        if(currentView.equals(View.PlayerView) || currentView.equals(View.EnemiesView))
+        if(currentView.equals(View.PlayerView) || currentView.equals(View.EnemiesView)) {
+            // Display current player's name on the title
+            var currentPlayer = gameClient.lastSnapshot.usernameToSchoolBoardID
+                    .keySet()
+                    .stream()
+                    .filter(username ->
+                            gameClient.lastSnapshot.usernameToSchoolBoardID.get(username)
+                                    == gameClient.lastSnapshot.currentPlayerSchoolBoardId)
+                    .findFirst().get();
             playerTurn = "  §  " + currentPlayer + " 's turn";
+        }
         stage.setTitle("Eryantis" + playerTurn);
 
         // Set scene
