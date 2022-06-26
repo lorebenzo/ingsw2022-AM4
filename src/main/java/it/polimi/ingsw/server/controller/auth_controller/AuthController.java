@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import it.polimi.ingsw.communication.sugar_framework.Peer;
+import it.polimi.ingsw.communication.sugar_framework.SugarServer;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
 import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
 import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
@@ -31,7 +32,7 @@ public class AuthController extends SugarMessageProcessor {
     public final GamesManager gamesManager;
     private static final SecretKey key = Keys.hmacShaKeyFor(hashedKey.getBytes(StandardCharsets.UTF_8));
 
-    public AuthController(GameServer gameServer) {
+    public AuthController(SugarServer gameServer) {
         this.gamesManager = new GamesManager(gameServer);
     }
 
@@ -123,9 +124,9 @@ public class AuthController extends SugarMessageProcessor {
         }
     }
 
-    public static String createFakeJWT() {
+    public static String createFakeJWT(String username) {
         return Jwts.builder()
-                .claim("username", "username")
+                .claim("username", username)
                 .signWith(key)
                 .compact();
     }

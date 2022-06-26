@@ -24,8 +24,8 @@ import static org.junit.Assert.*;
 
 public class AuthControllerTest {
     private static boolean setUpIsDone = false;
-    private static final Peer testPeer = new Peer(new Socket());
     private static AuthController authController = null;
+    private static final Peer testPeer = new Peer(new Socket());
 
     @Before
     public void setUp() {
@@ -41,6 +41,7 @@ public class AuthControllerTest {
             usersRepository.setAccessible(true);
             usersRepository.set(authController, usersRepositoryMock);
         } catch (IOException e) {
+            e.printStackTrace();
             fail();
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();

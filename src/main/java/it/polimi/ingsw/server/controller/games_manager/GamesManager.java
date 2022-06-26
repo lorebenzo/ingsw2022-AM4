@@ -45,8 +45,8 @@ public class GamesManager extends SugarMessageProcessor {
         var username = AuthController.getUsernameFromJWT(msg.jwt);
 
         var gameController = this.games.stream()
-                .filter(gc -> gc.containsPlayer(username))
-                .findFirst();
+            .filter(gc -> gc.containsPlayer(username))
+            .findFirst();
 
         // Game controller UUID if present, or else is null
         var gameControllerUUID = gameController
@@ -54,7 +54,7 @@ public class GamesManager extends SugarMessageProcessor {
                 .orElse(null);
 
         return new GamesUpdateMsg(gameControllerUUID);
-     }
+    }
 
     @SugarMessageHandler
     public SugarMessage joinMatchMakingMsg(SugarMessage message, Peer peer) {
@@ -130,7 +130,6 @@ public class GamesManager extends SugarMessageProcessor {
                 filteredMatchMakingList.forEach((peer, nPlayers, expMode) -> this.matchMakingList.remove(peer));
             } catch (GameStateInitializationFailureException e) {
                 try {
-                    //todo: da fixare
                     this.server.multicastToRoom(gameRoomId, new KOMsg(ReturnMessage.DELETING_GAME.text));
                 } catch (IOException | RoomNotFoundException ignored) { }
             } catch (EmptyStudentSupplyException e) {
@@ -146,27 +145,10 @@ public class GamesManager extends SugarMessageProcessor {
 
         if(gameInvolvingPlayer.isPresent()) {
             gameInvolvingPlayer.get().updatePeerIfOlder(username, peer);
-
             return  new UpdateClientMsg(gameInvolvingPlayer.get().getLightGameState());
         }
 
         return new KOMsg("No game found");
-    }
-
-    @SugarMessageHandler
-    public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
-        var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);
-        var gameInvolvingPlayer = findGameInvolvingPlayer(username);
-
-        if(gameInvolvingPlayer.isPresent()) {
-            gameInvolvingPlayer.get().updatePeerIfOlder(username, peer);
-            var ret = gameInvolvingPlayer.get().process(sugarMessage, peer);
-
-            // Process the message coming from the lower layers
-            this.processFromLowerLayers(ret, peer);
-        }
-
-        return null;
     }
 
     private Optional<GameController> findGameInvolvingPeer(Peer peer) {
@@ -229,12 +211,10 @@ public class GamesManager extends SugarMessageProcessor {
     private void gameLogicMulticast(GameController gameController, SugarMessage message) {
         var players = gameController.getPlayers();
         for(var player: players) {
-            try {
-                if(player.associatedPeer != null)
+            if(player.associatedPeer != null)
+                try {
                     this.server.send(message, player.associatedPeer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                } catch (Exception ignored) {}
         }
     }
 
@@ -273,5 +253,21 @@ public class GamesManager extends SugarMessageProcessor {
         try {
             this.server.send(message.serialize(), receiver.peerSocket);
         } catch (IOException ignored) { }
+    }
+
+    @SugarMessageHandler
+    public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
+        var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);
+        var gameInvolvingPlayer = findGameInvolvingPlayer(username);
+
+        if(gameInvolvingPlayer.isPresent()) {
+            gameInvolvingPlayer.get().updatePeerIfOlder(username, peer);
+            var ret = gameInvolvingPlayer.get().process(sugarMessage, peer);
+
+            // Process the message coming from the lower layers
+            this.processFromLowerLayers(ret, peer);
+        }
+
+        return null;
     }
 }

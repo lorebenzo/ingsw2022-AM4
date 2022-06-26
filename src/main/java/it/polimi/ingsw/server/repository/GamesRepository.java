@@ -86,7 +86,8 @@ public class GamesRepository {
         try {
             Statement stmt = c.createStatement();
             ResultSet rs = stmt.executeQuery("select *\n" +
-                                                 "from users.current_games");
+                                                 "from users.current_games \n" +
+                                                "where expert = false");
 
             while ( rs.next() ) {
                 String gameUUID = rs.getString("gameUUID");

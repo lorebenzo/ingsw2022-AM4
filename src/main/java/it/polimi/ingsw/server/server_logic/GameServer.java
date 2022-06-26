@@ -11,10 +11,11 @@ import java.io.IOException;
 
 public class GameServer extends SugarServer {
     private final AuthController authController = new AuthController(this);
+    private final boolean enableReconstructGames = true;
 
     public GameServer() throws IOException {
         super();
-        this.authController.gamesManager.recoverCurrentGames();
+        if(enableReconstructGames) this.authController.gamesManager.recoverCurrentGames();
     }
 
     @Override
@@ -22,7 +23,7 @@ public class GameServer extends SugarServer {
 
     @Override
     protected void onPeerDisconnect(Peer peer) {
-        var message = new PeerDisconnectedFromGameMsg(AuthController.createFakeJWT());
+        var message = new PeerDisconnectedFromGameMsg(AuthController.createFakeJWT("username"));
         var response = authController.process(message, peer);
         if(response != null) {
             try {
