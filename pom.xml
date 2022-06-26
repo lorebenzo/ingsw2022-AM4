@@ -19,20 +19,40 @@
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>18.0.1</version>
+      <classifier>win</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>18.0.1</version>
+      <classifier>linux</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>18.0.1</version>
+      <classifier>mac</classifier>
+    </dependency>
+
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>17.0.0.1</version>
+      <version>18.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>17.0.0.1</version>
+      <version>18.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
-      <version>15</version>
+      <version>18.0.1</version>
       <type>pom</type>
     </dependency>
     <dependency>
@@ -145,7 +165,7 @@
       </plugins>
     </pluginManagement>
       <plugins>
-        <!-- <plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <configuration>
@@ -156,7 +176,7 @@
               </manifest>
             </archive>
           </configuration>
-        </plugin> -->
+        </plugin>
         <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
@@ -209,7 +229,9 @@
               <configuration>
                 <transformers>
                   <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                    <mainClass>it.polimi.ingsw.server.App</mainClass>
+                    <mainClass>it.polimi.ingsw.client.MainGUI</mainClass>
+<!--                    <mainClass>it.polimi.ingsw.server.App</mainClass>-->
+
                   </transformer>
                 </transformers>
               </configuration>
@@ -226,7 +248,7 @@
               <!-- Default configuration for running with: mvn clean javafx:run -->
               <id>default-cli</id>
               <configuration>
-                <mainClass>com.example.demo/com.example.demo.HelloApplication</mainClass>
+                <mainClass>it.polimi.ingsw.client.MainGUI</mainClass>
               </configuration>
             </execution>
           </executions>
