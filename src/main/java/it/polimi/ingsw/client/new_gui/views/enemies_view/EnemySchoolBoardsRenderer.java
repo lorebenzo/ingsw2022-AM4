@@ -1,6 +1,7 @@
 package it.polimi.ingsw.client.new_gui.views.enemies_view;
 
 import it.polimi.ingsw.client.new_gui.AssetHolder;
+import it.polimi.ingsw.client.new_gui.GUI;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.client.new_gui.views.player_view.SchoolBoardRenderer;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
@@ -17,7 +18,7 @@ public class EnemySchoolBoardsRenderer {
 
         var enemySchoolBoards = lgs.schoolBoards
                 .stream()
-                .filter(schoolBoard -> schoolBoard.id != lgs.currentPlayerSchoolBoardId)
+                .filter(schoolBoard -> schoolBoard.id != lgs.usernameToSchoolBoardID.get(GUI.gameClient.username))
                 .toList();
 
         var chosenSchoolBoardOptional = enemySchoolBoards
