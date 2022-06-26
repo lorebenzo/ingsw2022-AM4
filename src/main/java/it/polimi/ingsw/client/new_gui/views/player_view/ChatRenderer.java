@@ -61,6 +61,9 @@ public class ChatRenderer {
                     // Update messages and scroll
                     log(text);
                     chatLogs.getChildren().add(new Text(text));
+
+                    // Send message to gameClient for parsing
+                    GUI.gameClient.parseLine(text);
                 }
             }
         );

@@ -60,6 +60,10 @@ public class GUI extends Application {
         launch(args);
     }
 
+    public static void log(String s) {
+        ChatRenderer.log(s);
+    }
+
     @Override
     public void start(Stage stage) {
         GUI.stage = stage;
@@ -157,6 +161,9 @@ public class GUI extends Application {
             playerTurn = "  §  " + currentPlayer + " 's turn";
         }
         stage.setTitle("Eryantis" + playerTurn);
+
+        // Set background
+        scene.setStyle("-fx-background-color: #7eb9ed");
 
         // Set scene
         stage.setScene(new Scene(scene));

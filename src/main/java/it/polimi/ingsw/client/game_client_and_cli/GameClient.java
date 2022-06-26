@@ -56,7 +56,7 @@ import java.util.stream.Stream;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final Logger logger = new GameLogger(new Terminal(23, 150, System.out));
+    private final GameLogger logger = new GameLogger(new Terminal(23, 150, System.out));
     private String jwt;
     public String username;
     public boolean currentlyPlaying = false;
@@ -409,6 +409,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void chatMsg(SugarMessage message) {
         var msg = (ChatMsg) message;
         this.logger.logChat(msg);
+
+        // Update GUI
+        Platform.runLater(() -> GUI.log(this.logger.getChat(msg)));
     }
 
     public void sendChatMessage(@NotNull String to, @NotNull String message) {

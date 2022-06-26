@@ -40,6 +40,10 @@ public class GameLogger implements Logger {
         this.terminal.flush();
     }
 
+    public String getChat(ChatMsg msg) {
+        return "[ " + msg.from + " ] " + msg.message;
+    }
+
     @Override
     public void logGameState(LightGameState lightGameState) {
         this.terminal.updateGameState(lightGameState);
