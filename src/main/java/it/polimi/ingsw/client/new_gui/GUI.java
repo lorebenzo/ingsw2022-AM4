@@ -44,13 +44,14 @@ public class GUI extends Application {
     }
 
     public static void notify(String s) {
-        alert(s); // TODO: differentiate between alert and notify
+        AlertNotifyRenderer.notify(s);
+        GUI.render();
     }
 
     public enum View {
         LoginView, PlayerView, EnemiesView, MatchMakingView
     }
-    public static View currentView = View.LoginView;
+    public static View currentView = View.PlayerView;
 
     public static GameClient gameClient = null;
 
@@ -135,14 +136,27 @@ public class GUI extends Application {
         var scene = new StackPane();
         scene.getChildren().add(pane);
 
-        // Render alert if present
+        // Render alert or notify if present
         AlertNotifyRenderer.getAlert().ifPresent(alert -> {
             scene.getChildren().add(alert);
-            System.out.println("Added alert pane");
         });
 
         // Change cursor
         scene.setCursor(new ImageCursor(AssetHolder.trumpCursor));
+
+        // Display current player's name on the title
+        var currentPlayer = gameClient.lastSnapshot.usernameToSchoolBoardID
+                        .keySet()
+                        .stream()
+                        .filter(username ->
+                                gameClient.lastSnapshot.usernameToSchoolBoardID.get(username)
+                                        == gameClient.lastSnapshot.currentPlayerSchoolBoardId)
+                        .findFirst().get();
+
+        String playerTurn = "";
+        if(currentView.equals(View.PlayerView) || currentView.equals(View.EnemiesView))
+            playerTurn = "  §  " + currentPlayer + " 's turn";
+        stage.setTitle("Eryantis" + playerTurn);
 
         // Set scene
         stage.setScene(new Scene(scene));

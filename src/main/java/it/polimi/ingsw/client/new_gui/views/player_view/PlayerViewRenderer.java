@@ -30,6 +30,7 @@ public class PlayerViewRenderer {
         var chat = ChatRenderer.renderChat();
         var switchButton = SwitchButtonRenderer.renderSwitchButton("Enemies view", Layout.switchButtonToEnemyRect, GUI.View.EnemiesView);
         var endTurnButton = ButtonsRenderer.renderEndTurnButton();
+        var undoButton = ButtonsRenderer.renderUndoButton();
         if(lgs.availableCharacters != null) characters = CharactersRenderer.renderCharacters(lgs);
 
         GUI.rectangleToComponent.put(Layout.schoolRect, schoolBoard);
@@ -39,6 +40,7 @@ public class PlayerViewRenderer {
         GUI.rectangleToComponent.put(Layout.chatRect, chat);
         GUI.rectangleToComponent.put(Layout.switchButtonToEnemyRect, switchButton);
         GUI.rectangleToComponent.put(Layout.endTurnButtonRect, endTurnButton);
+        GUI.rectangleToComponent.put(Layout.undoButtonRect, undoButton);
         if(characters != null) {
             GUI.rectangleToComponent.put(Layout.firstCharacterRect, characters.get(0));
             GUI.rectangleToComponent.put(Layout.firstCharacterRect.sameToTheRight(), characters.get(1));
@@ -52,7 +54,8 @@ public class PlayerViewRenderer {
                 cards,
                 chat,
                 switchButton,
-                endTurnButton
+                endTurnButton,
+                undoButton
         );
         if(characters != null)
             pane.getChildren().addAll(

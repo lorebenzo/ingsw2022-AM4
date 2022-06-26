@@ -59,6 +59,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final Logger logger = new GameLogger(new Terminal(23, 150, System.out));
     private String jwt;
     public String username;
+    public boolean currentlyPlaying = false;
 
     // CLI Attributes
     private static final Pattern command = Pattern.compile("[a-zA-Z-]+( )?");
@@ -188,6 +189,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var msg = (NotifyGameOverMsg) message;
         this.logger.logSuccess(msg.text);
 
+        this.currentlyPlaying = false;
         Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
@@ -197,6 +199,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.logGameState(msg.updateClientMsg.lightGameState);
         this.logger.log("GAME OVER!");
 
+        this.currentlyPlaying = false;
         Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
@@ -208,7 +211,10 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         } catch (Throwable ignored) { }
         this.lastSnapshot = msg.lightGameState;
 
-        Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
+        if(!this.currentlyPlaying) {
+            this.currentlyPlaying = true;
+            Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
+        }
     }
 
     @SugarMessageHandler
