@@ -1,0 +1,317 @@
+{
+  "archipelagos": [
+    {
+      "islandCodes": [
+        0
+      ],
+      "studentToNumber": {
+        "RED": 1,
+        "YELLOW": 3,
+        "CYAN": 0,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        1, 100, 101
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 1,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "BLACK"
+    },
+    {
+      "islandCodes": [
+        2
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 1,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        3
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 1,
+        "CYAN": 0,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        4
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 0,
+        "GREEN": 0,
+        "PURPLE": 1
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        5
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 1,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        6
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 0,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        7
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 1,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        8
+      ],
+      "studentToNumber": {
+        "RED": 1,
+        "YELLOW": 0,
+        "CYAN": 0,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        9
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 1,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        10
+      ],
+      "studentToNumber": {
+        "RED": 0,
+        "YELLOW": 0,
+        "CYAN": 0,
+        "GREEN": 0,
+        "PURPLE": 1
+      },
+      "towerColor": "NONE"
+    },
+    {
+      "islandCodes": [
+        11
+      ],
+      "studentToNumber": {
+        "RED": 1,
+        "YELLOW": 0,
+        "CYAN": 0,
+        "GREEN": 0,
+        "PURPLE": 0
+      },
+      "towerColor": "NONE"
+    }
+  ],
+  "schoolBoards": [
+    {
+      "id": 0,
+      "diningRoomLaneColorToNumberOfStudents": {
+        "YELLOW": 1,
+        "CYAN": 1,
+        "GREEN": 0,
+        "PURPLE": 0,
+        "RED": 0
+      },
+      "towerColor": "WHITE",
+      "studentsInTheEntrance": [
+        "GREEN",
+        "YELLOW",
+        "PURPLE",
+        "YELLOW",
+        "RED"
+      ],
+      "professorsTable": [
+        "CYAN",
+        "YELLOW"
+      ],
+      "deck": [
+        "DOG",
+        "GOOSE",
+        "PARROT",
+        "FOX",
+        "LIZARD",
+        "OCTOPUS",
+        "MASTIFF",
+        "ELEPHANT",
+        "TURTLE"
+      ]
+    },
+    {
+      "id": 1,
+      "diningRoomLaneColorToNumberOfStudents": {
+        "YELLOW": 1,
+        "CYAN": 1,
+        "GREEN": 4,
+        "PURPLE": 4,
+        "RED": 1
+      },
+      "towerColor": "BLACK",
+      "studentsInTheEntrance": [
+        "PURPLE",
+        "GREEN",
+        "PURPLE",
+        "RED",
+        "RED",
+        "GREEN",
+        "PURPLE"
+      ],
+      "professorsTable": [],
+      "deck": [
+        "DOG",
+        "GOOSE",
+        "CAT",
+        "PARROT",
+        "FOX",
+        "LIZARD",
+        "MASTIFF",
+        "ELEPHANT",
+        "TURTLE"
+      ]
+    },
+    {
+      "id": 2,
+      "diningRoomLaneColorToNumberOfStudents": {
+        "YELLOW": 1,
+        "CYAN": 1,
+        "GREEN": 0,
+        "PURPLE": 10,
+        "RED": 0
+      },
+      "towerColor": "WHITE",
+      "studentsInTheEntrance": [
+        "GREEN",
+        "YELLOW"
+      ],
+      "professorsTable": [
+      ],
+      "deck": [
+        "DOG",
+        "GOOSE",
+        "PARROT",
+        "FOX",
+        "LIZARD",
+        "OCTOPUS",
+        "MASTIFF",
+        "ELEPHANT",
+        "TURTLE"
+      ]
+    },
+    {
+      "id": 3,
+      "diningRoomLaneColorToNumberOfStudents": {
+        "YELLOW": 1,
+        "CYAN": 1,
+        "GREEN": 7,
+        "PURPLE": 0,
+        "RED": 7
+      },
+      "towerColor": "WHITE",
+      "studentsInTheEntrance": [
+        "GREEN",
+        "YELLOW"
+      ],
+      "professorsTable": [
+        "CYAN",
+        "YELLOW",
+        "PURPLE"
+      ],
+      "deck": [
+        "DOG",
+        "GOOSE",
+        "PARROT",
+        "FOX",
+        "LIZARD",
+        "OCTOPUS",
+        "MASTIFF",
+        "ELEPHANT",
+        "TURTLE"
+      ]
+    }
+  ],
+  "clouds": [
+    [
+      "RED",
+      "YELLOW",
+      "GREEN"
+    ],
+    [
+      "CYAN",
+      "YELLOW",
+      "GREEN"
+    ],
+    [
+
+    ],
+    [
+
+    ]
+  ],
+  "currentPlayerSchoolBoardId": 0,
+  "currentPhase": "ACTION",
+  "roundOrder": [
+    0,
+    1
+  ],
+  "motherNaturePosition": 0,
+  "usernameToSchoolBoardID": {
+    "pinco pallino": 3,
+    "tizio ": 2,
+    "caio": 1,
+    "sempronio": 0
+  }
+}
