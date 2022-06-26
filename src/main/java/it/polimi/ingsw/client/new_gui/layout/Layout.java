@@ -121,8 +121,8 @@ public class Layout {
     );
 
     // Undo button
-    public static final double undoButtonRelX = switchButtonToEnemyRelX;
-    public static final double undoButtonRelY = switchButtonToEnemyRelY + switchButtonToEnemyRelH + 10;
+    public static final double undoButtonRelX = endTurnButtonRect.sameToTheRight().relX + 2;
+    public static final double undoButtonRelY = switchButtonToEnemyRelY;
     public static final double undoButtonRelW = 5;
     public static final double undoButtonRelH = 7;
     public static final GUI.Rectangle undoButtonRect = new GUI.Rectangle(
