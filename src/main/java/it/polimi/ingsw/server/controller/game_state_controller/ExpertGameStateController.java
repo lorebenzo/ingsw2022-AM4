@@ -104,15 +104,15 @@ public class ExpertGameStateController extends GameStateController {
     }
 
     @Override
-    public void applyEffect(int characterIndex, List<Color> students1, List<Color> students2) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException, NotEnoughCoinsException {
+    public void applyEffect(int characterIndex, List<Color> getStudents, List<Color> giveStudents) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
 
         int characterId = this.gameState.getAvailableCharacters().get(characterIndex).getCharacterId();
 
         if(characterId == Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE.characterId)
-            this.gameState.playSwapThreeStudentsBetweenCharacterAndEntrance(students1, students2);
+            this.gameState.playSwapThreeStudentsBetweenCharacterAndEntrance(getStudents, giveStudents);
         else if(characterId == Character.SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM.characterId)
-            this.gameState.playSwapTwoStudentsBetweenEntranceAndDiningRoom(students1, students2);
+            this.gameState.playSwapTwoStudentsBetweenEntranceAndDiningRoom(getStudents, giveStudents);
         else
             throw new WrongArgumentsException();
     }

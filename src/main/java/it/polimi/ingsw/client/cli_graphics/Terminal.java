@@ -269,7 +269,7 @@ public class Terminal {
     public void updateGameState(LightGameState lightGameState) {
         this.clean();
         this.renderSchoolBoards(lightGameState.schoolBoards, lightGameState.usernameToSchoolBoardID, lightGameState.currentPlayerSchoolBoardId, 0, 0);
-        this.renderAvailableCharacters(lightGameState.availableCharacters, 15, 0);
+        this.renderAvailableCharacters(lightGameState.availableCharacters, 15, 85);
         this.renderArchipelagos(lightGameState.archipelagos, lightGameState.motherNaturePosition, 0, 65);
         this.renderClouds(lightGameState.clouds, 15, 65);
     }

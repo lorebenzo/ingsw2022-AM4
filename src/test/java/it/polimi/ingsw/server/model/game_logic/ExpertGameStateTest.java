@@ -576,6 +576,38 @@ public class ExpertGameStateTest {
 
     }
 
+    @Test
+    public void playSwapTwoStudentsBetweenEntranceAndDiningRoomNoStudentsMoved() throws GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException, StudentNotInTheEntranceException, InvalidStudentListsLengthException, MoveNotAvailableException, FullDiningRoomLaneException {
+        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM)));
+
+        //Trick to have many coins to perform any kind of test
+        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {
+            schoolBoard.payCharacter(-100);
+        }
+
+        //Prepare the students to get from the entrance
+        List<Color> studentsFromEntrance = new ArrayList<>(List.of());
+
+        //Add some students to the diningRoom
+        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);
+        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);
+        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.GREEN);
+
+        //Prepare the students to get from the diningRoom
+        List<Color> studentsFromDining = new ArrayList<>(List.of());
+
+        //Play the character
+        gameState.playSwapTwoStudentsBetweenEntranceAndDiningRoom(studentsFromDining,studentsFromEntrance);
+
+
+        //Check if the students were correctly swapped
+        assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentsFromDining));
+        assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheDiningRoom(studentsFromEntrance));
+        assertEquals(gameState.strategy.getNumberOfStudentsInTheEntrance(),gameState.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size());
+        assertEquals(3, gameState.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().values().stream().reduce(0,Integer::sum).intValue());
+
+    }
+
     //#11
     @Test
     public void playPutOneStudentFromCharacterToDiningRoom() throws GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException, StudentNotOnCharacterException, FullDiningRoomLaneException, MoveNotAvailableException {

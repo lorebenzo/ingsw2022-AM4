@@ -36,54 +36,54 @@ public class AssetHolder {
 
     static {
         try {
-            schoolBoardAsset = new Image(new FileInputStream("src/main/resources/assets/plancia.png"));
+            schoolBoardAsset = new Image(new FileInputStream("resources/assets/plancia.png"));
 
             // Background
-            eryantis_background = new Image(new FileInputStream("src/main/resources/assets/backgrounds/eryantis_background.png"));
+            eryantis_background = new Image(new FileInputStream("resources/assets/backgrounds/eryantis_background.png"));
 
             // Students
-            studentColorToStudentAsset.put(Color.YELLOW, new Image(new FileInputStream("src/main/resources/assets/students/student_yellow.png")));
-            studentColorToStudentAsset.put(Color.CYAN, new Image(new FileInputStream("src/main/resources/assets/students/student_blue.png")));
-            studentColorToStudentAsset.put(Color.GREEN, new Image(new FileInputStream("src/main/resources/assets/students/student_green.png")));
-            studentColorToStudentAsset.put(Color.PURPLE, new Image(new FileInputStream("src/main/resources/assets/students/student_pink.png")));
-            studentColorToStudentAsset.put(Color.RED, new Image(new FileInputStream("src/main/resources/assets/students/student_red.png")));
+            studentColorToStudentAsset.put(Color.YELLOW, new Image(new FileInputStream("resources/assets/students/student_yellow.png")));
+            studentColorToStudentAsset.put(Color.CYAN, new Image(new FileInputStream("resources/assets/students/student_blue.png")));
+            studentColorToStudentAsset.put(Color.GREEN, new Image(new FileInputStream("resources/assets/students/student_green.png")));
+            studentColorToStudentAsset.put(Color.PURPLE, new Image(new FileInputStream("resources/assets/students/student_pink.png")));
+            studentColorToStudentAsset.put(Color.RED, new Image(new FileInputStream("resources/assets/students/student_red.png")));
 
             // Professors
-            professorColorToProfessorAsset.put(Color.YELLOW, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_yellow.png")));
-            professorColorToProfessorAsset.put(Color.CYAN, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_blue.png")));
-            professorColorToProfessorAsset.put(Color.GREEN, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_green.png")));
-            professorColorToProfessorAsset.put(Color.PURPLE, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_pink.png")));
-            professorColorToProfessorAsset.put(Color.RED, new Image(new FileInputStream("src/main/resources/assets/professors/teacher_red.png")));
+            professorColorToProfessorAsset.put(Color.YELLOW, new Image(new FileInputStream("resources/assets/professors/teacher_yellow.png")));
+            professorColorToProfessorAsset.put(Color.CYAN, new Image(new FileInputStream("resources/assets/professors/teacher_blue.png")));
+            professorColorToProfessorAsset.put(Color.GREEN, new Image(new FileInputStream("resources/assets/professors/teacher_green.png")));
+            professorColorToProfessorAsset.put(Color.PURPLE, new Image(new FileInputStream("resources/assets/professors/teacher_pink.png")));
+            professorColorToProfessorAsset.put(Color.RED, new Image(new FileInputStream("resources/assets/professors/teacher_red.png")));
 
 
             // Island
-            island = new Image(new FileInputStream("src/main/resources/assets/archipelago/island1.png"));
+            island = new Image(new FileInputStream("resources/assets/archipelago/island1.png"));
 
             // Mother nature
-            motherNatureCard = new Image(new FileInputStream("src/main/resources/assets/mother_nature/mother_nature.png"));
-            motherNaturePawn = new Image(new FileInputStream("src/main/resources/assets/mother_nature/mothernature.png"));
+            motherNatureCard = new Image(new FileInputStream("resources/assets/mother_nature/mother_nature.png"));
+            motherNaturePawn = new Image(new FileInputStream("resources/assets/mother_nature/mothernature.png"));
 
             // Towers
-            towerColorImageMap.put(TowerColor.GRAY, new Image(new FileInputStream("src/main/resources/assets/towers/grey_tower_preview_rev_1.png")));
-            towerColorImageMap.put(TowerColor.WHITE, new Image(new FileInputStream("src/main/resources/assets/towers/white_tower_preview_rev_1.png")));
-            towerColorImageMap.put(TowerColor.BLACK, new Image(new FileInputStream("src/main/resources/assets/towers/black_tower_preview_rev_1.png")));
+            towerColorImageMap.put(TowerColor.GRAY, new Image(new FileInputStream("resources/assets/towers/grey_tower_preview_rev_1.png")));
+            towerColorImageMap.put(TowerColor.WHITE, new Image(new FileInputStream("resources/assets/towers/white_tower_preview_rev_1.png")));
+            towerColorImageMap.put(TowerColor.BLACK, new Image(new FileInputStream("resources/assets/towers/black_tower_preview_rev_1.png")));
 
             // Cloud
-            cloud = new Image(new FileInputStream("src/main/resources/assets/clouds/cloud_preview_rev_1.png"));
+            cloud = new Image(new FileInputStream("resources/assets/clouds/cloud_preview_rev_1.png"));
 
             // Cards
             for(var card : Card.values())
-                cardImageMap.put(card, new Image(new FileInputStream("src/main/resources/assets/cards/Assistente (" + card.getValue() + ").png")));
+                cardImageMap.put(card, new Image(new FileInputStream("resources/assets/cards/Assistente (" + card.getValue() + ").png")));
 
             // Mouse click
-            mouseClickSound = new Media(new File("src/main/resources/assets/sounds/mouse_click.mp3").toURI().toString());
+            mouseClickSound = new Media(new File("resources/assets/sounds/mouse_click.mp3").toURI().toString());
             // Cursors
-            trumpCursor = new Image(new FileInputStream("src/main/resources/assets/cursors/peo1041.png"));
+            trumpCursor = new Image(new FileInputStream("resources/assets/cursors/peo1041.png"));
 
             // Background music
-            backgroundMusic = new Media(new File("src/main/resources/assets/music/background_music.mp3").toURI().toString());
+            backgroundMusic = new Media(new File("resources/assets/music/background_music.mp3").toURI().toString());
             // Character activation
-            characterActivation = new Media(new File("src/main/resources/assets/sounds/character_activation.mp3").toURI().toString());
+            characterActivation = new Media(new File("resources/assets/sounds/character_activation.mp3").toURI().toString());
 
             // Characters
             int i = 1;
@@ -99,7 +99,7 @@ public class AssetHolder {
                             c,
                             new Image(
                                     new FileInputStream(
-                                            "src/main/resources/assets/characters/" + characterToAssetFileNameMap.get(c)
+                                            "resources/assets/characters/" + characterToAssetFileNameMap.get(c)
                                     )
                             )
                     );
