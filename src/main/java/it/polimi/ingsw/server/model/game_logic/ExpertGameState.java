@@ -494,7 +494,7 @@ public class ExpertGameState extends GameState {
                 super.round.getCurrentPhase(),
                 super.round.getRoundOrder(),
                 super.archipelagos.indexOf(motherNaturePosition),
-                super.schoolBoardIdsToCardPlayedThisRound,
+                super.schoolBoardIdsToLastCardPlayed,
 
                 this.availableCharacters.stream().map(PlayableCharacter::lightify).toList(),
                 this.characterPlayedInCurrentTurn != null ? this.characterPlayedInCurrentTurn.lightify() : null

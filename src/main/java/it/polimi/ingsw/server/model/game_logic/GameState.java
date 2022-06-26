@@ -33,6 +33,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     protected Round round;
 
     protected Map<Integer, Card> schoolBoardIdsToCardPlayedThisRound;
+    protected Map<Integer, Card> schoolBoardIdsToLastCardPlayed;
 
     protected List<Archipelago> archipelagos;
     protected List<SchoolBoard> schoolBoards;
@@ -91,6 +92,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();
 
         this.schoolBoardIdsToCardPlayedThisRound = new HashMap<>();
+        this.schoolBoardIdsToLastCardPlayed = new HashMap<>();
         this.studentFactory = new StudentFactory();
         try {
             this.archipelagos = this.initializeArchipelagos();
@@ -223,6 +225,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         //If no other player already played the same card as the one in input in this round, or if the card in input is the last available
         this.getCurrentPlayerSchoolBoard().playCard(card);
         this.schoolBoardIdsToCardPlayedThisRound.put(this.currentPlayerSchoolBoardId, card);
+        this.schoolBoardIdsToLastCardPlayed.put(this.currentPlayerSchoolBoardId,card);
 
     }
 
@@ -934,7 +937,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                 this.round.getCurrentPhase(),
                 this.round.getRoundOrder(),
                 this.archipelagos.indexOf(motherNaturePosition),
-                this.schoolBoardIdsToCardPlayedThisRound,
+                this.schoolBoardIdsToLastCardPlayed,
                 null,
                 null
         );
