@@ -94,6 +94,8 @@ public class ArchipelagosRenderer {
             pane.getChildren().add(prompt);
 
             // Event listeners
+            double archipelagoBrightness = archipelagos.get(i).lock ? -0.5 : 0;
+            UserExperience.setImageViewBrightness(archipelagoImageView, archipelagoBrightness);
 
             // Click listener
             int archipelagoIndex = i;
@@ -101,16 +103,18 @@ public class ArchipelagosRenderer {
                     onArchipelagoClicked(archipelagoImageView, archipelagos.get(archipelagoIndex).islandCodes.get(0)));
 
             // Hover listener
+            int finalI = i;
             archipelagoImageView.hoverProperty().addListener((obs, oldVal, hovering) -> {
                 // Display prompt only if mouse is hovering on archipelago
                 prompt.setVisible(hovering);
 
                 // Bright effect on hover
-                if(hovering) {
-                    UserExperience.setImageViewBrightness(archipelagoImageView, +0.3);
-                } else {
-                    UserExperience.setImageViewBrightness(archipelagoImageView, 0);
-                }
+                if(!archipelagos.get(finalI).lock)
+                    if(hovering) {
+                        UserExperience.setImageViewBrightness(archipelagoImageView, +0.3);
+                    } else {
+                        UserExperience.setImageViewBrightness(archipelagoImageView, 0);
+                    }
             });
         }
 
