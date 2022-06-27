@@ -6,13 +6,13 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.Studen
 import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GameStateTest {
 

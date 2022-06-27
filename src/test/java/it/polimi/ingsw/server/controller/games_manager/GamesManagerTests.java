@@ -9,21 +9,22 @@ import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
 import it.polimi.ingsw.server.controller.games_manager.messages.ReJoinMsg;
-import it.polimi.ingsw.server.server_logic.GameServer;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.Socket;
 
-import static org.junit.Assert.*;
 
 public class GamesManagerTests {
     private static boolean setUpIsDone = false;
     private static AuthController authController = null;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         if (setUpIsDone) {
             return;

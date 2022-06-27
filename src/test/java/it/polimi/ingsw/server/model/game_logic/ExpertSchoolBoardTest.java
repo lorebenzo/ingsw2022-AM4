@@ -5,12 +5,11 @@ import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.model.game_logic.exceptions.FullDiningRoomLaneException;
 import it.polimi.ingsw.server.model.game_logic.exceptions.StudentsNotInTheDiningRoomException;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
 
 public class ExpertSchoolBoardTest {
 

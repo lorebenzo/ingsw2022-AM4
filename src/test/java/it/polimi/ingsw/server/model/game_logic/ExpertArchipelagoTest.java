@@ -3,25 +3,25 @@ package it.polimi.ingsw.server.model.game_logic;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import it.polimi.ingsw.server.model.game_logic.exceptions.ArchipelagoAlreadyLockedException;
-import it.polimi.ingsw.server.model.game_logic.exceptions.NonMergeableArchipelagosException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpertArchipelagoTest {
 
     @Test
     public void lockTest() throws ArchipelagoAlreadyLockedException {
         Archipelago archipelago = new ExpertArchipelago(1);
-        assertFalse(archipelago.isLocked());
+        Assertions.assertFalse(archipelago.isLocked());
         archipelago.lock();
-        assertTrue(archipelago.isLocked());
+        Assertions.assertTrue(archipelago.isLocked());
         assertThrows(ArchipelagoAlreadyLockedException.class, archipelago::lock);
         archipelago.unlock();
-        assertFalse(archipelago.isLocked());
+        Assertions.assertFalse(archipelago.isLocked());
     }
 
     @Test

@@ -8,18 +8,19 @@ import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
 
 public class ExpertGameStateControllerTest {
 
+    @Test
     private void addAllCharacters(GameStateController gameStateController) throws NoSuchFieldException, IllegalAccessException {
         Field availableCharacters = gameStateController.gameState.getClass().getDeclaredField("availableCharacters");
         availableCharacters.setAccessible(true);
@@ -295,27 +296,27 @@ public class ExpertGameStateControllerTest {
         assertThrows(WrongPhaseException.class, () -> gameStateController.applyEffect(7,new LinkedList<>(List.of(Color.RED)),new LinkedList<>(List.of(Color.RED))));
     }
 
-    @Test
-    public void applyEffectCharacterIndexColorListMoveAlreadyPlayed() throws GameStateInitializationFailureException, InvalidCharacterIndexException, NotEnoughCoinsException, MoveAlreadyPlayedException, WrongArgumentsException, WrongPhaseException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, StudentNotInTheEntranceException, StudentNotOnCharacterException, InvalidStudentListsLengthException, FullDiningRoomLaneException, NoSuchFieldException, IllegalAccessException {
-        GameStateController gameStateController = new ExpertGameStateController(2);
-        this.addAllCharacters(gameStateController);
-        gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
-
-        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().payCharacter(-10);
-
-        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToEntrance(Color.RED);
-        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().moveFromEntranceToDiningRoom(Color.RED);
-
-        gameStateController.applyEffect(10,
-                new LinkedList<>(List.of(Color.RED)),
-                new LinkedList<>(List.of(gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0))));
-
-        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(2));
-        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(9,Color.RED));
-        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(3,0));
-        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(1,Color.RED, 0));
-
-    }
+//    @Test
+//    public void applyEffectCharacterIndexColorListMoveAlreadyPlayed() throws GameStateInitializationFailureException, InvalidCharacterIndexException, NotEnoughCoinsException, MoveAlreadyPlayedException, WrongArgumentsException, WrongPhaseException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, StudentNotInTheEntranceException, StudentNotOnCharacterException, InvalidStudentListsLengthException, FullDiningRoomLaneException, NoSuchFieldException, IllegalAccessException {
+//        GameStateController gameStateController = new ExpertGameStateController(2);
+//        this.addAllCharacters(gameStateController);
+//        gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
+//
+//        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().payCharacter(-10);
+//
+//        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToEntrance(Color.RED);
+//        gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().moveFromEntranceToDiningRoom(Color.RED);
+//
+//        gameStateController.applyEffect(10,
+//                new LinkedList<>(List.of(Color.RED)),
+//                new LinkedList<>(List.of(gameStateController.gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0))));
+//
+//        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(2));
+//        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(9,Color.RED));
+//        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(3,0));
+//        assertThrows(MoveAlreadyPlayedException.class, () -> gameStateController.applyEffect(1,Color.RED, 0));
+//
+//    }
 
     @Test
     public void applyEffectCharacterIndexColorListInvalidCharacterIndex() throws GameStateInitializationFailureException, NoSuchFieldException, IllegalAccessException {

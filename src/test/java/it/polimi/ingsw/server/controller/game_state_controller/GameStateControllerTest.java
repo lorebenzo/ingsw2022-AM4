@@ -6,11 +6,11 @@ import it.polimi.ingsw.server.model.game_logic.enums.Card;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.Phase;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class GameStateControllerTest {
 
@@ -259,7 +259,6 @@ public class GameStateControllerTest {
     public void endActionTurn2() throws GameStateInitializationFailureException, TooManyStudentsMovedException, StudentNotInTheEntranceException, WrongPhaseException, FullDiningRoomLaneException, MoreStudentsToBeMovedException, InvalidNumberOfStepsException, MoveAlreadyPlayedException, GameOverException {
         GameStateController gameStateController = new GameStateController(2);
 
-        //gameStateController.getGameStateForTesting().fillClouds();
 
         gameStateController.setCurrentPhaseForTesting(Phase.ACTION);
         gameStateController.getGameStateForTesting().setCurrentPlayerSchoolBoardId(0);

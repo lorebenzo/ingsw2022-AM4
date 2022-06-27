@@ -2,15 +2,12 @@ package it.polimi.ingsw.server.controller.game_controller;
 
 import it.polimi.ingsw.communication.sugar_framework.Peer;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
-import org.javatuples.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
 
 public class GameControllerTest {
 
