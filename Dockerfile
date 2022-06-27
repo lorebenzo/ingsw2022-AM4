@@ -13,6 +13,6 @@ CMD mvn compilev
 
 FROM postgres:14.1 as db
 ADD /scripts/db/1_dump.sql /docker-entrypoint-initdb.d
-#ADD /scripts/db/2_data.sql /docker-entrypoint-initdb.d
+ADD /scripts/db/2_insert.sql /docker-entrypoint-initdb.d
 
 RUN chmod a+r /docker-entrypoint-initdb.d/*

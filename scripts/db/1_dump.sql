@@ -7,12 +7,6 @@ CREATE TABLE IF NOT EXISTS users.users (
     "password" CHAR(255) not null
 );
 
-CREATE TABLE IF NOT EXISTS users.user_game (
-   "username" VARCHAR(255) not null,
-   "gameUUID" uuid not null,
-   "schoolBoardID" int not null,
-    PRIMARY KEY(username, "gameUUID", "schoolBoardID")
-);
 
 CREATE TABLE IF NOT EXISTS users.current_games (
     "username" VARCHAR(255) not null,

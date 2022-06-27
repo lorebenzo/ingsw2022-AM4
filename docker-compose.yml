@@ -1,10 +1,10 @@
 version: "3.9"
 
 services:
-  db:
-    image: db
+  eryantis-db:
+    image: eryantis-db
     restart: always
-    container_name: db
+    container_name: eryantis-db
     build:
       context: .
       target: db
@@ -16,3 +16,17 @@ services:
       - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
+
+  eryantis-db-test:
+    image: eryantis-db
+    restart: always
+    container_name: eryantis-db-test
+    build:
+      context: .
+      target: db
+    environment:
+      - POSTGRES_DB=eriantys_test
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5433:5432"
