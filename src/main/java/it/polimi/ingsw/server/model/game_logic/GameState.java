@@ -207,15 +207,9 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         var event = new PlayCardEvent(parentUuid, card);
 
-        Randomizer.setSeed(event.id.getLeastSignificantBits());
-
+        this.updateSeed(event);
         this.playCardHandler(event);
-
-        try {
-            repository.addEvent(this.id, event, ++this.version);
-        } catch (DBQueryException e) {
-            e.printStackTrace();
-        }
+        this.addEvent(event);
     }
 
     public void playCardHandler(PlayCardEvent event) throws CardIsNotInTheDeckException, InvalidCardPlayedException {
