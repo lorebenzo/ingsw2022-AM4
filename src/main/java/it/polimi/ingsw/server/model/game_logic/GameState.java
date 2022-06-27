@@ -60,7 +60,8 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         UUID parentUuid = UUID.randomUUID();
 
         try {
-            repository.storeAggregate(this.id, this.getClass().getName());
+            if(repository!= null)
+                repository.storeAggregate(this.id, this.getClass().getName());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -254,7 +255,8 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     private void addEvent(Event event) {
         try {
-            repository.addEvent(this.id, event, ++this.version);
+            if(repository!= null)
+                repository.addEvent(this.id, event, ++this.version);
         } catch (DBQueryException e) {
             e.printStackTrace();
         }
@@ -979,16 +981,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                 return Optional.of(orderedPlayersInfluences.get(0).getKey());
             else
                 return Optional.empty();
-        }
-    }
-
-
-    private void addEventAndApply(Event event) {
-        try {
-            this.apply(event);
-            repository.addEvent(this.id, event, ++this.version);
-        } catch (DBQueryException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
         }
     }
 }
