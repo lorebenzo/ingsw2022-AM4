@@ -58,7 +58,6 @@ public class GUI extends Application {
 
     public static void init(String[] args, GameClient gc) {
         gameClient = gc;
-        initialized = true;
         launch(args);
     }
 
@@ -104,6 +103,9 @@ public class GUI extends Application {
         UserExperience.playSoundLoop(AssetHolder.backgroundMusic);
 
         render();
+
+        // Reset GUI initialized flag
+        initialized = true;
     }
 
     public static void render() {

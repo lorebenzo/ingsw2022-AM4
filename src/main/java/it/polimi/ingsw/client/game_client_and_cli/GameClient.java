@@ -79,8 +79,28 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         try {
             this.sugarClient.run();
         } catch (DisconnectionException e) {
-            GUIProxy.alert("Server unreachable, restart the application");
-            this.logger.logError("Server unreachable, restart the application");
+            int timeout = 5;
+            int step = 1;
+
+            String alert2 = "Failed to connect!";
+            GUIProxy.alert(alert2);
+            this.logger.logError(alert2);
+            try {
+                Thread.sleep(step * 1000);
+            } catch (InterruptedException ignored) { }
+
+            while(timeout > 0) {
+                String alert = "Server unreachable, attempting to reconnect in " + timeout + " seconds...";
+                GUIProxy.alert(alert);
+                this.logger.logError(alert);
+
+                try {
+                    Thread.sleep(step * 1000);
+                } catch (InterruptedException ignored) { }
+                timeout--;
+            }
+
+            this.run();
         }
     }
 
@@ -207,6 +227,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             this.send(message);
         } catch (DisconnectionException e) {
             this.logger.logError(e.getMessage());
+            GUIProxy.alert(e.getMessage());
         }
     }
 

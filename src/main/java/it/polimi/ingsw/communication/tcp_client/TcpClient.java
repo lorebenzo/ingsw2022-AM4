@@ -24,8 +24,8 @@ public abstract class TcpClient {
             this.socket = new Socket(hostname, port);
             this.onConnect();
             this.inputHandler();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new DisconnectionException("Disconnected from server");
         }
     }
 
@@ -95,6 +95,7 @@ public abstract class TcpClient {
      * @throws IOException if message could not be delivered
      */
     protected final void send(String message) throws IOException {
+        if(this.socket == null) throw new IOException();
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
         out.write(
                 message
@@ -121,12 +122,11 @@ public abstract class TcpClient {
         this.logStream.println(this.logHeader +  message);
     }
 
-
     protected void disconnect() throws DisconnectionException {
         try {
-            this.socket.close();
+            if(this.socket != null) this.socket.close();
         } catch (IOException ignored) { }
         this.onDisconnect();
-        throw new DisconnectionException();
+        throw new DisconnectionException("Disconnected");
     }
 }
