@@ -56,7 +56,7 @@ import java.util.stream.Stream;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final GameLogger logger = new GameLogger(new Terminal(40, 160, System.out));
+    private final GameLogger logger = new GameLogger(new Terminal(40, 165, System.out));
     private String jwt;
     public String username;
     public boolean currentlyPlaying = false;
@@ -171,10 +171,24 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     public void help() {
-        this.logger.addToLog("chat --to=[all, team, username] --message=...");
-        this.logger.addToLog("-----------------------------------------------------------");
-        this.logger.addToLog("end-turn");
-        this.logger.addToLog("rollback");
+
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("\t-----------------------------------------------------------");
+        this.logger.addToLog("\tchat --to=[all, team, username] --message=...");
+        this.logger.addToLog("\t-----------------------------------------------------------");
+        this.logger.addToLog("\tend-turn");
+        this.logger.addToLog("\trollback");
 
 
 
@@ -183,26 +197,26 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.addToLog("\t{--island=[0-11]}");
         this.logger.addToLog("\t{--color=[red, green, cyan, yellow, purple]}");
         this.logger.addToLog("\t--index=[0-2]");
-        this.logger.addToLog("play-char");
+        this.logger.addToLog("\tplay-char");
 
-        this.logger.addToLog("grab-std --cloud=[0-3]");
-        this.logger.addToLog("mv-mother-nature --steps=[1-5]");
+        this.logger.addToLog("\tgrab-std --cloud=[0-3]");
+        this.logger.addToLog("\tmv-mother-nature --steps=[1-5]");
 
-        this.logger.addToLog("\t--island=[0-11]");
-        this.logger.addToLog("\t--color=[red, green, cyan, yellow, purple]");
-        this.logger.addToLog("mv-std-island");
+        this.logger.addToLog("\t\t--island=[0-11]");
+        this.logger.addToLog("\t\t--color=[red, green, cyan, yellow, purple]");
+        this.logger.addToLog("\tmv-std-island");
 
 
-        this.logger.addToLog("mv-std-dining --color=[red, green, cyan, yellow, purple]");
-        this.logger.addToLog("play-card --card=[1-10]");
-        this.logger.addToLog("join-matchmaking --players=[2-4] --expert=[true, false]");
-        this.logger.addToLog("-----------------------------------------------------------");
-        this.logger.addToLog("rejoin");
-        this.logger.addToLog("login  --username=... --password=...");
-        this.logger.addToLog("signup --username=... --password=...");
-        this.logger.addToLog("-----------------------------------------------------------");
-        this.logger.addToLog("characters");
-        this.logger.addToLog("help");
+        this.logger.addToLog("\tmv-std-dining --color=[red, green, cyan, yellow, purple]");
+        this.logger.addToLog("\tplay-card --card=[1-10]");
+        this.logger.addToLog("\tjoin-matchmaking --players=[2-4] --expert=[true, false]");
+        this.logger.addToLog("\t-----------------------------------------------------------");
+        this.logger.addToLog("\trejoin");
+        this.logger.addToLog("\tlogin  --username=... --password=...");
+        this.logger.addToLog("\tsignup --username=... --password=...");
+        this.logger.addToLog("\t-----------------------------------------------------------");
+        this.logger.addToLog("\tcharacters");
+        this.logger.addToLog("\thelp");
         this.logger.addToLog("CLI commands:");
 
         this.logger.flush();

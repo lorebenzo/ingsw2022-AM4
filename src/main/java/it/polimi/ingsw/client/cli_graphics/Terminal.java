@@ -235,8 +235,8 @@ public class Terminal {
             //List<String> logCharacters = log.getCharacters();
             //List<String> logCharacters = log.getUnicodeString();
 
-            characters.add(">");
-            characters.add(" ");
+            //characters.add(">");
+            //characters.add(" ");
             //characters.addAll(logCharacters);
             characters.addAll(log.getUnicodeString());
             characters.add("\n");
