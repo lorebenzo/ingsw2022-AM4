@@ -35,7 +35,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
         var gameUUID = gameStateController.getGameUUID();
         for (int i = 0; i < players.size(); i++) {
-            GamesRepository.getInstance().saveUserSchoolBardMap(gameUUID, players.get(i).username, i);
+            GamesRepository.getInstance().saveUserSchoolBoardMap(gameUUID, players.get(i).username, i);
         }
     }
 

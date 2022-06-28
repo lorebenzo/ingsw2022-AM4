@@ -47,14 +47,15 @@ public class GamesRepository {
      * @param username of the user
      * @param schoolBoardID of the user
      */
-    public void saveUserSchoolBardMap(UUID gameUUID, String username, int schoolBoardID) {
+    public void saveUserSchoolBoardMap(UUID gameUUID, String username, int schoolBoardID) {
         try {
             Statement stmt = c.createStatement();
-            String sql = "INSERT INTO users.current_games (username, \"gameUUID\", \"schoolBoardID\")\n"
+            String sql = "INSERT INTO users.current_games (username, \"gameUUID\", \"schoolBoardID\", \"expert\")\n"
                     + "VALUES ('"
                     + username + "', '"
                     + gameUUID +"', '"
-                    + schoolBoardID + "');";
+                    + schoolBoardID + "', '"
+                    + "false" + "');";
 
             stmt.executeUpdate(sql);
             stmt.close();

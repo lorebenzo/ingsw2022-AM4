@@ -5,6 +5,10 @@ import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
+
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.*;
 
 public class GameStateController implements GameStateControllerCommonInterface {
@@ -51,6 +55,10 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.playCard(card);
 
         this.nextPlanningTurn();
+
+        try {
+            this.gameState.createSnapshot();
+        } catch (Exception e) { /* TODO: benzo (non propagare exception a livello di controller) */ }
 
         return this.gameState.isLastRound();
     }
