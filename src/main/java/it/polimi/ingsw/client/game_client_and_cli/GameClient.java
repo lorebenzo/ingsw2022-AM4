@@ -56,7 +56,7 @@ import java.util.stream.Stream;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final Logger logger = new GameLogger(new Terminal(40, 160, System.out));
+    private final GameLogger logger = new GameLogger(new Terminal(40, 160, System.out));
     private String jwt;
     public String username;
     public boolean currentlyPlaying = false;
@@ -210,23 +210,22 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     @SugarMessageHandler
     public void OKMsg(OKMsg message) {
         this.logger.logSuccess(message.text);
+        GUIProxy.notify(message.text);
     }
 
     @SugarMessageHandler
     public void KOMsg(KOMsg message) {
-
         this.logger.logError(message.reason);
-        //Platform.runLater(() -> GUI.alert(message.reason));
+        GUIProxy.alert(message.reason);
     }
 
     @SugarMessageHandler
     public void notifyGameOverMsg(NotifyGameOverMsg message) {
-
         this.logger.logSuccess(message.text);
 
         this.currentlyPlaying = false;
-        //Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
-        //Platform.runLater(() -> GUI.notify("Game Over: " + message.text));
+        GUIProxy.switchView(GUI.View.MatchMakingView);
+        GUIProxy.notify("Game Over: " + message.text);
     }
 
     @SugarMessageHandler
@@ -236,7 +235,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.log("GAME OVER!");
 
         this.currentlyPlaying = false;
-        //Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
+        GUIProxy.switchView(GUI.View.MatchMakingView);
+        GUIProxy.notify("You won");
     }
 
     @SugarMessageHandler
@@ -248,11 +248,11 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
         // Update GUI
         this.lastSnapshot = message.lightGameState;
-        //Platform.runLater(GUI::render);
+        GUIProxy.render();
 
         if(!this.currentlyPlaying) {
             this.currentlyPlaying = true;
-            //Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
+            GUIProxy.switchView(GUI.View.PlayerView);
         }
     }
 
@@ -264,7 +264,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.logSuccess("Successfully logged in");
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
 
-        //Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
+        GUIProxy.switchView(GUI.View.MatchMakingView);
     }
 
     @SugarMessageHandler
@@ -446,6 +446,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void chatMsg(SugarMessage message) {
         var msg = (ChatMsg) message;
         this.logger.logChat(msg);
+        GUIProxy.log(this.logger.getChat(msg));
     }
 
     public void sendChatMessage(@NotNull String to, @NotNull String message) {

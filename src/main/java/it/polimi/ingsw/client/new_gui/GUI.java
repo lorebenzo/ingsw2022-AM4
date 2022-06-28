@@ -33,6 +33,7 @@ import java.util.HashMap;
 
 public class GUI extends Application {
     private static Boolean preventResize = false;
+    public static boolean initialized = false;
 
     public static final HashMap<Rectangle, Node> rectangleToComponent = new HashMap<>();
 
@@ -57,6 +58,7 @@ public class GUI extends Application {
 
     public static void init(String[] args, GameClient gc) {
         gameClient = gc;
+        initialized = true;
         launch(args);
     }
 

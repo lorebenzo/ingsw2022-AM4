@@ -1,5 +1,6 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.client.game_client_and_cli.GUIProxy;
 import it.polimi.ingsw.client.game_client_and_cli.GameClient;
 import it.polimi.ingsw.client.new_gui.GUI;
 import javafx.application.Platform;
@@ -28,7 +29,7 @@ public class Main {
             if(input.equals("gui")) {
                 new Thread(() -> GUI.init(args, gameClient)).start();
 
-                Platform.runLater(() -> GUI.switchView(GUI.View.LoginView));
+                GUIProxy.switchView(GUI.View.LoginView);
             }
 
             // Handle user input
