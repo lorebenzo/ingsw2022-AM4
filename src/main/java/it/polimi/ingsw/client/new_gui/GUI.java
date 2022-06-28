@@ -150,7 +150,7 @@ public class GUI extends Application {
         });
 
         // Change cursor
-        scene.setCursor(new ImageCursor(AssetHolder.trumpCursor));
+        // scene.setCursor(new ImageCursor(AssetHolder.trumpCursor));  Easter Egg: do not uncomment this line :)
 
         String playerTurn = "";
         if(currentView.equals(View.PlayerView) || currentView.equals(View.EnemiesView)) {
