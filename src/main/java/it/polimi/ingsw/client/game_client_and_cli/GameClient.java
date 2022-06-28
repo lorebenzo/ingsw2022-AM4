@@ -78,7 +78,10 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void run() {
         try {
             this.sugarClient.run();
-        } catch (DisconnectionException ignored) { }
+        } catch (DisconnectionException e) {
+            GUIProxy.alert("Server unreachable, restart the application");
+            this.logger.logError("Server unreachable, restart the application");
+        }
     }
 
     private void send(SugarMessage message) throws DisconnectionException {
