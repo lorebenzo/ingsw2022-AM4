@@ -18,7 +18,7 @@ public class EnemySchoolBoardsRenderer {
 
         var enemySchoolBoards = lgs.schoolBoards
                 .stream()
-                .filter(schoolBoard -> schoolBoard.id != lgs.usernameToSchoolBoardID.get(GUI.gameClient.username))
+                .filter(schoolBoard -> schoolBoard.id != lgs.usernameToSchoolBoardId.get(GUI.gameClient.username))
                 .toList();
 
         var chosenSchoolBoardOptional = enemySchoolBoards

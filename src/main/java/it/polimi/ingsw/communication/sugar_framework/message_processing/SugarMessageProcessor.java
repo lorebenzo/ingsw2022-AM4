@@ -104,7 +104,7 @@ public abstract class SugarMessageProcessor {
      */
     public synchronized final void process(SugarMessage message) {
         // Get the methods of this class marked with the @Process annotation
-        List<Method> methods = Arrays.stream(this.getClass().getDeclaredMethods())
+        List<Method> methods = Arrays.stream(this.getClass().getMethods())
                 .filter(method -> method.isAnnotationPresent(SugarMessageHandler.class))  // Get annotated methods
                 .filter(method -> method.getParameterCount() == 1)  // Get methods that take exactly one parameter
                 //.filter(method -> method.getParameterTypes()[0].equals(SugarMessage.class))  // Get methods that take a SugarMessage as parameter

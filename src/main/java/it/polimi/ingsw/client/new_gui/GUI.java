@@ -151,11 +151,11 @@ public class GUI extends Application {
         String playerTurn = "";
         if(currentView.equals(View.PlayerView) || currentView.equals(View.EnemiesView)) {
             // Display current player's name on the title
-            var currentPlayer = gameClient.lastSnapshot.usernameToSchoolBoardID
+            var currentPlayer = gameClient.lastSnapshot.usernameToSchoolBoardId
                     .keySet()
                     .stream()
                     .filter(username ->
-                            gameClient.lastSnapshot.usernameToSchoolBoardID.get(username)
+                            gameClient.lastSnapshot.usernameToSchoolBoardId.get(username)
                                     == gameClient.lastSnapshot.currentPlayerSchoolBoardId)
                     .findFirst().get();
             playerTurn = "  §  " + currentPlayer + " 's turn";

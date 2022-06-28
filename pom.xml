@@ -254,7 +254,9 @@
               <configuration>
                 <transformers>
                   <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                    <mainClass>it.polimi.ingsw.client.MainGUI</mainClass>
+                    <mainClass>it.polimi.ingsw.client.Main</mainClass>
+<!--                    <mainClass>it.polimi.ingsw.server.App</mainClass>-->
+
                   </transformer>
                 </transformers>
               </configuration>
@@ -270,7 +272,7 @@
             <execution>
               <id>default-cli</id>
               <configuration>
-                <mainClass>it.polimi.ingsw.client.MainGUI</mainClass>
+                <mainClass>it.polimi.ingsw.client.Main</mainClass>
               </configuration>
             </execution>
           </executions>

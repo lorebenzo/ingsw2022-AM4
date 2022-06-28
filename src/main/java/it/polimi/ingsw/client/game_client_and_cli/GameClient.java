@@ -56,7 +56,7 @@ import java.util.stream.Stream;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final GameLogger logger = new GameLogger(new Terminal(23, 150, System.out));
+    private final Logger logger = new GameLogger(new Terminal(40, 160, System.out));
     private String jwt;
     public String username;
     public boolean currentlyPlaying = false;
@@ -148,19 +148,55 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     public void help() {
-        this.logger.log("  help");
-        this.logger.log("  rollback");
-        this.logger.log("  rejoin");
-        this.logger.log("  login  --username=string --password=string");
-        this.logger.log("  signup --username=string --password=string");
-        this.logger.log("  grab-std --cloud=int");
-        this.logger.log("  mv-mother-nature --steps=int");
-        this.logger.log("  mv-std-island --color=string --island=char");
-        this.logger.log("  mv-std-dining --color=string");
-        this.logger.log("  play-card --card=int[1-10]");
-        this.logger.log("  chat --to=string[all, team, username] --message=string");
-        this.logger.log("  join-matchmaking --players=int[2-4] --expert=boolean");
-        this.logger.log("  CLI commands:");
+        this.logger.addToLog("chat --to=[all, team, username] --message=...");
+        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("end-turn");
+        this.logger.addToLog("rollback");
+
+
+
+        this.logger.addToLog("\t{--giveStd=[red, green, cyan, yellow, purple]}");
+        this.logger.addToLog("\t{--getStd=[red, green, cyan, yellow, purple]}");
+        this.logger.addToLog("\t{--island=[0-11]}");
+        this.logger.addToLog("\t{--color=[red, green, cyan, yellow, purple]}");
+        this.logger.addToLog("\t--index=[0-2]");
+        this.logger.addToLog("play-char");
+
+        this.logger.addToLog("grab-std --cloud=[0-3]");
+        this.logger.addToLog("mv-mother-nature --steps=[1-5]");
+
+        this.logger.addToLog("\t--island=[0-11]");
+        this.logger.addToLog("\t--color=[red, green, cyan, yellow, purple]");
+        this.logger.addToLog("mv-std-island");
+
+
+        this.logger.addToLog("mv-std-dining --color=[red, green, cyan, yellow, purple]");
+        this.logger.addToLog("play-card --card=[1-10]");
+        this.logger.addToLog("join-matchmaking --players=[2-4] --expert=[true, false]");
+        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("rejoin");
+        this.logger.addToLog("login  --username=... --password=...");
+        this.logger.addToLog("signup --username=... --password=...");
+        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("characters");
+        this.logger.addToLog("help");
+        this.logger.addToLog("CLI commands:");
+
+        this.logger.flush();
+    }
+
+    public void characters(){
+
+        if(lastSnapshot != null){
+            for (var character: lastSnapshot.availableCharacters) {
+                this.logger.addToLog("");
+                this.logger.addToLog("-----------------------------------------------------------");
+                this.logger.addToLog("");
+                this.logger.addToLog("Effect: "+ character.effect);
+                this.logger.addToLog("Character ID: " + character.characterId);
+            }
+            this.logger.flush();
+        }
     }
 
     private void sendAndHandleDisconnection(SugarMessage message) {
@@ -172,74 +208,73 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     @SugarMessageHandler
-    public void OKMsg(SugarMessage message) {
-        var msg = (OKMsg) message;
-        this.logger.logSuccess(msg.text);
+    public void OKMsg(OKMsg message) {
+        this.logger.logSuccess(message.text);
     }
 
     @SugarMessageHandler
-    public void KOMsg(SugarMessage message) {
-        var msg = (KOMsg) message;
-        this.logger.logError(msg.reason);
-        Platform.runLater(() -> GUI.alert(msg.reason));
+    public void KOMsg(KOMsg message) {
+
+        this.logger.logError(message.reason);
+        //Platform.runLater(() -> GUI.alert(message.reason));
     }
 
     @SugarMessageHandler
-    public void notifyGameOverMsg(SugarMessage message) {
-        var msg = (NotifyGameOverMsg) message;
-        this.logger.logSuccess(msg.text);
+    public void notifyGameOverMsg(NotifyGameOverMsg message) {
+
+        this.logger.logSuccess(message.text);
 
         this.currentlyPlaying = false;
-        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
-        Platform.runLater(() -> GUI.notify("Game Over: " + msg.text));
+        //Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
+        //Platform.runLater(() -> GUI.notify("Game Over: " + message.text));
     }
 
     @SugarMessageHandler
-    public void GameOverMsg(SugarMessage message) {
-        var msg = (GameOverMsg) message;
-        this.logger.logGameState(msg.updateClientMsg.lightGameState);
+    public void GameOverMsg(GameOverMsg message) {
+
+        this.logger.logGameState(message.updateClientMsg.lightGameState);
         this.logger.log("GAME OVER!");
 
         this.currentlyPlaying = false;
-        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
+        //Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
     @SugarMessageHandler
-    public void updateClientMsg(SugarMessage message) {
-        var msg = (UpdateClientMsg) message;
+    public void updateClientMsg(UpdateClientMsg message) {
+
         try {
-            this.logger.logGameState(msg.lightGameState); // TODO: fix
+            this.logger.logGameState(message.lightGameState);
         } catch (Throwable ignored) { }
 
         // Update GUI
-        this.lastSnapshot = msg.lightGameState;
-        Platform.runLater(GUI::render);
+        this.lastSnapshot = message.lightGameState;
+        //Platform.runLater(GUI::render);
 
         if(!this.currentlyPlaying) {
             this.currentlyPlaying = true;
-            Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
+            //Platform.runLater(() -> GUI.switchView(GUI.View.PlayerView));
         }
     }
 
     @SugarMessageHandler
-    public void JWTMsg(SugarMessage message) {
-        var msg = (JWTMsg) message;
-        this.jwt = msg.jwtAuthCode;
+    public void JWTMsg(JWTMsg message) {
+
+        this.jwt = message.jwtAuthCode;
         this.username = AuthController.getUsernameFromJWT(this.jwt);
         this.logger.logSuccess("Successfully logged in");
         this.sendAndHandleDisconnection(new GetGamesMsg(this.jwt));
 
-        Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
+        //Platform.runLater(() -> GUI.switchView(GUI.View.MatchMakingView));
     }
 
     @SugarMessageHandler
     public void peerUPIMessage(SugarMessage message) {}
 
     @SugarMessageHandler
-    public void gamesUpdateMsg(SugarMessage message) {
-        var msg = (GamesUpdateMsg) message;
-        if(msg.gameUUID != null) {
-            this.logger.log(msg.gameUUID.toString());
+    public void gamesUpdateMsg(GamesUpdateMsg message) {
+
+        if(message.gameUUID != null) {
+            this.logger.log(message.gameUUID.toString());
         }
     }
 
@@ -402,6 +437,8 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             case rollback -> this.rollback();
 
             case help -> this.help();
+
+            case characters -> this.characters();
         }
     }
 
@@ -409,10 +446,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void chatMsg(SugarMessage message) {
         var msg = (ChatMsg) message;
         this.logger.logChat(msg);
-
-        // Update GUI
-        Platform.runLater(() -> GUI.log(this.logger.getChat(msg)));
-        Platform.runLater(GUI::render);
     }
 
     public void sendChatMessage(@NotNull String to, @NotNull String message) {

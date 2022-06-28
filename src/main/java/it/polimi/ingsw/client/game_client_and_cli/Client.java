@@ -1,3 +1,4 @@
+/* TODO remove
 package it.polimi.ingsw.client.game_client_and_cli;
 
 import it.polimi.ingsw.server.server_logic.GameServer;
@@ -19,10 +20,12 @@ public class Client {
         Thread t = new Thread(gameClient);
 
         t.start();
-/*        Thread.sleep(1000);
+
+        Thread.sleep(1000);
         gameClient.login("guido", "guido");
         Thread.sleep(1000);
-        gameClient.joinMatchMaking(2, false);*/
+        gameClient.joinMatchMaking(2, false);*//*
+
 
         while (true) {
             var br = new BufferedReader(new InputStreamReader(System.in));
@@ -39,4 +42,5 @@ class Server {
         t.start();
     }
 }
+*/
 

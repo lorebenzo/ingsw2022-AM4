@@ -9,7 +9,6 @@ import it.polimi.ingsw.server.controller.auth_controller.AuthController;
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
 import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.ReturnMessage;
-import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.entities.Player;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
@@ -88,7 +87,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
         this.gameStateController.rollback();
 
-        return new OKAndUpdateMsg(new OKMsg("Successfully rolled back"), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+        return new OKAndUpdateMsg(new OKMsg(ReturnMessage.ROLLBACK.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
 
     }
 
@@ -99,7 +98,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
         try {
             boolean lastRound = this.gameStateController.playCard(message.card);
-            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ""), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.CARD_PLAYED.text + " " + ReturnMessage.LAST_ROUND.text: ReturnMessage.CARD_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e){
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (CardIsNotInTheDeckException e) {
@@ -119,7 +118,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
         try {
             this.gameStateController.moveStudentFromEntranceToDiningRoom(message.student);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_DINING.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (StudentNotInTheEntranceException e) {
@@ -144,7 +143,7 @@ public class CommunicationController extends SugarMessageProcessor {
                     .findFirst()
                     .orElseThrow(InvalidArchipelagoIdException::new);
             this.gameStateController.moveStudentFromEntranceToArchipelago(message.student, archipelagoIslandCodes);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_DINING.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (StudentNotInTheEntranceException e) {
@@ -223,7 +222,7 @@ public class CommunicationController extends SugarMessageProcessor {
             }
 
             return new OKAndUpdateMsg(
-                    new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
+                    new OKMsg(lastRound ? ReturnMessage.TURN_ENDED.text + " " + ReturnMessage.LAST_ROUND.text: ReturnMessage.TURN_ENDED.text),
                     new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
             );
         } catch (MoreStudentsToBeMovedException e){

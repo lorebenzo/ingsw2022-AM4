@@ -7,6 +7,8 @@ public interface Logger {
     void logSuccess(String s);
     void logError(String s);
     void log(String s);
+    void addToLog(String s);
+    void flush();
     void logChat(ChatMsg msg);
     void logGameState(LightGameState lightGameState);
 }

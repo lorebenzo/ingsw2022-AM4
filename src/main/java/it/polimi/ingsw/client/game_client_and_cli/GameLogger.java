@@ -30,6 +30,16 @@ public class GameLogger implements Logger {
     }
 
     @Override
+    public void addToLog(String s) {
+        this.terminal.log(s);
+    }
+
+    @Override
+    public void flush() {
+        this.terminal.flush();
+    }
+
+    @Override
     public void logChat(ChatMsg msg) {
         if(msg.to.equals("all"))
             this.terminal.logCyan("[ " + msg.from + " ] " + msg.message);

@@ -41,7 +41,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(message.characterIndex);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.CHARACTER_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -101,7 +101,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(message.characterIndex, message.color);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.CHARACTER_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -130,7 +130,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(message.characterIndex, message.color, message.archipelagoIslandCode);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.CHARACTER_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (InvalidCharacterIndexException e) {
             return new KOMsg(ReturnMessage.INVALID_CHARACTER_INDEX.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -158,7 +158,7 @@ public class ExpertCommunicationController extends CommunicationController {
 
         try {
             this.gameStateController.applyEffect(message.characterIndex, message.studentsToGet, message.studentsToGive);
-            return new OKAndUpdateMsg(new OKMsg(), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.CHARACTER_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
         } catch (InvalidCharacterIndexException e) {
             return new KOMsg(ReturnMessage.INVALID_CHARACTER_INDEX.text);
         } catch (MoveAlreadyPlayedException e) {
@@ -190,7 +190,7 @@ public class ExpertCommunicationController extends CommunicationController {
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        return new OKAndUpdateMsg(new OKMsg("Expert Mode has not rollback enabled"), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
+        return new OKAndUpdateMsg(new OKMsg("Rollback not available"), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID)));
     }
 
     @SugarMessageHandler
@@ -203,7 +203,7 @@ public class ExpertCommunicationController extends CommunicationController {
                 boolean lastRound = this.gameStateController.endActionTurn();
 
                 return new OKAndUpdateMsg(
-                        new OKMsg(lastRound ? ReturnMessage.LAST_ROUND.text: ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
+                        new OKMsg(lastRound ? ReturnMessage.TURN_ENDED.text + " " + ReturnMessage.LAST_ROUND.text: ReturnMessage.TURN_ENDED.text),
                         new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardID))
                 );
             } catch (MoreStudentsToBeMovedException e){

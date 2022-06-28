@@ -126,7 +126,7 @@ public class CharactersRenderer {
             column.getChildren().add(studentsBar);
 
             // Get my schoolBoard
-            var schoolBoardId = GUI.gameClient.lastSnapshot.usernameToSchoolBoardID.get(GUI.gameClient.username);
+            var schoolBoardId = GUI.gameClient.lastSnapshot.usernameToSchoolBoardId.get(GUI.gameClient.username);
             var schoolBoard = GUI.gameClient.lastSnapshot.schoolBoards
                     .stream()
                     .filter(lightSchoolBoard -> lightSchoolBoard.id == schoolBoardId)
@@ -153,7 +153,7 @@ public class CharactersRenderer {
             column.getChildren().add(studentsBar);
 
             // Get my schoolBoard
-            var schoolBoardId = GUI.gameClient.lastSnapshot.usernameToSchoolBoardID.get(GUI.gameClient.username);
+            var schoolBoardId = GUI.gameClient.lastSnapshot.usernameToSchoolBoardId.get(GUI.gameClient.username);
             var schoolBoard = GUI.gameClient.lastSnapshot.schoolBoards
                     .stream()
                     .filter(lightSchoolBoard -> lightSchoolBoard.id == schoolBoardId)

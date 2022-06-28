@@ -54,6 +54,7 @@ public class Terminal {
     private static final String professorSymbol = "■";//"\uD83D\uDC68\u200D";
     private static final String towerSymbol = "T";// "♖";
     private static final String filledCircleSymbol = ">";//"⬤";
+    private static final String lockSymbol = "#";
 
 
     /**
@@ -67,7 +68,7 @@ public class Terminal {
         this.cols = maxColumnsNumber;
         this.target = target;
         this.terminal = new String[maxRowsNumber][maxColumnsNumber];
-        this.loggerWidth = maxColumnsNumber/10*3; // TODO: fix bug: logs are displayed also if they go outside the log box
+        this.loggerWidth = maxColumnsNumber/10*4; // TODO: fix bug: logs are displayed also if they go outside the log box
         this.loggerHeight = maxRowsNumber;
         this.cleanEverything();
     }
@@ -123,7 +124,8 @@ public class Terminal {
      * This method flushes the content of the terminal to the target.
      */
     public void flush() {
-        System.out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.print("\033[H\033[2J");
+        //System.out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
         StringBuilder stringBuilder = new StringBuilder();
         for(int row = 0; row < this.rows; row++) {
@@ -268,13 +270,14 @@ public class Terminal {
      */
     public void updateGameState(LightGameState lightGameState) {
         this.clean();
-        this.renderSchoolBoards(lightGameState.schoolBoards, lightGameState.usernameToSchoolBoardID, lightGameState.currentPlayerSchoolBoardId, 0, 0);
-        this.renderAvailableCharacters(lightGameState.availableCharacters, 15, 85);
+        this.renderSchoolBoards(lightGameState.schoolBoards, lightGameState.usernameToSchoolBoardId, lightGameState.currentPlayerSchoolBoardId, 0, 0);
         this.renderArchipelagos(lightGameState.archipelagos, lightGameState.motherNaturePosition, 0, 65);
-        this.renderClouds(lightGameState.clouds, 15, 65);
+        this.renderClouds(lightGameState.clouds, 14, 65);
+        this.renderAvailableCharacters(lightGameState.availableCharacters, 20, 65);
     }
 
     private void renderAvailableCharacters(List<LightPlayableCharacter> availableCharacters, int row, int col) {
+        if(availableCharacters == null) return; //Don't print anything if there isn't anything to be shown
 
         var header = new UnicodeString()
                 .appendNonUnicodeString("Available Characters:")
@@ -282,7 +285,7 @@ public class Terminal {
         this.putStringAsComponent(header, row++, col);
 
         var header2 = new UnicodeString()
-                .appendNonUnicodeString("ID:    Cost:")
+                .appendNonUnicodeString("ID:  Cost:")
                 .getUnicodeString();
         this.putStringAsComponent(header2, row++, col);
 
@@ -294,9 +297,9 @@ public class Terminal {
             UnicodeString characterRepresentation = new UnicodeString();
 
             // Add island codes
-            characterRepresentation.appendNonUnicodeString(character.characterId + "      " + character.currentCost + "      ");
+            characterRepresentation.appendNonUnicodeString(character.characterId + "    " + character.currentCost + " ");
             if(character.availableLocks != null)
-                characterRepresentation.appendNonUnicodeString("Available locks: " + character.availableLocks);
+                characterRepresentation.appendNonUnicodeString("Locks: " + character.availableLocks);
 
             if(character.students != null){
                 characterRepresentation.appendNonUnicodeString("Students: ");
@@ -342,8 +345,8 @@ public class Terminal {
         // Display schoolBoards
         int printed = 0;
         for(var schoolBoard : schoolBoards) {
-            var _row = printed == 0 || printed == 1 ? row : row + 11;
-            var _col = printed == 0 || printed == 2 ? col : col + 32;
+            var _row = printed < 2 ? row : row + 13;
+            var _col = printed % 2 == 0 ? col : col + 32;
 
 
             var username = getUsernameFromSchoolBoardID(usernameToSchoolBoardId, schoolBoard.id);
@@ -395,9 +398,8 @@ public class Terminal {
                                     .toList()
                                     .toString()
                     );
-
             this.putStringAsComponent(
-                    new UnicodeString().appendNonUnicodeString("Cards:").getUnicodeString(), _row++, _col
+                    new UnicodeString().appendNonUnicodeString("Cards (Values and Steps):").getUnicodeString(), _row++, _col
             );
             this.putStringAsComponent(cards.getUnicodeString(), _row++, _col);
 
@@ -412,11 +414,16 @@ public class Terminal {
 
             this.putStringAsComponent(cardsSteps.getUnicodeString(), _row++, _col);
 
+            var coins = new UnicodeString()
+                    .appendNonUnicodeString("Coins: "+
+                            schoolBoard.coins.toString());
+
+            this.putStringAsComponent(coins.getUnicodeString(), _row, _col);
+
+
             printed++;
         }
     }
-
-
     /**
      * This method renders all the archipelagos in the terminal.
      * @param archipelagos is a list containing all the archipelagos.
@@ -438,7 +445,10 @@ public class Terminal {
             UnicodeString archipelagoRepresentation = new UnicodeString();
 
             // Add island codes
-            archipelagoRepresentation.appendNonUnicodeString(archipelago.islandCodes.toString() + ":    ");
+            if(i / 10 < 1)
+                archipelagoRepresentation.appendNonUnicodeString(archipelago.islandCodes.toString() + ":  ");
+            else
+                archipelagoRepresentation.appendNonUnicodeString(archipelago.islandCodes.toString() + ": ");
             if(archipelago.equals(archipelagos.get(motherNaturePosition))) archipelagoRepresentation.color(ANSI_GREEN);
 
             // Add towers
@@ -449,6 +459,11 @@ public class Terminal {
                             this.color(towerSymbol, towerColor)
                     );
             archipelagoRepresentation.appendNonUnicodeString("  ");
+
+            if(archipelago.lock){
+                archipelagoRepresentation.appendNonUnicodeString(lockSymbol+"  ");
+            }
+
 
             // Add students
             for(var entry : archipelago.studentToNumber.entrySet()) {
@@ -473,7 +488,7 @@ public class Terminal {
      */
     private void renderClouds(List<List<Color>> clouds, int row, int col) {
         this.putStringAsComponent(
-                new UnicodeString().appendNonUnicodeString("Clouds").getUnicodeString(), row++, col
+                new UnicodeString().appendNonUnicodeString("Clouds:").getUnicodeString(), row++, col
         );
         int clIndex = 0;
         for(var cloud : clouds) {
@@ -530,6 +545,7 @@ class UnicodeString {
         return new ArrayList<>(string);
     }
 
+    /**
     /**
      * This method gets a color in input (represented as a String) and modifies the color of this string accordingly.
      * @param ansiColorCode is the string representing the color that this string will be modified to.

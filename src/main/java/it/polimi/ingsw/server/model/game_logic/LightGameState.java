@@ -17,7 +17,7 @@ public class LightGameState {
     public final Phase currentPhase;
     public final List<Integer> roundOrder;
     public final int motherNaturePosition;
-    public Map<String, Integer> usernameToSchoolBoardID;
+    public Map<String, Integer> usernameToSchoolBoardId;
     public final Map<Integer, Card> schoolBoardIdsToCardPlayedThisRound;
 
     public final List<LightPlayableCharacter> availableCharacters;
@@ -37,8 +37,8 @@ public class LightGameState {
         this.characterPlayedInCurrentTurn = characterPlayedInCurrentTurn;
     }
 
-    public LightGameState addUsernames(Map<String, Integer> usernameToSchoolBoardID) {
-        this.usernameToSchoolBoardID = usernameToSchoolBoardID;
+    public LightGameState addUsernames(Map<String, Integer> usernameToSchoolBoardId) {
+        this.usernameToSchoolBoardId = usernameToSchoolBoardId;
         return this;
     }
 }

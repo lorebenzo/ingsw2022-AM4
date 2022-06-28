@@ -15,6 +15,7 @@ public enum CLICommand {
     rollback,
     rejoin,
     help,
+    characters
     ;
 
     public final int numberOfParams;

@@ -15,7 +15,7 @@ public class PlayerViewRenderer {
     public static Pane renderGameState(LightGameState lgs) {
         Pane pane = new GridPane();
 
-        var mySchoolBoardId = lgs.usernameToSchoolBoardID.get(GUI.gameClient.username);
+        var mySchoolBoardId = lgs.usernameToSchoolBoardId.get(GUI.gameClient.username);
         LightSchoolBoard mySchoolBoard = null;
         for(var schoolBoard : lgs.schoolBoards) {
             if(schoolBoard.id == mySchoolBoardId)
