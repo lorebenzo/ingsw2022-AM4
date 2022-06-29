@@ -171,7 +171,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     public void help() {
-
         this.logger.addToLog("");
         this.logger.addToLog("");
         this.logger.addToLog("");
@@ -184,39 +183,33 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         this.logger.addToLog("");
         this.logger.addToLog("");
         this.logger.addToLog("");
-        this.logger.addToLog("\t-----------------------------------------------------------");
-        this.logger.addToLog("\tchat --to=[all, team, username] --message=...");
-        this.logger.addToLog("\t-----------------------------------------------------------");
-        this.logger.addToLog("\tend-turn");
-        this.logger.addToLog("\trollback");
-
-
-
+        this.logger.addToLog("");
+        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("chat --to=[all, team, username] --message=...");
+        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("end-turn");
+        this.logger.addToLog("rollback");
         this.logger.addToLog("\t{--giveStd=[red, green, cyan, yellow, purple]}");
         this.logger.addToLog("\t{--getStd=[red, green, cyan, yellow, purple]}");
         this.logger.addToLog("\t{--island=[0-11]}");
         this.logger.addToLog("\t{--color=[red, green, cyan, yellow, purple]}");
         this.logger.addToLog("\t--index=[0-2]");
-        this.logger.addToLog("\tplay-char");
-
-        this.logger.addToLog("\tgrab-std --cloud=[0-3]");
-        this.logger.addToLog("\tmv-mother-nature --steps=[1-5]");
-
-        this.logger.addToLog("\t\t--island=[0-11]");
-        this.logger.addToLog("\t\t--color=[red, green, cyan, yellow, purple]");
-        this.logger.addToLog("\tmv-std-island");
-
-
-        this.logger.addToLog("\tmv-std-dining --color=[red, green, cyan, yellow, purple]");
-        this.logger.addToLog("\tplay-card --card=[1-10]");
-        this.logger.addToLog("\tjoin-matchmaking --players=[2-4] --expert=[true, false]");
-        this.logger.addToLog("\t-----------------------------------------------------------");
-        this.logger.addToLog("\trejoin");
-        this.logger.addToLog("\tlogin  --username=... --password=...");
-        this.logger.addToLog("\tsignup --username=... --password=...");
-        this.logger.addToLog("\t-----------------------------------------------------------");
-        this.logger.addToLog("\tcharacters");
-        this.logger.addToLog("\thelp");
+        this.logger.addToLog("play-char");
+        this.logger.addToLog("characters-info");
+        this.logger.addToLog("grab-std --cloud=[0-3]");
+        this.logger.addToLog("mv-mother-nature --steps=[1-5]");
+        this.logger.addToLog("\t--island=[0-11]");
+        this.logger.addToLog("\t--color=[red, green, cyan, yellow, purple]");
+        this.logger.addToLog("mv-std-island");
+        this.logger.addToLog("mv-std-dining --color=[red, green, cyan, yellow, purple]");
+        this.logger.addToLog("play-card --card=[1-10]");
+        this.logger.addToLog("join-matchmaking --players=[2-4] --expert=[true, false]");
+        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("rejoin");
+        this.logger.addToLog("login  --username=... --password=...");
+        this.logger.addToLog("signup --username=... --password=...");
+        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("help");
         this.logger.addToLog("CLI commands:");
 
         this.logger.flush();
@@ -225,6 +218,9 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void characters(){
 
         if(lastSnapshot != null){
+            for (int i = 0; i < 40; i++) {
+                this.logger.addToLog("");
+            }
             for (var character: lastSnapshot.availableCharacters) {
                 this.logger.addToLog("");
                 this.logger.addToLog("-----------------------------------------------------------");
@@ -232,6 +228,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
                 this.logger.addToLog("Effect: "+ character.effect);
                 this.logger.addToLog("Character ID: " + character.characterId);
             }
+            this.logger.addToLog("-----------------------------------------------------------");
             this.logger.flush();
         }
     }
@@ -476,7 +473,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
 
             case help -> this.help();
 
-            case characters -> this.characters();
+            case characters_info -> this.characters();
         }
     }
 

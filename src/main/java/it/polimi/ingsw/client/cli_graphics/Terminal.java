@@ -179,7 +179,7 @@ public class Terminal {
      * @param stringToBeLogged is the string to be logged.
      */
     public void logSuccess(String stringToBeLogged) {
-        this.logWithColor(stringToBeLogged, ANSI_GREY);
+        this.logWithColor(stringToBeLogged, ANSI_GREEN);
     }
 
     /**
