@@ -19,6 +19,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.util.*;
 
@@ -77,7 +79,7 @@ public class SchoolBoardRenderer {
     public static Pane renderSchoolBoard(LightSchoolBoard schoolBoard) {
         var pane = new Pane();
 
-        // Layer 0: schoolboard and coins
+        // Layer 0: school board
         var schoolBoardImgView = new ImageView(AssetHolder.schoolBoardAsset);
         var schoolboardRect = new GUI.Rectangle(
                 Layout.schoolRelX, Layout.schoolRelY,
@@ -131,6 +133,9 @@ public class SchoolBoardRenderer {
                 pane.getChildren().add(professorImgView);
             }
         }
+
+        // Layer 4: coins
+        pane.getChildren().add(renderCoins(schoolBoard));
 
         return pane;
     }
@@ -250,5 +255,27 @@ public class SchoolBoardRenderer {
                 InputEventType.MyProfessorClick,
                 new InputParams().color(professorColor)
         ));
+    }
+
+    private static VBox renderCoins(LightSchoolBoard schoolBoard) {
+        var style = "-fx-text-fill: white; -fx-font-weight: bold";
+        var coins = new Text("Coins: " + schoolBoard.coins);
+        coins.setStyle(style);
+        var towerColor = new Text("Tower Color: " + schoolBoard.towerColor);
+        towerColor.setStyle(style);
+
+        var coinsTowerColorPane = new VBox();
+        if(schoolBoard.coins != null) coinsTowerColorPane.getChildren().add(coins);
+        coinsTowerColorPane.getChildren().add(towerColor);
+
+        var coinsTowerColorRect = Layout.schoolRect
+                .relativeToThis(30, 10, 70, 10)
+                .toJavaFXRect();
+        coinsTowerColorPane.setLayoutX(coinsTowerColorRect.getX());
+        coinsTowerColorPane.setLayoutY(coinsTowerColorRect.getY());
+        coinsTowerColorPane.setMaxWidth(coinsTowerColorRect.getWidth());
+        coinsTowerColorPane.setMaxHeight(coinsTowerColorRect.getHeight());
+
+        return coinsTowerColorPane;
     }
 }
