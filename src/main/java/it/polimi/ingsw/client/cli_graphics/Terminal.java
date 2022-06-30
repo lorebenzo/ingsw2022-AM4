@@ -276,7 +276,7 @@ public class Terminal {
         this.putStringAsComponent(header, row++, col);
 
         var header2 = new UnicodeString()
-                .appendNonUnicodeString("ID:  Cost:")
+                .appendNonUnicodeString("INDEX:  ID:  Cost:")
                 .getUnicodeString();
         this.putStringAsComponent(header2, row++, col);
 
@@ -289,9 +289,9 @@ public class Terminal {
 
             // Add island codes
             if(availableCharacters.get(i).characterId / 10 == 0)
-                characterRepresentation.appendNonUnicodeString(character.characterId + "    " + character.currentCost + " ");
+                characterRepresentation.appendNonUnicodeString(i + "       " + character.characterId + "    " + character.currentCost + " ");
             else
-                characterRepresentation.appendNonUnicodeString(character.characterId + "   " + character.currentCost + " ");
+                characterRepresentation.appendNonUnicodeString(i + "       " + character.characterId + "   " + character.currentCost + " ");
             if(character.availableLocks != null)
                 characterRepresentation.appendNonUnicodeString("Locks: " + character.availableLocks);
 

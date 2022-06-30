@@ -190,12 +190,12 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             for (int i = 0; i < 30; i++) {
                 this.logger.addToLog("");
             }
-            for (var character: lastSnapshot.availableCharacters) {
+            for (int j = lastSnapshot.availableCharacters.size()-1; j >= 0; j--) {
                 this.logger.addToLog("");
                 this.logger.addToLog("----------------------------------------");
                 this.logger.addToLog("");
-                this.logger.addToLog("Effect: "+ character.effect);
-                this.logger.addToLog("Character ID: " + character.characterId);
+                this.logger.addToLog("Effect: "+ lastSnapshot.availableCharacters.get(j).effect);
+                this.logger.addToLog("Character ID: " + lastSnapshot.availableCharacters.get(j).characterId);
             }
             this.logger.addToLog("----------------------------------------");
             this.logger.flush();
