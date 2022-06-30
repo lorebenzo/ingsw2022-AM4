@@ -36,7 +36,11 @@ public class EventsRepository {
 
     public static EventsRepository getInstance() throws DBNotFoundException {
         if(instance == null)
-            instance = new EventsRepository();
+            try {
+                instance = new EventsRepository();
+            } catch (DBNotFoundException e) {
+                System.err.println("DB not connected.");
+            }
         return instance;
     }
 

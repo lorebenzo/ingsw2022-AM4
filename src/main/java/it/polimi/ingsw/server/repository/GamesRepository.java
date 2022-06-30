@@ -37,7 +37,9 @@ public class GamesRepository {
         if(instance == null)
             try {
                 instance = new GamesRepository();
-            } catch (Exception ignored) {}
+            } catch (DBNotFoundException e) {
+                System.err.println("DB not connected");
+            }
         return instance;
     }
 
@@ -104,7 +106,7 @@ public class GamesRepository {
             }
             rs.close();
             stmt.close();
-        } catch(Exception e) {e.printStackTrace();};
+        } catch(Exception e) {e.printStackTrace();}
         return currentGames;
     }
 }
