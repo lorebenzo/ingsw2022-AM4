@@ -16,7 +16,7 @@ public enum ReturnMessage {
     INVALID_NUMBER_OF_STEPS("The inputted number of steps is invalid. It has to be between 0 and the number of steps allowed by the card played in this round"),
     EMPTY_CLOUD("The chosen cloud is empty, choose another one"),
 
-    MORE_STUDENTS_TO_BE_MOVED("There are students yet to be moved before ending the turn"),
+    MORE_STUDENTS_TO_BE_MOVED("There are students yet to be moved"),
     MOTHER_NATURE_TO_BE_MOVED("Mother Nature has to be moved before ending turn"),
     STUDENTS_TO_BE_GRABBED_FROM_CLOUD("You have to choose a cloud before ending the turn"),
     CARD_NOT_PLAYED("You have to play a card before ending your turn"),

@@ -143,7 +143,7 @@ public class CommunicationController extends SugarMessageProcessor {
                     .findFirst()
                     .orElseThrow(InvalidArchipelagoIdException::new);
             this.gameStateController.moveStudentFromEntranceToArchipelago(message.student, archipelagoIslandCodes);
-            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_DINING.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_ARCHIPELAGO.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (StudentNotInTheEntranceException e) {

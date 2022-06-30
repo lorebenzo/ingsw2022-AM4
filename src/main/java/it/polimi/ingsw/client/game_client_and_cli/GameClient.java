@@ -102,7 +102,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var card = Card.fromValue(cardValue);
         if(card.isPresent())
             this.sendAndHandleDisconnection(new PlayCardMsg(card.get(), this.jwt));
-        else this.logger.logError("Card does not exists");
+        else this.logger.logError("Card does not exist");
     }
 
     public void moveStudentFromEntranceToDiningRoom(String student) {
@@ -117,7 +117,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
         var _student = Color.fromString(student);
         if(_student.isPresent())
             this.sendAndHandleDisconnection(new MoveStudentFromEntranceToArchipelagoMsg(_student.get(), archipelagoIslandCode, this.jwt));
-        else this.logger.logError("Color does not exist or archipelago does not exist");
+        else this.logger.logError("Color does not exist");
     }
 
     public void moveMotherNature(int numberOfSteps){
@@ -224,23 +224,21 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     }
 
     @SugarMessageHandler
-    public void notifyGameOverMsg(NotifyGameOverMsg message) {
-        this.logger.logSuccess(message.text);
-
-        this.currentlyPlaying = false;
-        GUIProxy.switchView(GUI.View.MatchMakingView);
-        GUIProxy.notify("Game Over: " + message.text);
-    }
-
-    @SugarMessageHandler
     public void GameOverMsg(GameOverMsg message) {
 
         this.logger.logGameState(message.updateClientMsg.lightGameState);
-        this.logger.log("GAME OVER!");
+
+        if(message.usernameToIsWinner.get(this.username)){
+            this.logger.logSuccess("YOU WON!");
+            GUIProxy.notify("YOU WON!");
+        }else
+        {
+            this.logger.logError("YOU LOST :(");
+            GUIProxy.notify("YOU LOST :(");
+        }
 
         this.currentlyPlaying = false;
         GUIProxy.switchView(GUI.View.MatchMakingView);
-        GUIProxy.notify("You won");
     }
 
     @SugarMessageHandler
