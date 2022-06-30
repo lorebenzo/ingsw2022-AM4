@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final GameLogger logger = new GameLogger(new Terminal(35, 150, System.out));
+    private final GameLogger logger = new GameLogger(new Terminal(35, 160, System.out));
     private String jwt;
     public String username;
     public boolean currentlyPlaying = false;
@@ -147,31 +147,37 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void help() {
         this.logger.addToLog("");
         this.logger.addToLog("");
-        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("");
+        this.logger.addToLog("----------------------------------------");
         this.logger.addToLog("chat --to=[all, team, username] --message=...");
-        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("----------------------------------------");
         this.logger.addToLog("end-turn");
         this.logger.addToLog("rollback");
-        this.logger.addToLog("\t{--giveStd=[red, green, cyan, yellow, purple]}");
-        this.logger.addToLog("\t{--getStd=[red, green, cyan, yellow, purple]}");
-        this.logger.addToLog("\t{--island=[0-11]}");
-        this.logger.addToLog("\t{--color=[red, green, cyan, yellow, purple]}");
-        this.logger.addToLog("\t--index=[0-2]");
+        this.logger.addToLog("  {--giveStd=[red, green, cyan, yellow, purple]}");
+        this.logger.addToLog("  {--getStd=[red, green, cyan, yellow, purple]}");
+        this.logger.addToLog("  {--island=[0-11]}");
+        this.logger.addToLog("  {--color=[red, green, cyan, yellow, purple]}");
+        this.logger.addToLog("  --index=[0-2]");
         this.logger.addToLog("play-char");
         this.logger.addToLog("characters-info");
         this.logger.addToLog("grab-std --cloud=[0-3]");
         this.logger.addToLog("mv-mother-nature --steps=[1-5]");
-        this.logger.addToLog("\t--island=[0-11]");
-        this.logger.addToLog("\t--color=[red, green, cyan, yellow, purple]");
+        this.logger.addToLog("  --island=[0-11]");
+        this.logger.addToLog("  --color=[red, green, cyan, yellow, purple]");
         this.logger.addToLog("mv-std-island");
         this.logger.addToLog("mv-std-dining --color=[red, green, cyan, yellow, purple]");
         this.logger.addToLog("play-card --card=[1-10]");
         this.logger.addToLog("join-matchmaking --players=[2-4] --expert=[true, false]");
-        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("----------------------------------------");
         this.logger.addToLog("rejoin");
         this.logger.addToLog("login  --username=... --password=...");
         this.logger.addToLog("signup --username=... --password=...");
-        this.logger.addToLog("-----------------------------------------------------------");
+        this.logger.addToLog("----------------------------------------");
         this.logger.addToLog("help");
         this.logger.addToLog("CLI commands:");
 
@@ -186,12 +192,12 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
             }
             for (var character: lastSnapshot.availableCharacters) {
                 this.logger.addToLog("");
-                this.logger.addToLog("-----------------------------------------------------------");
+                this.logger.addToLog("----------------------------------------");
                 this.logger.addToLog("");
                 this.logger.addToLog("Effect: "+ character.effect);
                 this.logger.addToLog("Character ID: " + character.characterId);
             }
-            this.logger.addToLog("-----------------------------------------------------------");
+            this.logger.addToLog("----------------------------------------");
             this.logger.flush();
         }
     }

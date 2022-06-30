@@ -68,7 +68,7 @@ public class Terminal {
         this.cols = maxColumnsNumber;
         this.target = target;
         this.terminal = new String[maxRowsNumber][maxColumnsNumber];
-        this.loggerWidth = maxColumnsNumber/10*4;
+        this.loggerWidth = maxColumnsNumber/10*3;
         this.loggerHeight = maxRowsNumber;
         this.cleanEverything();
     }
@@ -117,6 +117,8 @@ public class Terminal {
                     row++;
                 }
             }
+            if(row >= this.loggerHeight)
+                break;
         }
     }
 
