@@ -68,7 +68,7 @@ public class Terminal {
         this.cols = maxColumnsNumber;
         this.target = target;
         this.terminal = new String[maxRowsNumber][maxColumnsNumber];
-        this.loggerWidth = maxColumnsNumber/10*4; // TODO: fix bug: logs are displayed also if they go outside the log box
+        this.loggerWidth = maxColumnsNumber/10*4;
         this.loggerHeight = maxRowsNumber;
         this.cleanEverything();
     }
@@ -297,7 +297,10 @@ public class Terminal {
             UnicodeString characterRepresentation = new UnicodeString();
 
             // Add island codes
-            characterRepresentation.appendNonUnicodeString(character.characterId + "    " + character.currentCost + " ");
+            if(availableCharacters.get(i).characterId / 10 == 0)
+                characterRepresentation.appendNonUnicodeString(character.characterId + "    " + character.currentCost + " ");
+            else
+                characterRepresentation.appendNonUnicodeString(character.characterId + "   " + character.currentCost + " ");
             if(character.availableLocks != null)
                 characterRepresentation.appendNonUnicodeString("Locks: " + character.availableLocks);
 
@@ -345,7 +348,7 @@ public class Terminal {
         // Display schoolBoards
         int printed = 0;
         for(var schoolBoard : schoolBoards) {
-            var _row = printed < 2 ? row : row + 13;
+            var _row = printed < 2 ? row : row + 15;
             var _col = printed % 2 == 0 ? col : col + 32;
 
 
@@ -390,6 +393,9 @@ public class Terminal {
             this.putStringAsComponent(entrance.getUnicodeString(), _row++, _col);
 
             // Display cards
+            this.putStringAsComponent(
+                    new UnicodeString().appendNonUnicodeString("Card Values:").getUnicodeString(), _row++, _col
+            );
             var cards = new UnicodeString()
                     .appendNonUnicodeString(
                             schoolBoard.deck
@@ -398,11 +404,12 @@ public class Terminal {
                                     .toList()
                                     .toString()
                     );
-            this.putStringAsComponent(
-                    new UnicodeString().appendNonUnicodeString("Cards (Values and Steps):").getUnicodeString(), _row++, _col
-            );
+
             this.putStringAsComponent(cards.getUnicodeString(), _row++, _col);
 
+            this.putStringAsComponent(
+                    new UnicodeString().appendNonUnicodeString("Card Steps:").getUnicodeString(), _row++, _col
+            );
             var cardsSteps = new UnicodeString()
                     .appendNonUnicodeString(
                             schoolBoard.deck
@@ -414,13 +421,18 @@ public class Terminal {
 
             this.putStringAsComponent(cardsSteps.getUnicodeString(), _row++, _col);
 
-            var coins = new UnicodeString()
-                    .appendNonUnicodeString("Coins: "+
-                            schoolBoard.coins.toString());
+            var towers = new UnicodeString()
+                    .appendNonUnicodeString("Tower Color: " +
+                            schoolBoard.towerColor.toString());
+            this.putStringAsComponent(towers.getUnicodeString(), _row++, _col);
 
-            this.putStringAsComponent(coins.getUnicodeString(), _row, _col);
+            if(schoolBoard.coins != null){
+                var coins = new UnicodeString()
+                        .appendNonUnicodeString("Coins: "+
+                                schoolBoard.coins);
 
-
+                this.putStringAsComponent(coins.getUnicodeString(), _row, _col);
+            }
             printed++;
         }
     }
@@ -554,9 +566,4 @@ class UnicodeString {
         this.string.set(0, ansiColorCode + this.string.get(0));
         this.string.set(this.string.size() - 1, this.string.get(this.string.size() - 1) + ANSI_RESET);
     }
-
-    //TODO: verify that it's actually useless
-/*    public List<String> getCharacters() {
-        return string;
-    }*/
 }

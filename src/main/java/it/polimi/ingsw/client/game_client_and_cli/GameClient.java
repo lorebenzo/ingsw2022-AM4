@@ -56,7 +56,7 @@ import java.util.stream.Stream;
 
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
-    private final GameLogger logger = new GameLogger(new Terminal(40, 165, System.out));
+    private final GameLogger logger = new GameLogger(new Terminal(35, 150, System.out));
     private String jwt;
     public String username;
     public boolean currentlyPlaying = false;
@@ -173,17 +173,6 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void help() {
         this.logger.addToLog("");
         this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
-        this.logger.addToLog("");
         this.logger.addToLog("-----------------------------------------------------------");
         this.logger.addToLog("chat --to=[all, team, username] --message=...");
         this.logger.addToLog("-----------------------------------------------------------");
@@ -218,7 +207,7 @@ public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     public void characters(){
 
         if(lastSnapshot != null){
-            for (int i = 0; i < 40; i++) {
+            for (int i = 0; i < 30; i++) {
                 this.logger.addToLog("");
             }
             for (var character: lastSnapshot.availableCharacters) {

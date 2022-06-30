@@ -12,7 +12,7 @@ import java.nio.file.Path;
 public class ClientTests {
     @Test
     void terminal() throws IOException {
-        LightGameState lgs = new Gson().fromJson(Files.readString(Path.of("src/main/resources/4.json")), LightGameState.class);
+        LightGameState lgs = new Gson().fromJson(Files.readString(Path.of("src/main/resources/outjson4.json")), LightGameState.class);
 
         Terminal terminal = new Terminal(30,150,System.out);
 
