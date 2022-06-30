@@ -28,32 +28,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-/**
- * CLI commands
- *
- * join-matchmaking --players=int[2-4] --expert=boolean
- * play-card --card=int[1-10]
- * mv-std-dining --color=string
- * mv-std-island --color=string --island=char
- * mv-mother-nature --steps=int
- * grab-std --cloud=int
- * play-char --index=int[0-2] --color=string{opt} --
- * end-turn
- * rollback
- * rejoin
- * chat --to=string[all, team, username] --message=string
- * login --username=string --password=string
- * signup --username=string --password=string
- * help
- *
- * TODO:
- * play-hero --hero=string
- *
- * NTH:
- * quit-matchmaking
- */
-
-
 public class GameClient extends SugarMessageProcessor implements Runnable, CLI {
     private final SugarClient sugarClient;
     private final GameLogger logger = new GameLogger(new Terminal(35, 150, System.out));

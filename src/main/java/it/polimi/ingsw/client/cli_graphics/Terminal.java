@@ -253,17 +253,6 @@ public class Terminal {
         }
     }
 
-    // TODO: implement scrolling
-    /*
-    public void scrollLogs(int amount) {
-        var logs = new LinkedList<>(this.logs);
-        for(int i = 0; i < amount && this.logs.size() - 1 - i >= 0; i++)
-            this.logs.remove(this.logs.size() - 1 - i);
-        this.updateLogs(logs);
-    }
-     */
-
-
     /**
      * This method updates the terminal with the new lightGameState.
      * @param lightGameState is the new lightGameState that will be rendered on the terminal.

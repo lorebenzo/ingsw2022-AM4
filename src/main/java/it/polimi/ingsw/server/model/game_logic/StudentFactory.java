@@ -9,8 +9,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class StudentFactory {
-    // fixme: private
-    public final Map<Color, Integer> studentSupply;
+    protected final Map<Color, Integer> studentSupply;
 
 
     public StudentFactory() {
@@ -29,7 +28,6 @@ public class StudentFactory {
                 .sum();
         if(supplySize == 0) throw new EmptyStudentSupplyException();
 
-        // TODO: optimize this section
         List<Color> students = new ArrayList<>(supplySize);
         studentSupply.keySet().forEach(color -> {
             for(int i = 0; i < studentSupply.get(color); i++) students.add(color);

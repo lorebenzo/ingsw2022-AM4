@@ -186,9 +186,8 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         this.professorsTable.remove(professor);
     }
 
-    //TODO riferimento diretto esposto, da controllare, ma potenzialmente indispensabile
     public Set<Color> getProfessorsTable() {
-        return professorsTable;
+        return new HashSet<>(professorsTable);
     }
 
     public Map<Color, Integer> getDiningRoomLaneColorToNumberOfStudents() {

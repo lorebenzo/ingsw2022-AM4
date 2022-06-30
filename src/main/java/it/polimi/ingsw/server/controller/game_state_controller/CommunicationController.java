@@ -98,7 +98,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
         try {
             boolean lastRound = this.gameStateController.playCard(message.card);
-            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.CARD_PLAYED.text + " " + ReturnMessage.LAST_ROUND.text: ReturnMessage.CARD_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
+            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.CARD_PLAYED.text + " " + ReturnMessage.NO_MORE_CARDS.text: ReturnMessage.CARD_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
         } catch (WrongPhaseException e){
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (CardIsNotInTheDeckException e) {

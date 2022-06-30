@@ -141,7 +141,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
      * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
      */
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
-        // TODO: randomize initial mother nature position
         Archipelago newArchipelago;
         int motherNatureIndex = 0;
 
