@@ -39,6 +39,12 @@ public class GamesManager extends SugarMessageProcessor {
         this.server = server;
     }
 
+    /**
+     * Returns the games where the user is playing
+     * @param message
+     * @param peer
+     * @return a GamesUpdateMsg
+     */
     @SugarMessageHandler
     public SugarMessage getGamesMsg(SugarMessage message, Peer peer) {
         var msg = (GetGamesMsg) message;
@@ -56,6 +62,14 @@ public class GamesManager extends SugarMessageProcessor {
         return new GamesUpdateMsg(gameControllerUUID);
     }
 
+    /**
+     * Join MatchMaking Controller
+     * If a user is not in the matchmaking, it'll be added to the matchmaking list
+     * it does nothing if a user is already in the matchmaking, it will be added to the matchmaking with the newest configuration otherwise
+     * @param message
+     * @param peer
+     * @return an OKMsg
+     */
     @SugarMessageHandler
     public SugarMessage joinMatchMakingMsg(SugarMessage message, Peer peer) {
         var msg = (JoinMatchMakingMsg) message;
@@ -79,9 +93,16 @@ public class GamesManager extends SugarMessageProcessor {
         return new OKMsg(ReturnMessage.JOIN_MATCHMAKING_SUCCESS.text);
     }
 
+    /**
+     * Recovers all the matches from the repository
+     */
     public void recoverCurrentGames() {
+        // Current game from repository
         var currentGames = this.gamesRepository.getCurrentGames();
+
+        // Foreach game
         for(var game : currentGames.keySet()) {
+            // Get players from the game
             var players = currentGames.get(game);
 
             GameController gameController = null;
@@ -91,12 +112,19 @@ public class GamesManager extends SugarMessageProcessor {
             try {
                 gameController = new GameController(UUID.fromString(gameUUID), players, expertMode);
             } catch (GameStateInitializationFailureException e) {
-                e.printStackTrace();
+                // Problem while reconstruction of the match
+                System.err.println("Problem with the reconstruction of the " + gameUUID + " game.");
             }
+
             if(gameController != null) this.games.add(gameController);
         }
     }
 
+    /**
+     * Creates a match if there are players in the matchmaking list that satisfies the constraints
+     * @param numberOfPlayers of the match
+     * @param expertMode of the match
+     */
     private void createMatchIfPossible(int numberOfPlayers, boolean expertMode) {
         // Remove all the inactive peers from the matchmaking list
         Set<Player> playersToRemove = new HashSet<>();
@@ -165,6 +193,13 @@ public class GamesManager extends SugarMessageProcessor {
                 .findFirst();
     }
 
+    /**
+     * Sends a chat message to other players
+     * It can send to another player in the same game, otherwise can multicast
+     * the message to the team, or to all the game's participants
+     * @param message
+     * @param peer
+     */
     @SugarMessageHandler
     public void chatMsg(SugarMessage message, Peer peer) {
         var msg = (ChatMsg) message;
@@ -205,12 +240,22 @@ public class GamesManager extends SugarMessageProcessor {
     private void send(SugarMessage message, Peer peer) {
         try {
             this.server.send(message, peer);
+            // Socket error, ignored
         } catch (IOException ignored) {}
     }
 
+    /**
+     * Multicast the message to all the players connected to the game
+     * @param gameController of the game
+     * @param message to send
+     */
     private void gameLogicMulticast(GameController gameController, SugarMessage message) {
+        // Take players from the gameController
         var players = gameController.getPlayers();
+
+        // Foreach player
         for(var player: players) {
+            // If there is a peer associated, it will send the message
             if(player.associatedPeer != null)
                 try {
                     this.server.send(message, player.associatedPeer);
@@ -218,6 +263,12 @@ public class GamesManager extends SugarMessageProcessor {
         }
     }
 
+    /**
+     * If the users disconnects, it waits 30 seconds
+     * If the user reconnects to the server, the game will not be closed, will be closed otherwise
+     * @param message
+     * @param peer
+     */
     @SugarMessageHandler
     public void peerDisconnectedFromGameMsg(SugarMessage message, Peer peer) {
         var gameController = findGameInvolvingPeer(peer);
@@ -243,7 +294,7 @@ public class GamesManager extends SugarMessageProcessor {
 
             var gameInvolvingReceiver = findGameInvolvingPeer(receiver);
             gameInvolvingReceiver.ifPresent(gameController -> this.gameLogicMulticast(gameController, msg.updateClientMsg));
-        } catch (IOException ignored) {} {}
+        } catch (IOException ignored) { }
     }
 
     @SugarMessageFromLowerLayersHandler
