@@ -20,6 +20,12 @@ public class ExpertGameStateController extends GameStateController {
         super(gameUUID);
     }
 
+    /**
+     * This method initializes the correct gameState with its attributes
+     * @param playersNumber is the number of players
+     * @return the newly created GameState
+     * @throws GameStateInitializationFailureException if there was a failure in the initialization procedure
+     */
     @Override
     protected ExpertGameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
         return new ExpertGameState(playersNumber);
