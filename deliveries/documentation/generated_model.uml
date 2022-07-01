@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>/Users/lorenzobenzoni/Documents/Poli/ingsw2022-AM4/src/main/java/it/polimi/ingsw/server/model/game_logic</OriginalElement>
+  <nodes>
+    <node x="0.0" y="1871.0">it.polimi.ingsw.server.model.game_logic.exceptions.StudentNotOnCharacterException</node>
+    <node x="641.0" y="812.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacterWithStudents</node>
+    <node x="1823.0" y="1944.0">it.polimi.ingsw.server.model.game_logic.exceptions.EmptyCloudException</node>
+    <node x="0.0" y="1700.0">it.polimi.ingsw.server.model.game_logic.events.InitGameStateEvent</node>
+    <node x="408.0" y="1798.0">it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException</node>
+    <node x="1202.0" y="1798.0">it.polimi.ingsw.server.model.game_logic.exceptions.ArchipelagoAlreadyLockedException</node>
+    <node x="406.5" y="643.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacter</node>
+    <node x="1305.0" y="1602.0">it.polimi.ingsw.server.model.game_logic.events.SetCurrentPhaseEvent</node>
+    <node x="413.0" y="1252.0">it.polimi.ingsw.server.model.game_logic.enums.GameConstants</node>
+    <node x="891.0" y="1700.0">it.polimi.ingsw.server.model.game_logic.events.ResetSchoolBoardIdsToCardsPlayerThisRoundEvent</node>
+    <node x="305.0" y="932.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy</node>
+    <node x="0.0" y="1798.0">it.polimi.ingsw.server.model.game_logic.exceptions.StudentsNotInTheDiningRoomException</node>
+    <node x="1003.0" y="78.0">it.polimi.ingsw.server.model.game_logic.SchoolBoard</node>
+    <node x="1532.0" y="1944.0">it.polimi.ingsw.server.model.game_logic.events.ResetRoundIteratorEvent</node>
+    <node x="362.0" y="1871.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory</node>
+    <node x="687.0" y="1602.0">it.polimi.ingsw.server.model.game_logic.StudentFactory</node>
+    <node x="1408.0" y="1252.0">it.polimi.ingsw.server.model.game_logic.enums.Color</node>
+    <node x="1740.0" y="1871.0">it.polimi.ingsw.server.model.game_logic.exceptions.FullDiningRoomLaneException</node>
+    <node x="0.0" y="78.0">it.polimi.ingsw.server.model.game_logic.GameState</node>
+    <node x="0.0" y="1944.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidArchipelagoIdException</node>
+    <node x="468.0" y="0.0">it.polimi.ingsw.server.model.game_logic.enums.Character</node>
+    <node x="35.5" y="445.0">it.polimi.ingsw.server.model.game_logic.ExpertGameState</node>
+    <node x="1325.0" y="565.0">it.polimi.ingsw.server.model.game_logic.enums.Card</node>
+    <node x="1003.0" y="1602.0">it.polimi.ingsw.server.model.game_logic.events.ConquerArchipelagoEvent</node>
+    <node x="506.0" y="2017.0">it.polimi.ingsw.server.model.game_logic.events.GetNextTurnEvent</node>
+    <node x="352.0" y="1602.0">it.polimi.ingsw.server.model.game_logic.events.GrabStudentsFromCloudEvent</node>
+    <node x="1071.0" y="1252.0">it.polimi.ingsw.server.model.game_logic.LightArchipelago</node>
+    <node x="0.0" y="1252.0">it.polimi.ingsw.server.model.game_logic.LightPlayableCharacter</node>
+    <node x="1584.0" y="1798.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidStudentListsLengthException</node>
+    <node x="1127.0" y="291.0">it.polimi.ingsw.server.model.game_logic.ExpertSchoolBoard</node>
+    <node x="0.0" y="1010.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy</node>
+    <node x="988.0" y="643.0">it.polimi.ingsw.server.model.game_logic.Archipelago</node>
+    <node x="721.0" y="1871.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidCharacterIndexException</node>
+    <node x="1559.0" y="1252.0">it.polimi.ingsw.server.model.game_logic.enums.ActionPhaseSubTurn</node>
+    <node x="1084.0" y="0.0">it.polimi.ingsw.server.model.game_logic.SchoolBoardCommonInterface</node>
+    <node x="719.0" y="1252.0">it.polimi.ingsw.server.model.game_logic.Round</node>
+    <node x="388.0" y="823.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacterLock</node>
+    <node x="332.0" y="1944.0">it.polimi.ingsw.server.model.game_logic.exceptions.NotEnoughCoinsException</node>
+    <node x="910.0" y="932.0">it.polimi.ingsw.server.model.game_logic.LightGameState</node>
+    <node x="0.0" y="2017.0">it.polimi.ingsw.server.model.game_logic.events.MergeWithNextEvent</node>
+    <node x="1280.0" y="1482.0">it.polimi.ingsw.server.model.game_logic.events.MoveMotherNatureNStepsClockwiseEvent</node>
+    <node x="686.0" y="1482.0">it.polimi.ingsw.server.model.game_logic.enums.Phase</node>
+    <node x="470.0" y="1700.0">it.polimi.ingsw.server.model.game_logic.events.PlayCardEvent</node>
+    <node x="73.5" y="0.0">it.polimi.ingsw.server.model.game_logic.GameStateCommonInterface</node>
+    <node x="0.0" y="1482.0">it.polimi.ingsw.server.model.game_logic.events.MoveStudentFromEntranceToArchipelagoEvent</node>
+    <node x="1579.0" y="1602.0">it.polimi.ingsw.server.model.game_logic.events.AssignProfessorEvent</node>
+    <node x="260.0" y="2017.0">it.polimi.ingsw.server.model.game_logic.exceptions.FullCloudException</node>
+    <node x="295.0" y="1010.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy</node>
+    <node x="590.0" y="1010.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy</node>
+    <node x="1378.0" y="932.0">it.polimi.ingsw.server.model.game_logic.LightSchoolBoard</node>
+    <node x="464.0" y="1482.0">it.polimi.ingsw.server.model.game_logic.entities.Player</node>
+    <node x="1241.0" y="1944.0">it.polimi.ingsw.server.model.game_logic.events.MergeWithPreviousEvent</node>
+    <node x="1020.5" y="790.0">it.polimi.ingsw.server.model.game_logic.ExpertArchipelago</node>
+    <node x="682.0" y="1700.0">it.polimi.ingsw.server.model.game_logic.events.FillCloudEvent</node>
+    <node x="1402.0" y="1871.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidSchoolBoardIdException</node>
+    <node x="601.5" y="1179.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertFourPlayerStrategy</node>
+    <node x="1064.0" y="1871.0">it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException</node>
+    <node x="1390.0" y="1700.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertNumberOfPlayersStrategyFactory</node>
+    <node x="302.0" y="1179.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertThreePlayerStrategy</node>
+    <node x="992.5" y="565.0">it.polimi.ingsw.server.model.game_logic.ArchipelagoCommonInterface</node>
+    <node x="1848.0" y="1602.0">it.polimi.ingsw.server.model.game_logic.events.SetRoundOrderEvent</node>
+    <node x="1842.0" y="1252.0">it.polimi.ingsw.server.model.game_logic.enums.TowerColor</node>
+    <node x="0.0" y="823.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacterProfessor</node>
+    <node x="636.0" y="1944.0">it.polimi.ingsw.server.model.game_logic.events.IncreaseRoundCountEvent</node>
+    <node x="0.0" y="1602.0">it.polimi.ingsw.server.model.game_logic.events.SetActionPhaseSubTurnEvent</node>
+    <node x="13.5" y="1179.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertTwoPlayerStrategy</node>
+    <node x="939.0" y="1944.0">it.polimi.ingsw.server.model.game_logic.exceptions.NoAvailableLockException</node>
+    <node x="813.0" y="1798.0">it.polimi.ingsw.server.model.game_logic.exceptions.NonMergeableArchipelagosException</node>
+    <node x="1708.0" y="1482.0">it.polimi.ingsw.server.model.game_logic.events.SetCurrentPlayerSchoolBoardIDEvent</node>
+    <node x="851.0" y="1482.0">it.polimi.ingsw.server.model.game_logic.events.MoveStudentsFromEntranceToDiningEvent</node>
+    <node x="446.5" y="565.0">it.polimi.ingsw.server.model.game_logic.Playable</node>
+    <node x="252.0" y="1700.0">it.polimi.ingsw.server.model.game_logic.utils.Randomizer</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" target="it.polimi.ingsw.server.model.game_logic.Playable" relationship="REALIZATION">
+      <point x="0.0" y="-59.5" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertFourPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="59.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.Archipelago" target="it.polimi.ingsw.server.model.game_logic.ArchipelagoCommonInterface" relationship="REALIZATION">
+      <point x="0.0" y="-48.5" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacterWithStudents" target="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" relationship="GENERALIZATION">
+      <point x="0.0" y="-37.5" />
+      <point x="792.0" y="787.0" />
+      <point x="504.5" y="787.0" />
+      <point x="0.0" y="59.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacterProfessor" target="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" relationship="GENERALIZATION">
+      <point x="0.0" y="-26.5" />
+      <point x="184.0" y="787.0" />
+      <point x="504.5" y="787.0" />
+      <point x="0.0" y="59.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertTwoPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="59.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.ExpertArchipelago" target="it.polimi.ingsw.server.model.game_logic.Archipelago" relationship="GENERALIZATION">
+      <point x="0.0" y="-48.5" />
+      <point x="0.0" y="48.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.ExpertGameState" target="it.polimi.ingsw.server.model.game_logic.GameState" relationship="GENERALIZATION">
+      <point x="0.0" y="-37.5" />
+      <point x="0.0" y="158.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.ExpertSchoolBoard" target="it.polimi.ingsw.server.model.game_logic.SchoolBoard" relationship="GENERALIZATION">
+      <point x="0.0" y="-26.5" />
+      <point x="0.0" y="81.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.SchoolBoard" target="it.polimi.ingsw.server.model.game_logic.SchoolBoardCommonInterface" relationship="REALIZATION">
+      <point x="0.0" y="-81.5" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy" relationship="REALIZATION">
+      <point x="0.0" y="-59.5" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy" relationship="REALIZATION">
+      <point x="0.0" y="-59.5" />
+      <point x="727.5" y="985.0" />
+      <point x="432.5" y="985.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.GameState" target="it.polimi.ingsw.server.model.game_logic.GameStateCommonInterface" relationship="REALIZATION">
+      <point x="0.0" y="-158.5" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertThreePlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="59.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacterLock" target="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" relationship="GENERALIZATION">
+      <point x="0.0" y="-26.5" />
+      <point x="0.0" y="59.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy" relationship="REALIZATION">
+      <point x="0.0" y="-59.5" />
+      <point x="137.5" y="985.0" />
+      <point x="432.5" y="985.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.35593220338983045" showDependencies="false" x="1032.5" y="1022.5000000000002" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

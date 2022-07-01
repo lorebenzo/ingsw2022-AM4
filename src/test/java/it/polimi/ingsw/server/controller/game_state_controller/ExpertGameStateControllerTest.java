@@ -526,4 +526,26 @@ public class ExpertGameStateControllerTest {
         }
     }
 
+
+    @Test
+    void nextActionTurn() throws GameStateInitializationFailureException, NoSuchFieldException, IllegalAccessException, InvalidCharacterIndexException, NotEnoughCoinsException, InvalidArchipelagoIdException, MoveAlreadyPlayedException, StudentNotOnCharacterException, WrongArgumentsException, WrongPhaseException, MoveNotAvailableException, GameOverException {
+        GameStateController gameStateController = new ExpertGameStateController(2);
+
+        this.addAllCharacters(gameStateController);
+
+        Color student = gameStateController.gameState.getAvailableCharacters().get(1).getStudents().get(0);
+
+        gameStateController.gameState.setCurrentPhase(Phase.ACTION);
+
+        gameStateController.applyEffect(1,student,0);
+
+        assertEquals(3,gameStateController.gameState.getAvailableCharacters().get(1).getStudents().size());
+        assertTrue(gameStateController.gameState.wasCharacterPlayedInCurrentTurn());
+
+        gameStateController.nextActionTurn();
+        assertEquals(4,gameStateController.gameState.getAvailableCharacters().get(1).getStudents().size());
+
+        assertTrue(gameStateController.gameState.getArchipelagosForTesting().get(0).getStudents().contains(student));
+        assertFalse(gameStateController.gameState.wasCharacterPlayedInCurrentTurn());
+    }
 }

@@ -19,6 +19,11 @@ public class PlayableCharacterWithStudents extends PlayableCharacter {
 
     }
 
+    /**
+     * This method returns true if the inputted students are all contained in the character, false otherwise
+     * @param students is the list of students to be checked
+     * @return true if the inputted students are all contained in the character, false otherwise
+     */
     @Override
     public boolean containsAllStudents(List<Color> students){
         boolean allStudentsArePresent = true;
@@ -31,26 +36,48 @@ public class PlayableCharacterWithStudents extends PlayableCharacter {
         return allStudentsArePresent;
     }
 
+    /**
+     * This method removes a student from the character
+     * @param student is the student that will be removed from the character
+     * @return true if the student was actually present and then removed, false otherwise
+     */
     @Override
     public boolean removeStudent(Color student){
         return this.students.remove(student);
     }
 
+    /**
+     * This method adds a student to the character
+     * @param student is the student that will be added to the character
+     */
     @Override
     public void addStudent(Color student){
         this.students.add(student);
     }
 
+    /**
+     * This method returns the initial number of students on the character
+     * @return an int representing the initial number of students on the character
+     */
     @Override
     public int getInitialStudentsNumberOnCharacter() {
         return this.initialStudentsNumberOnCharacter;
     }
 
+    /**
+     * This method returns the list of the students that are present on the character
+     * @return a list of the students that are present on the character
+     */
     @Override
     public List<Color> getStudents() {
         return new ArrayList<>(students);
     }
 
+    /**
+     * This method returns the light version of the PlayableCharacter, containing all the useful information that need to be sent
+     * over the network
+     * @return a LightPlayableCharacter containing all the useful information that need to be sent over the network
+     */
     @Override
     public LightPlayableCharacter lightify() {
         return new LightPlayableCharacter(

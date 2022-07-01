@@ -14,6 +14,12 @@ public class PlayableCharacter implements Playable{
         this.currentCost = character.initialCost;
         this.effect = character.effect;
     }
+
+    /**
+     * This method creates the right PlayableCharacter based on the inputted Character and returns it
+     * @param character represents the character that has to be created
+     * @return a PlayableCharacter based on the inputted Character
+     */
     public static PlayableCharacter createCharacter(Character character){
         if(character == Character.LOCK_ARCHIPELAGO)
             return new PlayableCharacterLock(character);
@@ -27,18 +33,34 @@ public class PlayableCharacter implements Playable{
             return new PlayableCharacter(character);
     }
 
+    /**
+     * This method returns the current cost to activate the character
+     * @return an int representing the current cost of the character
+     */
     public int getCurrentCost() {
         return this.currentCost;
     }
 
+    /**
+     * This method is used to increase the cost of the character after each activation
+     */
     public void increaseCost(){
         this.currentCost++;
     }
 
+    /**
+     * This method returns the ID of the character
+     * @return an int representing the ID of the character
+     */
     public int getCharacterId() {
         return characterId;
     }
 
+    /**
+     * This method creates the light version of the PlayableCharacter containing all the useful information that need to be sent
+     * over the network and returns it
+     * @return a LightPlayableCharacter representing the light version of the PlayableCharacter
+     */
     public LightPlayableCharacter lightify(){
         return new LightPlayableCharacter(
                 this.characterId,

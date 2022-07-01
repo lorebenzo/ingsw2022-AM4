@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class ExpertCommunicationController extends CommunicationController {
     protected ExpertCommunicationController(List<Player> players) throws GameStateInitializationFailureException {
-        super(players);
+        super(players, true);
     }
 
     public ExpertCommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) {
@@ -190,7 +190,7 @@ public class ExpertCommunicationController extends CommunicationController {
         var username = AuthController.getUsernameFromJWT(message.jwt);
         if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);
 
-        return new OKAndUpdateMsg(new OKMsg("Rollback not available"), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
+        return new KOMsg("Rollback not available");
     }
 
     @SugarMessageHandler

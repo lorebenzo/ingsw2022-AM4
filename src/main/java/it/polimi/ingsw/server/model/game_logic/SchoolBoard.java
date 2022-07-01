@@ -19,10 +19,9 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
     protected final List<Card> deck;
 
     /**
-     *
-     * @param id must be a unique id for this schoolboard in this game
-     * @param studentsInTheEntrance students to put in the entrance of the schoolboard
-     * @param towerColor tower color of this schoolboard
+     * @param id must be a unique id for this schoolBoard in this game
+     * @param studentsInTheEntrance students to put in the entrance of the schoolBoard
+     * @param towerColor tower color of this schoolBoard
      * @throws IllegalArgumentException if studentsInTheEntrance == null or studentsInTheEntrance contains null
      *
      */
@@ -71,6 +70,10 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         this.deck.remove(card);
     }
 
+    /**
+     * This method returns the ID associated with the schoolBoard
+     * @return an int representing the ID of the schoolBoard
+     */
     public int getId() {
         return id;
     }
@@ -96,6 +99,11 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         this.addStudentToDiningRoom(student);
     }
 
+    /**
+     * This method adds the inputted student to the diningRoom
+     * @param student is the student that will be added to the diningRoom
+     * @throws FullDiningRoomLaneException if the diningRoom table corresponding to the inputted student is already full
+     */
     protected void addStudentToDiningRoom(Color student) throws FullDiningRoomLaneException {
         if(this.diningRoomLaneColorToNumberOfStudents.get(student) >= GameConstants.DINING_ROOM_LANE_SIZE.value)
             throw new FullDiningRoomLaneException();
@@ -112,11 +120,20 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         this.studentsInTheEntrance.remove(student);
     }
 
+    /**
+     * This method adds the inputted student to the entrance
+     * @param student is the student that will be added to the entrance
+     */
     public void addStudentToEntrance(Color student){
         if(student == null) throw new IllegalArgumentException();
         this.studentsInTheEntrance.add(student);
     }
 
+    /**
+     * This method checks if the inputted list of students is a subList of the students in the entrance
+     * @param students is the list of students that have to be checked
+     * @return true if all the elements of the inputted list are contained in the entrance (counting duplicates), false otherwise
+     */
     public boolean containsAllStudentsInTheEntrance(List<Color> students){
         boolean allStudentsArePresent = true;
 
@@ -128,6 +145,11 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         return allStudentsArePresent;
     }
 
+    /**
+     * This method checks if the inputted list of students is a subList of the students in the diningRoom
+     * @param students is the list of students that have to be checked
+     * @return true if all the elements of the inputted list are contained in the diningRoom (counting duplicates), false otherwise
+     */
     public boolean containsAllStudentsInTheDiningRoom(List<Color> students){
         boolean allStudentsArePresent = true;
         Map<Color, Integer> diningRoomCopy = new HashMap<>(this.diningRoomLaneColorToNumberOfStudents);
@@ -151,50 +173,70 @@ public class SchoolBoard implements SchoolBoardCommonInterface{
         this.studentsInTheEntrance.addAll(studentsGrabbed);
     }
 
-    // Getters
+    /**
+     * This method returns the set of professors that are controlled by the schoolBoard
+     * @return a set containing all the professors controlled by the schoolBoard
+     */
     public Set<Color> getProfessors() {
         return new HashSet<>(this.professorsTable);
     }
 
+    /**
+     * This method returns the tower color of the schoolBoard
+     * @return the TowerColor of the schoolBoard
+     */
     public TowerColor getTowerColor() {
         return towerColor;
     }
 
+    /**
+     * Returns the deck made up by the remaining assistant cards yet to be played
+     * @return a list made up by the remaining assistant cards yet to be played
+     */
     public List<Card> getDeck() {
         return new LinkedList<>(this.deck);
     }
 
+    /**
+     * Returns the list of students that are in the entrance of the schoolBoard
+     * @return the list of students that are in the entrance of the schoolBoard
+     */
     public List<Color> getStudentsInTheEntrance() {
         return new LinkedList<>(this.studentsInTheEntrance);
     }
 
-
-
-    //Created for testing - could be useful or dangerous
+    /**
+     * This method adds a professor to the schoolBoard
+     * @param professor is the color representing the professor that has to be added to the schoolBoard
+     */
     public void addProfessor(Color professor){
         if(professor == null)
             throw new IllegalArgumentException();
         this.professorsTable.add(professor);
     }
 
-    public void removeProfessor(Color professor)/* throws ProfessorNotPresentException*/ {
+    /**
+     * This method removes a professor from the schoolBoard
+     * @param professor is the color representing the professor that has to be removed
+     */
+    public void removeProfessor(Color professor) {
         if(professor == null)
             throw new IllegalArgumentException();
-        //if(!this.professorsTable.contains(professor))
-       //     throw new ProfessorNotPresentException();
-
         this.professorsTable.remove(professor);
     }
 
-    //TODO riferimento diretto esposto, da controllare, ma potenzialmente indispensabile
-    public Set<Color> getProfessorsTable() {
-        return professorsTable;
-    }
-
+    /**
+     * This method returns a map that links every diningRoom lane to the number of students that are in it
+     * @return a map that links every diningRoom lane to the number of students that are in it
+     */
     public Map<Color, Integer> getDiningRoomLaneColorToNumberOfStudents() {
         return new HashMap<>(diningRoomLaneColorToNumberOfStudents);
     }
 
+    /**
+     * This method returns the light version of the schoolBoard, containing all the useful information that need to be sent over the network
+     * @return the light version of the schoolBoard, containing all the useful information that need to be sent over the network
+     */
     public LightSchoolBoard lightify() {
         return new LightSchoolBoard(
                 this.id,

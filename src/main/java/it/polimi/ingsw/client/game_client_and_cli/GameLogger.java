@@ -31,7 +31,7 @@ public class GameLogger implements Logger {
 
     @Override
     public void addToLog(String s) {
-        this.terminal.log(s);
+        this.terminal.logPurple(s);
     }
 
     @Override

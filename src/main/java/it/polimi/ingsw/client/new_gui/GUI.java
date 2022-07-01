@@ -118,14 +118,6 @@ public class GUI extends Application {
         // Clear focus map
         rectangleToComponent.clear();
 
-        // Test
-        //LightGameState lgs = null;
-        //try {
-        //    lgs = new Gson().fromJson(Files.readString(Path.of("src/main/resources/expert.json")), LightGameState.class);
-        //} catch (IOException e) {
-        //    e.printStackTrace();
-        //}
-
         Pane pane;
         if(currentView.equals(View.LoginView))
             pane = LoginViewRenderer.renderLoginView();

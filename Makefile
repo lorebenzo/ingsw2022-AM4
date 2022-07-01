@@ -13,3 +13,9 @@ test:
 
 up:
 		docker-compose up
+
+run-server:
+		java -jar ./target/assembly/server.jar
+
+run-client:
+		java -jar ./target/assembly/client.jar

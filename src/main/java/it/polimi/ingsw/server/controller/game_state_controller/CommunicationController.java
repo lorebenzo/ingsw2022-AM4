@@ -22,7 +22,7 @@ public class CommunicationController extends SugarMessageProcessor {
     protected GameStateController gameStateController;
     protected final Map<String, Integer> usernameToSchoolBoardId;
 
-    protected CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
+    protected CommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException {
         this.gameStateController = initializeGameStateController(players.size());
         this.usernameToSchoolBoardId = new HashMap<>();
 
@@ -33,9 +33,12 @@ public class CommunicationController extends SugarMessageProcessor {
             this.usernameToSchoolBoardId.put(player.username, schoolBoardIdsSetIterator.next());
         }
 
-        var gameUUID = gameStateController.getGameUUID();
-        for (int i = 0; i < players.size(); i++) {
-            GamesRepository.getInstance().saveUserSchoolBoardMap(gameUUID, players.get(i).username, i);
+        // If is not expert mode, save the games in current run repository
+        if(!isExpertMode) {
+            var gameUUID = gameStateController.getGameUUID();
+            for (int i = 0; i < players.size(); i++) {
+                GamesRepository.getInstance().saveUserSchoolBoardMap(gameUUID, players.get(i).username, i);
+            }
         }
     }
 
@@ -54,7 +57,7 @@ public class CommunicationController extends SugarMessageProcessor {
         if(isExpertMode)
             return new ExpertCommunicationController(players);
         else
-            return new CommunicationController(players);
+            return new CommunicationController(players, false);
     }
 
     public static CommunicationController createCommunicationController(List<Pair<String, Integer>> players, boolean isExpertMode, UUID gameUUID) {
@@ -98,7 +101,7 @@ public class CommunicationController extends SugarMessageProcessor {
 
         try {
             boolean lastRound = this.gameStateController.playCard(message.card);
-            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.CARD_PLAYED.text + " " + ReturnMessage.LAST_ROUND.text: ReturnMessage.CARD_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
+            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.CARD_PLAYED.text + " " + ReturnMessage.NO_MORE_CARDS.text: ReturnMessage.CARD_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
         } catch (WrongPhaseException e){
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (CardIsNotInTheDeckException e) {
@@ -143,7 +146,7 @@ public class CommunicationController extends SugarMessageProcessor {
                     .findFirst()
                     .orElseThrow(InvalidArchipelagoIdException::new);
             this.gameStateController.moveStudentFromEntranceToArchipelago(message.student, archipelagoIslandCodes);
-            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_DINING.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
+            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_ARCHIPELAGO.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));
         } catch (WrongPhaseException e) {
             return new KOMsg(ReturnMessage.WRONG_PHASE.text);
         } catch (StudentNotInTheEntranceException e) {

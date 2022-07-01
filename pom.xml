@@ -247,16 +247,32 @@
           <version>3.2.4</version>
           <executions>
             <execution>
+              <id>eriantys-server</id>
               <phase>package</phase>
               <goals>
                 <goal>shade</goal>
               </goals>
               <configuration>
+                <outputFile>target/assembly/server.jar</outputFile>
+                <transformers>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>it.polimi.ingsw.server.App</mainClass>
+                  </transformer>
+                </transformers>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>eriantys-client</id>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <outputFile>target/assembly/client.jar</outputFile>
                 <transformers>
                   <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                     <mainClass>it.polimi.ingsw.client.Main</mainClass>
-<!--                    <mainClass>it.polimi.ingsw.server.App</mainClass>-->
-
                   </transformer>
                 </transformers>
               </configuration>

@@ -50,10 +50,9 @@ public class Archipelago implements ArchipelagoCommonInterface {
     }
 
     /**
-     * //@throws NonMergeableArchipelagosException if the two archipelagos have towers of different colors or
-     *                                              if the two archipelagos have intersecting islandCodes
-     * @param a2 second archipelago
-     * @return an Archipelago that has first islandCodes + second islandCodes
+     * This method merges two archipelagos
+     * @param a2 second archipelago to be merged
+     * @return an Archipelago that has first islandCodes + second islandCodes and the sum of the students of the two archipelagos
      */
     public boolean merge(Archipelago a2) {
         if(a2 == null) throw new IllegalArgumentException();
@@ -67,6 +66,10 @@ public class Archipelago implements ArchipelagoCommonInterface {
         return false;
     }
 
+    /**
+     * This method returns a list containing all the students on the archipelago
+     * @return a list containing all the students on the archipelago
+     */
     public List<Color> getStudents() {
         var students = new LinkedList<Color>();
         for(var key : this.studentToNumber.keySet())
@@ -75,6 +78,10 @@ public class Archipelago implements ArchipelagoCommonInterface {
         return students;
     }
 
+    /**
+     * This method returns a map that maps every student color with the number of its occurrence on the archipelago
+     * @return a map that maps every student color with the number of its occurrence on the archipelago
+     */
     public Map<Color, Integer> getStudentToNumber() {
         return new HashMap<>(studentToNumber);
     }
@@ -98,7 +105,7 @@ public class Archipelago implements ArchipelagoCommonInterface {
      * @param   playerTowerColor the color of the towers owned by the player
      * @return  an int representing the value of the player's influence on this archipelago
      */
-    public /* pure */ int getInfluence(Set<Color> playerProfessors, TowerColor playerTowerColor) {
+    public int getInfluence(Set<Color> playerProfessors, TowerColor playerTowerColor) {
         if(
                 playerProfessors == null || playerProfessors.contains(null) ||
                 playerTowerColor == null || playerTowerColor.equals(TowerColor.NONE)
@@ -107,10 +114,20 @@ public class Archipelago implements ArchipelagoCommonInterface {
                 + getTowersInfluence(playerTowerColor); // add tower score
     }
 
+    /**
+     * This method returns the influence given by the towers of the inputted tower color on the archipelago
+     * @param playerTowerColor is the tower color
+     * @return the influence given by the towers of a certain color on the archipelago
+     */
     protected int getTowersInfluence(TowerColor playerTowerColor){
         return (playerTowerColor.equals(this.towerColor)) ? this.islandCodes.size() : 0;
     }
 
+    /**
+     * This method returns the influence on the archipelago given by the students that are on it
+     * @param playerProfessors is a Set representing the professors owned by a certain player
+     * @return the influence on the archipelago given by the students
+     */
     protected int getStudentsInfluence(Set<Color> playerProfessors){
         return this.studentToNumber.keySet().stream()        // get student colors
                 .filter(playerProfessors::contains)     // filter the ones that match given professors colors
@@ -118,6 +135,10 @@ public class Archipelago implements ArchipelagoCommonInterface {
                 .sum();                                  // sum the occurrences
     }
 
+    /**
+     * This method returns the island codes of the archipelago
+     * @return a list containing the island codes of the archipelago
+     */
     public List<Integer> getIslandCodes() {
         return new ArrayList<>(this.islandCodes);
     }
@@ -131,10 +152,18 @@ public class Archipelago implements ArchipelagoCommonInterface {
         this.towerColor = towerColor;
     }
 
+    /**
+     * This method returns the color of the tower(s) on the archipelago
+     * @return the tower color of the tower(s) on the archipelago
+     */
     public TowerColor getTowerColor(){
         return this.towerColor;
     }
 
+    /**
+     * This method removes a student from the archipelago
+     * @param student is the student that has to be removed from the archipelago
+     */
     public void removeStudent(Color student){
         if(this.studentToNumber.get(student) >= 1)
             this.studentToNumber.put(student, this.studentToNumber.get(student) -1);
@@ -147,6 +176,10 @@ public class Archipelago implements ArchipelagoCommonInterface {
         return a.islandCodes.equals(this.islandCodes);
     }
 
+    /**
+     * This method returns the light version of the archipelago to be sent over the network
+     * @return a LightArchipelago comprising all the relevant information that make up the archipelago
+     */
     public LightArchipelago lightify(){
         return new LightArchipelago(
             this.islandCodes,
