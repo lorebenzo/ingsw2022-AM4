@@ -40,7 +40,7 @@ public class ExpertGameState extends GameState {
     /**
      *ONLY FOR TESTING
      */
-    public ExpertGameState(int playersNumber, List<PlayableCharacter> availableCharacters) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+    protected ExpertGameState(int playersNumber, List<PlayableCharacter> availableCharacters) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
         super(playersNumber);
         this.availableCharacters = availableCharacters;
 
@@ -51,11 +51,19 @@ public class ExpertGameState extends GameState {
         this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);
     }
 
+    /**
+     * This method chooses the appropriate strategy according to the number of players
+     */
     @Override
     protected void chooseStrategy() {
         this.strategy = ExpertNumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);
     }
 
+    /**
+     * This method created an archipelago for the expert mode
+     * @param code is the starting islandCode of the archipelago
+     * @return the newly created archipelago
+     */
     @Override
     protected ExpertArchipelago createArchipelago(int code) {
         return new ExpertArchipelago(code);
@@ -64,7 +72,7 @@ public class ExpertGameState extends GameState {
     /**
      * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
      *
-     * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
+     * @return a List of SchoolBoard containing the already initialized schoolBoards, students in the entrance included.
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
      */
     @Override
@@ -87,18 +95,34 @@ public class ExpertGameState extends GameState {
         }
     }
 
+    /**
+     * This method refills the PlayableCharactersWithStudents that may have been used during a turn
+     * @param playableCharacter is the PlayableCharacter to be refilled
+     * @throws EmptyStudentSupplyException if the student supply is empty and the refill couldn't be completed
+     */
     private void refillGivenCharacter(PlayableCharacter playableCharacter) throws EmptyStudentSupplyException {
         while (playableCharacter.getStudents() != null && playableCharacter.getStudents().size() < playableCharacter.getInitialStudentsNumberOnCharacter())
             playableCharacter.addStudent(this.studentFactory.getStudent());
     }
 
+    /**
+     * This method refills the PlayableCHaracter that was played during the turn
+     * @throws EmptyStudentSupplyException if the student supply is empty and the refill couldn't be completed
+     */
     public void refillCharacter() throws EmptyStudentSupplyException {
         this.refillGivenCharacter(this.characterPlayedInCurrentTurn);
     }
 
-    //RULES MODIFIERS
 
-    //1 OK AND TESTED
+    /**
+     * This method executes the effect of the character with ID 1. It takes one student from the character and puts it on the inputted archipelago
+     * @param color represents the student to be moved
+     * @param archipelagoIslandCode represent the archipelago onto which the inputted student will be moved
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+     * @throws StudentNotOnCharacterException if the inputted student is not actually present on character
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playPutOneStudentFromCharacterToArchipelago(Color color, int archipelagoIslandCode) throws MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, NotEnoughCoinsException {
         if(color == null) throw new IllegalArgumentException();
@@ -123,7 +147,12 @@ public class ExpertGameState extends GameState {
 
     }
 
-    //2 OK AND TESTED
+    /**
+     * This method executes the effect of the character with ID 2. It allows the player to take control of the a professor even if he has the same number of
+     * students on the corresponding diningRoom table
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playGetProfessorsWithSameStudents() throws MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId).findFirst();
@@ -146,6 +175,9 @@ public class ExpertGameState extends GameState {
         return super.compareCurrentPlayersStudentsNumberWithOthersMax(currentPlayerNumberOfStudentsInDiningRoomLane,otherSchoolBoardsMaxStudentsInDiningRoomLane);
     }
 
+    /**
+     * This method assigns the professors after the activation of the effect of the character with ID 2
+     */
     protected void assignProfessorsWithEffect(){
         for (Color professor: Color.values()) {
             Integer previousOwnerSchoolBoardId = this.assignProfessor(professor).get(professor);
@@ -154,6 +186,10 @@ public class ExpertGameState extends GameState {
         }
     }
 
+
+    /**
+     * This method resets the ownership (with the normal rules) of every professor after the effect of the character is finished
+     */
     @Override
     public void assignProfessorsAfterEffect() {
         Integer professorToOriginalOwnerSchoolBoardId;
@@ -174,7 +210,14 @@ public class ExpertGameState extends GameState {
         }
     }
 
-    //3 OK AND TESTED
+    /**
+     * This method executes the effect of the character with ID 3. It allows the player to move mother nature to any archipelago.
+     * @param archipelagoIslandCode represent an archipelago through one of its codes
+     * @return true if the archipelagos merged as a result, false otherwise
+     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public boolean playMoveMotherNatureToAnyArchipelago(int archipelagoIslandCode) throws InvalidArchipelagoIdException, MoveNotAvailableException, NotEnoughCoinsException {
         boolean mergePreviousPerformed = false;
@@ -212,7 +255,11 @@ public class ExpertGameState extends GameState {
         return mergePreviousPerformed || mergeNextPerformed;
     }
 
-    //4 OK AND TESTED
+    /**
+     * This method executes the effect of the character with ID 4. It allows the player to move mother nature for 2 additional steps.
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playTwoAdditionalSteps() throws MoveNotAvailableException, NotEnoughCoinsException {
 
@@ -239,13 +286,26 @@ public class ExpertGameState extends GameState {
     }
 
 
-    //5 OK AND TESTED
+    /**
+     *
+     * @param archipelagoToLock is the archipelago that will be locked
+     * @throws ArchipelagoAlreadyLockedException if the inputted Archipelago is already locked
+     */
     private void lockArchipelago(Archipelago archipelagoToLock) throws ArchipelagoAlreadyLockedException {
         if(archipelagoToLock == null) throw new IllegalArgumentException();
 
         archipelagoToLock.lock();
     }
 
+    /**
+     * This method executes the effect of the character with ID 5. It allows the player to lock an archipelago of choice.
+     * @param archipelagoIslandCode represent an archipelago through one of its codes
+     * @throws NoAvailableLockException if there are no locks available on the character
+     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+     * @throws ArchipelagoAlreadyLockedException if the inputted Archipelago is already locked
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playCharacterLock(int archipelagoIslandCode) throws NoAvailableLockException, InvalidArchipelagoIdException, ArchipelagoAlreadyLockedException, MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId).findFirst();
@@ -267,6 +327,9 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
+    /**
+     * This method unlocks the archipelago onto which mother nature terminates its movement
+     */
     @Override
     public void unlockMotherNaturePosition(){
         var tmp = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId).findFirst();
@@ -276,13 +339,21 @@ public class ExpertGameState extends GameState {
         }
     }
 
-    //6 OK AND TESTED
+    /**
+     * @param doTowersCount is true if the towers will have to count during the influence calculation, false otherwise
+     */
     @Override
     public void setTowersInfluenceForAllArchipelagos(boolean doTowersCount){
         for (Archipelago archipelago: this.archipelagos) {
             archipelago.setTowersInfluence(doTowersCount);
         }
     }
+
+    /**
+     * This method executes the effect of the character with ID 6. It sets the influence given by the towers on every archipelago to zero.
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playTowersDontCount() throws MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.TOWERS_DONT_COUNT.characterId).findFirst();
@@ -298,7 +369,17 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
-    //7 OK AND TESTED
+    /**
+     * This method executes the effect of the character with ID 7. It allows the player to swap up to three students between its schoolBoard's entrance
+     * and the character
+     * @param studentsFromCharacter is a list representing the students to get from the character
+     * @param studentsFromEntrance is a list representing the students to give from the entrance
+     * @throws InvalidStudentListsLengthException if the two inputted lists have different lengths
+     * @throws StudentNotOnCharacterException if one of the elements of studentsFromCharacter is not actually present on the character
+     * @throws StudentNotInTheEntranceException if one of the elements of studentsFromCharacter is not actually present in the entrance
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playSwapThreeStudentsBetweenCharacterAndEntrance(List<Color> studentsFromCharacter, List<Color> studentsFromEntrance) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotOnCharacterException, StudentNotInTheEntranceException, NotEnoughCoinsException {
         if(studentsFromCharacter == null || studentsFromEntrance == null || studentsFromCharacter.contains(null) || studentsFromEntrance.contains(null)) throw new IllegalArgumentException();
@@ -329,7 +410,11 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
-    //8 OK AND TESTED
+    /**
+     * This method executes the effect of the character with ID 8. It allows the player to get 2 additional units of influence during the influence calculation.
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playTwoAdditionalInfluence() throws MoveNotAvailableException, NotEnoughCoinsException {
         Optional<PlayableCharacter> selectedCharacter = this.availableCharacters.stream().filter(character -> character.getCharacterId() == Character.TWO_ADDITIONAL_INFLUENCE.characterId).findFirst();
@@ -344,6 +429,11 @@ public class ExpertGameState extends GameState {
 
     }
 
+    /**
+     * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputted archipelago
+     * @param archipelagoIslandCodes is a List of Integer uniquely identifying an archipelago
+     * @return a Map Integer, Integer where the key is the schoolBoardId and the value is the influence on the inputted archipelago
+     */
     @Override
     public Optional<Map<Integer, Integer>> getInfluence(List<Integer> archipelagoIslandCodes) {
         Optional<Map<Integer, Integer>> schoolBoardToInfluenceMap = super.getInfluence(archipelagoIslandCodes);
@@ -353,12 +443,19 @@ public class ExpertGameState extends GameState {
         return schoolBoardToInfluenceMap;
     }
 
-    //9 OK AND TESTED
+
     private void setColorThatDoesntCountForAllArchipelagos(Color color){
         for (Archipelago archipelago: this.archipelagos) {
             archipelago.setColorThatDoesntCount(color);
         }
     }
+
+    /**
+     * This method executes the effect of the character with ID 9. It allows the player to choose a color that won't count during the influence calculation.
+     * @param color is the color that won't count during the influence calculation
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playColorDoesntCount(Color color) throws MoveNotAvailableException, NotEnoughCoinsException {
         if(color == null) throw new IllegalArgumentException();
@@ -375,12 +472,23 @@ public class ExpertGameState extends GameState {
 
         this.payCharacter();
     }
+
     @Override
     public void resetColorThatDoesntCountForAllArchipelagos(){
         this.setColorThatDoesntCountForAllArchipelagos(null);
     }
 
-    //10 OK AND TESTED
+    /**
+     * This method executes the effect of the character with ID 10. It allows the player to swap up to two students between its entrance and diningRoom.
+     * @param studentFromEntrance is the list of students to get from the entrance
+     * @param studentsFromDiningRoom is the list of students to get from the diningRoom
+     * @throws InvalidStudentListsLengthException if the two inputted lists have different lengths
+     * @throws StudentNotInTheEntranceException if one of the elements of studentsFromCharacter is not actually present in the entrance
+     * @throws FullDiningRoomLaneException if the diningRoom table corresponding to one of the colors is full
+     * @throws StudentsNotInTheDiningRoomException if the one of the elements of studentsFromEntrance is not actually present in the entrance
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playSwapTwoStudentsBetweenEntranceAndDiningRoom(List<Color> studentFromEntrance, List<Color> studentsFromDiningRoom) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotInTheEntranceException, FullDiningRoomLaneException, StudentsNotInTheDiningRoomException, NotEnoughCoinsException {
         if(studentsFromDiningRoom == null || studentFromEntrance == null || studentsFromDiningRoom.contains(null) || studentFromEntrance.contains(null)) throw new IllegalArgumentException();
@@ -411,12 +519,21 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
-    //11 OK AND TESTED
+    //11
     private void putOneStudentFromCharacterToDiningRoom(PlayableCharacter selectedCharacter, Color student) throws StudentNotOnCharacterException, FullDiningRoomLaneException {
         if(!selectedCharacter.removeStudent(student)) throw new StudentNotOnCharacterException();
 
         this.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(student);
     }
+
+    /**
+     * This method executes the effect of the character with ID 11. It allows the player to get one student from the character and put it into his diningRoom
+     * @param color represents the student to be moved from the character to the diningRoom
+     * @throws StudentNotOnCharacterException if one of the elements of studentsFromCharacter is not actually present on the character
+     * @throws FullDiningRoomLaneException if the diningRoom table corresponding to one of the colors is full
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void playPutOneStudentFromCharacterToDiningRoom(Color color) throws StudentNotOnCharacterException, FullDiningRoomLaneException, MoveNotAvailableException, NotEnoughCoinsException {
         if(color == null) throw new IllegalArgumentException();
@@ -434,7 +551,7 @@ public class ExpertGameState extends GameState {
         this.payCharacter();
     }
 
-    //12 OK AND TESTED
+    //12
     private void putThreeStudentsInTheBag(Color color) throws StudentsNotInTheDiningRoomException {
         for (SchoolBoard schoolBoard: this.schoolBoards ) {
             for (int i = 0; i < 3; i++) {
@@ -445,6 +562,16 @@ public class ExpertGameState extends GameState {
             }
         }
     }
+
+    /**
+     * This method executes the effect of the character with ID 12. It makes every player to get three students of the inputted color from the diningRoom
+     * and put them into the bag
+     * @param color is the color of the students that have to be removed from the diningRoom
+     * @throws StudentsNotInTheDiningRoomException if the one of the elements of studentsFromEntrance is not actually present in the entrance
+     * @throws MoveNotAvailableException if the move is not available in the game
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+
+     */
     @Override
     public void playPutThreeStudentsInTheBag(Color color) throws MoveNotAvailableException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException {
         if(color == null) throw new IllegalArgumentException();
@@ -484,6 +611,10 @@ public class ExpertGameState extends GameState {
         }
     }
 
+    /**
+     * This method returns the light version of the GameState, with all the useful information to be sent over the network
+     * @return a LightGameState representing the light version of the GameState, with all the useful information to be sent over the network
+     */
     @Override
     public LightGameState lightify() {
         return new LightGameState(

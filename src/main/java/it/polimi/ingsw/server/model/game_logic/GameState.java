@@ -6,6 +6,7 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.Invali
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
 import it.polimi.ingsw.server.event_sourcing.Aggregate;
 import it.polimi.ingsw.server.event_sourcing.Event;
+import it.polimi.ingsw.server.event_sourcing.exceptions.EventSourcingException;
 import it.polimi.ingsw.server.model.game_logic.enums.*;
 import it.polimi.ingsw.server.model.game_logic.events.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
@@ -138,7 +139,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     /**
      * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
-     * @return a List<Archipelago> containing all the already initialized and ready to use archipelagos of the game
+     * @return a List of Archipelago containing all the already initialized and ready to use archipelagos of the game
      */
     private List<Archipelago> initializeArchipelagos() throws EmptyStudentSupplyException {
         Archipelago newArchipelago;
@@ -185,14 +186,13 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     /**
      * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
      * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
-     * @return a List<SchoolBoard> containing the already initialized schoolBoards, students in the entrance included.
+     * @return a List of SchoolBoard containing the already initialized schoolBoards, students in the entrance included.
      */
     protected List<SchoolBoard> initializeSchoolBoards() throws EmptyStudentSupplyException {
         return this.strategy.initializeSchoolBoards(this.studentFactory);
     }
 
     // Game flow methods
-
 
     /**
      * The current player plays the given card
@@ -225,13 +225,18 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     }
 
-    public void apply(Event event) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void apply(Event event) throws EventSourcingException {
         if(this.studentFactory != null)
             Randomizer.setSeed(event.id.getLeastSignificantBits());
-        Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
-        handler.invoke(this, event);
-    }
 
+        try {
+            // Invoke the correct handler based on the event.handlerName
+            Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
+            handler.invoke(this, event);
+        } catch (Exception e) {
+            throw new EventSourcingException(e.getMessage(), e);
+        }
+    }
 
     /**
      * This method gets int cloudIndex in input identifying a cloud and fills the cloud with students taken from the studentSupply
@@ -248,6 +253,15 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         this.addEvent(event);
     }
 
+    public void fillCloudHandler(FillCloudEvent event) throws EmptyStudentSupplyException, IllegalArgumentException {
+        var cloudIndex = event.cloudIndex;
+
+        if(cloudIndex >= this.numberOfPlayers || cloudIndex < 0) throw new IllegalArgumentException();
+        List<Color> chosenCloud = this.clouds.get(cloudIndex);
+        if(!chosenCloud.isEmpty()) throw new FullCloudException();
+        chosenCloud.addAll(this.studentFactory.getNStudents(this.numberOfStudentsInEachCloud));
+    }
+
     private void addEvent(Event event) {
         try {
             if(repository!= null)
@@ -259,15 +273,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     private void updateSeed(Event event) {
         Randomizer.setSeed(event.id.getLeastSignificantBits());
-    }
-
-    public void fillCloudHandler(FillCloudEvent event) throws EmptyStudentSupplyException, IllegalArgumentException {
-        var cloudIndex = event.cloudIndex;
-
-        if(cloudIndex >= this.numberOfPlayers || cloudIndex < 0) throw new IllegalArgumentException();
-        List<Color> chosenCloud = this.clouds.get(cloudIndex);
-        if(!chosenCloud.isEmpty()) throw new FullCloudException();
-        chosenCloud.addAll(this.studentFactory.getNStudents(this.numberOfStudentsInEachCloud));
     }
 
     /**
@@ -385,7 +390,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         return professorToPreviousOwnerMap;
     }
-    
+
     protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane){
         return currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane;
     }
@@ -423,15 +428,9 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     /**
      * Shifts mother nature's position one step clockwise
      */
-    private void moveMotherNatureOneStepClockwise() {
+    public void moveMotherNatureOneStepClockwise() {
         this.motherNaturePosition = this.getNextArchipelago();
     }
-
-    public void moveMotherNatureOneStepClockwiseForTesting() {
-        this.motherNaturePosition = this.getNextArchipelago();
-    }
-
-
 
     /**
      * Shifts mother nature's position by the provided numberOfSteps
@@ -476,7 +475,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         this.motherNaturePosition.setTowerColor(playerTowerColor);
     }
-
 
     /**
      * Merges the archipelago mother nature is currently in with the archipelago on the left (one step counter-clockwise with respect to mother nature's position)
@@ -534,7 +532,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
     }
 
     /**
-     *
+     * This method checks the winning conditions and returns a map linking every schoolBord ID to a boolean indicating if the schoolBoard is a winner or not
      * @return a map schoolBoardId -> isWinner
      */
     public Map<Integer, Boolean> checkWinners(){
@@ -614,10 +612,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return this.archipelagos.size() <= 3;
     }
 
-
-
     //Setters
-
 
     public void setRoundOrder(List<Integer> roundOrder) {
         var parentUuid = UUID.randomUUID();
@@ -784,15 +779,14 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
                 .findFirst();
     }
 
-
     protected SchoolBoard getCurrentPlayerSchoolBoard() {
         return this.getSchoolBoardFromSchoolBoardId(this.currentPlayerSchoolBoardId);
     }
 
     /**
      * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputted archipelago
-     * @param archipelagoIslandCodes is a List<Integer> uniquely identifying an archipelago
-     * @return a Map<Integer, Integer> where the key is the schoolBoardId and the value is the influence on the inputted archipelago
+     * @param archipelagoIslandCodes is a List of Integer uniquely identifying an archipelago
+     * @return a Map Integer, Integer where the key is the schoolBoardId and the value is the influence on the inputted archipelago
      */
     public Optional<Map<Integer, Integer>> getInfluence(List<Integer> archipelagoIslandCodes){
         Optional<Archipelago> chosenArchipelago = this.getArchipelagoFromIslandCodes(archipelagoIslandCodes);
@@ -813,9 +807,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return handlerReturn;
     }
 
-
     public int getNextTurnHandler(GetNextTurnEvent event) { return this.round.next(); }
-
 
     public int getNumberOfStudentsInTheEntrance(){
         return this.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size();
@@ -863,7 +855,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return new HashMap<>(this.schoolBoardIdsToCardPlayedThisRound);
     }
 
-    //todo doc
     public void resetSchoolBoardIdsToCardsPlayerThisRound(){
         var parentUUID = UUID.randomUUID();
         var event = new ResetSchoolBoardIdsToCardsPlayerThisRoundEvent(parentUUID);
@@ -873,7 +864,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         this.addEvent(event);
     }
 
-    //todo doc
     public void resetSchoolBoardIdsToCardsPlayerThisRoundHandler(ResetSchoolBoardIdsToCardsPlayerThisRoundEvent event) {
         this.schoolBoardIdsToCardPlayedThisRound.clear();
     }
@@ -899,7 +889,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         this.addEvent(event);
     }
 
-    //todo doc
     public void setActionPhaseSubTurnHandler(SetActionPhaseSubTurnEvent event) {
         var actionPhaseSubTurn = event.actionPhaseSubTurn;
         this.round.setActionPhaseSubTurn(actionPhaseSubTurn);

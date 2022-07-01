@@ -33,7 +33,13 @@ public class ExpertCommunicationController extends CommunicationController {
         return new ExpertGameStateController(gameUUID);
     }
 
-    //Handler that manages characterIds 2,4,6,8
+    /**
+     * This is the handler of the messages for the characters with ID 2,4,6 and 8. It manages all the exceptions related to the rules of the game
+     * and notifies the player with the result.
+     * @param message is the CharacterIndexMsg received from the player
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the result of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage characterIndexMsg(CharacterIndexMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -57,7 +63,12 @@ public class ExpertCommunicationController extends CommunicationController {
         }
     }
 
-    //Handler that manages characterIds 3 and 5 - specifically conquer archipelago of choice and lock archipelago
+    /**
+     * This is the handler of the messages for the characters with ID 3 and 5. It manages all the exceptions related to the rules of the game and notifies the player with the result.
+     * @param message is the CharacterIndexArchipelagoMsg received from the player
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the result of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage characterIndexArchipelagoMsg(CharacterIndexArchipelagoMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -93,7 +104,12 @@ public class ExpertCommunicationController extends CommunicationController {
         }
     }
 
-    //Handler that manages characterIds 9,11,12
+    /**
+     * This is the handler of the messages for the characters with ID 9, 11 and 12. It manages all the exceptions related to the rules of the game and notifies the player with the result.
+     * @param message is the CharacterIndexColorMsg received from the player
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the result of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage characterIndexColorMsg(CharacterIndexColorMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -123,6 +139,12 @@ public class ExpertCommunicationController extends CommunicationController {
         }
     }
 
+    /**
+     * This is the handler of the messages for the characters with ID 1. It manages all the exceptions related to the rules of the game and notifies the player with the result.
+     * @param message is the CharacterIndexColorArchipelagoMsg received from the player
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the result of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage characterIndexColorArchipelagoMsg(CharacterIndexColorArchipelagoMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -151,6 +173,12 @@ public class ExpertCommunicationController extends CommunicationController {
 
     }
 
+    /**
+     * This is the handler of the messages for the characters with ID 1. It manages all the exceptions related to the rules of the game and notifies the player with the result.
+     * @param message is the CharacterIndexColorListsMsg received from the player
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the result of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage characterIndexColorListsMsg(CharacterIndexColorListsMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -184,6 +212,12 @@ public class ExpertCommunicationController extends CommunicationController {
         }
     }
 
+    /**
+     * This is the handler of the messages for the characters with ID 1. It manages all the exceptions related to the rules of the game and notifies the player with the result.
+     * @param message is the RollbackMsg received from the player
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the result of the invocation
+     */
     @SugarMessageHandler
     @Override
     public SugarMessage rollbackMsg(RollbackMsg message, Peer peer) {
@@ -193,6 +227,12 @@ public class ExpertCommunicationController extends CommunicationController {
         return new KOMsg("Rollback not available");
     }
 
+    /**
+     * This is the handler of the messages for the characters with ID 1. It manages all the exceptions related to the rules of the game and notifies the player with the result.
+     * @param message is the EndTurnMsg received from the player
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the result of the invocation
+     */
     @SugarMessageHandler
     @Override
     public SugarMessage endTurnMsg(EndTurnMsg message, Peer peer) {

@@ -31,6 +31,13 @@ public class ExpertGameStateController extends GameStateController {
         return new ExpertGameState(playersNumber);
     }
 
+    /**
+     * This method performs the generic checks on the input before applying the effect
+     * @param characterIndex is the index of the character that the player inputted
+     * @throws WrongPhaseException if the effect is activated during the wrong phase
+     * @throws MoveAlreadyPlayedException if another character was activated during this turn
+     * @throws InvalidCharacterIndexException if the character index is outside the bounds of the availableCharacters list
+     */
     private void applyEffectGenericChecks(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException {
         if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();
 
@@ -39,6 +46,16 @@ public class ExpertGameStateController extends GameStateController {
         if(characterIndex < 0 || characterIndex >= this.gameState.getAvailableCharacters().size()) throw new InvalidCharacterIndexException();
     }
 
+    /**
+     * This method applies the effect of the character corresponding to the inputted character index.
+     * @param characterIndex is the index of the character to be activated
+     * @throws WrongPhaseException if the effect is activated during the wrong phase
+     * @throws MoveAlreadyPlayedException if another character was activated during this turn
+     * @throws InvalidCharacterIndexException if the character index is outside the bounds of the availableCharacters list
+     * @throws MoveNotAvailableException if the move is not present in availableCharacters
+     * @throws WrongArgumentsException if the character linked to the inputted index and the list of arguments are incompatible
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void applyEffect(int characterIndex) throws WrongPhaseException, MoveAlreadyPlayedException, InvalidCharacterIndexException, MoveNotAvailableException, WrongArgumentsException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
@@ -58,6 +75,22 @@ public class ExpertGameStateController extends GameStateController {
 
     }
 
+    /**
+     * This method applies the effect of the character corresponding to the inputted character index.
+     * @param characterIndex is the index of the character to be activated
+     * @param archipelagoIslandCode is a code that identifies a single archipelago
+     * @return true if a merge was performed, false otherwise
+     * @throws InvalidCharacterIndexException if the character index is outside the bounds of the availableCharacters list
+     * @throws ArchipelagoAlreadyLockedException if the archipelago to be locked is already locked
+     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+     * @throws WrongPhaseException if the effect is activated during the wrong phase
+     * @throws MoveAlreadyPlayedException if another character was activated during this turn
+     * @throws MoveNotAvailableException if the move is not present in availableCharacters
+     * @throws NoAvailableLockException if no locks are available on the character
+     * @throws WrongArgumentsException if the character linked to the inputted index and the list of arguments are incompatible
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     * @throws GameOverException if one of the gameOver conditions is met with the activation of the effect
+     */
     @Override
     public boolean applyEffect(int characterIndex, int archipelagoIslandCode) throws InvalidCharacterIndexException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, WrongPhaseException, MoveAlreadyPlayedException, MoveNotAvailableException, NoAvailableLockException, WrongArgumentsException, NotEnoughCoinsException, GameOverException {
 
@@ -80,6 +113,20 @@ public class ExpertGameStateController extends GameStateController {
         return mergePerformed;
     }
 
+    /**
+     * This method applies the effect of the character corresponding to the inputted character index.
+     * @param characterIndex is the index of the character to be activated
+     * @param color is the color involved in the effect of the character
+     * @throws InvalidCharacterIndexException if the character index is outside the bounds of the availableCharacters list
+     * @throws MoveAlreadyPlayedException if another character was activated during this turn
+     * @throws WrongPhaseException if the effect is activated during the wrong phase
+     * @throws MoveNotAvailableException if the move is not present in availableCharacters
+     * @throws StudentNotOnCharacterException if the inputted student is not present on the character
+     * @throws FullDiningRoomLaneException if the diningRoom table corresponding to the inputted student is already full
+     * @throws WrongArgumentsException if the character linked to the inputted index and the list of arguments are incompatible
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     * @throws StudentsNotInTheDiningRoomException if the inputted student is not present in the diningRoom
+     */
     @Override
     public void applyEffect(int characterIndex, Color color) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, StudentNotOnCharacterException, FullDiningRoomLaneException, WrongArgumentsException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException {
         this.applyEffectGenericChecks(characterIndex);
@@ -97,6 +144,20 @@ public class ExpertGameStateController extends GameStateController {
             throw new WrongArgumentsException();
     }
 
+    /**
+     * This method applies the effect of the character corresponding to the inputted character index.
+     * @param characterIndex is the index of the character to be activated
+     * @param color is the color involved in the effect of the character
+     * @param archipelagoIslandCode is a code that identifies a single archipelago
+     * @throws InvalidCharacterIndexException if the character index is outside the bounds of the availableCharacters list
+     * @throws MoveAlreadyPlayedException if another character was activated during this turn
+     * @throws WrongPhaseException if the effect is activated during the wrong phase
+     * @throws MoveNotAvailableException if the move is not present in availableCharacters
+     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+     * @throws StudentNotOnCharacterException if the inputted student is not present on the character
+     * @throws WrongArgumentsException if the character linked to the inputted index and the list of arguments are incompatible
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void applyEffect(int characterIndex, Color color, int archipelagoIslandCode) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, WrongArgumentsException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
@@ -109,6 +170,23 @@ public class ExpertGameStateController extends GameStateController {
             throw new WrongArgumentsException();
     }
 
+    /**
+     * This method applies the effect of the character corresponding to the inputted character index.
+     * @param characterIndex is the index of the character to be activated
+     * @param getStudents is the list of students to get
+     * @param giveStudents is the list of students to give
+     * @throws InvalidCharacterIndexException if the character index is outside the bounds of the availableCharacters list
+     * @throws MoveAlreadyPlayedException if another character was activated during this turn
+     * @throws WrongPhaseException if the effect is activated during the wrong phase
+     * @throws WrongArgumentsException if the character linked to the inputted index and the list of arguments are incompatible
+     * @throws InvalidStudentListsLengthException if the length of the getStudents and giveStudents is not equal
+     * @throws StudentNotInTheEntranceException if one of the elements of getStudents is not actually present in the entrance
+     * @throws StudentNotOnCharacterException if the inputted student is not present on the character
+     * @throws MoveNotAvailableException if the move is not present in availableCharacters
+     * @throws StudentsNotInTheDiningRoomException if the inputted student is not present in the diningRoom
+     * @throws FullDiningRoomLaneException if the diningRoom table corresponding to the inputted student is already full
+     * @throws NotEnoughCoinsException if the player doesn't have enough coins to activate the character
+     */
     @Override
     public void applyEffect(int characterIndex, List<Color> getStudents, List<Color> giveStudents) throws InvalidCharacterIndexException, MoveAlreadyPlayedException, WrongPhaseException, WrongArgumentsException, InvalidStudentListsLengthException, StudentNotInTheEntranceException, StudentNotOnCharacterException, MoveNotAvailableException, StudentsNotInTheDiningRoomException, FullDiningRoomLaneException, NotEnoughCoinsException {
         this.applyEffectGenericChecks(characterIndex);
@@ -138,6 +216,10 @@ public class ExpertGameStateController extends GameStateController {
         return merged;
     }
 
+    /**
+     * This method advances the turn during the action phase, after a player ended its turn.
+     * @throws GameOverException if a gameOver condition has occurred
+     */
     @Override
     protected void nextActionTurn() throws GameOverException {
         try{

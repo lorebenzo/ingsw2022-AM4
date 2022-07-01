@@ -495,7 +495,7 @@ public class GameStateControllerTest {
         GameStateController gameStateController = new GameStateController(2);
 
         for (int i = 0; i < 7; i++) {
-            gameStateController.gameState.moveMotherNatureOneStepClockwiseForTesting();
+            gameStateController.gameState.moveMotherNatureOneStepClockwise();
             gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
             gameStateController.gameState.mergeWithPrevious();
         }
@@ -529,7 +529,7 @@ public class GameStateControllerTest {
         GameStateController gameStateController = new GameStateController(2);
 
         for (int i = 0; i < 6; i++) {
-            gameStateController.gameState.moveMotherNatureOneStepClockwiseForTesting();
+            gameStateController.gameState.moveMotherNatureOneStepClockwise();
             gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
             gameStateController.gameState.mergeWithPrevious();
         }
@@ -537,7 +537,7 @@ public class GameStateControllerTest {
         gameStateController.gameState.setCurrentPlayerSchoolBoardId(1);
 
         for (int i = 0; i < 4; i++) {
-            gameStateController.gameState.moveMotherNatureOneStepClockwiseForTesting();
+            gameStateController.gameState.moveMotherNatureOneStepClockwise();
             gameStateController.gameState.conquerArchipelago(gameStateController.getCurrentPlayerSchoolBoardId());
             gameStateController.gameState.mergeWithPrevious();
         }
