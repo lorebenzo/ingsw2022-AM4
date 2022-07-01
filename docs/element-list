@@ -29,6 +29,7 @@ it.polimi.ingsw.server.controller.games_manager
 it.polimi.ingsw.server.controller.games_manager.messages
 it.polimi.ingsw.server.controller.games_manager.messages.enums
 it.polimi.ingsw.server.event_sourcing
+it.polimi.ingsw.server.event_sourcing.exceptions
 it.polimi.ingsw.server.model.game_logic
 it.polimi.ingsw.server.model.game_logic.entities
 it.polimi.ingsw.server.model.game_logic.enums
