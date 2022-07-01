@@ -1,59 +1,59 @@
 # Eriantys
 ![alt text](./resources/assets/backgrounds/eryantis_background.png "Eryantis")
 
-# Server
+# The game
+Hidden by the white whiteness of the clouds, there is a world where floating islands are home to great schools for the young creatures of the five magical realms. Sweet little dragons, clumsy fairies, mischievous elves, little unicorns and frogs who dream of becoming princes show up at the doors of the schools, with the hope of being admitted into the great hall and being able to admire the famous professors of their kingdom. Run one of the four great schools of Eriantys and compete with other wizards to increase your fame!
 
-Build the server and the client using
-```
-mvn package
-```
+## Students
+ - [Baldessari Guido](https://github.com/guidobalde)
+ - [Benzoni Lorenzo](https://github.com/lorebenzo)
+ - [Cartechini Giacomo](https://github.com/Ax-Time)
 
-### Database
+## Features Implemented
 
-For running the server, you need a **PostgreSQL** database.
-You can run it on your machine, or with Docker.
-
-#### Mac/Linux
-
-Run the Docker Image with DockerCompose, it'll build the image the first time
-
-```
-make up
-```
-
-#### Windows
-Build the Docker Image
-```
-docker-compose build
-```
-
-Run the Docker Image with DockerCompose
-```
-docker-compose up
-```
+|               Feature | FA  | Implemented |
+|----------------------:|-----|-------------|
+|           Basic Rules | no  | ✅           |
+|                   CLI | no  | ✅           |
+|                Socket | no  | ✅           |
+|                   GUI | no  | ✅           |
+|            Characters | yes | ✅           |
+|        4 Players Game | yes | ✅           |
+|        Multiple Games | yes | ✅           |       
+|           Persistence | yes | ✅           |     
+| Connection resilience | yes | ✅           |   
+|    JWT Authentication | no  | ✅           | 
+|        Event Sourcing | no  | ✅           |
 
 
 ------------
 
-### Server
+### JavaDocs
 
-You can start the server with
-```
-make run-server
-```
-The Server connects to the database, looking in the .env file in the **root** directory.
+Javadocs are available [here](https://lorebenzo.github.io/ingsw2022-AM4/)
 
-The default configuration of the database is:
-```
-DB_HOST: localhost
-DB_NAME: game
-DB_USER: user
-DB_PASSWORD: password
-```
 
-# Client
+### Installation
 
-You can run the Client using
-```
-make run-client
-```
+Installation wiki is available [here](https://github.com/lorebenzo/ingsw2022-AM4/wiki/Installation)
+
+
+### Compiling
+
+Compile wiki is available [here](https://github.com/lorebenzo/ingsw2022-AM4/wiki/Compiling)
+
+### How to run Server
+
+
+### How to run Client
+
+
+### Software/Technologies used
+
+- Docker
+- Docker Compose
+- JWT
+- Postgres
+- IntelliJ IDEA
+- Git
+- CircleCI
