@@ -3,12 +3,12 @@
 
 # Server
 
-###Database
+### Database
 
 For running the server, you need a **PostgreSQL** database.
 You can run it on your machine, or with Docker.
 
-####Mac/Linux
+#### Mac/Linux
 
 Run the Docker Image with DockerCompose, it'll build the image the first time
 
