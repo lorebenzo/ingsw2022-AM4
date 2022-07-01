@@ -37,6 +37,11 @@ public class LightGameState {
         this.characterPlayedInCurrentTurn = characterPlayedInCurrentTurn;
     }
 
+    /**
+     * This method adds the userNames to the LightGameState
+     * @param usernameToSchoolBoardId is the map that links every schoolBoard ID to the corresponding userName
+     * @return a LightGameState with the newly added usernames
+     */
     public LightGameState addUsernames(Map<String, Integer> usernameToSchoolBoardId) {
         this.usernameToSchoolBoardId = usernameToSchoolBoardId;
         return this;

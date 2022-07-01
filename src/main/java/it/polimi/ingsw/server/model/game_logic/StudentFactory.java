@@ -38,6 +38,12 @@ public class StudentFactory {
         return chosen;
     }
 
+    /**
+     * This method returns the requested student color from the student supply and updates it accordingly
+     * @param student is the student to be drawn from the supply
+     * @return the student drawn from the supply
+     * @throws EmptyStudentSupplyException if the student supply doesn't contain any student of the inputted color
+     */
     public Color getStudent(Color student) throws EmptyStudentSupplyException {
         if(studentSupply.get(student) <= 0) throw new EmptyStudentSupplyException();
 
@@ -71,35 +77,18 @@ public class StudentFactory {
     }
 
     /**
-     * @throws EmptyStudentSupplyException if there aren't 2 students for each color available in the supply
-     * @return a list containing the students extracted for the initialization of the archipelagos according to the rulebook
+     * This method returns true if the student supply is empty
+     * @return true if the supply is empty, false otherwise
      */
-    public Queue<Color> getStudentsForArchipelagosInitialization() throws EmptyStudentSupplyException {
-        final int studentsToExtract = 10;
-        final int studentsPerColor = 2;
-        LinkedList<Color> colors = new LinkedList<>();
-        for(Color color : Color.values()) {
-            if(this.studentSupply.get(color) < studentsPerColor) throw new EmptyStudentSupplyException();
-
-            // Remove the students from the supply
-            this.studentSupply.put(color, this.studentSupply.get(color) - studentsPerColor);
-
-            // Add two students of the same color to the list
-            colors.add(color);
-            colors.add(color);
-        }
-
-        // Randomly sort the queue
-        Collections.shuffle(colors);
-
-        return colors;
-    }
-
     public boolean isEmpty() {
 
         return this.numberOfStudentsLeft() == 0;
     }
 
+    /**
+     * This method returns the total number of students left in the supply
+     * @return an int representing the number of students left in the supply
+     */
     public int numberOfStudentsLeft(){
         return this.studentSupply.values().stream().mapToInt(i -> i).sum();
     }

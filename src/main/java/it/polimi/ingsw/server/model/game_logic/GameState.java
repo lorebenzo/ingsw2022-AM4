@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class GameState extends Aggregate implements GameStateCommonInterface {
     protected int numberOfPlayers;
     protected NumberOfPlayersStrategy strategy;
-    private int numberOfTowers;
 
     private int numberOfStudentsInEachCloud;
     private int numberOfStudentsInTheEntrance;
@@ -78,6 +77,11 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         } catch(Exception ignored) {}
     }
 
+    /**
+     * This method initializes the gameState in all its parts according to the game's rules
+     * @param event is the event
+     * @throws GameStateInitializationFailureException
+     */
     public void initGameState(InitGameStateEvent event) throws GameStateInitializationFailureException {
         var numberOfPlayers = event.numberOfPlayers;
         var parentUUID = event.parentEvent;
@@ -173,6 +177,11 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return archipelagos;
     }
 
+    /**
+     *
+     * @param code
+     * @return
+     */
     protected Archipelago createArchipelago(int code){
         return new Archipelago(code);
     }
@@ -278,7 +287,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
             fillCloud(cloudIndex);
     }
 
-
     /**
      * The current player grabs all the students from a cloud and puts them in the entrance
      * @param cloudIndex is the index of the cloud to pick the students from
@@ -344,7 +352,6 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         return handlerReturn;
     }
 
-
     public Map<Color, Integer> assignProfessorHandler(AssignProfessorEvent event) {
         var professor = event.professor;
         Map<Color, Integer> professorToPreviousOwnerMap = new HashMap<>();
@@ -352,7 +359,7 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
         if(professor == null) throw new IllegalArgumentException();
 
         //If the current player doesn't have the imputed professor in his professorsTable
-        if(!this.getCurrentPlayerSchoolBoard().getProfessorsTable().contains(professor)){
+        if(!this.getCurrentPlayerSchoolBoard().getProfessors().contains(professor)){
 
             //Get another schoolBoard from schoolBoards that isn't the currentPlayerSchoolbard
             Optional<SchoolBoard> otherSchoolBoardMaxOptional = this.schoolBoards.stream().filter(schoolBoard -> schoolBoard.getId() != this.currentPlayerSchoolBoardId).findFirst();
@@ -385,6 +392,13 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
         return professorToPreviousOwnerMap;
     }
+
+    /**
+     *
+     * @param currentPlayerNumberOfStudentsInDiningRoomLane
+     * @param otherSchoolBoardsMaxStudentsInDiningRoomLane
+     * @return
+     */
     protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane){
         return currentPlayerNumberOfStudentsInDiningRoomLane > otherSchoolBoardsMaxStudentsInDiningRoomLane;
     }
