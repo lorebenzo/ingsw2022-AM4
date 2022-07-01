@@ -1,6 +1,7 @@
 package it.polimi.ingsw.client.new_gui.views.player_view;
 
 import it.polimi.ingsw.client.new_gui.AssetHolder;
+import it.polimi.ingsw.client.new_gui.GUI;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.server.model.game_logic.Archipelago;
 import it.polimi.ingsw.server.model.game_logic.LightArchipelago;
@@ -9,6 +10,7 @@ import it.polimi.ingsw.server.model.game_logic.enums.Character;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
 import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
@@ -48,8 +50,9 @@ public class PromptRenderer {
         pane.getChildren().add(sizePane);
 
         // Render towers if they are present
+        /*
         if(!archipelago.towerColor.equals(TowerColor.NONE)) {
-            for(int i = 0; i < 3 /* safety */ && i < archipelago.islandCodes.size(); i++) {
+            for(int i = 0; i < 3 && i < archipelago.islandCodes.size(); i++) {
                 var towerRect = Layout.promptRect.relativeToThis(
                         60 + i * 13.33, 40, 13.33, 22
                 );
@@ -57,6 +60,26 @@ public class PromptRenderer {
                 towerRect.fitImageViewToThis(towerImgView);
                 pane.getChildren().add(towerImgView);
             }
+        }
+        */
+
+        if(!archipelago.towerColor.equals(TowerColor.NONE)) {
+            int towersRelX = 60, towersRelY = 40;
+
+            var towerRect = Layout.promptRect.relativeToThis(towersRelX, towersRelY, 13, 22);
+            var towerImgView = new ImageView(AssetHolder.towerColorImageMap.get(archipelago.towerColor));
+            towerRect.fitImageViewToThis(towerImgView);
+
+            var towerNumber = new Text("x " + archipelago.islandCodes.size());
+            towerNumber.setStyle("-fx-font-weight: bold");
+
+            var hBox = new HBox();
+            hBox.getChildren().addAll(towerImgView, towerNumber);
+
+            hBox.setLayoutX(GUI.SizeHandler.getX(towerRect.relX));
+            hBox.setLayoutY(GUI.SizeHandler.getY(towerRect.relY));
+
+            pane.getChildren().add(hBox);
         }
 
         return pane;
