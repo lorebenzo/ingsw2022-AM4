@@ -1,0 +1,27 @@
+Peer review protocollo di comunicazione
+
+CONS
+
+1.  All'inizio si parla di un id negli oggetti da serializzare che identifica il tipo di
+    ScreenDTO, sarebbe meglio specificare quali sono i possibili tipi di ScreenDTO e che
+    cosa rappresentano.
+2.  Non è chiaro quali siano le chiavi e i valori dell' Hash Map nell'oggetto da serializzare
+    (cosa significa "conterrà prevalentemente le possibili scelte lato Client sul gioco" ?)
+3.  Stesso problema nel messaggio di ritorno da client a server: quali sono tutti i
+    possibili tipi di risposta?
+4.  Nel primo diagramma: nella documentazione del protocollo di comunicazione è inutile e
+    fuorviante mostrare gli scambi di dati e le chiamate di funzione fra controller e model
+5.  Nel primo diagramma: quando viene descritto il primo messaggio viene affermato che il tipo
+    della chiave è AssistantList e il tipo del valore non è ben chiaro quando all'inizio si
+    era detto che i tipi dovevano essere <String, String>
+6.  Il termine "answer" è fuorviante, generalmente in letteratura (ad esempio HTTP) si è soliti
+    utilizzare i termini "request" e "response",
+7.  Nel secondo diagramma: vedi 4.
+8.  Abbiamo notato che è spesso il server a cominciare la comunicazione con il client
+    suggerendogli la mossa da fare, è la prima volta che vediamo una cosa simile e
+    ci saremmo aspettati di trovare una breve spiegazione riguardo questa scelta.
+
+
+PROS
+
+1. I messaggi sono configurabili.
