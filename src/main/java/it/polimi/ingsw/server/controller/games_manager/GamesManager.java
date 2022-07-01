@@ -309,7 +309,11 @@ public class GamesManager extends SugarMessageProcessor {
     @SugarMessageFromLowerLayersHandler
     public void gameOverMsg(GameOverMsg message, Peer receiver) {
         var gameInvolvingReceiver = findGameInvolvingPeer(receiver);
-        gameInvolvingReceiver.ifPresent(game -> this.gameLogicMulticast(game, message));
+        gameInvolvingReceiver.ifPresent(game -> {
+            this.gameLogicMulticast(game, message);
+            this.gamesRepository.removeFromCurrentGames(game.getGameUUID());
+            this.games.remove(game);
+        });
     }
 
 

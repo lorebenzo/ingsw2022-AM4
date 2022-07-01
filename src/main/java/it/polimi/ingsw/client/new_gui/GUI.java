@@ -100,7 +100,7 @@ public class GUI extends Application {
         this.setIconAndTitle(stage);
 
         // Start music
-        UserExperience.playSoundLoop(AssetHolder.backgroundMusic);
+//        UserExperience.playSoundLoop(AssetHolder.backgroundMusic);
 
         render();
 
