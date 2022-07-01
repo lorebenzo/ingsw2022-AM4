@@ -306,6 +306,13 @@ public class GamesManager extends SugarMessageProcessor {
         } catch (IOException ignored) { }
     }
 
+    @SugarMessageFromLowerLayersHandler
+    public void gameOverMsg(GameOverMsg message, Peer receiver) {
+        var gameInvolvingReceiver = findGameInvolvingPeer(receiver);
+        gameInvolvingReceiver.ifPresent(game -> this.gameLogicMulticast(game, message));
+    }
+
+
     @SugarMessageHandler
     public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
         var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);
