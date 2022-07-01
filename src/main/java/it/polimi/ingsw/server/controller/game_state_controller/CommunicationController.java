@@ -250,11 +250,10 @@ public class CommunicationController extends SugarMessageProcessor {
 
         try {
             boolean lastRound = this.gameStateController.endActionTurn();
-            //todo: fix
             try {
                 this.gameStateController.gameState.createSnapshot();
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println("Error while creating the snapshot, please check if the DB is connected");
             }
 
             return new OKAndUpdateMsg(

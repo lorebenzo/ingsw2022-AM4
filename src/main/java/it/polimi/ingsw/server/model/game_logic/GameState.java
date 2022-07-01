@@ -6,6 +6,7 @@ import it.polimi.ingsw.server.controller.game_state_controller.exceptions.Invali
 import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
 import it.polimi.ingsw.server.event_sourcing.Aggregate;
 import it.polimi.ingsw.server.event_sourcing.Event;
+import it.polimi.ingsw.server.event_sourcing.exceptions.EventSourcingException;
 import it.polimi.ingsw.server.model.game_logic.enums.*;
 import it.polimi.ingsw.server.model.game_logic.events.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
@@ -224,11 +225,17 @@ public class GameState extends Aggregate implements GameStateCommonInterface {
 
     }
 
-    public void apply(Event event) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void apply(Event event) throws EventSourcingException {
         if(this.studentFactory != null)
             Randomizer.setSeed(event.id.getLeastSignificantBits());
-        Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
-        handler.invoke(this, event);
+
+        try {
+            // Invoke the correct handler based on the event.handlerName
+            Method handler = this.getClass().getMethod(event.handlerName, event.getClass());
+            handler.invoke(this, event);
+        } catch (Exception e) {
+            throw new EventSourcingException(e.getMessage(), e);
+        }
     }
 
     /**

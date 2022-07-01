@@ -23,7 +23,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
         try {
             this.gameState = (GameState) GameState.loadFromUuid(gameUUID);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Problem while reconstruction of the aggregate");
         }
     }
 
@@ -57,7 +57,9 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
         try {
             this.gameState.createSnapshot();
-        } catch (Exception e) { /* TODO: benzo (non propagare exception a livello di controller) */ }
+        } catch (Exception e) {
+            System.err.println("Error while creating the snapshot, please check if the DB is connected");
+        }
 
         return this.gameState.isLastRound();
     }
@@ -176,8 +178,8 @@ public class GameStateController implements GameStateControllerCommonInterface {
     }
 
 
-    //TODO: remove cast
     public void rollback() {
+        // Cast because we are deserializing the snapshot from a JSON state
         this.gameState = (GameState) this.gameState.rollback();
     }
 

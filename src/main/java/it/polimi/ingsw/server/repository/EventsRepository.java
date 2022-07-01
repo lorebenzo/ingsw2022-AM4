@@ -159,28 +159,32 @@ public class EventsRepository {
         }
     }
 
-    public Aggregate getSnapshot(UUID aggregateID) throws SQLException {
+    public Aggregate getSnapshot(UUID aggregateID) throws DBQueryException {
         if(instance != null) {
-            Statement stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery("select * " +
-                    "from event.snapshots " +
-                    "where aggregate_id = '" + aggregateID + "' " +
-                    "order by version desc " +
-                    "fetch first 1 rows only;");
+            try {
+                Statement stmt = c.createStatement();
+                ResultSet rs = stmt.executeQuery("select * " +
+                        "from event.snapshots " +
+                        "where aggregate_id = '" + aggregateID + "' " +
+                        "order by version desc " +
+                        "fetch first 1 rows only;");
 
-            Aggregate aggregateParsed = null;
-            int version = 0;
-            while (rs.next()) {
-                String aggregate = rs.getString("snap");
-                version = rs.getInt("version");
+                Aggregate aggregateParsed = null;
+                int version = 0;
+                while (rs.next()) {
+                    String aggregate = rs.getString("snap");
+                    version = rs.getInt("version");
 
-                aggregateParsed = (GameState) SerDes.deserialize(aggregate, GameState.class);
+                    aggregateParsed = (GameState) SerDes.deserialize(aggregate, GameState.class);
+                }
+                rs.close();
+                stmt.close();
+                return aggregateParsed;
+            } catch (SQLException ignored) {
+                throw new DBQueryException();
             }
-            rs.close();
-            stmt.close();
-            return aggregateParsed;
-        } else {
-            return null;
         }
+
+        return null;
     }
 }
