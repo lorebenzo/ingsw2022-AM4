@@ -10,9 +10,8 @@ import it.polimi.ingsw.client.new_gui.input_handler.InputParams;
 import it.polimi.ingsw.client.new_gui.layout.Layout;
 import it.polimi.ingsw.client.new_gui.user_experience.UserExperience;
 import it.polimi.ingsw.server.model.game_logic.LightSchoolBoard;
-import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
 import it.polimi.ingsw.server.model.game_logic.enums.Color;
-import javafx.event.EventHandler;
+import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -134,12 +133,11 @@ public class SchoolBoardRenderer {
             }
         }
 
-        // Layer 4: coins
-        pane.getChildren().add(renderCoins(schoolBoard));
+        // Layer 4: info
+        pane.getChildren().add(renderInfo(schoolBoard));
 
         return pane;
     }
-
 
     private static ImageView renderStudent(
             Color color, GUI.Rectangle schoolBoardRect, double schoolBoardAbsX, double schoolBoardAbsY, double relX, double relY) {
@@ -257,25 +255,51 @@ public class SchoolBoardRenderer {
         ));
     }
 
-    private static VBox renderCoins(LightSchoolBoard schoolBoard) {
+    private static VBox renderInfo(LightSchoolBoard schoolBoard) {
+        // Style
         var style = "-fx-text-fill: white; -fx-font-weight: bold";
+
+        // Coins
         var coins = new Text("Coins: " + schoolBoard.coins);
         coins.setStyle(style);
+
+        // Tower color
         var towerColor = new Text("Tower Color: " + schoolBoard.towerColor);
         towerColor.setStyle(style);
 
-        var coinsTowerColorPane = new VBox();
-        if(schoolBoard.coins != null) coinsTowerColorPane.getChildren().add(coins);
-        coinsTowerColorPane.getChildren().add(towerColor);
+        // Number of towers to place
+        int numberOfTowers = getTowerCount(schoolBoard);
 
-        var coinsTowerColorRect = Layout.schoolRect
+        var numOfTowers = new Text("Towers to place: " + numberOfTowers);
+        numOfTowers.setStyle(style);
+
+        var infoPane = new VBox();
+        if(schoolBoard.coins != null) infoPane.getChildren().add(coins);
+        infoPane.getChildren().add(towerColor);
+        infoPane.getChildren().add(numOfTowers);
+
+        var infoRect = Layout.schoolRect
                 .relativeToThis(30, 10, 70, 10)
                 .toJavaFXRect();
-        coinsTowerColorPane.setLayoutX(coinsTowerColorRect.getX());
-        coinsTowerColorPane.setLayoutY(coinsTowerColorRect.getY());
-        coinsTowerColorPane.setMaxWidth(coinsTowerColorRect.getWidth());
-        coinsTowerColorPane.setMaxHeight(coinsTowerColorRect.getHeight());
+        infoPane.setLayoutX(infoRect.getX());
+        infoPane.setLayoutY(infoRect.getY());
+        infoPane.setMaxWidth(infoRect.getWidth());
+        infoPane.setMaxHeight(infoRect.getHeight());
 
-        return coinsTowerColorPane;
+        return infoPane;
+    }
+
+    private static int getTowerCount(LightSchoolBoard schoolBoard) {
+        var gameState = GUI.gameClient.lastSnapshot;
+        int towerCount = NumberOfPlayersStrategyFactory
+                .getCorrectStrategy(gameState.schoolBoards.size())
+                .getNumberOfTowers();
+
+        for(var arch : gameState.archipelagos) {
+            if(arch.towerColor.equals(schoolBoard.towerColor))
+                towerCount -= arch.islandCodes.size();  // Do not count towers that have already been placed
+        }
+
+        return Math.max(towerCount, 0);  // Saturate to zero
     }
 }
