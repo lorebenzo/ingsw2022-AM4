@@ -52,6 +52,9 @@ public class CommunicationController extends SugarMessageProcessor {
     protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
         return new GameStateController(playersNumber);
     }
+    protected GameStateController initializeGameStateController(UUID gameUUID) {
+        return new GameStateController(gameUUID);
+    }
 
     public static CommunicationController createCommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException {
         if(isExpertMode)
@@ -67,13 +70,6 @@ public class CommunicationController extends SugarMessageProcessor {
             return new CommunicationController(players, gameUUID);
     }
 
-    private int getSchoolBoardIdFromPeer(String player){
-        return this.usernameToSchoolBoardId.get(player);
-    }
-
-
-    //Necessary to CommunicationController
-
     /**
      * This method whether a move was sent by the current player or not.
      * @param player indicates a  peer, therefore a player,
@@ -83,6 +79,12 @@ public class CommunicationController extends SugarMessageProcessor {
         return this.getSchoolBoardIdFromUsername(player) != this.gameStateController.getCurrentPlayerSchoolBoardId();
     }
 
+    /**
+     * This method is the handler for the RollBackMsg
+     * @param message is the RollBackMsg
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the response of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage rollbackMsg(RollbackMsg message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -94,6 +96,12 @@ public class CommunicationController extends SugarMessageProcessor {
 
     }
 
+    /**
+     * This method is the handler for the PlayCardMsg
+     * @param message is the PlayCardMsg
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the response of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage playCardMsg(PlayCardMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -114,6 +122,12 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
+    /**
+     * This method is the handler fot the MoveStudentFromEntranceToDiningRoomMsg
+     * @param message is the MoveStudentFromEntranceToDiningRoomMsg
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the response of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage moveStudentFromEntranceToDiningRoomMsg(MoveStudentFromEntranceToDiningRoomMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -133,6 +147,12 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
+    /**
+     * This method is the handler for the MoveStudentFromEntranceToArchipelagoMsg
+     * @param message is the MoveStudentFromEntranceToArchipelagoMsg
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the response of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage moveStudentFromEntranceToArchipelagoMsg(MoveStudentFromEntranceToArchipelagoMsg message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -158,11 +178,12 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
-    protected GameStateController initializeGameStateController(UUID gameUUID) {
-        return new GameStateController(gameUUID);
-    }
-
-
+    /**
+     * This method is the handler for the MoveMotherNatureMsg
+     * @param message is the MoveMotherNatureMsg
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the response of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage moveMotherNatureMsg(MoveMotherNatureMsg message, Peer peer) {
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -188,6 +209,12 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
+    /**
+     * This method is the handler for the GrabStudentsFromCloudMsg
+     * @param message is the GrabStudentsFromCloudMsg
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the response of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage grabStudentsFromCloudMsg(GrabStudentsFromCloudMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -210,6 +237,12 @@ public class CommunicationController extends SugarMessageProcessor {
         }
     }
 
+    /**
+     * This method is the handler for the EndTurnMsg
+     * @param message is the EndTurnMsg
+     * @param peer is the Peer from which the message is received
+     * @return a SugarMessage with the response of the invocation
+     */
     @SugarMessageHandler
     public SugarMessage endTurnMsg(EndTurnMsg message, Peer peer){
         var username = AuthController.getUsernameFromJWT(message.jwt);
@@ -244,15 +277,6 @@ public class CommunicationController extends SugarMessageProcessor {
 
     }
 
-    protected Map<String, Boolean> getUsernameToWinnerMap(Map<Integer, Boolean> schoolBoardIdToWinnerMap){
-        Map<String, Boolean> usernameToWinnerMap = new HashMap<>();
-
-        for (int schoolBoardId: schoolBoardIdToWinnerMap.keySet()) {
-            usernameToWinnerMap.put(this.getUsernameFromSchoolBoardId(schoolBoardId), schoolBoardIdToWinnerMap.get(schoolBoardId));
-        }
-        return usernameToWinnerMap;
-    }
-
     /**
      * Returns the usernames in my team
      * @param username of the player
@@ -279,6 +303,15 @@ public class CommunicationController extends SugarMessageProcessor {
      */
     public LightGameState getLightGameState() {
         return this.gameStateController.getLightGameState().addUsernames(usernameToSchoolBoardId);
+    }
+
+    protected Map<String, Boolean> getUsernameToWinnerMap(Map<Integer, Boolean> schoolBoardIdToWinnerMap){
+        Map<String, Boolean> usernameToWinnerMap = new HashMap<>();
+
+        for (int schoolBoardId: schoolBoardIdToWinnerMap.keySet()) {
+            usernameToWinnerMap.put(this.getUsernameFromSchoolBoardId(schoolBoardId), schoolBoardIdToWinnerMap.get(schoolBoardId));
+        }
+        return usernameToWinnerMap;
     }
 
     public UUID getGameUUID() {

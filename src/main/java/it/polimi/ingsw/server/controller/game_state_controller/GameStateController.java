@@ -194,7 +194,7 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
     }
 
-    /***
+    /**
      * This method defines the round order comparing the values of the cards played by different players
      */
     private void defineRoundOrder(){
@@ -209,6 +209,9 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
     }
 
+    /**
+     * This method advances the turn during the planning phase, after a player played an assistant card
+     */
     private void nextPlanningTurn() {
 
         //If all the players played in this round, a new round will begin
@@ -230,6 +233,10 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
 
+    /**
+     * This method advances the turn during the action phase, after a player ended its turn.
+     * @throws GameOverException if a gameOver condition has occurred
+     */
     protected void nextActionTurn() throws GameOverException {
         //If all the players played in this round, a new round will begin
         if(this.gameState.isLastTurnInThisRound()) {
