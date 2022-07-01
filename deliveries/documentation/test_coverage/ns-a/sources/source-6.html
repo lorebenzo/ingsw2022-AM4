@@ -1,0 +1,747 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ExpertGameState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic</a>
+</div>
+
+<h1>Coverage Summary for Class: ExpertGameState (it.polimi.ingsw.server.model.game_logic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ExpertGameState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.9%
+  </span>
+  <span class="absValue">
+    (37/39)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92.6%
+  </span>
+  <span class="absValue">
+    (187/202)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.MoveNotAvailableException;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.event_sourcing.Aggregate;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Character;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Color;
+<i class="no-highlight">8</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+<i class="no-highlight">9</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertNumberOfPlayersStrategyFactory;
+<i class="no-highlight">10</i>&nbsp;import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
+<i class="no-highlight">11</i>&nbsp;
+<i class="no-highlight">12</i>&nbsp;import java.lang.reflect.InvocationTargetException;
+<i class="no-highlight">13</i>&nbsp;import java.sql.SQLException;
+<i class="no-highlight">14</i>&nbsp;import java.util.*;
+<i class="no-highlight">15</i>&nbsp;
+<i class="no-highlight">16</i>&nbsp;public class ExpertGameState extends GameState {
+<i class="no-highlight">17</i>&nbsp;
+<i class="no-highlight">18</i>&nbsp;    private final List&lt;PlayableCharacter&gt; availableCharacters;
+<i class="no-highlight">19</i>&nbsp;    protected PlayableCharacter characterPlayedInCurrentTurn;
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;    /**
+<i class="no-highlight">23</i>&nbsp;     * @param playersNumber number of players in the game, must be between 2 (inclusive) and 4 (inclusive)
+<i class="no-highlight">24</i>&nbsp;     * @throws IllegalArgumentException                if the argument representing the number of players is not between 2 and 4
+<i class="no-highlight">25</i>&nbsp;     * @throws GameStateInitializationFailureException if there is a problem in the initialization of the archipelagos
+<i class="no-highlight">26</i>&nbsp;     *                                                 or the schoolBoards,
+<i class="no-highlight">27</i>&nbsp;     *                                                 or the clouds.
+<i class="no-highlight">28</i>&nbsp;     */
+<i class="no-highlight">29</i>&nbsp;    public ExpertGameState(int playersNumber) throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">30</i>&nbsp;        super(playersNumber);</b>
+<b class="fc"><i class="no-highlight">31</i>&nbsp;        this.availableCharacters = new ArrayList&lt;&gt;();</b>
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">34</i>&nbsp;            this.extractCharacters();</b>
+<b class="fc"><i class="no-highlight">35</i>&nbsp;        } catch(EmptyStudentSupplyException ignored) { throw new GameStateInitializationFailureException(); }</b>
+<i class="no-highlight">36</i>&nbsp;
+<b class="fc"><i class="no-highlight">37</i>&nbsp;        this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);</b>
+<i class="no-highlight">38</i>&nbsp;    }
+<i class="no-highlight">39</i>&nbsp;
+<i class="no-highlight">40</i>&nbsp;    /**
+<i class="no-highlight">41</i>&nbsp;     *ONLY FOR TESTING
+<i class="no-highlight">42</i>&nbsp;     */
+<i class="no-highlight">43</i>&nbsp;    protected ExpertGameState(int playersNumber, List&lt;PlayableCharacter&gt; availableCharacters) throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">44</i>&nbsp;        super(playersNumber);</b>
+<b class="fc"><i class="no-highlight">45</i>&nbsp;        this.availableCharacters = availableCharacters;</b>
+<i class="no-highlight">46</i>&nbsp;
+<b class="fc"><i class="no-highlight">47</i>&nbsp;        for (PlayableCharacter playableCharacter: this.availableCharacters) {</b>
+<b class="fc"><i class="no-highlight">48</i>&nbsp;            this.refillGivenCharacter(playableCharacter);</b>
+<b class="fc"><i class="no-highlight">49</i>&nbsp;        }</b>
+<i class="no-highlight">50</i>&nbsp;
+<b class="fc"><i class="no-highlight">51</i>&nbsp;        this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);</b>
+<i class="no-highlight">52</i>&nbsp;    }
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;    /**
+<i class="no-highlight">55</i>&nbsp;     * This method chooses the appropriate strategy according to the number of players
+<i class="no-highlight">56</i>&nbsp;     */
+<i class="no-highlight">57</i>&nbsp;    @Override
+<i class="no-highlight">58</i>&nbsp;    protected void chooseStrategy() {
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        this.strategy = ExpertNumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);</b>
+<i class="no-highlight">60</i>&nbsp;    }
+<i class="no-highlight">61</i>&nbsp;
+<i class="no-highlight">62</i>&nbsp;    /**
+<i class="no-highlight">63</i>&nbsp;     * This method created an archipelago for the expert mode
+<i class="no-highlight">64</i>&nbsp;     * @param code is the starting islandCode of the archipelago
+<i class="no-highlight">65</i>&nbsp;     * @return the newly created archipelago
+<i class="no-highlight">66</i>&nbsp;     */
+<i class="no-highlight">67</i>&nbsp;    @Override
+<i class="no-highlight">68</i>&nbsp;    protected ExpertArchipelago createArchipelago(int code) {
+<b class="fc"><i class="no-highlight">69</i>&nbsp;        return new ExpertArchipelago(code);</b>
+<i class="no-highlight">70</i>&nbsp;    }
+<i class="no-highlight">71</i>&nbsp;
+<i class="no-highlight">72</i>&nbsp;    /**
+<i class="no-highlight">73</i>&nbsp;     * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
+<i class="no-highlight">74</i>&nbsp;     *
+<i class="no-highlight">75</i>&nbsp;     * @return a List of SchoolBoard containing the already initialized schoolBoards, students in the entrance included.
+<i class="no-highlight">76</i>&nbsp;     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
+<i class="no-highlight">77</i>&nbsp;     */
+<i class="no-highlight">78</i>&nbsp;    @Override
+<i class="no-highlight">79</i>&nbsp;    protected List&lt;SchoolBoard&gt; initializeSchoolBoards() throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">80</i>&nbsp;        return this.strategy.initializeSchoolBoards(this.studentFactory);</b>
+<i class="no-highlight">81</i>&nbsp;    }
+<i class="no-highlight">82</i>&nbsp;
+<i class="no-highlight">83</i>&nbsp;    /**
+<i class="no-highlight">84</i>&nbsp;     * This method randomly extracts 3 different characters with which the game will be played.
+<i class="no-highlight">85</i>&nbsp;     */
+<i class="no-highlight">86</i>&nbsp;    private void extractCharacters() throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">87</i>&nbsp;        List&lt;Character&gt; characters = new ArrayList&lt;&gt;(List.of(Character.values()));</b>
+<i class="no-highlight">88</i>&nbsp;        // removes NONE
+<b class="fc"><i class="no-highlight">89</i>&nbsp;        characters.remove(0);</b>
+<b class="fc"><i class="no-highlight">90</i>&nbsp;        Collections.shuffle(characters);</b>
+<i class="no-highlight">91</i>&nbsp;
+<b class="fc"><i class="no-highlight">92</i>&nbsp;        for (int i = 0; i &lt; 3; i++){</b>
+<b class="fc"><i class="no-highlight">93</i>&nbsp;            this.availableCharacters.add(PlayableCharacter.createCharacter(characters.get(i)));</b>
+<b class="fc"><i class="no-highlight">94</i>&nbsp;            this.refillGivenCharacter(this.availableCharacters.get(i));</b>
+<i class="no-highlight">95</i>&nbsp;        }
+<i class="no-highlight">96</i>&nbsp;    }
+<i class="no-highlight">97</i>&nbsp;
+<i class="no-highlight">98</i>&nbsp;    /**
+<i class="no-highlight">99</i>&nbsp;     * This method refills the PlayableCharactersWithStudents that may have been used during a turn
+<i class="no-highlight">100</i>&nbsp;     * @param playableCharacter is the PlayableCharacter to be refilled
+<i class="no-highlight">101</i>&nbsp;     * @throws EmptyStudentSupplyException if the student supply is empty and the refill couldn&#39;t be completed
+<i class="no-highlight">102</i>&nbsp;     */
+<i class="no-highlight">103</i>&nbsp;    private void refillGivenCharacter(PlayableCharacter playableCharacter) throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">104</i>&nbsp;        while (playableCharacter.getStudents() != null &amp;&amp; playableCharacter.getStudents().size() &lt; playableCharacter.getInitialStudentsNumberOnCharacter())</b>
+<b class="fc"><i class="no-highlight">105</i>&nbsp;            playableCharacter.addStudent(this.studentFactory.getStudent());</b>
+<i class="no-highlight">106</i>&nbsp;    }
+<i class="no-highlight">107</i>&nbsp;
+<i class="no-highlight">108</i>&nbsp;    /**
+<i class="no-highlight">109</i>&nbsp;     * This method refills the PlayableCHaracter that was played during the turn
+<i class="no-highlight">110</i>&nbsp;     * @throws EmptyStudentSupplyException if the student supply is empty and the refill couldn&#39;t be completed
+<i class="no-highlight">111</i>&nbsp;     */
+<i class="no-highlight">112</i>&nbsp;    public void refillCharacter() throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">113</i>&nbsp;        this.refillGivenCharacter(this.characterPlayedInCurrentTurn);</b>
+<i class="no-highlight">114</i>&nbsp;    }
+<i class="no-highlight">115</i>&nbsp;
+<i class="no-highlight">116</i>&nbsp;
+<i class="no-highlight">117</i>&nbsp;    /**
+<i class="no-highlight">118</i>&nbsp;     * This method executes the effect of the character with ID 1. It takes one student from the character and puts it on the inputted archipelago
+<i class="no-highlight">119</i>&nbsp;     * @param color represents the student to be moved
+<i class="no-highlight">120</i>&nbsp;     * @param archipelagoIslandCode represent the archipelago onto which the inputted student will be moved
+<i class="no-highlight">121</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">122</i>&nbsp;     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+<i class="no-highlight">123</i>&nbsp;     * @throws StudentNotOnCharacterException if the inputted student is not actually present on character
+<i class="no-highlight">124</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">125</i>&nbsp;     */
+<i class="no-highlight">126</i>&nbsp;    @Override
+<i class="no-highlight">127</i>&nbsp;    public void playPutOneStudentFromCharacterToArchipelago(Color color, int archipelagoIslandCode) throws MoveNotAvailableException, InvalidArchipelagoIdException, StudentNotOnCharacterException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">128</i>&nbsp;        if(color == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">129</i>&nbsp;
+<b class="fc"><i class="no-highlight">130</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.PUT_ONE_STUDENT_FROM_CHARACTER_TO_ARCHIPELAGO.characterId).findFirst();</b>
+<i class="no-highlight">131</i>&nbsp;
+<b class="fc"><i class="no-highlight">132</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">133</i>&nbsp;
+<b class="fc"><i class="no-highlight">134</i>&nbsp;        Optional&lt;Archipelago&gt; selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);</b>
+<b class="fc"><i class="no-highlight">135</i>&nbsp;        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();</b>
+<i class="no-highlight">136</i>&nbsp;
+<b class="fc"><i class="no-highlight">137</i>&nbsp;        if(!selectedCharacter.get().getStudents().contains(color)) throw new StudentNotOnCharacterException();</b>
+<i class="no-highlight">138</i>&nbsp;
+<b class="fc"><i class="no-highlight">139</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">140</i>&nbsp;
+<b class="fc"><i class="no-highlight">141</i>&nbsp;        selectedCharacter.get().removeStudent(color);</b>
+<b class="fc"><i class="no-highlight">142</i>&nbsp;        selectedArchipelago.get().addStudent(color);</b>
+<i class="no-highlight">143</i>&nbsp;
+<b class="fc"><i class="no-highlight">144</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">145</i>&nbsp;
+<b class="fc"><i class="no-highlight">146</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">147</i>&nbsp;
+<i class="no-highlight">148</i>&nbsp;    }
+<i class="no-highlight">149</i>&nbsp;
+<i class="no-highlight">150</i>&nbsp;    /**
+<i class="no-highlight">151</i>&nbsp;     * This method executes the effect of the character with ID 2. It allows the player to take control of the a professor even if he has the same number of
+<i class="no-highlight">152</i>&nbsp;     * students on the corresponding diningRoom table
+<i class="no-highlight">153</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">154</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">155</i>&nbsp;     */
+<i class="no-highlight">156</i>&nbsp;    @Override
+<i class="no-highlight">157</i>&nbsp;    public void playGetProfessorsWithSameStudents() throws MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">158</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId).findFirst();</b>
+<i class="no-highlight">159</i>&nbsp;
+<b class="fc"><i class="no-highlight">160</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">161</i>&nbsp;
+<b class="fc"><i class="no-highlight">162</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">163</i>&nbsp;
+<b class="fc"><i class="no-highlight">164</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">165</i>&nbsp;
+<b class="fc"><i class="no-highlight">166</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">167</i>&nbsp;
+<b class="fc"><i class="no-highlight">168</i>&nbsp;        this.assignProfessorsWithEffect();</b>
+<i class="no-highlight">169</i>&nbsp;    }
+<i class="no-highlight">170</i>&nbsp;
+<i class="no-highlight">171</i>&nbsp;    @Override
+<i class="no-highlight">172</i>&nbsp;    protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane) {
+<b class="fc"><i class="no-highlight">173</i>&nbsp;        if(this.characterPlayedInCurrentTurn != null &amp;&amp; this.characterPlayedInCurrentTurn.getCharacterId() == Character.GET_PROFESSORS_WITH_SAME_STUDENTS.characterId)</b>
+<b class="fc"><i class="no-highlight">174</i>&nbsp;            return currentPlayerNumberOfStudentsInDiningRoomLane &gt;= otherSchoolBoardsMaxStudentsInDiningRoomLane &amp;&amp; currentPlayerNumberOfStudentsInDiningRoomLane &gt; 0;</b>
+<b class="fc"><i class="no-highlight">175</i>&nbsp;        return super.compareCurrentPlayersStudentsNumberWithOthersMax(currentPlayerNumberOfStudentsInDiningRoomLane,otherSchoolBoardsMaxStudentsInDiningRoomLane);</b>
+<i class="no-highlight">176</i>&nbsp;    }
+<i class="no-highlight">177</i>&nbsp;
+<i class="no-highlight">178</i>&nbsp;    /**
+<i class="no-highlight">179</i>&nbsp;     * This method assigns the professors after the activation of the effect of the character with ID 2
+<i class="no-highlight">180</i>&nbsp;     */
+<i class="no-highlight">181</i>&nbsp;    protected void assignProfessorsWithEffect(){
+<b class="fc"><i class="no-highlight">182</i>&nbsp;        for (Color professor: Color.values()) {</b>
+<b class="fc"><i class="no-highlight">183</i>&nbsp;            Integer previousOwnerSchoolBoardId = this.assignProfessor(professor).get(professor);</b>
+<b class="fc"><i class="no-highlight">184</i>&nbsp;            if(previousOwnerSchoolBoardId != null)</b>
+<b class="fc"><i class="no-highlight">185</i>&nbsp;                this.characterPlayedInCurrentTurn.putProfessor(professor, previousOwnerSchoolBoardId);</b>
+<i class="no-highlight">186</i>&nbsp;        }
+<i class="no-highlight">187</i>&nbsp;    }
+<i class="no-highlight">188</i>&nbsp;
+<i class="no-highlight">189</i>&nbsp;
+<i class="no-highlight">190</i>&nbsp;    /**
+<i class="no-highlight">191</i>&nbsp;     * This method resets the ownership (with the normal rules) of every professor after the effect of the character is finished
+<i class="no-highlight">192</i>&nbsp;     */
+<i class="no-highlight">193</i>&nbsp;    @Override
+<i class="no-highlight">194</i>&nbsp;    public void assignProfessorsAfterEffect() {
+<i class="no-highlight">195</i>&nbsp;        Integer professorToOriginalOwnerSchoolBoardId;
+<i class="no-highlight">196</i>&nbsp;
+<b class="fc"><i class="no-highlight">197</i>&nbsp;        if(this.characterPlayedInCurrentTurn.getProfessorToOriginalOwnerMap() != null){</b>
+<b class="fc"><i class="no-highlight">198</i>&nbsp;            for (Color color : this.characterPlayedInCurrentTurn.getProfessorToOriginalOwnerMap().keySet()) {</b>
+<b class="fc"><i class="no-highlight">199</i>&nbsp;                professorToOriginalOwnerSchoolBoardId = this.characterPlayedInCurrentTurn.getProfessorToOriginalOwnerMap().get(color);</b>
+<b class="fc"><i class="no-highlight">200</i>&nbsp;                SchoolBoard originalProfessorOwnerSchoolBoard = this.getSchoolBoardFromSchoolBoardId(professorToOriginalOwnerSchoolBoardId);</b>
+<i class="no-highlight">201</i>&nbsp;
+<b class="fc"><i class="no-highlight">202</i>&nbsp;                if(this.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().get(color).intValue() == originalProfessorOwnerSchoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(color).intValue()){</b>
+<b class="fc"><i class="no-highlight">203</i>&nbsp;                    this.getCurrentPlayerSchoolBoard().removeProfessor(color);</b>
+<b class="fc"><i class="no-highlight">204</i>&nbsp;                    originalProfessorOwnerSchoolBoard.addProfessor(color);</b>
+<i class="no-highlight">205</i>&nbsp;                }
+<i class="no-highlight">206</i>&nbsp;
+<i class="no-highlight">207</i>&nbsp;
+<b class="fc"><i class="no-highlight">208</i>&nbsp;            }</b>
+<b class="fc"><i class="no-highlight">209</i>&nbsp;            this.characterPlayedInCurrentTurn.clearProfessorsToOriginalOwnerMap();</b>
+<i class="no-highlight">210</i>&nbsp;        }
+<i class="no-highlight">211</i>&nbsp;    }
+<i class="no-highlight">212</i>&nbsp;
+<i class="no-highlight">213</i>&nbsp;    /**
+<i class="no-highlight">214</i>&nbsp;     * This method executes the effect of the character with ID 3. It allows the player to move mother nature to any archipelago.
+<i class="no-highlight">215</i>&nbsp;     * @param archipelagoIslandCode represent an archipelago through one of its codes
+<i class="no-highlight">216</i>&nbsp;     * @return true if the archipelagos merged as a result, false otherwise
+<i class="no-highlight">217</i>&nbsp;     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+<i class="no-highlight">218</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">219</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">220</i>&nbsp;     */
+<i class="no-highlight">221</i>&nbsp;    @Override
+<i class="no-highlight">222</i>&nbsp;    public boolean playMoveMotherNatureToAnyArchipelago(int archipelagoIslandCode) throws InvalidArchipelagoIdException, MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">223</i>&nbsp;        boolean mergePreviousPerformed = false;</b>
+<b class="fc"><i class="no-highlight">224</i>&nbsp;        boolean mergeNextPerformed = false;</b>
+<i class="no-highlight">225</i>&nbsp;
+<b class="fc"><i class="no-highlight">226</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.MOVE_MOTHER_NATURE_TO_ANY_ARCHIPELAGO.characterId).findFirst();</b>
+<i class="no-highlight">227</i>&nbsp;
+<b class="fc"><i class="no-highlight">228</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">229</i>&nbsp;
+<b class="fc"><i class="no-highlight">230</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">231</i>&nbsp;
+<b class="fc"><i class="no-highlight">232</i>&nbsp;        Optional&lt;Archipelago&gt; selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);</b>
+<b class="fc"><i class="no-highlight">233</i>&nbsp;        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();</b>
+<i class="no-highlight">234</i>&nbsp;
+<b class="fc"><i class="no-highlight">235</i>&nbsp;        Archipelago originalMotherNaturePositionIslandCode = this.motherNaturePosition;</b>
+<b class="fc"><i class="no-highlight">236</i>&nbsp;        this.motherNaturePosition = selectedArchipelago.get();</b>
+<i class="no-highlight">237</i>&nbsp;
+<b class="fc"><i class="no-highlight">238</i>&nbsp;        if(!this.motherNaturePosition.isLocked()){</b>
+<b class="fc"><i class="no-highlight">239</i>&nbsp;            Optional&lt;Integer&gt; mostInfluentSchoolBoardId = this.getMostInfluentSchoolBoardId(this.motherNaturePosition.getIslandCodes());</b>
+<b class="fc"><i class="no-highlight">240</i>&nbsp;            if(mostInfluentSchoolBoardId.isPresent()){</b>
+<b class="fc"><i class="no-highlight">241</i>&nbsp;                this.conquerArchipelago(mostInfluentSchoolBoardId.get());</b>
+<b class="fc"><i class="no-highlight">242</i>&nbsp;                mergePreviousPerformed = this.mergeWithPrevious();</b>
+<b class="fc"><i class="no-highlight">243</i>&nbsp;                mergeNextPerformed = this.mergeWithNext();</b>
+<i class="no-highlight">244</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">245</i>&nbsp;        }</b>
+<i class="no-highlight">246</i>&nbsp;        else
+<b class="fc"><i class="no-highlight">247</i>&nbsp;            this.unlockMotherNaturePosition();</b>
+<i class="no-highlight">248</i>&nbsp;
+<b class="fc"><i class="no-highlight">249</i>&nbsp;        this.motherNaturePosition = originalMotherNaturePositionIslandCode;</b>
+<i class="no-highlight">250</i>&nbsp;
+<i class="no-highlight">251</i>&nbsp;
+<b class="fc"><i class="no-highlight">252</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<b class="fc"><i class="no-highlight">253</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">254</i>&nbsp;
+<b class="fc"><i class="no-highlight">255</i>&nbsp;        return mergePreviousPerformed || mergeNextPerformed;</b>
+<i class="no-highlight">256</i>&nbsp;    }
+<i class="no-highlight">257</i>&nbsp;
+<i class="no-highlight">258</i>&nbsp;    /**
+<i class="no-highlight">259</i>&nbsp;     * This method executes the effect of the character with ID 4. It allows the player to move mother nature for 2 additional steps.
+<i class="no-highlight">260</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">261</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">262</i>&nbsp;     */
+<i class="no-highlight">263</i>&nbsp;    @Override
+<i class="no-highlight">264</i>&nbsp;    public void playTwoAdditionalSteps() throws MoveNotAvailableException, NotEnoughCoinsException {
+<i class="no-highlight">265</i>&nbsp;
+<b class="fc"><i class="no-highlight">266</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.TWO_ADDITIONAL_STEPS.characterId).findFirst();</b>
+<i class="no-highlight">267</i>&nbsp;
+<b class="fc"><i class="no-highlight">268</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">269</i>&nbsp;
+<b class="fc"><i class="no-highlight">270</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">271</i>&nbsp;
+<b class="fc"><i class="no-highlight">272</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<b class="fc"><i class="no-highlight">273</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">274</i>&nbsp;    }
+<i class="no-highlight">275</i>&nbsp;
+<i class="no-highlight">276</i>&nbsp;    private int getAdditionalSteps(){
+<b class="fc"><i class="no-highlight">277</i>&nbsp;        if(this.characterPlayedInCurrentTurn.getCharacterId() == Character.TWO_ADDITIONAL_STEPS.characterId)</b>
+<b class="fc"><i class="no-highlight">278</i>&nbsp;            return 2;</b>
+<i class="no-highlight">279</i>&nbsp;        else
+<b class="fc"><i class="no-highlight">280</i>&nbsp;            return 0;</b>
+<i class="no-highlight">281</i>&nbsp;    }
+<i class="no-highlight">282</i>&nbsp;
+<i class="no-highlight">283</i>&nbsp;    @Override
+<i class="no-highlight">284</i>&nbsp;    protected int getAllowedStepsNumber() {
+<b class="fc"><i class="no-highlight">285</i>&nbsp;        return super.getAllowedStepsNumber() + this.getAdditionalSteps();</b>
+<i class="no-highlight">286</i>&nbsp;    }
+<i class="no-highlight">287</i>&nbsp;
+<i class="no-highlight">288</i>&nbsp;
+<i class="no-highlight">289</i>&nbsp;    /**
+<i class="no-highlight">290</i>&nbsp;     *
+<i class="no-highlight">291</i>&nbsp;     * @param archipelagoToLock is the archipelago that will be locked
+<i class="no-highlight">292</i>&nbsp;     * @throws ArchipelagoAlreadyLockedException if the inputted Archipelago is already locked
+<i class="no-highlight">293</i>&nbsp;     */
+<i class="no-highlight">294</i>&nbsp;    private void lockArchipelago(Archipelago archipelagoToLock) throws ArchipelagoAlreadyLockedException {
+<b class="fc"><i class="no-highlight">295</i>&nbsp;        if(archipelagoToLock == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">296</i>&nbsp;
+<b class="fc"><i class="no-highlight">297</i>&nbsp;        archipelagoToLock.lock();</b>
+<i class="no-highlight">298</i>&nbsp;    }
+<i class="no-highlight">299</i>&nbsp;
+<i class="no-highlight">300</i>&nbsp;    /**
+<i class="no-highlight">301</i>&nbsp;     * This method executes the effect of the character with ID 5. It allows the player to lock an archipelago of choice.
+<i class="no-highlight">302</i>&nbsp;     * @param archipelagoIslandCode represent an archipelago through one of its codes
+<i class="no-highlight">303</i>&nbsp;     * @throws NoAvailableLockException if there are no locks available on the character
+<i class="no-highlight">304</i>&nbsp;     * @throws InvalidArchipelagoIdException if the inputted archipelago code is invalid
+<i class="no-highlight">305</i>&nbsp;     * @throws ArchipelagoAlreadyLockedException if the inputted Archipelago is already locked
+<i class="no-highlight">306</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">307</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">308</i>&nbsp;     */
+<i class="no-highlight">309</i>&nbsp;    @Override
+<i class="no-highlight">310</i>&nbsp;    public void playCharacterLock(int archipelagoIslandCode) throws NoAvailableLockException, InvalidArchipelagoIdException, ArchipelagoAlreadyLockedException, MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">311</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId).findFirst();</b>
+<i class="no-highlight">312</i>&nbsp;
+<b class="fc"><i class="no-highlight">313</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">314</i>&nbsp;
+<b class="fc"><i class="no-highlight">315</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">316</i>&nbsp;
+<b class="fc"><i class="no-highlight">317</i>&nbsp;        if(!selectedCharacter.get().isLockAvailable()) throw new NoAvailableLockException();</b>
+<i class="no-highlight">318</i>&nbsp;
+<b class="fc"><i class="no-highlight">319</i>&nbsp;        Optional&lt;Archipelago&gt; selectedArchipelago = this.getArchipelagoFromSingleIslandCode(archipelagoIslandCode);</b>
+<b class="fc"><i class="no-highlight">320</i>&nbsp;        if(selectedArchipelago.isEmpty()) throw new InvalidArchipelagoIdException();</b>
+<i class="no-highlight">321</i>&nbsp;
+<b class="fc"><i class="no-highlight">322</i>&nbsp;        this.lockArchipelago(selectedArchipelago.get());</b>
+<b class="fc"><i class="no-highlight">323</i>&nbsp;        selectedCharacter.get().useLock();</b>
+<i class="no-highlight">324</i>&nbsp;
+<b class="fc"><i class="no-highlight">325</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">326</i>&nbsp;
+<b class="fc"><i class="no-highlight">327</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">328</i>&nbsp;    }
+<i class="no-highlight">329</i>&nbsp;
+<i class="no-highlight">330</i>&nbsp;    /**
+<i class="no-highlight">331</i>&nbsp;     * This method unlocks the archipelago onto which mother nature terminates its movement
+<i class="no-highlight">332</i>&nbsp;     */
+<i class="no-highlight">333</i>&nbsp;    @Override
+<i class="no-highlight">334</i>&nbsp;    public void unlockMotherNaturePosition(){
+<b class="fc"><i class="no-highlight">335</i>&nbsp;        var tmp = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.LOCK_ARCHIPELAGO.characterId).findFirst();</b>
+<b class="fc"><i class="no-highlight">336</i>&nbsp;        if(this.motherNaturePosition.isLocked() &amp;&amp; tmp.isPresent()){</b>
+<b class="fc"><i class="no-highlight">337</i>&nbsp;            this.motherNaturePosition.unlock();</b>
+<b class="fc"><i class="no-highlight">338</i>&nbsp;            tmp.get().unLock();</b>
+<i class="no-highlight">339</i>&nbsp;        }
+<i class="no-highlight">340</i>&nbsp;    }
+<i class="no-highlight">341</i>&nbsp;
+<i class="no-highlight">342</i>&nbsp;    /**
+<i class="no-highlight">343</i>&nbsp;     * @param doTowersCount is true if the towers will have to count during the influence calculation, false otherwise
+<i class="no-highlight">344</i>&nbsp;     */
+<i class="no-highlight">345</i>&nbsp;    @Override
+<i class="no-highlight">346</i>&nbsp;    public void setTowersInfluenceForAllArchipelagos(boolean doTowersCount){
+<b class="fc"><i class="no-highlight">347</i>&nbsp;        for (Archipelago archipelago: this.archipelagos) {</b>
+<b class="fc"><i class="no-highlight">348</i>&nbsp;            archipelago.setTowersInfluence(doTowersCount);</b>
+<b class="fc"><i class="no-highlight">349</i>&nbsp;        }</b>
+<i class="no-highlight">350</i>&nbsp;    }
+<i class="no-highlight">351</i>&nbsp;
+<i class="no-highlight">352</i>&nbsp;    /**
+<i class="no-highlight">353</i>&nbsp;     * This method executes the effect of the character with ID 6. It sets the influence given by the towers on every archipelago to zero.
+<i class="no-highlight">354</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">355</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">356</i>&nbsp;     */
+<i class="no-highlight">357</i>&nbsp;    @Override
+<i class="no-highlight">358</i>&nbsp;    public void playTowersDontCount() throws MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">359</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.TOWERS_DONT_COUNT.characterId).findFirst();</b>
+<i class="no-highlight">360</i>&nbsp;
+<b class="fc"><i class="no-highlight">361</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">362</i>&nbsp;
+<b class="fc"><i class="no-highlight">363</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">364</i>&nbsp;
+<b class="fc"><i class="no-highlight">365</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">366</i>&nbsp;
+<b class="fc"><i class="no-highlight">367</i>&nbsp;        this.setTowersInfluenceForAllArchipelagos(false);</b>
+<i class="no-highlight">368</i>&nbsp;
+<b class="fc"><i class="no-highlight">369</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">370</i>&nbsp;    }
+<i class="no-highlight">371</i>&nbsp;
+<i class="no-highlight">372</i>&nbsp;    /**
+<i class="no-highlight">373</i>&nbsp;     * This method executes the effect of the character with ID 7. It allows the player to swap up to three students between its schoolBoard&#39;s entrance
+<i class="no-highlight">374</i>&nbsp;     * and the character
+<i class="no-highlight">375</i>&nbsp;     * @param studentsFromCharacter is a list representing the students to get from the character
+<i class="no-highlight">376</i>&nbsp;     * @param studentsFromEntrance is a list representing the students to give from the entrance
+<i class="no-highlight">377</i>&nbsp;     * @throws InvalidStudentListsLengthException if the two inputted lists have different lengths
+<i class="no-highlight">378</i>&nbsp;     * @throws StudentNotOnCharacterException if one of the elements of studentsFromCharacter is not actually present on the character
+<i class="no-highlight">379</i>&nbsp;     * @throws StudentNotInTheEntranceException if one of the elements of studentsFromCharacter is not actually present in the entrance
+<i class="no-highlight">380</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">381</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">382</i>&nbsp;     */
+<i class="no-highlight">383</i>&nbsp;    @Override
+<i class="no-highlight">384</i>&nbsp;    public void playSwapThreeStudentsBetweenCharacterAndEntrance(List&lt;Color&gt; studentsFromCharacter, List&lt;Color&gt; studentsFromEntrance) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotOnCharacterException, StudentNotInTheEntranceException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">385</i>&nbsp;        if(studentsFromCharacter == null || studentsFromEntrance == null || studentsFromCharacter.contains(null) || studentsFromEntrance.contains(null)) throw new IllegalArgumentException();</b>
+<i class="no-highlight">386</i>&nbsp;
+<b class="fc"><i class="no-highlight">387</i>&nbsp;        if(studentsFromCharacter.size() != studentsFromEntrance.size() || studentsFromEntrance.size() &gt; 3) throw new InvalidStudentListsLengthException();</b>
+<i class="no-highlight">388</i>&nbsp;
+<b class="fc"><i class="no-highlight">389</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE.characterId).findFirst();</b>
+<i class="no-highlight">390</i>&nbsp;
+<b class="fc"><i class="no-highlight">391</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">392</i>&nbsp;
+<b class="fc"><i class="no-highlight">393</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">394</i>&nbsp;
+<b class="fc"><i class="no-highlight">395</i>&nbsp;        if(!selectedCharacter.get().containsAllStudents(studentsFromCharacter)) throw new StudentNotOnCharacterException();</b>
+<b class="fc"><i class="no-highlight">396</i>&nbsp;        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentsFromEntrance)) throw new StudentNotInTheEntranceException();</b>
+<i class="no-highlight">397</i>&nbsp;
+<b class="fc"><i class="no-highlight">398</i>&nbsp;        for (Color student: studentsFromCharacter ) {</b>
+<b class="fc"><i class="no-highlight">399</i>&nbsp;            selectedCharacter.get().removeStudent(student);</b>
+<b class="fc"><i class="no-highlight">400</i>&nbsp;            this.getCurrentPlayerSchoolBoard().addStudentToEntrance(student);</b>
+<b class="fc"><i class="no-highlight">401</i>&nbsp;        }</b>
+<i class="no-highlight">402</i>&nbsp;
+<b class="fc"><i class="no-highlight">403</i>&nbsp;        for (Color student: studentsFromEntrance ) {</b>
+<b class="fc"><i class="no-highlight">404</i>&nbsp;            this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);</b>
+<b class="fc"><i class="no-highlight">405</i>&nbsp;            selectedCharacter.get().addStudent(student);</b>
+<b class="fc"><i class="no-highlight">406</i>&nbsp;        }</b>
+<i class="no-highlight">407</i>&nbsp;
+<b class="fc"><i class="no-highlight">408</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">409</i>&nbsp;
+<b class="fc"><i class="no-highlight">410</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">411</i>&nbsp;    }
+<i class="no-highlight">412</i>&nbsp;
+<i class="no-highlight">413</i>&nbsp;    /**
+<i class="no-highlight">414</i>&nbsp;     * This method executes the effect of the character with ID 8. It allows the player to get 2 additional units of influence during the influence calculation.
+<i class="no-highlight">415</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">416</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">417</i>&nbsp;     */
+<i class="no-highlight">418</i>&nbsp;    @Override
+<i class="no-highlight">419</i>&nbsp;    public void playTwoAdditionalInfluence() throws MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">420</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.TWO_ADDITIONAL_INFLUENCE.characterId).findFirst();</b>
+<i class="no-highlight">421</i>&nbsp;
+<b class="fc"><i class="no-highlight">422</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">423</i>&nbsp;
+<b class="fc"><i class="no-highlight">424</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">425</i>&nbsp;
+<b class="fc"><i class="no-highlight">426</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">427</i>&nbsp;
+<b class="fc"><i class="no-highlight">428</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">429</i>&nbsp;
+<i class="no-highlight">430</i>&nbsp;    }
+<i class="no-highlight">431</i>&nbsp;
+<i class="no-highlight">432</i>&nbsp;    /**
+<i class="no-highlight">433</i>&nbsp;     * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputted archipelago
+<i class="no-highlight">434</i>&nbsp;     * @param archipelagoIslandCodes is a List of Integer uniquely identifying an archipelago
+<i class="no-highlight">435</i>&nbsp;     * @return a Map Integer, Integer where the key is the schoolBoardId and the value is the influence on the inputted archipelago
+<i class="no-highlight">436</i>&nbsp;     */
+<i class="no-highlight">437</i>&nbsp;    @Override
+<i class="no-highlight">438</i>&nbsp;    public Optional&lt;Map&lt;Integer, Integer&gt;&gt; getInfluence(List&lt;Integer&gt; archipelagoIslandCodes) {
+<b class="fc"><i class="no-highlight">439</i>&nbsp;        Optional&lt;Map&lt;Integer, Integer&gt;&gt; schoolBoardToInfluenceMap = super.getInfluence(archipelagoIslandCodes);</b>
+<b class="fc"><i class="no-highlight">440</i>&nbsp;        if(this.characterPlayedInCurrentTurn.getCharacterId() == Character.TWO_ADDITIONAL_INFLUENCE.characterId){</b>
+<b class="fc"><i class="no-highlight">441</i>&nbsp;            schoolBoardToInfluenceMap.ifPresent(schoolBoardToInfluence -&gt; schoolBoardToInfluence.put(this.getCurrentPlayerSchoolBoardId(), schoolBoardToInfluence.get(this.getCurrentPlayerSchoolBoardId()) + 2));</b>
+<i class="no-highlight">442</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">443</i>&nbsp;        return schoolBoardToInfluenceMap;</b>
+<i class="no-highlight">444</i>&nbsp;    }
+<i class="no-highlight">445</i>&nbsp;
+<i class="no-highlight">446</i>&nbsp;
+<i class="no-highlight">447</i>&nbsp;    private void setColorThatDoesntCountForAllArchipelagos(Color color){
+<b class="fc"><i class="no-highlight">448</i>&nbsp;        for (Archipelago archipelago: this.archipelagos) {</b>
+<b class="fc"><i class="no-highlight">449</i>&nbsp;            archipelago.setColorThatDoesntCount(color);</b>
+<b class="fc"><i class="no-highlight">450</i>&nbsp;        }</b>
+<i class="no-highlight">451</i>&nbsp;    }
+<i class="no-highlight">452</i>&nbsp;
+<i class="no-highlight">453</i>&nbsp;    /**
+<i class="no-highlight">454</i>&nbsp;     * This method executes the effect of the character with ID 9. It allows the player to choose a color that won&#39;t count during the influence calculation.
+<i class="no-highlight">455</i>&nbsp;     * @param color is the color that won&#39;t count during the influence calculation
+<i class="no-highlight">456</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">457</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">458</i>&nbsp;     */
+<i class="no-highlight">459</i>&nbsp;    @Override
+<i class="no-highlight">460</i>&nbsp;    public void playColorDoesntCount(Color color) throws MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">461</i>&nbsp;        if(color == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">462</i>&nbsp;
+<b class="fc"><i class="no-highlight">463</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.COLOR_DOESNT_COUNT.characterId).findFirst();</b>
+<i class="no-highlight">464</i>&nbsp;
+<b class="fc"><i class="no-highlight">465</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">466</i>&nbsp;
+<b class="fc"><i class="no-highlight">467</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">468</i>&nbsp;
+<b class="fc"><i class="no-highlight">469</i>&nbsp;        this.setColorThatDoesntCountForAllArchipelagos(color);</b>
+<i class="no-highlight">470</i>&nbsp;
+<b class="fc"><i class="no-highlight">471</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">472</i>&nbsp;
+<b class="fc"><i class="no-highlight">473</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">474</i>&nbsp;    }
+<i class="no-highlight">475</i>&nbsp;
+<i class="no-highlight">476</i>&nbsp;    @Override
+<i class="no-highlight">477</i>&nbsp;    public void resetColorThatDoesntCountForAllArchipelagos(){
+<b class="fc"><i class="no-highlight">478</i>&nbsp;        this.setColorThatDoesntCountForAllArchipelagos(null);</b>
+<i class="no-highlight">479</i>&nbsp;    }
+<i class="no-highlight">480</i>&nbsp;
+<i class="no-highlight">481</i>&nbsp;    /**
+<i class="no-highlight">482</i>&nbsp;     * This method executes the effect of the character with ID 10. It allows the player to swap up to two students between its entrance and diningRoom.
+<i class="no-highlight">483</i>&nbsp;     * @param studentFromEntrance is the list of students to get from the entrance
+<i class="no-highlight">484</i>&nbsp;     * @param studentsFromDiningRoom is the list of students to get from the diningRoom
+<i class="no-highlight">485</i>&nbsp;     * @throws InvalidStudentListsLengthException if the two inputted lists have different lengths
+<i class="no-highlight">486</i>&nbsp;     * @throws StudentNotInTheEntranceException if one of the elements of studentsFromCharacter is not actually present in the entrance
+<i class="no-highlight">487</i>&nbsp;     * @throws FullDiningRoomLaneException if the diningRoom table corresponding to one of the colors is full
+<i class="no-highlight">488</i>&nbsp;     * @throws StudentsNotInTheDiningRoomException if the one of the elements of studentsFromEntrance is not actually present in the entrance
+<i class="no-highlight">489</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">490</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">491</i>&nbsp;     */
+<i class="no-highlight">492</i>&nbsp;    @Override
+<i class="no-highlight">493</i>&nbsp;    public void playSwapTwoStudentsBetweenEntranceAndDiningRoom(List&lt;Color&gt; studentFromEntrance, List&lt;Color&gt; studentsFromDiningRoom) throws InvalidStudentListsLengthException, MoveNotAvailableException, StudentNotInTheEntranceException, FullDiningRoomLaneException, StudentsNotInTheDiningRoomException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">494</i>&nbsp;        if(studentsFromDiningRoom == null || studentFromEntrance == null || studentsFromDiningRoom.contains(null) || studentFromEntrance.contains(null)) throw new IllegalArgumentException();</b>
+<i class="no-highlight">495</i>&nbsp;
+<b class="fc"><i class="no-highlight">496</i>&nbsp;        if(studentsFromDiningRoom.size() != studentFromEntrance.size() || studentFromEntrance.size() &gt; 3) throw new InvalidStudentListsLengthException();</b>
+<i class="no-highlight">497</i>&nbsp;
+<b class="fc"><i class="no-highlight">498</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM.characterId).findFirst();</b>
+<i class="no-highlight">499</i>&nbsp;
+<b class="fc"><i class="no-highlight">500</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">501</i>&nbsp;
+<b class="fc"><i class="no-highlight">502</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">503</i>&nbsp;
+<b class="fc"><i class="no-highlight">504</i>&nbsp;        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheDiningRoom(studentsFromDiningRoom)) throw new StudentsNotInTheDiningRoomException();</b>
+<b class="fc"><i class="no-highlight">505</i>&nbsp;        if(!this.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentFromEntrance)) throw new StudentNotInTheEntranceException();</b>
+<i class="no-highlight">506</i>&nbsp;
+<b class="fc"><i class="no-highlight">507</i>&nbsp;        for (Color student: studentsFromDiningRoom ) {</b>
+<b class="nc"><i class="no-highlight">508</i>&nbsp;            this.getCurrentPlayerSchoolBoard().removeStudentFromDiningRoom(student);</b>
+<b class="nc"><i class="no-highlight">509</i>&nbsp;            this.getCurrentPlayerSchoolBoard().addStudentToEntrance(student);</b>
+<b class="nc"><i class="no-highlight">510</i>&nbsp;        }</b>
+<i class="no-highlight">511</i>&nbsp;
+<b class="fc"><i class="no-highlight">512</i>&nbsp;        for (Color student: studentFromEntrance ) {</b>
+<b class="nc"><i class="no-highlight">513</i>&nbsp;            this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);</b>
+<b class="nc"><i class="no-highlight">514</i>&nbsp;            this.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(student);</b>
+<b class="nc"><i class="no-highlight">515</i>&nbsp;        }</b>
+<i class="no-highlight">516</i>&nbsp;
+<b class="fc"><i class="no-highlight">517</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">518</i>&nbsp;
+<b class="fc"><i class="no-highlight">519</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">520</i>&nbsp;    }
+<i class="no-highlight">521</i>&nbsp;
+<i class="no-highlight">522</i>&nbsp;    //11
+<i class="no-highlight">523</i>&nbsp;    private void putOneStudentFromCharacterToDiningRoom(PlayableCharacter selectedCharacter, Color student) throws StudentNotOnCharacterException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">524</i>&nbsp;        if(!selectedCharacter.removeStudent(student)) throw new StudentNotOnCharacterException();</b>
+<i class="no-highlight">525</i>&nbsp;
+<b class="fc"><i class="no-highlight">526</i>&nbsp;        this.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(student);</b>
+<i class="no-highlight">527</i>&nbsp;    }
+<i class="no-highlight">528</i>&nbsp;
+<i class="no-highlight">529</i>&nbsp;    /**
+<i class="no-highlight">530</i>&nbsp;     * This method executes the effect of the character with ID 11. It allows the player to get one student from the character and put it into his diningRoom
+<i class="no-highlight">531</i>&nbsp;     * @param color represents the student to be moved from the character to the diningRoom
+<i class="no-highlight">532</i>&nbsp;     * @throws StudentNotOnCharacterException if one of the elements of studentsFromCharacter is not actually present on the character
+<i class="no-highlight">533</i>&nbsp;     * @throws FullDiningRoomLaneException if the diningRoom table corresponding to one of the colors is full
+<i class="no-highlight">534</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">535</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">536</i>&nbsp;     */
+<i class="no-highlight">537</i>&nbsp;    @Override
+<i class="no-highlight">538</i>&nbsp;    public void playPutOneStudentFromCharacterToDiningRoom(Color color) throws StudentNotOnCharacterException, FullDiningRoomLaneException, MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">539</i>&nbsp;        if(color == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">540</i>&nbsp;
+<b class="fc"><i class="no-highlight">541</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.PUT_ONE_STUDENT_FROM_CHARACTER_INTO_DINING_ROOM.characterId).findFirst();</b>
+<i class="no-highlight">542</i>&nbsp;
+<b class="fc"><i class="no-highlight">543</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">544</i>&nbsp;
+<b class="fc"><i class="no-highlight">545</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">546</i>&nbsp;
+<b class="fc"><i class="no-highlight">547</i>&nbsp;        this.putOneStudentFromCharacterToDiningRoom(selectedCharacter.get(), color);</b>
+<i class="no-highlight">548</i>&nbsp;
+<b class="fc"><i class="no-highlight">549</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">550</i>&nbsp;
+<b class="fc"><i class="no-highlight">551</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">552</i>&nbsp;    }
+<i class="no-highlight">553</i>&nbsp;
+<i class="no-highlight">554</i>&nbsp;    //12
+<i class="no-highlight">555</i>&nbsp;    private void putThreeStudentsInTheBag(Color color) throws StudentsNotInTheDiningRoomException {
+<b class="fc"><i class="no-highlight">556</i>&nbsp;        for (SchoolBoard schoolBoard: this.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">557</i>&nbsp;            for (int i = 0; i &lt; 3; i++) {</b>
+<b class="fc"><i class="no-highlight">558</i>&nbsp;                if(schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(color) &gt;= 1){</b>
+<b class="fc"><i class="no-highlight">559</i>&nbsp;                    schoolBoard.removeStudentFromDiningRoom(color);</b>
+<b class="fc"><i class="no-highlight">560</i>&nbsp;                    this.studentFactory.studentSupply.put(color, this.studentFactory.studentSupply.get(color) + 1 );</b>
+<i class="no-highlight">561</i>&nbsp;                }
+<i class="no-highlight">562</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">563</i>&nbsp;        }</b>
+<i class="no-highlight">564</i>&nbsp;    }
+<i class="no-highlight">565</i>&nbsp;
+<i class="no-highlight">566</i>&nbsp;    /**
+<i class="no-highlight">567</i>&nbsp;     * This method executes the effect of the character with ID 12. It makes every player to get three students of the inputted color from the diningRoom
+<i class="no-highlight">568</i>&nbsp;     * and put them into the bag
+<i class="no-highlight">569</i>&nbsp;     * @param color is the color of the students that have to be removed from the diningRoom
+<i class="no-highlight">570</i>&nbsp;     * @throws StudentsNotInTheDiningRoomException if the one of the elements of studentsFromEntrance is not actually present in the entrance
+<i class="no-highlight">571</i>&nbsp;     * @throws MoveNotAvailableException if the move is not available in the game
+<i class="no-highlight">572</i>&nbsp;     * @throws NotEnoughCoinsException if the player doesn&#39;t have enough coins to activate the character
+<i class="no-highlight">573</i>&nbsp;
+<i class="no-highlight">574</i>&nbsp;     */
+<i class="no-highlight">575</i>&nbsp;    @Override
+<i class="no-highlight">576</i>&nbsp;    public void playPutThreeStudentsInTheBag(Color color) throws MoveNotAvailableException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException {
+<b class="fc"><i class="no-highlight">577</i>&nbsp;        if(color == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">578</i>&nbsp;
+<b class="fc"><i class="no-highlight">579</i>&nbsp;        Optional&lt;PlayableCharacter&gt; selectedCharacter = this.availableCharacters.stream().filter(character -&gt; character.getCharacterId() == Character.PUT_THREE_STUDENTS_IN_THE_BAG.characterId).findFirst();</b>
+<i class="no-highlight">580</i>&nbsp;
+<b class="fc"><i class="no-highlight">581</i>&nbsp;        if(selectedCharacter.isEmpty()) throw new MoveNotAvailableException();</b>
+<i class="no-highlight">582</i>&nbsp;
+<b class="fc"><i class="no-highlight">583</i>&nbsp;        if(this.getCurrentPlayerSchoolBoard().getCoins() &lt; selectedCharacter.get().getCurrentCost()) throw new NotEnoughCoinsException();</b>
+<i class="no-highlight">584</i>&nbsp;
+<b class="fc"><i class="no-highlight">585</i>&nbsp;        this.putThreeStudentsInTheBag(color);</b>
+<i class="no-highlight">586</i>&nbsp;
+<b class="fc"><i class="no-highlight">587</i>&nbsp;        this.characterPlayedInCurrentTurn = selectedCharacter.get();</b>
+<i class="no-highlight">588</i>&nbsp;
+<b class="fc"><i class="no-highlight">589</i>&nbsp;        this.payCharacter();</b>
+<i class="no-highlight">590</i>&nbsp;    }
+<i class="no-highlight">591</i>&nbsp;
+<i class="no-highlight">592</i>&nbsp;    @Override
+<i class="no-highlight">593</i>&nbsp;    public List&lt;PlayableCharacter&gt; getAvailableCharacters(){
+<b class="fc"><i class="no-highlight">594</i>&nbsp;        return new ArrayList&lt;&gt;(this.availableCharacters);</b>
+<i class="no-highlight">595</i>&nbsp;    }
+<i class="no-highlight">596</i>&nbsp;
+<i class="no-highlight">597</i>&nbsp;    @Override
+<i class="no-highlight">598</i>&nbsp;    public boolean wasCharacterPlayedInCurrentTurn() {
+<b class="fc"><i class="no-highlight">599</i>&nbsp;        return this.characterPlayedInCurrentTurn.getCharacterId() != Character.NONE.characterId;</b>
+<i class="no-highlight">600</i>&nbsp;    }
+<i class="no-highlight">601</i>&nbsp;
+<i class="no-highlight">602</i>&nbsp;    @Override
+<i class="no-highlight">603</i>&nbsp;    public void resetCharacterPlayedThisTurn(){
+<b class="fc"><i class="no-highlight">604</i>&nbsp;        this.characterPlayedInCurrentTurn = new PlayableCharacter(Character.NONE);</b>
+<i class="no-highlight">605</i>&nbsp;    }
+<i class="no-highlight">606</i>&nbsp;
+<i class="no-highlight">607</i>&nbsp;    private void payCharacter() {
+<b class="fc"><i class="no-highlight">608</i>&nbsp;        if(this.characterPlayedInCurrentTurn.getCharacterId() != Character.NONE.characterId){</b>
+<b class="fc"><i class="no-highlight">609</i>&nbsp;            this.getCurrentPlayerSchoolBoard().payCharacter(this.characterPlayedInCurrentTurn.getCurrentCost());</b>
+<b class="fc"><i class="no-highlight">610</i>&nbsp;            this.characterPlayedInCurrentTurn.increaseCost();</b>
+<i class="no-highlight">611</i>&nbsp;        }
+<i class="no-highlight">612</i>&nbsp;    }
+<i class="no-highlight">613</i>&nbsp;
+<i class="no-highlight">614</i>&nbsp;    /**
+<i class="no-highlight">615</i>&nbsp;     * This method returns the light version of the GameState, with all the useful information to be sent over the network
+<i class="no-highlight">616</i>&nbsp;     * @return a LightGameState representing the light version of the GameState, with all the useful information to be sent over the network
+<i class="no-highlight">617</i>&nbsp;     */
+<i class="no-highlight">618</i>&nbsp;    @Override
+<i class="no-highlight">619</i>&nbsp;    public LightGameState lightify() {
+<b class="nc"><i class="no-highlight">620</i>&nbsp;        return new LightGameState(</b>
+<b class="nc"><i class="no-highlight">621</i>&nbsp;                super.archipelagos.stream().map(Archipelago::lightify).toList(),</b>
+<b class="nc"><i class="no-highlight">622</i>&nbsp;                super.schoolBoards.stream().map(SchoolBoard::lightify).toList(),</b>
+<i class="no-highlight">623</i>&nbsp;                super.clouds,
+<i class="no-highlight">624</i>&nbsp;                super.currentPlayerSchoolBoardId,
+<b class="nc"><i class="no-highlight">625</i>&nbsp;                super.round.getCurrentPhase(),</b>
+<b class="nc"><i class="no-highlight">626</i>&nbsp;                super.round.getRoundOrder(),</b>
+<b class="nc"><i class="no-highlight">627</i>&nbsp;                super.archipelagos.indexOf(motherNaturePosition),</b>
+<i class="no-highlight">628</i>&nbsp;                super.schoolBoardIdsToLastCardPlayed,
+<i class="no-highlight">629</i>&nbsp;
+<b class="nc"><i class="no-highlight">630</i>&nbsp;                this.availableCharacters.stream().map(PlayableCharacter::lightify).toList(),</b>
+<b class="nc"><i class="no-highlight">631</i>&nbsp;                this.characterPlayedInCurrentTurn != null ? this.characterPlayedInCurrentTurn.lightify() : null</b>
+<i class="no-highlight">632</i>&nbsp;        );
+<i class="no-highlight">633</i>&nbsp;    }
+<i class="no-highlight">634</i>&nbsp;
+<i class="no-highlight">635</i>&nbsp;    @Override
+<i class="no-highlight">636</i>&nbsp;    public void createSnapshot() {}
+<i class="no-highlight">637</i>&nbsp;
+<i class="no-highlight">638</i>&nbsp;    @Override
+<i class="no-highlight">639</i>&nbsp;    public Aggregate rollback() {
+<b class="nc"><i class="no-highlight">640</i>&nbsp;        return this;</b>
+<i class="no-highlight">641</i>&nbsp;    }
+<i class="no-highlight">642</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

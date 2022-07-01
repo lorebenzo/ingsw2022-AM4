@@ -1,0 +1,284 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ExpertArchipelagoTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic</a>
+</div>
+
+<h1>Coverage Summary for Class: ExpertArchipelagoTest (it.polimi.ingsw.server.model.game_logic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ExpertArchipelagoTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (90/90)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Color;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.ArchipelagoAlreadyLockedException;
+<i class="no-highlight">6</i>&nbsp;import org.junit.jupiter.api.Assertions;
+<i class="no-highlight">7</i>&nbsp;import org.junit.jupiter.api.Test;
+<i class="no-highlight">8</i>&nbsp;
+<i class="no-highlight">9</i>&nbsp;import java.util.HashSet;
+<i class="no-highlight">10</i>&nbsp;import java.util.Set;
+<i class="no-highlight">11</i>&nbsp;
+<i class="no-highlight">12</i>&nbsp;import static org.junit.jupiter.api.Assertions.*;
+<i class="no-highlight">13</i>&nbsp;
+<b class="fc"><i class="no-highlight">14</i>&nbsp;public class ExpertArchipelagoTest {</b>
+<i class="no-highlight">15</i>&nbsp;
+<i class="no-highlight">16</i>&nbsp;    @Test
+<i class="no-highlight">17</i>&nbsp;    public void lockTest() throws ArchipelagoAlreadyLockedException {
+<b class="fc"><i class="no-highlight">18</i>&nbsp;        Archipelago archipelago = new ExpertArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">19</i>&nbsp;        Assertions.assertFalse(archipelago.isLocked());</b>
+<b class="fc"><i class="no-highlight">20</i>&nbsp;        archipelago.lock();</b>
+<b class="fc"><i class="no-highlight">21</i>&nbsp;        Assertions.assertTrue(archipelago.isLocked());</b>
+<b class="fc"><i class="no-highlight">22</i>&nbsp;        assertThrows(ArchipelagoAlreadyLockedException.class, archipelago::lock);</b>
+<b class="fc"><i class="no-highlight">23</i>&nbsp;        archipelago.unlock();</b>
+<b class="fc"><i class="no-highlight">24</i>&nbsp;        Assertions.assertFalse(archipelago.isLocked());</b>
+<i class="no-highlight">25</i>&nbsp;    }
+<i class="no-highlight">26</i>&nbsp;
+<i class="no-highlight">27</i>&nbsp;    @Test
+<i class="no-highlight">28</i>&nbsp;    public void merge() {
+<i class="no-highlight">29</i>&nbsp;        // Arrange
+<b class="fc"><i class="no-highlight">30</i>&nbsp;        Archipelago mergeableA1 = new ExpertArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">31</i>&nbsp;        Archipelago mergeableA2 = new ExpertArchipelago(2);</b>
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;        //Test merge with 3 different mergeable archipelagos
+<b class="fc"><i class="no-highlight">34</i>&nbsp;        mergeableA1.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">35</i>&nbsp;        mergeableA2.setTowerColor(TowerColor.BLACK);</b>
+<i class="no-highlight">36</i>&nbsp;
+<i class="no-highlight">37</i>&nbsp;        // Act
+<b class="fc"><i class="no-highlight">38</i>&nbsp;        mergeableA1.merge(mergeableA2);</b>
+<i class="no-highlight">39</i>&nbsp;
+<i class="no-highlight">40</i>&nbsp;        // Assert
+<i class="no-highlight">41</i>&nbsp;
+<b class="fc"><i class="no-highlight">42</i>&nbsp;        assertTrue(mergeableA1.getIslandCodes().containsAll(mergeableA1.getIslandCodes()));</b>
+<b class="fc"><i class="no-highlight">43</i>&nbsp;        assertTrue(mergeableA1.getIslandCodes().containsAll(mergeableA2.getIslandCodes()));</b>
+<b class="fc"><i class="no-highlight">44</i>&nbsp;        assertEquals(2, mergeableA1.getIslandCodes().size());</b>
+<i class="no-highlight">45</i>&nbsp;
+<i class="no-highlight">46</i>&nbsp;    }
+<i class="no-highlight">47</i>&nbsp;
+<i class="no-highlight">48</i>&nbsp;    @Test
+<i class="no-highlight">49</i>&nbsp;    public void mergeWithLocks() throws ArchipelagoAlreadyLockedException {
+<b class="fc"><i class="no-highlight">50</i>&nbsp;        Archipelago a1 = new ExpertArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">51</i>&nbsp;        Archipelago a2 = new ExpertArchipelago(2);</b>
+<i class="no-highlight">52</i>&nbsp;
+<b class="fc"><i class="no-highlight">53</i>&nbsp;        a1.lock();</b>
+<i class="no-highlight">54</i>&nbsp;
+<b class="fc"><i class="no-highlight">55</i>&nbsp;        a1.setTowerColor(TowerColor.BLACK); //This will not set the towercolor because the archipelago is locked</b>
+<b class="fc"><i class="no-highlight">56</i>&nbsp;        a2.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">57</i>&nbsp;        assertFalse(a1.merge(a2));</b>
+<i class="no-highlight">58</i>&nbsp;
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        a1.unlock();</b>
+<i class="no-highlight">60</i>&nbsp;
+<b class="fc"><i class="no-highlight">61</i>&nbsp;        a1.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        assertTrue(a1.merge(a2));</b>
+<b class="fc"><i class="no-highlight">63</i>&nbsp;        assertTrue(a1.getIslandCodes().contains(1));</b>
+<b class="fc"><i class="no-highlight">64</i>&nbsp;        assertTrue(a1.getIslandCodes().containsAll(a2.getIslandCodes()));</b>
+<b class="fc"><i class="no-highlight">65</i>&nbsp;        assertEquals(2, a1.getIslandCodes().size());</b>
+<i class="no-highlight">66</i>&nbsp;
+<i class="no-highlight">67</i>&nbsp;    }
+<i class="no-highlight">68</i>&nbsp;
+<i class="no-highlight">69</i>&nbsp;    @Test
+<i class="no-highlight">70</i>&nbsp;    public void getInfluenceTowersDontCount() {
+<b class="fc"><i class="no-highlight">71</i>&nbsp;        Archipelago archipelago = new ExpertArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        archipelago.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;        archipelago.addStudent(Color.PURPLE);</b>
+<b class="fc"><i class="no-highlight">74</i>&nbsp;        archipelago.addStudent(Color.RED);</b>
+<i class="no-highlight">75</i>&nbsp;
+<b class="fc"><i class="no-highlight">76</i>&nbsp;        Set&lt;Color&gt; playerProfessors = new HashSet&lt;&gt;(Set.of(Color.RED, Color.PURPLE));</b>
+<i class="no-highlight">77</i>&nbsp;
+<b class="fc"><i class="no-highlight">78</i>&nbsp;        assertEquals(3, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">79</i>&nbsp;
+<b class="fc"><i class="no-highlight">80</i>&nbsp;        archipelago.setTowersInfluence(false);</b>
+<b class="fc"><i class="no-highlight">81</i>&nbsp;        assertEquals(2, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">82</i>&nbsp;
+<b class="fc"><i class="no-highlight">83</i>&nbsp;        archipelago.setTowersInfluence(true);</b>
+<b class="fc"><i class="no-highlight">84</i>&nbsp;        assertEquals(3, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">85</i>&nbsp;    }
+<i class="no-highlight">86</i>&nbsp;
+<i class="no-highlight">87</i>&nbsp;    @Test
+<i class="no-highlight">88</i>&nbsp;    public void getInfluenceTowersDontCount2() {
+<b class="fc"><i class="no-highlight">89</i>&nbsp;        Archipelago archipelago = new ExpertArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">90</i>&nbsp;        Archipelago archipelago2 = new ExpertArchipelago(2);</b>
+<i class="no-highlight">91</i>&nbsp;
+<i class="no-highlight">92</i>&nbsp;
+<b class="fc"><i class="no-highlight">93</i>&nbsp;        archipelago.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        archipelago.addStudent(Color.PURPLE);</b>
+<b class="fc"><i class="no-highlight">95</i>&nbsp;        archipelago.addStudent(Color.RED);</b>
+<i class="no-highlight">96</i>&nbsp;
+<b class="fc"><i class="no-highlight">97</i>&nbsp;        archipelago2.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">98</i>&nbsp;        archipelago2.addStudent(Color.PURPLE);</b>
+<b class="fc"><i class="no-highlight">99</i>&nbsp;        archipelago2.addStudent(Color.RED);</b>
+<i class="no-highlight">100</i>&nbsp;
+<b class="fc"><i class="no-highlight">101</i>&nbsp;        archipelago.merge(archipelago2);</b>
+<i class="no-highlight">102</i>&nbsp;
+<b class="fc"><i class="no-highlight">103</i>&nbsp;        Set&lt;Color&gt; playerProfessors = new HashSet&lt;&gt;(Set.of(Color.RED, Color.PURPLE));</b>
+<i class="no-highlight">104</i>&nbsp;
+<b class="fc"><i class="no-highlight">105</i>&nbsp;        assertEquals(6, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">106</i>&nbsp;
+<b class="fc"><i class="no-highlight">107</i>&nbsp;        archipelago.setTowersInfluence(false);</b>
+<b class="fc"><i class="no-highlight">108</i>&nbsp;        assertEquals(4, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">109</i>&nbsp;
+<b class="fc"><i class="no-highlight">110</i>&nbsp;        archipelago.setTowersInfluence(true);</b>
+<b class="fc"><i class="no-highlight">111</i>&nbsp;        assertEquals(6, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">112</i>&nbsp;    }
+<i class="no-highlight">113</i>&nbsp;
+<i class="no-highlight">114</i>&nbsp;    @Test
+<i class="no-highlight">115</i>&nbsp;    public void getInfluenceColorDoesntCount() {
+<b class="fc"><i class="no-highlight">116</i>&nbsp;        Archipelago archipelago = new ExpertArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">117</i>&nbsp;        archipelago.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">118</i>&nbsp;        archipelago.addStudent(Color.PURPLE);</b>
+<b class="fc"><i class="no-highlight">119</i>&nbsp;        archipelago.addStudent(Color.RED);</b>
+<i class="no-highlight">120</i>&nbsp;
+<b class="fc"><i class="no-highlight">121</i>&nbsp;        Set&lt;Color&gt; playerProfessors = new HashSet&lt;&gt;(Set.of(Color.RED, Color.PURPLE));</b>
+<i class="no-highlight">122</i>&nbsp;
+<b class="fc"><i class="no-highlight">123</i>&nbsp;        assertEquals(3, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">124</i>&nbsp;
+<b class="fc"><i class="no-highlight">125</i>&nbsp;        archipelago.setColorThatDoesntCount(Color.RED);</b>
+<b class="fc"><i class="no-highlight">126</i>&nbsp;        assertEquals(2, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">127</i>&nbsp;
+<b class="fc"><i class="no-highlight">128</i>&nbsp;        archipelago.setColorThatDoesntCount(null);</b>
+<b class="fc"><i class="no-highlight">129</i>&nbsp;        assertEquals(3, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">130</i>&nbsp;    }
+<i class="no-highlight">131</i>&nbsp;
+<i class="no-highlight">132</i>&nbsp;    @Test
+<i class="no-highlight">133</i>&nbsp;    public void getInfluenceColorDoesntCount2() {
+<b class="fc"><i class="no-highlight">134</i>&nbsp;        Archipelago archipelago = new ExpertArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">135</i>&nbsp;        Archipelago archipelago2 = new ExpertArchipelago(2);</b>
+<i class="no-highlight">136</i>&nbsp;
+<b class="fc"><i class="no-highlight">137</i>&nbsp;        archipelago.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">138</i>&nbsp;        archipelago.addStudent(Color.PURPLE);</b>
+<b class="fc"><i class="no-highlight">139</i>&nbsp;        archipelago.addStudent(Color.RED);</b>
+<i class="no-highlight">140</i>&nbsp;
+<b class="fc"><i class="no-highlight">141</i>&nbsp;        archipelago2.setTowerColor(TowerColor.BLACK);</b>
+<b class="fc"><i class="no-highlight">142</i>&nbsp;        archipelago2.addStudent(Color.PURPLE);</b>
+<b class="fc"><i class="no-highlight">143</i>&nbsp;        archipelago2.addStudent(Color.RED);</b>
+<i class="no-highlight">144</i>&nbsp;
+<b class="fc"><i class="no-highlight">145</i>&nbsp;        archipelago.merge(archipelago2);</b>
+<i class="no-highlight">146</i>&nbsp;
+<b class="fc"><i class="no-highlight">147</i>&nbsp;        Set&lt;Color&gt; playerProfessors = new HashSet&lt;&gt;(Set.of(Color.RED, Color.PURPLE));</b>
+<i class="no-highlight">148</i>&nbsp;
+<b class="fc"><i class="no-highlight">149</i>&nbsp;        assertEquals(6, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">150</i>&nbsp;
+<b class="fc"><i class="no-highlight">151</i>&nbsp;        archipelago.setColorThatDoesntCount(Color.RED);</b>
+<b class="fc"><i class="no-highlight">152</i>&nbsp;        assertEquals(4, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">153</i>&nbsp;
+<b class="fc"><i class="no-highlight">154</i>&nbsp;        archipelago.setColorThatDoesntCount(null);</b>
+<b class="fc"><i class="no-highlight">155</i>&nbsp;        assertEquals(6, archipelago.getInfluence(playerProfessors,TowerColor.BLACK));</b>
+<i class="no-highlight">156</i>&nbsp;    }
+<i class="no-highlight">157</i>&nbsp;
+<i class="no-highlight">158</i>&nbsp;    @Test
+<i class="no-highlight">159</i>&nbsp;    public void lightify() throws ArchipelagoAlreadyLockedException {
+<b class="fc"><i class="no-highlight">160</i>&nbsp;        Archipelago archipelago = new ExpertArchipelago(0);</b>
+<i class="no-highlight">161</i>&nbsp;
+<b class="fc"><i class="no-highlight">162</i>&nbsp;        archipelago.addStudent(Color.RED);</b>
+<b class="fc"><i class="no-highlight">163</i>&nbsp;        archipelago.addStudent(Color.RED);</b>
+<b class="fc"><i class="no-highlight">164</i>&nbsp;        archipelago.addStudent(Color.GREEN);</b>
+<i class="no-highlight">165</i>&nbsp;
+<b class="fc"><i class="no-highlight">166</i>&nbsp;        archipelago.setTowerColor(TowerColor.BLACK);</b>
+<i class="no-highlight">167</i>&nbsp;
+<b class="fc"><i class="no-highlight">168</i>&nbsp;        archipelago.setColorThatDoesntCount(Color.RED);</b>
+<b class="fc"><i class="no-highlight">169</i>&nbsp;        archipelago.lock();</b>
+<b class="fc"><i class="no-highlight">170</i>&nbsp;        archipelago.setTowersInfluence(false);</b>
+<i class="no-highlight">171</i>&nbsp;
+<b class="fc"><i class="no-highlight">172</i>&nbsp;        LightArchipelago lightArchipelago = archipelago.lightify();</b>
+<i class="no-highlight">173</i>&nbsp;
+<b class="fc"><i class="no-highlight">174</i>&nbsp;        assertEquals(archipelago.getIslandCodes(), lightArchipelago.islandCodes);</b>
+<b class="fc"><i class="no-highlight">175</i>&nbsp;        assertEquals(archipelago.getStudentToNumber(), lightArchipelago.studentToNumber);</b>
+<b class="fc"><i class="no-highlight">176</i>&nbsp;        assertEquals(archipelago.getTowerColor(), lightArchipelago.towerColor);</b>
+<i class="no-highlight">177</i>&nbsp;
+<i class="no-highlight">178</i>&nbsp;    }
+<i class="no-highlight">179</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,441 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > CommunicationController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.controller.game_state_controller</a>
+</div>
+
+<h1>Coverage Summary for Class: CommunicationController (it.polimi.ingsw.server.controller.game_state_controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CommunicationController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/26)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/141)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.controller.game_state_controller;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.Peer;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.exceptions.UnhandledMessageAtLowestLayerException;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+<i class="no-highlight">8</i>&nbsp;import it.polimi.ingsw.server.controller.auth_controller.AuthController;
+<i class="no-highlight">9</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
+<i class="no-highlight">10</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
+<i class="no-highlight">11</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.messages.enums.ReturnMessage;
+<i class="no-highlight">12</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.LightGameState;
+<i class="no-highlight">13</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.entities.Player;
+<i class="no-highlight">14</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+<i class="no-highlight">15</i>&nbsp;import it.polimi.ingsw.server.repository.GamesRepository;
+<i class="no-highlight">16</i>&nbsp;import org.javatuples.Pair;
+<i class="no-highlight">17</i>&nbsp;
+<i class="no-highlight">18</i>&nbsp;import java.util.*;
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;public class CommunicationController extends SugarMessageProcessor {
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;    protected GameStateController gameStateController;
+<i class="no-highlight">23</i>&nbsp;    protected final Map&lt;String, Integer&gt; usernameToSchoolBoardId;
+<i class="no-highlight">24</i>&nbsp;
+<b class="nc"><i class="no-highlight">25</i>&nbsp;    protected CommunicationController(List&lt;Player&gt; players, boolean isExpertMode) throws GameStateInitializationFailureException {</b>
+<b class="nc"><i class="no-highlight">26</i>&nbsp;        this.gameStateController = initializeGameStateController(players.size());</b>
+<b class="nc"><i class="no-highlight">27</i>&nbsp;        this.usernameToSchoolBoardId = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">28</i>&nbsp;
+<i class="no-highlight">29</i>&nbsp;        //Create a map that links every peer to a schoolBoardId
+<b class="nc"><i class="no-highlight">30</i>&nbsp;        Iterator&lt;Integer&gt; schoolBoardIdsSetIterator = this.gameStateController.getSchoolBoardIds().iterator();</b>
+<i class="no-highlight">31</i>&nbsp;
+<b class="nc"><i class="no-highlight">32</i>&nbsp;        for (var player : players) {</b>
+<b class="nc"><i class="no-highlight">33</i>&nbsp;            this.usernameToSchoolBoardId.put(player.username, schoolBoardIdsSetIterator.next());</b>
+<b class="nc"><i class="no-highlight">34</i>&nbsp;        }</b>
+<i class="no-highlight">35</i>&nbsp;
+<i class="no-highlight">36</i>&nbsp;        // If is not expert mode, save the games in current run repository
+<b class="nc"><i class="no-highlight">37</i>&nbsp;        if(!isExpertMode) {</b>
+<b class="nc"><i class="no-highlight">38</i>&nbsp;            var gameUUID = gameStateController.getGameUUID();</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;            for (int i = 0; i &lt; players.size(); i++) {</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;                GamesRepository.getInstance().saveUserSchoolBoardMap(gameUUID, players.get(i).username, i);</b>
+<i class="no-highlight">41</i>&nbsp;            }
+<i class="no-highlight">42</i>&nbsp;        }
+<i class="no-highlight">43</i>&nbsp;    }
+<i class="no-highlight">44</i>&nbsp;
+<b class="nc"><i class="no-highlight">45</i>&nbsp;    public CommunicationController(List&lt;Pair&lt;String, Integer&gt;&gt; players, UUID gameUUID) {</b>
+<b class="nc"><i class="no-highlight">46</i>&nbsp;        this.gameStateController = initializeGameStateController(gameUUID);</b>
+<b class="nc"><i class="no-highlight">47</i>&nbsp;        this.usernameToSchoolBoardId = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">48</i>&nbsp;
+<b class="nc"><i class="no-highlight">49</i>&nbsp;        players.forEach(player -&gt; this.usernameToSchoolBoardId.put(player.getValue0(), player.getValue1()));</b>
+<i class="no-highlight">50</i>&nbsp;    }
+<i class="no-highlight">51</i>&nbsp;
+<i class="no-highlight">52</i>&nbsp;    protected GameStateController initializeGameStateController(int playersNumber) throws GameStateInitializationFailureException {
+<b class="nc"><i class="no-highlight">53</i>&nbsp;        return new GameStateController(playersNumber);</b>
+<i class="no-highlight">54</i>&nbsp;    }
+<i class="no-highlight">55</i>&nbsp;    protected GameStateController initializeGameStateController(UUID gameUUID) {
+<b class="nc"><i class="no-highlight">56</i>&nbsp;        return new GameStateController(gameUUID);</b>
+<i class="no-highlight">57</i>&nbsp;    }
+<i class="no-highlight">58</i>&nbsp;
+<i class="no-highlight">59</i>&nbsp;    public static CommunicationController createCommunicationController(List&lt;Player&gt; players, boolean isExpertMode) throws GameStateInitializationFailureException {
+<b class="nc"><i class="no-highlight">60</i>&nbsp;        if(isExpertMode)</b>
+<b class="nc"><i class="no-highlight">61</i>&nbsp;            return new ExpertCommunicationController(players);</b>
+<i class="no-highlight">62</i>&nbsp;        else
+<b class="nc"><i class="no-highlight">63</i>&nbsp;            return new CommunicationController(players, false);</b>
+<i class="no-highlight">64</i>&nbsp;    }
+<i class="no-highlight">65</i>&nbsp;
+<i class="no-highlight">66</i>&nbsp;    public static CommunicationController createCommunicationController(List&lt;Pair&lt;String, Integer&gt;&gt; players, boolean isExpertMode, UUID gameUUID) {
+<b class="nc"><i class="no-highlight">67</i>&nbsp;        if(isExpertMode)</b>
+<b class="nc"><i class="no-highlight">68</i>&nbsp;            return new ExpertCommunicationController(players, gameUUID);</b>
+<i class="no-highlight">69</i>&nbsp;        else
+<b class="nc"><i class="no-highlight">70</i>&nbsp;            return new CommunicationController(players, gameUUID);</b>
+<i class="no-highlight">71</i>&nbsp;    }
+<i class="no-highlight">72</i>&nbsp;
+<i class="no-highlight">73</i>&nbsp;    /**
+<i class="no-highlight">74</i>&nbsp;     * This method whether a move was sent by the current player or not.
+<i class="no-highlight">75</i>&nbsp;     * @param player indicates a  peer, therefore a player,
+<i class="no-highlight">76</i>&nbsp;     * @return true if the move has to be processed, because it is performed by the current player, false otherwise.
+<i class="no-highlight">77</i>&nbsp;     */
+<i class="no-highlight">78</i>&nbsp;    boolean isOthersPlayersTurn(String player){
+<b class="nc"><i class="no-highlight">79</i>&nbsp;        return this.getSchoolBoardIdFromUsername(player) != this.gameStateController.getCurrentPlayerSchoolBoardId();</b>
+<i class="no-highlight">80</i>&nbsp;    }
+<i class="no-highlight">81</i>&nbsp;
+<i class="no-highlight">82</i>&nbsp;    /**
+<i class="no-highlight">83</i>&nbsp;     * This method is the handler for the RollBackMsg
+<i class="no-highlight">84</i>&nbsp;     * @param message is the RollBackMsg
+<i class="no-highlight">85</i>&nbsp;     * @param peer is the Peer from which the message is received
+<i class="no-highlight">86</i>&nbsp;     * @return a SugarMessage with the response of the invocation
+<i class="no-highlight">87</i>&nbsp;     */
+<i class="no-highlight">88</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">89</i>&nbsp;    public SugarMessage rollbackMsg(RollbackMsg message, Peer peer) {
+<b class="nc"><i class="no-highlight">90</i>&nbsp;        var username = AuthController.getUsernameFromJWT(message.jwt);</b>
+<b class="nc"><i class="no-highlight">91</i>&nbsp;        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);</b>
+<i class="no-highlight">92</i>&nbsp;
+<b class="nc"><i class="no-highlight">93</i>&nbsp;        this.gameStateController.rollback();</b>
+<i class="no-highlight">94</i>&nbsp;
+<b class="nc"><i class="no-highlight">95</i>&nbsp;        return new OKAndUpdateMsg(new OKMsg(ReturnMessage.ROLLBACK.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));</b>
+<i class="no-highlight">96</i>&nbsp;
+<i class="no-highlight">97</i>&nbsp;    }
+<i class="no-highlight">98</i>&nbsp;
+<i class="no-highlight">99</i>&nbsp;    /**
+<i class="no-highlight">100</i>&nbsp;     * This method is the handler for the PlayCardMsg
+<i class="no-highlight">101</i>&nbsp;     * @param message is the PlayCardMsg
+<i class="no-highlight">102</i>&nbsp;     * @param peer is the Peer from which the message is received
+<i class="no-highlight">103</i>&nbsp;     * @return a SugarMessage with the response of the invocation
+<i class="no-highlight">104</i>&nbsp;     */
+<i class="no-highlight">105</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">106</i>&nbsp;    public SugarMessage playCardMsg(PlayCardMsg message, Peer peer){
+<b class="nc"><i class="no-highlight">107</i>&nbsp;        var username = AuthController.getUsernameFromJWT(message.jwt);</b>
+<b class="nc"><i class="no-highlight">108</i>&nbsp;        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);</b>
+<i class="no-highlight">109</i>&nbsp;
+<i class="no-highlight">110</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">111</i>&nbsp;            boolean lastRound = this.gameStateController.playCard(message.card);</b>
+<b class="nc"><i class="no-highlight">112</i>&nbsp;            return new OKAndUpdateMsg(new OKMsg(lastRound ? ReturnMessage.CARD_PLAYED.text + &quot; &quot; + ReturnMessage.NO_MORE_CARDS.text: ReturnMessage.CARD_PLAYED.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));</b>
+<b class="nc"><i class="no-highlight">113</i>&nbsp;        } catch (WrongPhaseException e){</b>
+<b class="nc"><i class="no-highlight">114</i>&nbsp;            return new KOMsg(ReturnMessage.WRONG_PHASE.text);</b>
+<b class="nc"><i class="no-highlight">115</i>&nbsp;        } catch (CardIsNotInTheDeckException e) {</b>
+<b class="nc"><i class="no-highlight">116</i>&nbsp;            return new KOMsg(ReturnMessage.CARD_IS_NOT_IN_THE_DECK.text);</b>
+<i class="no-highlight">117</i>&nbsp;
+<b class="nc"><i class="no-highlight">118</i>&nbsp;        }catch (InvalidCardPlayedException e) {</b>
+<b class="nc"><i class="no-highlight">119</i>&nbsp;            return new KOMsg(ReturnMessage.INVALID_CARD_PLAYED.text);</b>
+<b class="nc"><i class="no-highlight">120</i>&nbsp;        } catch (MoveAlreadyPlayedException e) {</b>
+<b class="nc"><i class="no-highlight">121</i>&nbsp;            return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);</b>
+<i class="no-highlight">122</i>&nbsp;        }
+<i class="no-highlight">123</i>&nbsp;    }
+<i class="no-highlight">124</i>&nbsp;
+<i class="no-highlight">125</i>&nbsp;    /**
+<i class="no-highlight">126</i>&nbsp;     * This method is the handler fot the MoveStudentFromEntranceToDiningRoomMsg
+<i class="no-highlight">127</i>&nbsp;     * @param message is the MoveStudentFromEntranceToDiningRoomMsg
+<i class="no-highlight">128</i>&nbsp;     * @param peer is the Peer from which the message is received
+<i class="no-highlight">129</i>&nbsp;     * @return a SugarMessage with the response of the invocation
+<i class="no-highlight">130</i>&nbsp;     */
+<i class="no-highlight">131</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">132</i>&nbsp;    public SugarMessage moveStudentFromEntranceToDiningRoomMsg(MoveStudentFromEntranceToDiningRoomMsg message, Peer peer){
+<b class="nc"><i class="no-highlight">133</i>&nbsp;        var username = AuthController.getUsernameFromJWT(message.jwt);</b>
+<b class="nc"><i class="no-highlight">134</i>&nbsp;        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);</b>
+<i class="no-highlight">135</i>&nbsp;
+<i class="no-highlight">136</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">137</i>&nbsp;            this.gameStateController.moveStudentFromEntranceToDiningRoom(message.student);</b>
+<b class="nc"><i class="no-highlight">138</i>&nbsp;            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_DINING.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));</b>
+<b class="nc"><i class="no-highlight">139</i>&nbsp;        } catch (WrongPhaseException e) {</b>
+<b class="nc"><i class="no-highlight">140</i>&nbsp;            return new KOMsg(ReturnMessage.WRONG_PHASE.text);</b>
+<b class="nc"><i class="no-highlight">141</i>&nbsp;        } catch (StudentNotInTheEntranceException e) {</b>
+<b class="nc"><i class="no-highlight">142</i>&nbsp;            return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);</b>
+<b class="nc"><i class="no-highlight">143</i>&nbsp;        } catch (FullDiningRoomLaneException e) {</b>
+<b class="nc"><i class="no-highlight">144</i>&nbsp;            return new KOMsg(ReturnMessage.FULL_DINING_ROOM_LANE.text);</b>
+<b class="nc"><i class="no-highlight">145</i>&nbsp;        } catch (TooManyStudentsMovedException e) {</b>
+<b class="nc"><i class="no-highlight">146</i>&nbsp;            return new KOMsg(ReturnMessage.TOO_MANY_STUDENTS_MOVED.text);</b>
+<i class="no-highlight">147</i>&nbsp;        }
+<i class="no-highlight">148</i>&nbsp;    }
+<i class="no-highlight">149</i>&nbsp;
+<i class="no-highlight">150</i>&nbsp;    /**
+<i class="no-highlight">151</i>&nbsp;     * This method is the handler for the MoveStudentFromEntranceToArchipelagoMsg
+<i class="no-highlight">152</i>&nbsp;     * @param message is the MoveStudentFromEntranceToArchipelagoMsg
+<i class="no-highlight">153</i>&nbsp;     * @param peer is the Peer from which the message is received
+<i class="no-highlight">154</i>&nbsp;     * @return a SugarMessage with the response of the invocation
+<i class="no-highlight">155</i>&nbsp;     */
+<i class="no-highlight">156</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">157</i>&nbsp;    public SugarMessage moveStudentFromEntranceToArchipelagoMsg(MoveStudentFromEntranceToArchipelagoMsg message, Peer peer) {
+<b class="nc"><i class="no-highlight">158</i>&nbsp;        var username = AuthController.getUsernameFromJWT(message.jwt);</b>
+<b class="nc"><i class="no-highlight">159</i>&nbsp;        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);</b>
+<i class="no-highlight">160</i>&nbsp;
+<i class="no-highlight">161</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">162</i>&nbsp;            var archipelagoIslandCodes = this.gameStateController.getLightGameState().archipelagos</b>
+<b class="nc"><i class="no-highlight">163</i>&nbsp;                    .stream()</b>
+<b class="nc"><i class="no-highlight">164</i>&nbsp;                    .map(lightArchipelago -&gt; lightArchipelago.islandCodes)</b>
+<b class="nc"><i class="no-highlight">165</i>&nbsp;                    .filter(ic -&gt; ic.contains(message.archipelagoIslandCode))</b>
+<b class="nc"><i class="no-highlight">166</i>&nbsp;                    .findFirst()</b>
+<b class="nc"><i class="no-highlight">167</i>&nbsp;                    .orElseThrow(InvalidArchipelagoIdException::new);</b>
+<b class="nc"><i class="no-highlight">168</i>&nbsp;            this.gameStateController.moveStudentFromEntranceToArchipelago(message.student, archipelagoIslandCodes);</b>
+<b class="nc"><i class="no-highlight">169</i>&nbsp;            return new OKAndUpdateMsg(new OKMsg(ReturnMessage.STUDENT_MOVED_ARCHIPELAGO.text), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));</b>
+<b class="nc"><i class="no-highlight">170</i>&nbsp;        } catch (WrongPhaseException e) {</b>
+<b class="nc"><i class="no-highlight">171</i>&nbsp;            return new KOMsg(ReturnMessage.WRONG_PHASE.text);</b>
+<b class="nc"><i class="no-highlight">172</i>&nbsp;        } catch (StudentNotInTheEntranceException e) {</b>
+<b class="nc"><i class="no-highlight">173</i>&nbsp;            return new KOMsg(ReturnMessage.STUDENT_NOT_IN_THE_ENTRANCE.text);</b>
+<b class="nc"><i class="no-highlight">174</i>&nbsp;        } catch (TooManyStudentsMovedException e) {</b>
+<b class="nc"><i class="no-highlight">175</i>&nbsp;            return new KOMsg(ReturnMessage.TOO_MANY_STUDENTS_MOVED.text);</b>
+<b class="nc"><i class="no-highlight">176</i>&nbsp;        } catch (InvalidArchipelagoIdException e) {</b>
+<b class="nc"><i class="no-highlight">177</i>&nbsp;            return new KOMsg(ReturnMessage.INVALID_ARCHIPELAGO_ID.text);</b>
+<i class="no-highlight">178</i>&nbsp;        }
+<i class="no-highlight">179</i>&nbsp;    }
+<i class="no-highlight">180</i>&nbsp;
+<i class="no-highlight">181</i>&nbsp;    /**
+<i class="no-highlight">182</i>&nbsp;     * This method is the handler for the MoveMotherNatureMsg
+<i class="no-highlight">183</i>&nbsp;     * @param message is the MoveMotherNatureMsg
+<i class="no-highlight">184</i>&nbsp;     * @param peer is the Peer from which the message is received
+<i class="no-highlight">185</i>&nbsp;     * @return a SugarMessage with the response of the invocation
+<i class="no-highlight">186</i>&nbsp;     */
+<i class="no-highlight">187</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">188</i>&nbsp;    public SugarMessage moveMotherNatureMsg(MoveMotherNatureMsg message, Peer peer) {
+<b class="nc"><i class="no-highlight">189</i>&nbsp;        var username = AuthController.getUsernameFromJWT(message.jwt);</b>
+<b class="nc"><i class="no-highlight">190</i>&nbsp;        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);</b>
+<i class="no-highlight">191</i>&nbsp;
+<i class="no-highlight">192</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">193</i>&nbsp;            boolean merged = this.gameStateController.moveMotherNature(message.numberOfSteps);</b>
+<i class="no-highlight">194</i>&nbsp;
+<b class="nc"><i class="no-highlight">195</i>&nbsp;            return new OKAndUpdateMsg(</b>
+<b class="nc"><i class="no-highlight">196</i>&nbsp;                    new OKMsg(merged ? ReturnMessage.MERGE_PERFORMED.text : ReturnMessage.MERGE_NOT_PERFORMED.text),</b>
+<b class="nc"><i class="no-highlight">197</i>&nbsp;                    new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId))</b>
+<i class="no-highlight">198</i>&nbsp;            );
+<b class="nc"><i class="no-highlight">199</i>&nbsp;        } catch (WrongPhaseException e) {</b>
+<b class="nc"><i class="no-highlight">200</i>&nbsp;            return new KOMsg(ReturnMessage.WRONG_PHASE.text);</b>
+<b class="nc"><i class="no-highlight">201</i>&nbsp;        } catch (InvalidNumberOfStepsException e) {</b>
+<b class="nc"><i class="no-highlight">202</i>&nbsp;            return new KOMsg(ReturnMessage.INVALID_NUMBER_OF_STEPS.text);</b>
+<b class="nc"><i class="no-highlight">203</i>&nbsp;        } catch (MoreStudentsToBeMovedException e) {</b>
+<b class="nc"><i class="no-highlight">204</i>&nbsp;            return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);</b>
+<b class="nc"><i class="no-highlight">205</i>&nbsp;        } catch (MoveAlreadyPlayedException e) {</b>
+<b class="nc"><i class="no-highlight">206</i>&nbsp;            return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);</b>
+<b class="nc"><i class="no-highlight">207</i>&nbsp;        } catch (GameOverException e) {</b>
+<b class="nc"><i class="no-highlight">208</i>&nbsp;            return new GameOverMsg(this.getUsernameToWinnerMap(e.schoolBoardIdToWinnerMap), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));</b>
+<i class="no-highlight">209</i>&nbsp;        }
+<i class="no-highlight">210</i>&nbsp;    }
+<i class="no-highlight">211</i>&nbsp;
+<i class="no-highlight">212</i>&nbsp;    /**
+<i class="no-highlight">213</i>&nbsp;     * This method is the handler for the GrabStudentsFromCloudMsg
+<i class="no-highlight">214</i>&nbsp;     * @param message is the GrabStudentsFromCloudMsg
+<i class="no-highlight">215</i>&nbsp;     * @param peer is the Peer from which the message is received
+<i class="no-highlight">216</i>&nbsp;     * @return a SugarMessage with the response of the invocation
+<i class="no-highlight">217</i>&nbsp;     */
+<i class="no-highlight">218</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">219</i>&nbsp;    public SugarMessage grabStudentsFromCloudMsg(GrabStudentsFromCloudMsg message, Peer peer){
+<b class="nc"><i class="no-highlight">220</i>&nbsp;        var username = AuthController.getUsernameFromJWT(message.jwt);</b>
+<b class="nc"><i class="no-highlight">221</i>&nbsp;        if(this.isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);</b>
+<i class="no-highlight">222</i>&nbsp;
+<i class="no-highlight">223</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">224</i>&nbsp;            this.gameStateController.grabStudentsFromCloud(message.cloudIndex);</b>
+<b class="nc"><i class="no-highlight">225</i>&nbsp;            return new OKAndUpdateMsg(</b>
+<i class="no-highlight">226</i>&nbsp;                    new OKMsg(ReturnMessage.STUDENTS_GRABBED_FROM_CLOUD.text),
+<b class="nc"><i class="no-highlight">227</i>&nbsp;                    new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId))</b>
+<i class="no-highlight">228</i>&nbsp;            );
+<b class="nc"><i class="no-highlight">229</i>&nbsp;        } catch (WrongPhaseException e) {</b>
+<b class="nc"><i class="no-highlight">230</i>&nbsp;            return new KOMsg(ReturnMessage.WRONG_PHASE.text);</b>
+<b class="nc"><i class="no-highlight">231</i>&nbsp;        } catch (EmptyCloudException e) {</b>
+<b class="nc"><i class="no-highlight">232</i>&nbsp;            return new KOMsg(ReturnMessage.EMPTY_CLOUD.text);</b>
+<b class="nc"><i class="no-highlight">233</i>&nbsp;        } catch (MoveAlreadyPlayedException e) {</b>
+<b class="nc"><i class="no-highlight">234</i>&nbsp;            return new KOMsg(ReturnMessage.MOVE_ALREADY_PLAYED.text);</b>
+<b class="nc"><i class="no-highlight">235</i>&nbsp;        } catch (MotherNatureToBeMovedException e) {</b>
+<b class="nc"><i class="no-highlight">236</i>&nbsp;            return new KOMsg(ReturnMessage.MOTHER_NATURE_TO_BE_MOVED.text);</b>
+<i class="no-highlight">237</i>&nbsp;        }
+<i class="no-highlight">238</i>&nbsp;    }
+<i class="no-highlight">239</i>&nbsp;
+<i class="no-highlight">240</i>&nbsp;    /**
+<i class="no-highlight">241</i>&nbsp;     * This method is the handler for the EndTurnMsg
+<i class="no-highlight">242</i>&nbsp;     * @param message is the EndTurnMsg
+<i class="no-highlight">243</i>&nbsp;     * @param peer is the Peer from which the message is received
+<i class="no-highlight">244</i>&nbsp;     * @return a SugarMessage with the response of the invocation
+<i class="no-highlight">245</i>&nbsp;     */
+<i class="no-highlight">246</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">247</i>&nbsp;    public SugarMessage endTurnMsg(EndTurnMsg message, Peer peer){
+<b class="nc"><i class="no-highlight">248</i>&nbsp;        var username = AuthController.getUsernameFromJWT(message.jwt);</b>
+<b class="nc"><i class="no-highlight">249</i>&nbsp;        if(isOthersPlayersTurn(username)) return new KOMsg(ReturnMessage.NOT_YOUR_TURN.text);</b>
+<i class="no-highlight">250</i>&nbsp;
+<i class="no-highlight">251</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">252</i>&nbsp;            boolean lastRound = this.gameStateController.endActionTurn();</b>
+<i class="no-highlight">253</i>&nbsp;            try {
+<b class="nc"><i class="no-highlight">254</i>&nbsp;                this.gameStateController.gameState.createSnapshot();</b>
+<b class="nc"><i class="no-highlight">255</i>&nbsp;            } catch (Exception e) {</b>
+<b class="nc"><i class="no-highlight">256</i>&nbsp;                System.err.println(&quot;Error while creating the snapshot, please check if the DB is connected&quot;);</b>
+<b class="nc"><i class="no-highlight">257</i>&nbsp;            }</b>
+<i class="no-highlight">258</i>&nbsp;
+<b class="nc"><i class="no-highlight">259</i>&nbsp;            return new OKAndUpdateMsg(</b>
+<b class="nc"><i class="no-highlight">260</i>&nbsp;                    new OKMsg(lastRound ? ReturnMessage.TURN_ENDED.text + &quot; &quot; + ReturnMessage.LAST_ROUND.text: ReturnMessage.TURN_ENDED.text),</b>
+<b class="nc"><i class="no-highlight">261</i>&nbsp;                    new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId))</b>
+<i class="no-highlight">262</i>&nbsp;            );
+<b class="nc"><i class="no-highlight">263</i>&nbsp;        } catch (MoreStudentsToBeMovedException e){</b>
+<b class="nc"><i class="no-highlight">264</i>&nbsp;            return new KOMsg(ReturnMessage.MORE_STUDENTS_TO_BE_MOVED.text);</b>
+<b class="nc"><i class="no-highlight">265</i>&nbsp;        } catch (MotherNatureToBeMovedException e){</b>
+<b class="nc"><i class="no-highlight">266</i>&nbsp;            return new KOMsg(ReturnMessage.MOTHER_NATURE_TO_BE_MOVED.text);</b>
+<b class="nc"><i class="no-highlight">267</i>&nbsp;        } catch (StudentsToBeGrabbedFromCloudException e){</b>
+<b class="nc"><i class="no-highlight">268</i>&nbsp;            return new KOMsg(ReturnMessage.STUDENTS_TO_BE_GRABBED_FROM_CLOUD.text);</b>
+<b class="nc"><i class="no-highlight">269</i>&nbsp;        } catch (CardNotPlayedException e){</b>
+<b class="nc"><i class="no-highlight">270</i>&nbsp;            return new KOMsg(ReturnMessage.CARD_NOT_PLAYED.text);</b>
+<b class="nc"><i class="no-highlight">271</i>&nbsp;        } catch (WrongPhaseException e) {</b>
+<b class="nc"><i class="no-highlight">272</i>&nbsp;            return new KOMsg(ReturnMessage.WRONG_PHASE.text);</b>
+<b class="nc"><i class="no-highlight">273</i>&nbsp;        } catch (GameOverException e) {</b>
+<b class="nc"><i class="no-highlight">274</i>&nbsp;            return new GameOverMsg(this.getUsernameToWinnerMap(e.schoolBoardIdToWinnerMap), new UpdateClientMsg(this.gameStateController.getLightGameState().addUsernames(this.usernameToSchoolBoardId)));</b>
+<i class="no-highlight">275</i>&nbsp;        }
+<i class="no-highlight">276</i>&nbsp;    }
+<i class="no-highlight">277</i>&nbsp;
+<i class="no-highlight">278</i>&nbsp;    /**
+<i class="no-highlight">279</i>&nbsp;     * Returns the usernames in my team
+<i class="no-highlight">280</i>&nbsp;     * @param username of the player
+<i class="no-highlight">281</i>&nbsp;     * @return a List&lt;String&gt; that contains all the users in my team, in 2/3 players games,
+<i class="no-highlight">282</i>&nbsp;     *         it returns a list containing only the given username
+<i class="no-highlight">283</i>&nbsp;     */
+<i class="no-highlight">284</i>&nbsp;    public List&lt;String&gt; getTeamUsernames(String username) {
+<b class="nc"><i class="no-highlight">285</i>&nbsp;        var userSchoolBoardId = usernameToSchoolBoardId.get(username);</b>
+<b class="nc"><i class="no-highlight">286</i>&nbsp;        var userTowerColor = this.gameStateController.getSchoolBoardTowerColorFromID(userSchoolBoardId);</b>
+<b class="nc"><i class="no-highlight">287</i>&nbsp;        var teamSchoolBoardIDs = this.gameStateController.getSchoolBoardIDFromTowerColor(userTowerColor);</b>
+<i class="no-highlight">288</i>&nbsp;
+<b class="nc"><i class="no-highlight">289</i>&nbsp;        List&lt;String&gt; teamUsernames = new LinkedList&lt;&gt;();</b>
+<i class="no-highlight">290</i>&nbsp;
+<b class="nc"><i class="no-highlight">291</i>&nbsp;        this.usernameToSchoolBoardId.forEach((user, sbID) -&gt; {</b>
+<b class="nc"><i class="no-highlight">292</i>&nbsp;            if(teamSchoolBoardIDs.contains(sbID)) teamUsernames.add(user);</b>
+<i class="no-highlight">293</i>&nbsp;        });
+<i class="no-highlight">294</i>&nbsp;
+<b class="nc"><i class="no-highlight">295</i>&nbsp;        return teamUsernames;</b>
+<i class="no-highlight">296</i>&nbsp;    }
+<i class="no-highlight">297</i>&nbsp;
+<i class="no-highlight">298</i>&nbsp;    /**
+<i class="no-highlight">299</i>&nbsp;     * Return light game state from the communication controller
+<i class="no-highlight">300</i>&nbsp;     * @return light game state
+<i class="no-highlight">301</i>&nbsp;     */
+<i class="no-highlight">302</i>&nbsp;    public LightGameState getLightGameState() {
+<b class="nc"><i class="no-highlight">303</i>&nbsp;        return this.gameStateController.getLightGameState().addUsernames(usernameToSchoolBoardId);</b>
+<i class="no-highlight">304</i>&nbsp;    }
+<i class="no-highlight">305</i>&nbsp;
+<i class="no-highlight">306</i>&nbsp;    protected Map&lt;String, Boolean&gt; getUsernameToWinnerMap(Map&lt;Integer, Boolean&gt; schoolBoardIdToWinnerMap){
+<b class="nc"><i class="no-highlight">307</i>&nbsp;        Map&lt;String, Boolean&gt; usernameToWinnerMap = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">308</i>&nbsp;
+<b class="nc"><i class="no-highlight">309</i>&nbsp;        for (int schoolBoardId: schoolBoardIdToWinnerMap.keySet()) {</b>
+<b class="nc"><i class="no-highlight">310</i>&nbsp;            usernameToWinnerMap.put(this.getUsernameFromSchoolBoardId(schoolBoardId), schoolBoardIdToWinnerMap.get(schoolBoardId));</b>
+<b class="nc"><i class="no-highlight">311</i>&nbsp;        }</b>
+<b class="nc"><i class="no-highlight">312</i>&nbsp;        return usernameToWinnerMap;</b>
+<i class="no-highlight">313</i>&nbsp;    }
+<i class="no-highlight">314</i>&nbsp;
+<i class="no-highlight">315</i>&nbsp;    public UUID getGameUUID() {
+<b class="nc"><i class="no-highlight">316</i>&nbsp;        return this.gameStateController.getGameUUID();</b>
+<i class="no-highlight">317</i>&nbsp;    }
+<i class="no-highlight">318</i>&nbsp;
+<i class="no-highlight">319</i>&nbsp;    private int getSchoolBoardIdFromUsername(String player){
+<b class="nc"><i class="no-highlight">320</i>&nbsp;        return this.usernameToSchoolBoardId.get(player);</b>
+<i class="no-highlight">321</i>&nbsp;    }
+<i class="no-highlight">322</i>&nbsp;
+<i class="no-highlight">323</i>&nbsp;    private String getUsernameFromSchoolBoardId(int schoolBoardId){
+<b class="nc"><i class="no-highlight">324</i>&nbsp;        var returnString = this.usernameToSchoolBoardId.entrySet().stream().filter(entry -&gt; entry.getValue() == schoolBoardId).map(Map.Entry::getKey).findFirst();</b>
+<i class="no-highlight">325</i>&nbsp;
+<b class="nc"><i class="no-highlight">326</i>&nbsp;        if(returnString.isEmpty()) throw new InvalidSchoolBoardIdException(&quot;Fatal error - invalid schoolBoard ID.&quot;);</b>
+<i class="no-highlight">327</i>&nbsp;
+<b class="nc"><i class="no-highlight">328</i>&nbsp;        return returnString.get();</b>
+<i class="no-highlight">329</i>&nbsp;    }
+<i class="no-highlight">330</i>&nbsp;
+<i class="no-highlight">331</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">332</i>&nbsp;    public void base(SugarMessage message, Peer peer) throws UnhandledMessageAtLowestLayerException {
+<b class="nc"><i class="no-highlight">333</i>&nbsp;        System.out.println(&quot;Dropping message : &quot; + message.serialize());</b>
+<b class="nc"><i class="no-highlight">334</i>&nbsp;        throw new UnhandledMessageAtLowestLayerException(message);</b>
+<i class="no-highlight">335</i>&nbsp;    }
+<i class="no-highlight">336</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,428 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > GameStateController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.controller.game_state_controller</a>
+</div>
+
+<h1>Coverage Summary for Class: GameStateController (it.polimi.ingsw.server.controller.game_state_controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameStateController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    70.8%
+  </span>
+  <span class="absValue">
+    (17/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    81.3%
+  </span>
+  <span class="absValue">
+    (74/91)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.controller.game_state_controller;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.*;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.GameState;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.LightGameState;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.*;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+<i class="no-highlight">8</i>&nbsp;
+<i class="no-highlight">9</i>&nbsp;import java.util.*;
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;public class GameStateController implements GameStateControllerCommonInterface {
+<i class="no-highlight">12</i>&nbsp;    protected GameState gameState;
+<i class="no-highlight">13</i>&nbsp;
+<b class="fc"><i class="no-highlight">14</i>&nbsp;    public GameStateController(int playersNumber) throws GameStateInitializationFailureException {</b>
+<i class="no-highlight">15</i>&nbsp;        //Create a new gameState
+<b class="fc"><i class="no-highlight">16</i>&nbsp;        this.gameState = initializeGameState(playersNumber);</b>
+<i class="no-highlight">17</i>&nbsp;
+<i class="no-highlight">18</i>&nbsp;        //After the constructor ends, there is a round order based on how .stream().toList() ordered the elements of this.gameState.getSchoolBoardIds
+<i class="no-highlight">19</i>&nbsp;        //Since the Phase is set to PLANNING, only the method playCard can be executed by players, in the order imposed by the iterator based on this.gameState.getRoundOrder
+<i class="no-highlight">20</i>&nbsp;    }
+<i class="no-highlight">21</i>&nbsp;
+<b class="nc"><i class="no-highlight">22</i>&nbsp;    public GameStateController(UUID gameUUID) {</b>
+<i class="no-highlight">23</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">24</i>&nbsp;            this.gameState = (GameState) GameState.loadFromUuid(gameUUID);</b>
+<b class="nc"><i class="no-highlight">25</i>&nbsp;        } catch (Exception e) {</b>
+<b class="nc"><i class="no-highlight">26</i>&nbsp;            System.err.println(&quot;Problem while reconstruction of the aggregate&quot;);</b>
+<b class="nc"><i class="no-highlight">27</i>&nbsp;        }</b>
+<i class="no-highlight">28</i>&nbsp;    }
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;    /**
+<i class="no-highlight">31</i>&nbsp;     * This method initializes the correct gameState with its attributes
+<i class="no-highlight">32</i>&nbsp;     * @param playersNumber is the number of players
+<i class="no-highlight">33</i>&nbsp;     * @return the newly created GameState
+<i class="no-highlight">34</i>&nbsp;     * @throws GameStateInitializationFailureException if there was a failure in the initialization procedure
+<i class="no-highlight">35</i>&nbsp;     */
+<i class="no-highlight">36</i>&nbsp;    protected GameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">37</i>&nbsp;        return new GameState(playersNumber);</b>
+<i class="no-highlight">38</i>&nbsp;    }
+<i class="no-highlight">39</i>&nbsp;
+<i class="no-highlight">40</i>&nbsp;    //Supported player moves that are package-private
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;    /**
+<i class="no-highlight">43</i>&nbsp;     * This method gets a card in input, verifies if the current phase is PLANNING and then modifies the gameState accordingly
+<i class="no-highlight">44</i>&nbsp;     * @param card is the card that the player chose to play
+<i class="no-highlight">45</i>&nbsp;     * @throws CardIsNotInTheDeckException if the current player does not actually own the card to be played.
+<i class="no-highlight">46</i>&nbsp;     * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
+<i class="no-highlight">47</i>&nbsp;     * @throws WrongPhaseException if the method is executed in the wrong phase.
+<i class="no-highlight">48</i>&nbsp;     */
+<i class="no-highlight">49</i>&nbsp;    public boolean playCard(Card card) throws CardIsNotInTheDeckException, InvalidCardPlayedException, WrongPhaseException, MoveAlreadyPlayedException {
+<b class="fc"><i class="no-highlight">50</i>&nbsp;        if(this.gameState.getCurrentPhase() != Phase.PLANNING) throw new WrongPhaseException();</b>
+<i class="no-highlight">51</i>&nbsp;
+<b class="fc"><i class="no-highlight">52</i>&nbsp;        if(this.cardPlayed()) throw new MoveAlreadyPlayedException();</b>
+<i class="no-highlight">53</i>&nbsp;
+<b class="fc"><i class="no-highlight">54</i>&nbsp;        this.gameState.playCard(card);</b>
+<i class="no-highlight">55</i>&nbsp;
+<b class="fc"><i class="no-highlight">56</i>&nbsp;        this.nextPlanningTurn();</b>
+<i class="no-highlight">57</i>&nbsp;
+<i class="no-highlight">58</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">59</i>&nbsp;            this.gameState.createSnapshot();</b>
+<b class="nc"><i class="no-highlight">60</i>&nbsp;        } catch (Exception e) {</b>
+<b class="nc"><i class="no-highlight">61</i>&nbsp;            System.err.println(&quot;Error while creating the snapshot, please check if the DB is connected&quot;);</b>
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        }</b>
+<i class="no-highlight">63</i>&nbsp;
+<b class="fc"><i class="no-highlight">64</i>&nbsp;        return this.gameState.isLastRound();</b>
+<i class="no-highlight">65</i>&nbsp;    }
+<i class="no-highlight">66</i>&nbsp;
+<i class="no-highlight">67</i>&nbsp;    /**
+<i class="no-highlight">68</i>&nbsp;     * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState moving the inputted student to its corresponding diningRoomLane.
+<i class="no-highlight">69</i>&nbsp;     * @param student indicates the color of the player that has to be moved.
+<i class="no-highlight">70</i>&nbsp;     * @throws StudentNotInTheEntranceException if the player that has to be moved is not actually in the entrance of the current player&#39;s schoolBoard.
+<i class="no-highlight">71</i>&nbsp;     * @throws FullDiningRoomLaneException if the diningRoomLane corresponding to the student that has to be moved is already full.
+<i class="no-highlight">72</i>&nbsp;     * @throws WrongPhaseException if the method is executed in the wrong phase.
+<i class="no-highlight">73</i>&nbsp;     * @throws TooManyStudentsMovedException if the player has already moved the maximum number of students allowed by the rules.
+<i class="no-highlight">74</i>&nbsp;     */
+<i class="no-highlight">75</i>&nbsp;    public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException, WrongPhaseException, TooManyStudentsMovedException {
+<b class="fc"><i class="no-highlight">76</i>&nbsp;        if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();</b>
+<i class="no-highlight">77</i>&nbsp;
+<b class="fc"><i class="no-highlight">78</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) != 0) throw new TooManyStudentsMovedException();</b>
+<i class="no-highlight">79</i>&nbsp;
+<b class="fc"><i class="no-highlight">80</i>&nbsp;        this.gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">81</i>&nbsp;
+<b class="fc"><i class="no-highlight">82</i>&nbsp;        this.checkStudentsToBeMoved();</b>
+<i class="no-highlight">83</i>&nbsp;        //assignProfessor() verifies on its own if the player should get the professor and does nothing if not
+<b class="fc"><i class="no-highlight">84</i>&nbsp;        this.gameState.assignProfessor(student);</b>
+<i class="no-highlight">85</i>&nbsp;    }
+<i class="no-highlight">86</i>&nbsp;
+<i class="no-highlight">87</i>&nbsp;    /**
+<i class="no-highlight">88</i>&nbsp;     * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState moving the inputted student to the inputted archipelago.
+<i class="no-highlight">89</i>&nbsp;     * @param student indicates the color of the player that has to be moved.
+<i class="no-highlight">90</i>&nbsp;     * @param archipelagoIslandCodes indicates the archipelago, identified through its islandCodes, onto which the student has to be moved.
+<i class="no-highlight">91</i>&nbsp;     * @throws StudentNotInTheEntranceException if the player that has to be moved is not actually in the entrance of the current player&#39;s schoolBoard.
+<i class="no-highlight">92</i>&nbsp;     * @throws WrongPhaseException if the method is executed in the wrong phase.
+<i class="no-highlight">93</i>&nbsp;     * @throws TooManyStudentsMovedException if the player has already moved the maximum number of students allowed by the rules.
+<i class="no-highlight">94</i>&nbsp;     */
+<i class="no-highlight">95</i>&nbsp;    public void moveStudentFromEntranceToArchipelago(Color student, List&lt;Integer&gt; archipelagoIslandCodes) throws StudentNotInTheEntranceException, WrongPhaseException, TooManyStudentsMovedException {
+<b class="fc"><i class="no-highlight">96</i>&nbsp;        if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();</b>
+<i class="no-highlight">97</i>&nbsp;
+<b class="fc"><i class="no-highlight">98</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) != 0) throw new TooManyStudentsMovedException();</b>
+<i class="no-highlight">99</i>&nbsp;
+<b class="fc"><i class="no-highlight">100</i>&nbsp;        this.gameState.moveStudentFromEntranceToArchipelago(student, archipelagoIslandCodes);</b>
+<i class="no-highlight">101</i>&nbsp;
+<b class="fc"><i class="no-highlight">102</i>&nbsp;        this.checkStudentsToBeMoved();</b>
+<i class="no-highlight">103</i>&nbsp;    }
+<i class="no-highlight">104</i>&nbsp;
+<i class="no-highlight">105</i>&nbsp;    /**
+<i class="no-highlight">106</i>&nbsp;     * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState moving motherNature.
+<i class="no-highlight">107</i>&nbsp;     * @param nSteps indicates the number of steps for which the player intends to move motherNature
+<i class="no-highlight">108</i>&nbsp;     * @throws InvalidNumberOfStepsException if the player provides a number of steps that isn&#39;t between 0 and the maximum number of steps that the player chose during the planning phase.
+<i class="no-highlight">109</i>&nbsp;     * @throws WrongPhaseException if the method is executed in the wrong phase.
+<i class="no-highlight">110</i>&nbsp;     */
+<i class="no-highlight">111</i>&nbsp;    public boolean moveMotherNature(int nSteps) throws InvalidNumberOfStepsException, WrongPhaseException, MoreStudentsToBeMovedException, MoveAlreadyPlayedException, GameOverException {
+<b class="fc"><i class="no-highlight">112</i>&nbsp;        boolean mergePreviousPerformed = false;</b>
+<b class="fc"><i class="no-highlight">113</i>&nbsp;        boolean mergeNextPerformed = false;</b>
+<i class="no-highlight">114</i>&nbsp;
+<b class="fc"><i class="no-highlight">115</i>&nbsp;        if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();</b>
+<i class="no-highlight">116</i>&nbsp;
+<b class="fc"><i class="no-highlight">117</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.MOTHER_NATURE_TO_MOVE) &lt; 0) throw new MoreStudentsToBeMovedException();</b>
+<i class="no-highlight">118</i>&nbsp;
+<b class="fc"><i class="no-highlight">119</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.MOTHER_NATURE_TO_MOVE) &gt; 0) throw new MoveAlreadyPlayedException();</b>
+<i class="no-highlight">120</i>&nbsp;
+<b class="fc"><i class="no-highlight">121</i>&nbsp;        this.gameState.moveMotherNatureNStepsClockwise(nSteps);</b>
+<i class="no-highlight">122</i>&nbsp;
+<b class="fc"><i class="no-highlight">123</i>&nbsp;        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_GRAB);</b>
+<i class="no-highlight">124</i>&nbsp;
+<i class="no-highlight">125</i>&nbsp;        //If there is a player that is the most influent on an archipelago, he will conquer the archipelago
+<b class="fc"><i class="no-highlight">126</i>&nbsp;        if(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().isPresent()){</b>
+<b class="fc"><i class="no-highlight">127</i>&nbsp;            this.gameState.conquerArchipelago(this.getMostInfluentSchoolBoardIdOnMotherNaturesPosition().get());</b>
+<b class="fc"><i class="no-highlight">128</i>&nbsp;            mergePreviousPerformed = this.gameState.mergeWithPrevious();</b>
+<b class="fc"><i class="no-highlight">129</i>&nbsp;            mergeNextPerformed = this.gameState.mergeWithNext();</b>
+<i class="no-highlight">130</i>&nbsp;
+<b class="fc"><i class="no-highlight">131</i>&nbsp;            if(this.gameState.checkWinners().containsValue(true)) throw new GameOverException(this.gameState.checkWinners());</b>
+<i class="no-highlight">132</i>&nbsp;        }
+<i class="no-highlight">133</i>&nbsp;
+<b class="fc"><i class="no-highlight">134</i>&nbsp;        return mergePreviousPerformed || mergeNextPerformed;</b>
+<i class="no-highlight">135</i>&nbsp;
+<i class="no-highlight">136</i>&nbsp;    }
+<i class="no-highlight">137</i>&nbsp;
+<i class="no-highlight">138</i>&nbsp;    /**
+<i class="no-highlight">139</i>&nbsp;     * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState grabbing the students from the chosen cloud.
+<i class="no-highlight">140</i>&nbsp;     * @param cloudIndex indicates the index of the cloud from which the player wants to grab the students.
+<i class="no-highlight">141</i>&nbsp;     * @throws EmptyCloudException indicates that che chosen cloud is empty.
+<i class="no-highlight">142</i>&nbsp;     * @throws WrongPhaseException if the method is executed in the wrong phase.
+<i class="no-highlight">143</i>&nbsp;     */
+<i class="no-highlight">144</i>&nbsp;    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException, WrongPhaseException, MoveAlreadyPlayedException, MotherNatureToBeMovedException {
+<b class="fc"><i class="no-highlight">145</i>&nbsp;        if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();</b>
+<i class="no-highlight">146</i>&nbsp;
+<i class="no-highlight">147</i>&nbsp;
+<b class="fc"><i class="no-highlight">148</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_GRAB) &lt; 0) throw new MotherNatureToBeMovedException();</b>
+<i class="no-highlight">149</i>&nbsp;
+<i class="no-highlight">150</i>&nbsp;
+<b class="fc"><i class="no-highlight">151</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_GRAB) &gt; 0) throw new MoveAlreadyPlayedException();</b>
+<i class="no-highlight">152</i>&nbsp;
+<b class="fc"><i class="no-highlight">153</i>&nbsp;        this.gameState.grabStudentsFromCloud(cloudIndex);</b>
+<i class="no-highlight">154</i>&nbsp;
+<b class="fc"><i class="no-highlight">155</i>&nbsp;        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.TURN_TO_END);</b>
+<i class="no-highlight">156</i>&nbsp;    }
+<i class="no-highlight">157</i>&nbsp;
+<i class="no-highlight">158</i>&nbsp;    /**
+<i class="no-highlight">159</i>&nbsp;     * This method performs all the controls before ending the player&#39;s turn and starting the next player&#39;s turn
+<i class="no-highlight">160</i>&nbsp;     * @throws MoreStudentsToBeMovedException if the player didn&#39;t move all the students that he has to move before trying to end his turn.
+<i class="no-highlight">161</i>&nbsp;     * @throws MotherNatureToBeMovedException if the player didn&#39;t move motherNature before trying to end his turn.
+<i class="no-highlight">162</i>&nbsp;     * @throws StudentsToBeGrabbedFromCloudException if the player didn&#39;t grab the students from a cloud before trying to end his turn.
+<i class="no-highlight">163</i>&nbsp;     */
+<i class="no-highlight">164</i>&nbsp;    public boolean endActionTurn() throws MoreStudentsToBeMovedException, MotherNatureToBeMovedException, StudentsToBeGrabbedFromCloudException, CardNotPlayedException, WrongPhaseException, GameOverException {
+<b class="fc"><i class="no-highlight">165</i>&nbsp;        if(this.gameState.getCurrentPhase() != Phase.ACTION) throw new WrongPhaseException();</b>
+<i class="no-highlight">166</i>&nbsp;
+<b class="fc"><i class="no-highlight">167</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.STUDENTS_TO_MOVE) == 0) throw new MoreStudentsToBeMovedException();</b>
+<i class="no-highlight">168</i>&nbsp;
+<i class="no-highlight">169</i>&nbsp;
+<b class="fc"><i class="no-highlight">170</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.MOTHER_NATURE_TO_MOVE) == 0) throw new MotherNatureToBeMovedException();</b>
+<i class="no-highlight">171</i>&nbsp;
+<b class="fc"><i class="no-highlight">172</i>&nbsp;        if(this.gameState.getActionPhaseSubTurn().compareTo(ActionPhaseSubTurn.TURN_TO_END) &lt; 0) throw new StudentsToBeGrabbedFromCloudException();</b>
+<i class="no-highlight">173</i>&nbsp;
+<i class="no-highlight">174</i>&nbsp;        //Block rollback option
+<b class="fc"><i class="no-highlight">175</i>&nbsp;        this.nextActionTurn();</b>
+<i class="no-highlight">176</i>&nbsp;
+<b class="fc"><i class="no-highlight">177</i>&nbsp;        return this.gameState.isLastRound();</b>
+<i class="no-highlight">178</i>&nbsp;    }
+<i class="no-highlight">179</i>&nbsp;
+<i class="no-highlight">180</i>&nbsp;
+<i class="no-highlight">181</i>&nbsp;    public void rollback() {
+<i class="no-highlight">182</i>&nbsp;        // Cast because we are deserializing the snapshot from a JSON state
+<b class="nc"><i class="no-highlight">183</i>&nbsp;        this.gameState = (GameState) this.gameState.rollback();</b>
+<i class="no-highlight">184</i>&nbsp;    }
+<i class="no-highlight">185</i>&nbsp;
+<i class="no-highlight">186</i>&nbsp;
+<i class="no-highlight">187</i>&nbsp;    //Private methods
+<i class="no-highlight">188</i>&nbsp;
+<i class="no-highlight">189</i>&nbsp;    public boolean cardPlayed(){
+<b class="fc"><i class="no-highlight">190</i>&nbsp;        return this.gameState.getSchoolBoardIdsToCardPlayedThisRound().containsKey(this.gameState.getCurrentPlayerSchoolBoardId());</b>
+<i class="no-highlight">191</i>&nbsp;    }
+<i class="no-highlight">192</i>&nbsp;
+<i class="no-highlight">193</i>&nbsp;    private void checkStudentsToBeMoved(){
+<b class="fc"><i class="no-highlight">194</i>&nbsp;        if((this.gameState.getInitialNumberOfStudentsInTheEntrance() - this.gameState.getNumberOfStudentsInTheEntrance()) &gt;= this.gameState.getNumberOfMovableStudents())</b>
+<b class="fc"><i class="no-highlight">195</i>&nbsp;            this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.MOTHER_NATURE_TO_MOVE);</b>
+<i class="no-highlight">196</i>&nbsp;
+<i class="no-highlight">197</i>&nbsp;    }
+<i class="no-highlight">198</i>&nbsp;
+<i class="no-highlight">199</i>&nbsp;    /**
+<i class="no-highlight">200</i>&nbsp;     * This method defines the round order comparing the values of the cards played by different players
+<i class="no-highlight">201</i>&nbsp;     */
+<i class="no-highlight">202</i>&nbsp;    private void defineRoundOrder(){
+<i class="no-highlight">203</i>&nbsp;
+<b class="fc"><i class="no-highlight">204</i>&nbsp;        List&lt;Map.Entry&lt;Integer, Card&gt;&gt; orderedSchoolBoardsToCardPlayed = this.gameState.getSchoolBoardIdsToCardPlayedThisRound().entrySet().stream()</b>
+<b class="fc"><i class="no-highlight">205</i>&nbsp;                .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))</b>
+<b class="fc"><i class="no-highlight">206</i>&nbsp;                .toList();</b>
+<i class="no-highlight">207</i>&nbsp;
+<b class="fc"><i class="no-highlight">208</i>&nbsp;        this.gameState.setRoundOrder(orderedSchoolBoardsToCardPlayed.stream().map(Map.Entry::getKey).toList());</b>
+<i class="no-highlight">209</i>&nbsp;
+<b class="fc"><i class="no-highlight">210</i>&nbsp;        this.gameState.resetRoundIterator();</b>
+<i class="no-highlight">211</i>&nbsp;
+<i class="no-highlight">212</i>&nbsp;    }
+<i class="no-highlight">213</i>&nbsp;
+<i class="no-highlight">214</i>&nbsp;    /**
+<i class="no-highlight">215</i>&nbsp;     * This method advances the turn during the planning phase, after a player played an assistant card
+<i class="no-highlight">216</i>&nbsp;     */
+<i class="no-highlight">217</i>&nbsp;    private void nextPlanningTurn() {
+<i class="no-highlight">218</i>&nbsp;
+<i class="no-highlight">219</i>&nbsp;        //If all the players played in this round, a new round will begin
+<b class="fc"><i class="no-highlight">220</i>&nbsp;        if(this.gameState.isLastTurnInThisRound()) {</b>
+<b class="fc"><i class="no-highlight">221</i>&nbsp;            this.defineRoundOrder();</b>
+<b class="fc"><i class="no-highlight">222</i>&nbsp;            this.gameState.resetRoundIterator();</b>
+<i class="no-highlight">223</i>&nbsp;            //If a planning round was completed, now the round order has to be defined and the phase has to be set to action
+<i class="no-highlight">224</i>&nbsp;
+<b class="fc"><i class="no-highlight">225</i>&nbsp;            this.gameState.setCurrentPhase(Phase.ACTION);</b>
+<i class="no-highlight">226</i>&nbsp;        }
+<i class="no-highlight">227</i>&nbsp;
+<b class="fc"><i class="no-highlight">228</i>&nbsp;        if(this.gameState.getCurrentRound() &gt;= Card.values().length){</b>
+<b class="fc"><i class="no-highlight">229</i>&nbsp;            this.gameState.setLastRoundTrue();</b>
+<i class="no-highlight">230</i>&nbsp;        }
+<i class="no-highlight">231</i>&nbsp;
+<i class="no-highlight">232</i>&nbsp;        //There is still someone that didn&#39;t play, so they will play
+<b class="fc"><i class="no-highlight">233</i>&nbsp;        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());</b>
+<i class="no-highlight">234</i>&nbsp;
+<b class="fc"><i class="no-highlight">235</i>&nbsp;        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);</b>
+<i class="no-highlight">236</i>&nbsp;    }
+<i class="no-highlight">237</i>&nbsp;
+<i class="no-highlight">238</i>&nbsp;    /**
+<i class="no-highlight">239</i>&nbsp;     * This method advances the turn during the action phase, after a player ended its turn.
+<i class="no-highlight">240</i>&nbsp;     * @throws GameOverException if a gameOver condition has occurred
+<i class="no-highlight">241</i>&nbsp;     */
+<i class="no-highlight">242</i>&nbsp;    protected void nextActionTurn() throws GameOverException {
+<i class="no-highlight">243</i>&nbsp;        //If all the players played in this round, a new round will begin
+<b class="fc"><i class="no-highlight">244</i>&nbsp;        if(this.gameState.isLastTurnInThisRound()) {</b>
+<b class="fc"><i class="no-highlight">245</i>&nbsp;            if(!this.gameState.isLastRound()){</b>
+<b class="fc"><i class="no-highlight">246</i>&nbsp;                this.gameState.resetRoundIterator();</b>
+<b class="fc"><i class="no-highlight">247</i>&nbsp;                this.gameState.resetSchoolBoardIdsToCardsPlayerThisRound();</b>
+<i class="no-highlight">248</i>&nbsp;
+<i class="no-highlight">249</i>&nbsp;                //If an actual round was completed, the round count has to be increased and a new round will begin with the planning phase
+<b class="fc"><i class="no-highlight">250</i>&nbsp;                this.gameState.increaseRoundCount();</b>
+<i class="no-highlight">251</i>&nbsp;
+<b class="fc"><i class="no-highlight">252</i>&nbsp;                this.gameState.setCurrentPhase(Phase.PLANNING);</b>
+<i class="no-highlight">253</i>&nbsp;
+<i class="no-highlight">254</i>&nbsp;                try{
+<b class="fc"><i class="no-highlight">255</i>&nbsp;                    this.gameState.fillClouds();</b>
+<b class="nc"><i class="no-highlight">256</i>&nbsp;                }catch (EmptyStudentSupplyException ignored){</b>
+<b class="nc"><i class="no-highlight">257</i>&nbsp;                    this.gameState.setLastRoundTrue();</b>
+<b class="fc"><i class="no-highlight">258</i>&nbsp;                }</b>
+<i class="no-highlight">259</i>&nbsp;            }
+<i class="no-highlight">260</i>&nbsp;            else{
+<b class="fc"><i class="no-highlight">261</i>&nbsp;                if(this.gameState.checkWinners().containsValue(true)) throw new GameOverException(this.gameState.checkWinners());</b>
+<i class="no-highlight">262</i>&nbsp;            }
+<i class="no-highlight">263</i>&nbsp;
+<i class="no-highlight">264</i>&nbsp;
+<i class="no-highlight">265</i>&nbsp;        }
+<i class="no-highlight">266</i>&nbsp;
+<i class="no-highlight">267</i>&nbsp;        //There is still someone that didn&#39;t play, so they will play
+<b class="fc"><i class="no-highlight">268</i>&nbsp;        this.gameState.setCurrentPlayerSchoolBoardId(this.gameState.getNextTurn());</b>
+<i class="no-highlight">269</i>&nbsp;
+<b class="fc"><i class="no-highlight">270</i>&nbsp;        this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);</b>
+<i class="no-highlight">271</i>&nbsp;    }
+<i class="no-highlight">272</i>&nbsp;
+<i class="no-highlight">273</i>&nbsp;    /**
+<i class="no-highlight">274</i>&nbsp;     * This method verifies if there is a schoolBoard that is more influent than all the others on the archipelago on which motherNature is,
+<i class="no-highlight">275</i>&nbsp;     * and returns its schoolBoardId
+<i class="no-highlight">276</i>&nbsp;     * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
+<i class="no-highlight">277</i>&nbsp;     */
+<i class="no-highlight">278</i>&nbsp;    private Optional&lt;Integer&gt; getMostInfluentSchoolBoardIdOnMotherNaturesPosition(){
+<b class="fc"><i class="no-highlight">279</i>&nbsp;        return this.gameState.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());</b>
+<i class="no-highlight">280</i>&nbsp;    }
+<i class="no-highlight">281</i>&nbsp;
+<i class="no-highlight">282</i>&nbsp;    int getCurrentPlayerSchoolBoardId(){
+<b class="fc"><i class="no-highlight">283</i>&nbsp;        return this.gameState.getCurrentPlayerSchoolBoardId();</b>
+<i class="no-highlight">284</i>&nbsp;    }
+<i class="no-highlight">285</i>&nbsp;
+<i class="no-highlight">286</i>&nbsp;    protected Set&lt;Integer&gt; getSchoolBoardIds(){
+<b class="nc"><i class="no-highlight">287</i>&nbsp;        return this.gameState.getSchoolBoardIds();</b>
+<i class="no-highlight">288</i>&nbsp;    }
+<i class="no-highlight">289</i>&nbsp;
+<i class="no-highlight">290</i>&nbsp;    public List&lt;Integer&gt; getSchoolBoardIDFromTowerColor(TowerColor towerColor) {
+<b class="nc"><i class="no-highlight">291</i>&nbsp;        return this.gameState.getSchoolBoardIDFromTowerColor(towerColor);</b>
+<i class="no-highlight">292</i>&nbsp;    }
+<i class="no-highlight">293</i>&nbsp;
+<i class="no-highlight">294</i>&nbsp;    /**
+<i class="no-highlight">295</i>&nbsp;     * This method returns the TowerColor of the schoolBoardId provided
+<i class="no-highlight">296</i>&nbsp;     * If there is a problem finding the schoolBoard i.e. the user provided SchoolBoardID &gt; 3, it returns
+<i class="no-highlight">297</i>&nbsp;     * TowerColor.NONE
+<i class="no-highlight">298</i>&nbsp;     * @param schoolBoardID of the player
+<i class="no-highlight">299</i>&nbsp;     * @return the TowerColor of his schoolBoard
+<i class="no-highlight">300</i>&nbsp;     */
+<i class="no-highlight">301</i>&nbsp;    public TowerColor getSchoolBoardTowerColorFromID(Integer schoolBoardID) {
+<b class="nc"><i class="no-highlight">302</i>&nbsp;        return this.gameState</b>
+<b class="nc"><i class="no-highlight">303</i>&nbsp;                .getTowerColorFromSchoolBoardId(schoolBoardID)</b>
+<b class="nc"><i class="no-highlight">304</i>&nbsp;                .orElse(TowerColor.NONE);</b>
+<i class="no-highlight">305</i>&nbsp;    }
+<i class="no-highlight">306</i>&nbsp;
+<i class="no-highlight">307</i>&nbsp;    LightGameState getLightGameState() {
+<b class="nc"><i class="no-highlight">308</i>&nbsp;        return this.gameState.lightify();</b>
+<i class="no-highlight">309</i>&nbsp;    }
+<i class="no-highlight">310</i>&nbsp;
+<i class="no-highlight">311</i>&nbsp;    public GameState getGameStateForTesting(){
+<b class="fc"><i class="no-highlight">312</i>&nbsp;        return gameState;</b>
+<i class="no-highlight">313</i>&nbsp;    }
+<i class="no-highlight">314</i>&nbsp;
+<i class="no-highlight">315</i>&nbsp;    public void setCurrentPhaseForTesting(Phase phase){
+<b class="fc"><i class="no-highlight">316</i>&nbsp;        this.gameState.setCurrentPhase(phase);</b>
+<i class="no-highlight">317</i>&nbsp;    }
+<i class="no-highlight">318</i>&nbsp;
+<i class="no-highlight">319</i>&nbsp;    public UUID getGameUUID() {
+<b class="nc"><i class="no-highlight">320</i>&nbsp;        return this.gameState.id;</b>
+<i class="no-highlight">321</i>&nbsp;    }
+<i class="no-highlight">322</i>&nbsp;}
+<i class="no-highlight">323</i>&nbsp;
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

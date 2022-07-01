@@ -1,0 +1,170 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > TwoPlayerStrategy</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy</a>
+</div>
+
+<h1>Coverage Summary for Class: TwoPlayerStrategy (it.polimi.ingsw.server.model.game_logic.number_of_player_strategy)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TwoPlayerStrategy</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.4%
+  </span>
+  <span class="absValue">
+    (17/18)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic.number_of_player_strategy;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.Archipelago;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.SchoolBoard;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.StudentFactory;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
+<i class="no-highlight">8</i>&nbsp;
+<i class="no-highlight">9</i>&nbsp;import java.util.ArrayList;
+<i class="no-highlight">10</i>&nbsp;import java.util.HashMap;
+<i class="no-highlight">11</i>&nbsp;import java.util.List;
+<i class="no-highlight">12</i>&nbsp;import java.util.Map;
+<i class="no-highlight">13</i>&nbsp;
+<b class="fc"><i class="no-highlight">14</i>&nbsp;public class TwoPlayerStrategy implements NumberOfPlayersStrategy {</b>
+<i class="no-highlight">15</i>&nbsp;    protected static final int numberOfPlayers = 2;
+<i class="no-highlight">16</i>&nbsp;    private static final int numberOfStudentsInEachCloud = 3;
+<b class="fc"><i class="no-highlight">17</i>&nbsp;    protected final int numberOfStudentsInTheEntrance = 7;</b>
+<i class="no-highlight">18</i>&nbsp;    private static final int numberOfTowers = 8;
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;    @Override
+<i class="no-highlight">21</i>&nbsp;    public int getNumberOfStudentsInEachCloud() {
+<b class="fc"><i class="no-highlight">22</i>&nbsp;        return numberOfStudentsInEachCloud;</b>
+<i class="no-highlight">23</i>&nbsp;    }
+<i class="no-highlight">24</i>&nbsp;
+<i class="no-highlight">25</i>&nbsp;    @Override
+<i class="no-highlight">26</i>&nbsp;    public int getNumberOfStudentsInTheEntrance() {
+<b class="fc"><i class="no-highlight">27</i>&nbsp;        return this.numberOfStudentsInTheEntrance;</b>
+<i class="no-highlight">28</i>&nbsp;    }
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;    @Override
+<i class="no-highlight">31</i>&nbsp;    public List&lt;SchoolBoard&gt; initializeSchoolBoards(StudentFactory studentFactory) throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">32</i>&nbsp;        List&lt;SchoolBoard&gt; schoolBoards = new ArrayList&lt;&gt;(numberOfPlayers);</b>
+<b class="fc"><i class="no-highlight">33</i>&nbsp;        schoolBoards.add(</b>
+<b class="fc"><i class="no-highlight">34</i>&nbsp;                new SchoolBoard(0, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.WHITE)</b>
+<i class="no-highlight">35</i>&nbsp;        );
+<b class="fc"><i class="no-highlight">36</i>&nbsp;        schoolBoards.add(</b>
+<b class="fc"><i class="no-highlight">37</i>&nbsp;                new SchoolBoard(1, studentFactory.getNStudents(this.numberOfStudentsInTheEntrance), TowerColor.BLACK)</b>
+<i class="no-highlight">38</i>&nbsp;        );
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        return schoolBoards;</b>
+<i class="no-highlight">40</i>&nbsp;    }
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;    /**
+<i class="no-highlight">43</i>&nbsp;     * @return a Map&lt;Integer, Integer&gt; where the key is the schoolBoardId and the value is the influence on the inputed archipelago
+<i class="no-highlight">44</i>&nbsp;     * @param schoolBoards is a List&lt;SchoolBoard&gt; containing the list of all schoolBoards
+<i class="no-highlight">45</i>&nbsp;     * @param archipelago is the Archipelago on which the influence  calculated
+<i class="no-highlight">46</i>&nbsp;     * */
+<i class="no-highlight">47</i>&nbsp;    public Map&lt;Integer, Integer&gt; getInfluence(List&lt;SchoolBoard&gt; schoolBoards, Archipelago archipelago){
+<b class="fc"><i class="no-highlight">48</i>&nbsp;        if(schoolBoards == null || schoolBoards.contains(null) || archipelago == null)</b>
+<b class="nc"><i class="no-highlight">49</i>&nbsp;            throw new IllegalArgumentException();</b>
+<i class="no-highlight">50</i>&nbsp;
+<b class="fc"><i class="no-highlight">51</i>&nbsp;        Map&lt;Integer,Integer&gt; schoolBoardIdsToInfluenceMap = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">52</i>&nbsp;
+<b class="fc"><i class="no-highlight">53</i>&nbsp;        for (SchoolBoard schoolBoard: schoolBoards) {</b>
+<b class="fc"><i class="no-highlight">54</i>&nbsp;            schoolBoardIdsToInfluenceMap.put(schoolBoard.getId(), archipelago.getInfluence(schoolBoard.getProfessors(), schoolBoard.getTowerColor()));</b>
+<b class="fc"><i class="no-highlight">55</i>&nbsp;        }</b>
+<i class="no-highlight">56</i>&nbsp;
+<b class="fc"><i class="no-highlight">57</i>&nbsp;        return schoolBoardIdsToInfluenceMap;</b>
+<i class="no-highlight">58</i>&nbsp;
+<i class="no-highlight">59</i>&nbsp;    }
+<i class="no-highlight">60</i>&nbsp;
+<i class="no-highlight">61</i>&nbsp;    @Override
+<i class="no-highlight">62</i>&nbsp;    public int getNumberOfTowers() {
+<b class="fc"><i class="no-highlight">63</i>&nbsp;        return numberOfTowers;</b>
+<i class="no-highlight">64</i>&nbsp;    }
+<i class="no-highlight">65</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

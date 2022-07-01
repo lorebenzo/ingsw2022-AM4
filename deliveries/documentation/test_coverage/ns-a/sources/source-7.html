@@ -1,0 +1,880 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ExpertGameStateTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic</a>
+</div>
+
+<h1>Coverage Summary for Class: ExpertGameStateTest (it.polimi.ingsw.server.model.game_logic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ExpertGameStateTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    97.4%
+  </span>
+  <span class="absValue">
+    (375/385)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidNumberOfStepsException;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.MoveNotAvailableException;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Card;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Character;
+<i class="no-highlight">8</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Color;
+<i class="no-highlight">9</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.TowerColor;
+<i class="no-highlight">10</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+<i class="no-highlight">11</i>&nbsp;import org.junit.jupiter.api.Assertions;
+<i class="no-highlight">12</i>&nbsp;import org.junit.jupiter.api.Test;
+<i class="no-highlight">13</i>&nbsp;import static org.junit.jupiter.api.Assertions.*;
+<i class="no-highlight">14</i>&nbsp;
+<i class="no-highlight">15</i>&nbsp;import java.util.ArrayList;
+<i class="no-highlight">16</i>&nbsp;import java.util.List;
+<i class="no-highlight">17</i>&nbsp;import java.util.Set;
+<i class="no-highlight">18</i>&nbsp;
+<i class="no-highlight">19</i>&nbsp;
+<b class="fc"><i class="no-highlight">20</i>&nbsp;public class ExpertGameStateTest {</b>
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;    //#1
+<i class="no-highlight">23</i>&nbsp;    @Test
+<i class="no-highlight">24</i>&nbsp;    public void playPutOneStudentFromCharacterToArchipelago() throws GameStateInitializationFailureException, EmptyStudentSupplyException, InvalidArchipelagoIdException, StudentNotOnCharacterException, MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">25</i>&nbsp;        GameState gameState = new ExpertGameState(2,new ArrayList&lt;&gt;(List.of(PlayableCharacter.createCharacter(Character.PUT_ONE_STUDENT_FROM_CHARACTER_TO_ARCHIPELAGO))));</b>
+<i class="no-highlight">26</i>&nbsp;
+<i class="no-highlight">27</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">28</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">29</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">30</i>&nbsp;        }</b>
+<i class="no-highlight">31</i>&nbsp;
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;
+<i class="no-highlight">34</i>&nbsp;        //Remove all students that are already present on all the archipelagos
+<b class="fc"><i class="no-highlight">35</i>&nbsp;        for (Archipelago archipelago: gameState.archipelagos ) {</b>
+<b class="fc"><i class="no-highlight">36</i>&nbsp;            for (Color color: Color.values()) {</b>
+<b class="fc"><i class="no-highlight">37</i>&nbsp;                archipelago.removeStudent(color);</b>
+<i class="no-highlight">38</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        }</b>
+<i class="no-highlight">40</i>&nbsp;
+<i class="no-highlight">41</i>&nbsp;        //Verify that the character has 4 students at the start of the turn
+<b class="fc"><i class="no-highlight">42</i>&nbsp;        Assertions.assertEquals(4, gameState.getAvailableCharacters().get(0).getStudents().size());</b>
+<i class="no-highlight">43</i>&nbsp;
+<i class="no-highlight">44</i>&nbsp;
+<i class="no-highlight">45</i>&nbsp;        //Move a student from the character to the selected archipelago and check if the move was correctly performed
+<b class="fc"><i class="no-highlight">46</i>&nbsp;        Color studentToMove = gameState.getAvailableCharacters().get(0).getStudents().get(0);</b>
+<i class="no-highlight">47</i>&nbsp;
+<b class="fc"><i class="no-highlight">48</i>&nbsp;        gameState.playPutOneStudentFromCharacterToArchipelago(studentToMove,0);</b>
+<b class="fc"><i class="no-highlight">49</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(0).isPresent()){</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;            Assertions.assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getStudents().contains(studentToMove));</b>
+<i class="no-highlight">51</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">52</i>&nbsp;        else Assertions.fail();</b>
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;
+<i class="no-highlight">55</i>&nbsp;
+<i class="no-highlight">56</i>&nbsp;        //Verify that the character has 3 students now
+<b class="fc"><i class="no-highlight">57</i>&nbsp;        Assertions.assertEquals(3, gameState.getAvailableCharacters().get(0).getStudents().size());</b>
+<i class="no-highlight">58</i>&nbsp;        //Move another student from the same card
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        studentToMove = gameState.getAvailableCharacters().get(0).getStudents().get(0);</b>
+<i class="no-highlight">60</i>&nbsp;
+<b class="fc"><i class="no-highlight">61</i>&nbsp;        gameState.playPutOneStudentFromCharacterToArchipelago(studentToMove,1);</b>
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(1).isPresent()){</b>
+<b class="fc"><i class="no-highlight">63</i>&nbsp;            Assertions.assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getStudents().contains(studentToMove));</b>
+<i class="no-highlight">64</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">65</i>&nbsp;        else Assertions.fail();</b>
+<i class="no-highlight">66</i>&nbsp;
+<i class="no-highlight">67</i>&nbsp;
+<i class="no-highlight">68</i>&nbsp;        //Verify that the character has 4 students at the start of the turn
+<b class="fc"><i class="no-highlight">69</i>&nbsp;        Assertions.assertEquals(2, gameState.getAvailableCharacters().get(0).getStudents().size());</b>
+<b class="fc"><i class="no-highlight">70</i>&nbsp;        studentToMove = gameState.getAvailableCharacters().get(0).getStudents().get(0);</b>
+<i class="no-highlight">71</i>&nbsp;
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        gameState.playPutOneStudentFromCharacterToArchipelago(studentToMove,2);</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(2).isPresent()){</b>
+<b class="fc"><i class="no-highlight">74</i>&nbsp;            Assertions.assertTrue(gameState.getArchipelagoFromSingleIslandCode(2).get().getStudents().contains(studentToMove));</b>
+<i class="no-highlight">75</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">76</i>&nbsp;        else Assertions.fail();</b>
+<i class="no-highlight">77</i>&nbsp;
+<i class="no-highlight">78</i>&nbsp;
+<i class="no-highlight">79</i>&nbsp;        //Verify that the character has 4 students at the start of the turn
+<b class="fc"><i class="no-highlight">80</i>&nbsp;        Assertions.assertEquals(1, gameState.getAvailableCharacters().get(0).getStudents().size());</b>
+<b class="fc"><i class="no-highlight">81</i>&nbsp;        studentToMove = gameState.getAvailableCharacters().get(0).getStudents().get(0);</b>
+<i class="no-highlight">82</i>&nbsp;
+<b class="fc"><i class="no-highlight">83</i>&nbsp;        gameState.playPutOneStudentFromCharacterToArchipelago(studentToMove,3);</b>
+<b class="fc"><i class="no-highlight">84</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(3).isPresent()){</b>
+<b class="fc"><i class="no-highlight">85</i>&nbsp;            Assertions.assertTrue(gameState.getArchipelagoFromSingleIslandCode(3).get().getStudents().contains(studentToMove));</b>
+<i class="no-highlight">86</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">87</i>&nbsp;        else Assertions.fail();</b>
+<i class="no-highlight">88</i>&nbsp;
+<b class="fc"><i class="no-highlight">89</i>&nbsp;        Color studentToMove2 = studentToMove;</b>
+<i class="no-highlight">90</i>&nbsp;
+<b class="fc"><i class="no-highlight">91</i>&nbsp;        Assertions.assertTrue(gameState.getAvailableCharacters().get(0).getStudents().isEmpty());</b>
+<b class="fc"><i class="no-highlight">92</i>&nbsp;        assertThrows(StudentNotOnCharacterException.class, () -&gt; gameState.playPutOneStudentFromCharacterToArchipelago(studentToMove2,0));</b>
+<i class="no-highlight">93</i>&nbsp;    }
+<i class="no-highlight">94</i>&nbsp;
+<i class="no-highlight">95</i>&nbsp;    //#2
+<i class="no-highlight">96</i>&nbsp;    @Test
+<i class="no-highlight">97</i>&nbsp;    public void playGetProfessorsWithSameStudents2() throws GameStateInitializationFailureException, EmptyStudentSupplyException, MoveNotAvailableException, FullDiningRoomLaneException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">98</i>&nbsp;        GameState gameState = new ExpertGameState(2,new ArrayList&lt;&gt;(List.of(PlayableCharacter.createCharacter(Character.GET_PROFESSORS_WITH_SAME_STUDENTS))));</b>
+<i class="no-highlight">99</i>&nbsp;
+<i class="no-highlight">100</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">101</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">102</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">103</i>&nbsp;        }</b>
+<i class="no-highlight">104</i>&nbsp;
+<i class="no-highlight">105</i>&nbsp;        //Prepare the schoolBoard0 to make it hold the red and green professors
+<b class="fc"><i class="no-highlight">106</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">107</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">108</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">109</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">110</i>&nbsp;        gameState.assignProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">111</i>&nbsp;        gameState.assignProfessor(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">112</i>&nbsp;        assertEquals(Set.of(Color.RED, Color.GREEN),gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors());</b>
+<i class="no-highlight">113</i>&nbsp;
+<i class="no-highlight">114</i>&nbsp;        //Prepare the schoolBoard1 to make it try to get the professors from schoolBoard0 - this should be unsuccessful with the normal rules
+<i class="no-highlight">115</i>&nbsp;        //SchoolBoard1 should only have the yellow professor
+<b class="fc"><i class="no-highlight">116</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">117</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">118</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">119</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">120</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.YELLOW);</b>
+<b class="fc"><i class="no-highlight">121</i>&nbsp;        gameState.assignProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">122</i>&nbsp;        gameState.assignProfessor(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">123</i>&nbsp;        gameState.assignProfessor(Color.YELLOW);</b>
+<b class="fc"><i class="no-highlight">124</i>&nbsp;        assertEquals(Set.of(Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<b class="fc"><i class="no-highlight">125</i>&nbsp;        assertEquals(Set.of(Color.RED, Color.GREEN),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<i class="no-highlight">126</i>&nbsp;
+<i class="no-highlight">127</i>&nbsp;
+<i class="no-highlight">128</i>&nbsp;        //Playing the character the schoolBoard1 should get both green and red professors without adding any new students to its diningRoom
+<b class="fc"><i class="no-highlight">129</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">130</i>&nbsp;        gameState.playGetProfessorsWithSameStudents();</b>
+<b class="fc"><i class="no-highlight">131</i>&nbsp;        assertEquals(Set.of(Color.RED, Color.GREEN, Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<b class="fc"><i class="no-highlight">132</i>&nbsp;        assertEquals(Set.of(),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<i class="no-highlight">133</i>&nbsp;
+<i class="no-highlight">134</i>&nbsp;        //After the effect is not valid anymore the situation should return to the initial state
+<b class="fc"><i class="no-highlight">135</i>&nbsp;        gameState.assignProfessorsAfterEffect();</b>
+<b class="fc"><i class="no-highlight">136</i>&nbsp;        gameState.resetCharacterPlayedThisTurn();</b>
+<b class="fc"><i class="no-highlight">137</i>&nbsp;        assertEquals(Set.of(Color.RED, Color.GREEN),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<b class="fc"><i class="no-highlight">138</i>&nbsp;        assertEquals(Set.of(Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<i class="no-highlight">139</i>&nbsp;    }
+<i class="no-highlight">140</i>&nbsp;
+<i class="no-highlight">141</i>&nbsp;    @Test
+<i class="no-highlight">142</i>&nbsp;    public void playGetProfessorsWithSameStudents3() throws GameStateInitializationFailureException, EmptyStudentSupplyException, MoveNotAvailableException, FullDiningRoomLaneException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">143</i>&nbsp;        GameState gameState = new ExpertGameState(3,new ArrayList&lt;&gt;(List.of(PlayableCharacter.createCharacter(Character.GET_PROFESSORS_WITH_SAME_STUDENTS))));</b>
+<i class="no-highlight">144</i>&nbsp;
+<i class="no-highlight">145</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">146</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">147</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">148</i>&nbsp;        }</b>
+<i class="no-highlight">149</i>&nbsp;
+<i class="no-highlight">150</i>&nbsp;        //Prepare schoolBoard0 to have the red professor
+<b class="fc"><i class="no-highlight">151</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">152</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">153</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">154</i>&nbsp;        gameState.assignProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">155</i>&nbsp;        assertEquals(Set.of(Color.RED),gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors());</b>
+<i class="no-highlight">156</i>&nbsp;
+<i class="no-highlight">157</i>&nbsp;        //Prepare schoolBoard1 to have the green professor
+<b class="fc"><i class="no-highlight">158</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">159</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">160</i>&nbsp;        gameState.assignProfessor(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">161</i>&nbsp;        assertEquals(Set.of(Color.GREEN),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<i class="no-highlight">162</i>&nbsp;
+<i class="no-highlight">163</i>&nbsp;
+<i class="no-highlight">164</i>&nbsp;        //Prepare schoolBoard2 to have the yellow professor and trying to get the red and green professors
+<b class="fc"><i class="no-highlight">165</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">166</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">167</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">168</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">169</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.YELLOW);</b>
+<b class="fc"><i class="no-highlight">170</i>&nbsp;        gameState.assignProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">171</i>&nbsp;        gameState.assignProfessor(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">172</i>&nbsp;        gameState.assignProfessor(Color.YELLOW);</b>
+<i class="no-highlight">173</i>&nbsp;
+<i class="no-highlight">174</i>&nbsp;        //Every schoolBoard should have their own single professor
+<b class="fc"><i class="no-highlight">175</i>&nbsp;        assertEquals(Set.of(Color.RED),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<b class="fc"><i class="no-highlight">176</i>&nbsp;        assertEquals(Set.of(Color.GREEN),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<b class="fc"><i class="no-highlight">177</i>&nbsp;        assertEquals(Set.of(Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(2).getProfessors());</b>
+<i class="no-highlight">178</i>&nbsp;
+<i class="no-highlight">179</i>&nbsp;
+<i class="no-highlight">180</i>&nbsp;        //After playing the character the schoolBoard2 should get also the red and green professors
+<b class="fc"><i class="no-highlight">181</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">182</i>&nbsp;        gameState.playGetProfessorsWithSameStudents();</b>
+<b class="fc"><i class="no-highlight">183</i>&nbsp;        assertEquals(Set.of(),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<b class="fc"><i class="no-highlight">184</i>&nbsp;        assertEquals(Set.of(),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<b class="fc"><i class="no-highlight">185</i>&nbsp;        assertEquals(Set.of(Color.RED, Color.GREEN, Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(2).getProfessors());</b>
+<i class="no-highlight">186</i>&nbsp;
+<b class="fc"><i class="no-highlight">187</i>&nbsp;        gameState.assignProfessorsAfterEffect();</b>
+<b class="fc"><i class="no-highlight">188</i>&nbsp;        gameState.resetCharacterPlayedThisTurn();</b>
+<i class="no-highlight">189</i>&nbsp;
+<i class="no-highlight">190</i>&nbsp;        //After the turn the situation should return to its original state
+<b class="fc"><i class="no-highlight">191</i>&nbsp;        assertEquals(Set.of(Color.RED),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<b class="fc"><i class="no-highlight">192</i>&nbsp;        assertEquals(Set.of(Color.GREEN),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<b class="fc"><i class="no-highlight">193</i>&nbsp;        assertEquals(Set.of(Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(2).getProfessors());</b>
+<i class="no-highlight">194</i>&nbsp;    }
+<i class="no-highlight">195</i>&nbsp;
+<i class="no-highlight">196</i>&nbsp;    @Test
+<i class="no-highlight">197</i>&nbsp;    public void playGetProfessorsWithSameStudents4() throws MoveNotAvailableException, FullDiningRoomLaneException, GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">198</i>&nbsp;        GameState gameState = new ExpertGameState(4,new ArrayList&lt;&gt;(List.of(PlayableCharacter.createCharacter(Character.GET_PROFESSORS_WITH_SAME_STUDENTS))));</b>
+<i class="no-highlight">199</i>&nbsp;
+<i class="no-highlight">200</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">201</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">202</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">203</i>&nbsp;        }</b>
+<i class="no-highlight">204</i>&nbsp;
+<i class="no-highlight">205</i>&nbsp;        //Prepare schoolBoard0 to get the red professor
+<b class="fc"><i class="no-highlight">206</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">207</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">208</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">209</i>&nbsp;        gameState.assignProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">210</i>&nbsp;        assertEquals(Set.of(Color.RED),gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors());</b>
+<i class="no-highlight">211</i>&nbsp;
+<i class="no-highlight">212</i>&nbsp;        //Prepare schoolBoard1 to get the green professor
+<b class="fc"><i class="no-highlight">213</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">214</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">215</i>&nbsp;        gameState.assignProfessor(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">216</i>&nbsp;        assertEquals(Set.of(Color.GREEN),gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors());</b>
+<i class="no-highlight">217</i>&nbsp;
+<i class="no-highlight">218</i>&nbsp;        //Prepare schoolBoard2 to get the cyan professor
+<b class="fc"><i class="no-highlight">219</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">220</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.CYAN);</b>
+<b class="fc"><i class="no-highlight">221</i>&nbsp;        gameState.assignProfessor(Color.CYAN);</b>
+<b class="fc"><i class="no-highlight">222</i>&nbsp;        assertEquals(Set.of(Color.CYAN),gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors());</b>
+<i class="no-highlight">223</i>&nbsp;
+<i class="no-highlight">224</i>&nbsp;
+<i class="no-highlight">225</i>&nbsp;        //Prepare schoolBoard3 to have the same color of students in the diningRoom as every other player and to have the yellow professor
+<b class="fc"><i class="no-highlight">226</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(3);</b>
+<b class="fc"><i class="no-highlight">227</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">228</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">229</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">230</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.CYAN);</b>
+<b class="fc"><i class="no-highlight">231</i>&nbsp;        gameState.getCurrentPlayerSchoolBoardForTesting().addStudentToDiningRoom(Color.YELLOW);</b>
+<b class="fc"><i class="no-highlight">232</i>&nbsp;        gameState.assignProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">233</i>&nbsp;        gameState.assignProfessor(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">234</i>&nbsp;        gameState.assignProfessor(Color.CYAN);</b>
+<b class="fc"><i class="no-highlight">235</i>&nbsp;        gameState.assignProfessor(Color.YELLOW);</b>
+<i class="no-highlight">236</i>&nbsp;
+<i class="no-highlight">237</i>&nbsp;
+<b class="fc"><i class="no-highlight">238</i>&nbsp;        assertEquals(Set.of(Color.RED),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<b class="fc"><i class="no-highlight">239</i>&nbsp;        assertEquals(Set.of(Color.GREEN),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<b class="fc"><i class="no-highlight">240</i>&nbsp;        assertEquals(Set.of(Color.CYAN),gameState.getSchoolBoardFromSchoolBoardId(2).getProfessors());</b>
+<b class="fc"><i class="no-highlight">241</i>&nbsp;        assertEquals(Set.of(Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(3).getProfessors());</b>
+<i class="no-highlight">242</i>&nbsp;
+<i class="no-highlight">243</i>&nbsp;        //After playing the character the schoolBoard3 should get all professors
+<b class="fc"><i class="no-highlight">244</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(3);</b>
+<b class="fc"><i class="no-highlight">245</i>&nbsp;        gameState.playGetProfessorsWithSameStudents();</b>
+<b class="fc"><i class="no-highlight">246</i>&nbsp;        assertTrue(gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors().isEmpty());</b>
+<b class="fc"><i class="no-highlight">247</i>&nbsp;        assertTrue(gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors().isEmpty());</b>
+<b class="fc"><i class="no-highlight">248</i>&nbsp;        assertTrue(gameState.getSchoolBoardFromSchoolBoardId(2).getProfessors().isEmpty());</b>
+<b class="fc"><i class="no-highlight">249</i>&nbsp;        assertEquals(Set.of(Color.RED, Color.GREEN, Color.CYAN, Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(3).getProfessors());</b>
+<i class="no-highlight">250</i>&nbsp;
+<i class="no-highlight">251</i>&nbsp;
+<i class="no-highlight">252</i>&nbsp;        //After the turn finishes, the situation should return to its original state
+<b class="fc"><i class="no-highlight">253</i>&nbsp;        gameState.assignProfessorsAfterEffect();</b>
+<b class="fc"><i class="no-highlight">254</i>&nbsp;        gameState.resetCharacterPlayedThisTurn();</b>
+<b class="fc"><i class="no-highlight">255</i>&nbsp;        assertEquals(Set.of(Color.RED),gameState.getSchoolBoardFromSchoolBoardId(0).getProfessors());</b>
+<b class="fc"><i class="no-highlight">256</i>&nbsp;        assertEquals(Set.of(Color.GREEN),gameState.getSchoolBoardFromSchoolBoardId(1).getProfessors());</b>
+<b class="fc"><i class="no-highlight">257</i>&nbsp;        assertEquals(Set.of(Color.CYAN),gameState.getSchoolBoardFromSchoolBoardId(2).getProfessors());</b>
+<b class="fc"><i class="no-highlight">258</i>&nbsp;        assertEquals(Set.of(Color.YELLOW),gameState.getSchoolBoardFromSchoolBoardId(3).getProfessors());</b>
+<i class="no-highlight">259</i>&nbsp;    }
+<i class="no-highlight">260</i>&nbsp;
+<i class="no-highlight">261</i>&nbsp;    //#3
+<i class="no-highlight">262</i>&nbsp;    @Test
+<i class="no-highlight">263</i>&nbsp;    public void playMoveMotherNatureToAnyArchipelago() throws GameStateInitializationFailureException, EmptyStudentSupplyException, InvalidArchipelagoIdException, MoveNotAvailableException, NoAvailableLockException, ArchipelagoAlreadyLockedException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">264</i>&nbsp;        GameState gameState = new ExpertGameState(2,new ArrayList&lt;&gt;(List.of(PlayableCharacter.createCharacter(Character.MOVE_MOTHER_NATURE_TO_ANY_ARCHIPELAGO),PlayableCharacter.createCharacter(Character.LOCK_ARCHIPELAGO))));</b>
+<i class="no-highlight">265</i>&nbsp;
+<i class="no-highlight">266</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">267</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">268</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">269</i>&nbsp;        }</b>
+<i class="no-highlight">270</i>&nbsp;
+<i class="no-highlight">271</i>&nbsp;
+<i class="no-highlight">272</i>&nbsp;        //Doing this will make sure that the player would conquer any archipelago motherNature moves to
+<b class="fc"><i class="no-highlight">273</i>&nbsp;        gameState.getSchoolBoardFromSchoolBoardId(0).addProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">274</i>&nbsp;        for (Archipelago archipelago: gameState.archipelagos) {</b>
+<b class="fc"><i class="no-highlight">275</i>&nbsp;            archipelago.addStudent(Color.RED);</b>
+<b class="fc"><i class="no-highlight">276</i>&nbsp;        }</b>
+<i class="no-highlight">277</i>&nbsp;
+<i class="no-highlight">278</i>&nbsp;        //Move motherNature to archipelago 1 and test if it was conquered
+<b class="fc"><i class="no-highlight">279</i>&nbsp;        gameState.playMoveMotherNatureToAnyArchipelago(1);</b>
+<b class="fc"><i class="no-highlight">280</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(1).isPresent())</b>
+<b class="fc"><i class="no-highlight">281</i>&nbsp;            assertEquals(gameState.getCurrentPlayerSchoolBoard().getTowerColor(), gameState.getArchipelagoFromSingleIslandCode(1).get().getTowerColor());</b>
+<b class="nc"><i class="no-highlight">282</i>&nbsp;        else fail();</b>
+<i class="no-highlight">283</i>&nbsp;
+<i class="no-highlight">284</i>&nbsp;        //Move motherNature to archipelago2 and test if it was conquered and merged with archipelago1
+<b class="fc"><i class="no-highlight">285</i>&nbsp;        gameState.playMoveMotherNatureToAnyArchipelago(2);</b>
+<b class="fc"><i class="no-highlight">286</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(2).isPresent())</b>
+<b class="fc"><i class="no-highlight">287</i>&nbsp;            assertEquals(gameState.getCurrentPlayerSchoolBoard().getTowerColor(), gameState.getArchipelagoFromSingleIslandCode(2).get().getTowerColor());</b>
+<b class="nc"><i class="no-highlight">288</i>&nbsp;        else fail();</b>
+<b class="fc"><i class="no-highlight">289</i>&nbsp;        assertEquals(List.of(1,2), gameState.getArchipelagoFromSingleIslandCode(2).get().getIslandCodes());</b>
+<i class="no-highlight">290</i>&nbsp;
+<i class="no-highlight">291</i>&nbsp;
+<i class="no-highlight">292</i>&nbsp;        //Test that the move properly works with the lock
+<b class="fc"><i class="no-highlight">293</i>&nbsp;        gameState.playCharacterLock(3);</b>
+<b class="fc"><i class="no-highlight">294</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(3).isPresent()){</b>
+<b class="fc"><i class="no-highlight">295</i>&nbsp;            assertTrue(gameState.getArchipelagoFromSingleIslandCode(3).get().isLocked());</b>
+<b class="fc"><i class="no-highlight">296</i>&nbsp;            gameState.playMoveMotherNatureToAnyArchipelago(3);</b>
+<b class="fc"><i class="no-highlight">297</i>&nbsp;            assertEquals(TowerColor.NONE, gameState.getArchipelagoFromSingleIslandCode(3).get().getTowerColor());</b>
+<b class="fc"><i class="no-highlight">298</i>&nbsp;            assertEquals(List.of(3), gameState.getArchipelagoFromSingleIslandCode(3).get().getIslandCodes());</b>
+<b class="fc"><i class="no-highlight">299</i>&nbsp;            assertFalse(gameState.getArchipelagoFromSingleIslandCode(3).get().isLocked());</b>
+<i class="no-highlight">300</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">301</i>&nbsp;        else fail();</b>
+<i class="no-highlight">302</i>&nbsp;
+<i class="no-highlight">303</i>&nbsp;    }
+<i class="no-highlight">304</i>&nbsp;
+<i class="no-highlight">305</i>&nbsp;    //#4
+<i class="no-highlight">306</i>&nbsp;    @Test
+<i class="no-highlight">307</i>&nbsp;    public void lockArchipelago() throws GameStateInitializationFailureException, EmptyStudentSupplyException, ArchipelagoAlreadyLockedException, InvalidArchipelagoIdException, NoAvailableLockException, MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">308</i>&nbsp;        GameState gameState = new ExpertGameState(2,new ArrayList&lt;&gt;(List.of(PlayableCharacter.createCharacter(Character.LOCK_ARCHIPELAGO), PlayableCharacter.createCharacter(Character.MOVE_MOTHER_NATURE_TO_ANY_ARCHIPELAGO))));</b>
+<i class="no-highlight">309</i>&nbsp;
+<b class="fc"><i class="no-highlight">310</i>&nbsp;        TowerColor currentPlayerTowerColor = gameState.getCurrentPlayerSchoolBoard().getTowerColor();</b>
+<i class="no-highlight">311</i>&nbsp;
+<i class="no-highlight">312</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">313</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">314</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">315</i>&nbsp;        }</b>
+<i class="no-highlight">316</i>&nbsp;
+<i class="no-highlight">317</i>&nbsp;        //Doing this will make sure that the player would conquer any archipelago motherNature moves to
+<b class="fc"><i class="no-highlight">318</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">319</i>&nbsp;        gameState.getSchoolBoardFromSchoolBoardId(0).addProfessor(Color.RED);</b>
+<b class="fc"><i class="no-highlight">320</i>&nbsp;        for (Archipelago archipelago: gameState.archipelagos) {</b>
+<b class="fc"><i class="no-highlight">321</i>&nbsp;            archipelago.addStudent(Color.RED);</b>
+<b class="fc"><i class="no-highlight">322</i>&nbsp;        }</b>
+<i class="no-highlight">323</i>&nbsp;
+<b class="fc"><i class="no-highlight">324</i>&nbsp;        assertFalse(gameState.playMoveMotherNatureToAnyArchipelago(2));</b>
+<b class="fc"><i class="no-highlight">325</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(2).isPresent()){</b>
+<b class="fc"><i class="no-highlight">326</i>&nbsp;            assertEquals(currentPlayerTowerColor, gameState.getArchipelagoFromSingleIslandCode(2).get().getTowerColor());</b>
+<i class="no-highlight">327</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">328</i>&nbsp;        else fail();</b>
+<i class="no-highlight">329</i>&nbsp;
+<i class="no-highlight">330</i>&nbsp;
+<b class="fc"><i class="no-highlight">331</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(1).isPresent()){</b>
+<i class="no-highlight">332</i>&nbsp;            //Check that the archipelago 1 is not locked
+<b class="fc"><i class="no-highlight">333</i>&nbsp;            assertFalse(gameState.getArchipelagoFromSingleIslandCode(1).get().isLocked());</b>
+<i class="no-highlight">334</i>&nbsp;            //Lock archipelago 1
+<b class="fc"><i class="no-highlight">335</i>&nbsp;            gameState.playCharacterLock(1);</b>
+<i class="no-highlight">336</i>&nbsp;            //Check that archipelago 1 is now locked
+<b class="fc"><i class="no-highlight">337</i>&nbsp;            assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().isLocked());</b>
+<i class="no-highlight">338</i>&nbsp;            //Move motherNature to archipelago 1 to unlock it
+<b class="fc"><i class="no-highlight">339</i>&nbsp;            assertFalse(gameState.playMoveMotherNatureToAnyArchipelago(1));</b>
+<i class="no-highlight">340</i>&nbsp;            //Check that archipelago 1 is now unlocked
+<b class="fc"><i class="no-highlight">341</i>&nbsp;            assertFalse(gameState.getArchipelagoFromSingleIslandCode(1).get().isLocked());</b>
+<i class="no-highlight">342</i>&nbsp;            //Check that archipelago 1 has no tower
+<b class="fc"><i class="no-highlight">343</i>&nbsp;            assertEquals(TowerColor.NONE, gameState.getArchipelagoFromSingleIslandCode(1).get().getTowerColor());</b>
+<i class="no-highlight">344</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">345</i>&nbsp;        else fail();</b>
+<i class="no-highlight">346</i>&nbsp;
+<b class="fc"><i class="no-highlight">347</i>&nbsp;        assertTrue(gameState.playMoveMotherNatureToAnyArchipelago(1));</b>
+<b class="fc"><i class="no-highlight">348</i>&nbsp;        assertEquals(currentPlayerTowerColor, gameState.getArchipelagoFromSingleIslandCode(1).get().getTowerColor());</b>
+<b class="fc"><i class="no-highlight">349</i>&nbsp;        assertEquals(gameState.getArchipelagoFromSingleIslandCode(1).get(), gameState.getArchipelagoFromSingleIslandCode(2).get());</b>
+<i class="no-highlight">350</i>&nbsp;    }
+<i class="no-highlight">351</i>&nbsp;
+<i class="no-highlight">352</i>&nbsp;    //#5
+<i class="no-highlight">353</i>&nbsp;    @Test
+<i class="no-highlight">354</i>&nbsp;    public void playTwoAdditionalSteps() throws GameStateInitializationFailureException, EmptyStudentSupplyException, MoveNotAvailableException, InvalidNumberOfStepsException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">355</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.TWO_ADDITIONAL_STEPS)));</b>
+<i class="no-highlight">356</i>&nbsp;
+<i class="no-highlight">357</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">358</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">359</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">360</i>&nbsp;        }</b>
+<i class="no-highlight">361</i>&nbsp;
+<i class="no-highlight">362</i>&nbsp;        //Play card that normally allows the player to move motherNature for 1 step
+<b class="fc"><i class="no-highlight">363</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">364</i>&nbsp;        gameState.schoolBoardIdsToCardPlayedThisRound.put(gameState.getCurrentPlayerSchoolBoardId(), Card.DOG);</b>
+<i class="no-highlight">365</i>&nbsp;
+<i class="no-highlight">366</i>&nbsp;        //Check that it&#39;s possible to move motherNature normally
+<b class="fc"><i class="no-highlight">367</i>&nbsp;        gameState.moveMotherNatureNStepsClockwise(1);</b>
+<b class="fc"><i class="no-highlight">368</i>&nbsp;        assertThrows(InvalidNumberOfStepsException.class, () -&gt; gameState.moveMotherNatureNStepsClockwise(2));</b>
+<i class="no-highlight">369</i>&nbsp;        //Play the character
+<b class="fc"><i class="no-highlight">370</i>&nbsp;        gameState.playTwoAdditionalSteps();</b>
+<i class="no-highlight">371</i>&nbsp;        //Check that it&#39;s possible to move motherNature 2 steps further
+<b class="fc"><i class="no-highlight">372</i>&nbsp;        gameState.moveMotherNatureNStepsClockwise(1);</b>
+<b class="fc"><i class="no-highlight">373</i>&nbsp;        gameState.moveMotherNatureNStepsClockwise(2);</b>
+<b class="fc"><i class="no-highlight">374</i>&nbsp;        gameState.moveMotherNatureNStepsClockwise(3);</b>
+<b class="fc"><i class="no-highlight">375</i>&nbsp;        assertThrows(InvalidNumberOfStepsException.class, () -&gt; gameState.moveMotherNatureNStepsClockwise(4));</b>
+<i class="no-highlight">376</i>&nbsp;
+<i class="no-highlight">377</i>&nbsp;        //Check that the steps logic returns to its original state after resetting the character
+<b class="fc"><i class="no-highlight">378</i>&nbsp;        gameState.resetCharacterPlayedThisTurn();</b>
+<b class="fc"><i class="no-highlight">379</i>&nbsp;        gameState.moveMotherNatureNStepsClockwise(1);</b>
+<b class="fc"><i class="no-highlight">380</i>&nbsp;        assertThrows(InvalidNumberOfStepsException.class, () -&gt; gameState.moveMotherNatureNStepsClockwise(2));</b>
+<i class="no-highlight">381</i>&nbsp;    }
+<i class="no-highlight">382</i>&nbsp;
+<i class="no-highlight">383</i>&nbsp;    //#6
+<i class="no-highlight">384</i>&nbsp;    @Test
+<i class="no-highlight">385</i>&nbsp;    public void playTowersDontCount() throws GameStateInitializationFailureException, EmptyStudentSupplyException, MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">386</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.TOWERS_DONT_COUNT)));</b>
+<i class="no-highlight">387</i>&nbsp;
+<i class="no-highlight">388</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">389</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">390</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">391</i>&nbsp;        }</b>
+<i class="no-highlight">392</i>&nbsp;
+<b class="fc"><i class="no-highlight">393</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">394</i>&nbsp;
+<i class="no-highlight">395</i>&nbsp;        //Add a tower to all the archipelagos
+<b class="fc"><i class="no-highlight">396</i>&nbsp;        for (Archipelago archipelago: gameState.archipelagos) {</b>
+<b class="fc"><i class="no-highlight">397</i>&nbsp;            archipelago.setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());</b>
+<b class="fc"><i class="no-highlight">398</i>&nbsp;        }</b>
+<i class="no-highlight">399</i>&nbsp;
+<b class="fc"><i class="no-highlight">400</i>&nbsp;        for (int i = 0; i &lt; 12; i++) {</b>
+<b class="fc"><i class="no-highlight">401</i>&nbsp;            if(gameState.getInfluence(List.of(i)).isPresent())</b>
+<b class="fc"><i class="no-highlight">402</i>&nbsp;                assertEquals(1,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">403</i>&nbsp;        }
+<i class="no-highlight">404</i>&nbsp;
+<i class="no-highlight">405</i>&nbsp;        //Play the character
+<b class="fc"><i class="no-highlight">406</i>&nbsp;        gameState.playTowersDontCount();</b>
+<i class="no-highlight">407</i>&nbsp;
+<i class="no-highlight">408</i>&nbsp;        //Check that the influences are modified by the character played
+<b class="fc"><i class="no-highlight">409</i>&nbsp;        for (int i = 0; i &lt; 12; i++) {</b>
+<b class="fc"><i class="no-highlight">410</i>&nbsp;            if(gameState.getInfluence(List.of(i)).isPresent())</b>
+<b class="fc"><i class="no-highlight">411</i>&nbsp;                assertEquals(0,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">412</i>&nbsp;        }
+<i class="no-highlight">413</i>&nbsp;
+<i class="no-highlight">414</i>&nbsp;        //Reset the effect of the character played
+<b class="fc"><i class="no-highlight">415</i>&nbsp;        gameState.setTowersInfluenceForAllArchipelagos(true);</b>
+<i class="no-highlight">416</i>&nbsp;
+<i class="no-highlight">417</i>&nbsp;        //Check that all influences returned to their normal values
+<b class="fc"><i class="no-highlight">418</i>&nbsp;        for (int i = 0; i &lt; 12; i++) {</b>
+<b class="fc"><i class="no-highlight">419</i>&nbsp;            if(gameState.getInfluence(List.of(i)).isPresent())</b>
+<b class="fc"><i class="no-highlight">420</i>&nbsp;                assertEquals(1,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">421</i>&nbsp;        }
+<i class="no-highlight">422</i>&nbsp;    }
+<i class="no-highlight">423</i>&nbsp;
+<i class="no-highlight">424</i>&nbsp;    //#7
+<i class="no-highlight">425</i>&nbsp;    @Test
+<i class="no-highlight">426</i>&nbsp;    public void playSwapThreeStudentsBetweenCharacterAndEntrance() throws GameStateInitializationFailureException, EmptyStudentSupplyException, StudentNotInTheEntranceException, StudentNotOnCharacterException, InvalidStudentListsLengthException, MoveNotAvailableException, NotEnoughCoinsException {
+<b class="fc"><i class="no-highlight">427</i>&nbsp;        for (int i = 0; i &lt; 100; i++) {</b>
+<b class="fc"><i class="no-highlight">428</i>&nbsp;            GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE)));</b>
+<i class="no-highlight">429</i>&nbsp;
+<i class="no-highlight">430</i>&nbsp;            //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">431</i>&nbsp;            for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">432</i>&nbsp;                schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">433</i>&nbsp;            }</b>
+<i class="no-highlight">434</i>&nbsp;
+<i class="no-highlight">435</i>&nbsp;            //Prepare the list of students to get from the character
+<b class="fc"><i class="no-highlight">436</i>&nbsp;            List&lt;Color&gt; studentsFromCharacter = gameState.getAvailableCharacters().get(0).getStudents().subList(0,3);</b>
+<i class="no-highlight">437</i>&nbsp;            //Prepare the list of students to get from the entrance
+<b class="fc"><i class="no-highlight">438</i>&nbsp;            List&lt;Color&gt; studentsFromEntrance = gameState.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().subList(0,3);</b>
+<i class="no-highlight">439</i>&nbsp;
+<i class="no-highlight">440</i>&nbsp;            //Play the character
+<b class="fc"><i class="no-highlight">441</i>&nbsp;            gameState.playSwapThreeStudentsBetweenCharacterAndEntrance(studentsFromCharacter,studentsFromEntrance);</b>
+<i class="no-highlight">442</i>&nbsp;
+<i class="no-highlight">443</i>&nbsp;            //Verify that the swap was correctly performed
+<b class="fc"><i class="no-highlight">444</i>&nbsp;            assertTrue(gameState.getAvailableCharacters().get(0).containsAllStudents(studentsFromEntrance));</b>
+<b class="fc"><i class="no-highlight">445</i>&nbsp;            assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentsFromCharacter));</b>
+<i class="no-highlight">446</i>&nbsp;
+<b class="fc"><i class="no-highlight">447</i>&nbsp;            assertEquals(gameState.strategy.getNumberOfStudentsInTheEntrance(),gameState.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size());</b>
+<b class="fc"><i class="no-highlight">448</i>&nbsp;            assertEquals(6,gameState.getAvailableCharacters().get(0).getStudents().size());</b>
+<i class="no-highlight">449</i>&nbsp;        }
+<i class="no-highlight">450</i>&nbsp;
+<i class="no-highlight">451</i>&nbsp;    }
+<i class="no-highlight">452</i>&nbsp;
+<i class="no-highlight">453</i>&nbsp;    @Test
+<i class="no-highlight">454</i>&nbsp;    public void playSwapThreeStudentsBetweenCharacterAndEntrance2() throws GameStateInitializationFailureException, EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">455</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE)));</b>
+<i class="no-highlight">456</i>&nbsp;
+<i class="no-highlight">457</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">458</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">459</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">460</i>&nbsp;        }</b>
+<i class="no-highlight">461</i>&nbsp;
+<i class="no-highlight">462</i>&nbsp;        //Prepare the list of students to get from the character
+<b class="fc"><i class="no-highlight">463</i>&nbsp;        List&lt;Color&gt; studentsFromCharacter = gameState.getAvailableCharacters().get(0).getStudents().subList(0,2);</b>
+<i class="no-highlight">464</i>&nbsp;        //Prepare the list of students to get from the entrance
+<b class="fc"><i class="no-highlight">465</i>&nbsp;        List&lt;Color&gt; studentsFromEntrance = gameState.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().subList(0,3);</b>
+<i class="no-highlight">466</i>&nbsp;
+<i class="no-highlight">467</i>&nbsp;        //Play the character
+<b class="fc"><i class="no-highlight">468</i>&nbsp;        assertThrows(InvalidStudentListsLengthException.class, () -&gt; gameState.playSwapThreeStudentsBetweenCharacterAndEntrance(studentsFromCharacter,studentsFromEntrance));</b>
+<i class="no-highlight">469</i>&nbsp;    }
+<i class="no-highlight">470</i>&nbsp;
+<i class="no-highlight">471</i>&nbsp;    //#8
+<i class="no-highlight">472</i>&nbsp;    @Test
+<i class="no-highlight">473</i>&nbsp;    public void playTwoAdditionalInfluence() throws GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException, MoveNotAvailableException {
+<b class="fc"><i class="no-highlight">474</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.TWO_ADDITIONAL_INFLUENCE)));</b>
+<i class="no-highlight">475</i>&nbsp;
+<i class="no-highlight">476</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">477</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">478</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">479</i>&nbsp;        }</b>
+<i class="no-highlight">480</i>&nbsp;
+<b class="fc"><i class="no-highlight">481</i>&nbsp;        for (Archipelago archipelago: gameState.archipelagos ) {</b>
+<b class="fc"><i class="no-highlight">482</i>&nbsp;            archipelago.setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());</b>
+<b class="fc"><i class="no-highlight">483</i>&nbsp;        }</b>
+<i class="no-highlight">484</i>&nbsp;
+<i class="no-highlight">485</i>&nbsp;        //Check that all influences on all archipelagos are right
+<b class="fc"><i class="no-highlight">486</i>&nbsp;        for (int i = 0; i &lt; 12; i++) {</b>
+<b class="fc"><i class="no-highlight">487</i>&nbsp;            if(gameState.getInfluence(List.of(i)).isPresent())</b>
+<b class="fc"><i class="no-highlight">488</i>&nbsp;                assertEquals(1,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">489</i>&nbsp;        }
+<i class="no-highlight">490</i>&nbsp;
+<i class="no-highlight">491</i>&nbsp;        //Play the character
+<b class="fc"><i class="no-highlight">492</i>&nbsp;        gameState.playTwoAdditionalInfluence();</b>
+<i class="no-highlight">493</i>&nbsp;
+<i class="no-highlight">494</i>&nbsp;        //Check that all the influences are modified accordingly
+<b class="fc"><i class="no-highlight">495</i>&nbsp;        for (int i = 0; i &lt; 12; i++) {</b>
+<b class="fc"><i class="no-highlight">496</i>&nbsp;            if(gameState.getInfluence(List.of(i)).isPresent())</b>
+<b class="fc"><i class="no-highlight">497</i>&nbsp;                assertEquals(3,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">498</i>&nbsp;        }
+<i class="no-highlight">499</i>&nbsp;
+<i class="no-highlight">500</i>&nbsp;        //Reset the character played
+<b class="fc"><i class="no-highlight">501</i>&nbsp;        gameState.resetCharacterPlayedThisTurn();</b>
+<i class="no-highlight">502</i>&nbsp;
+<i class="no-highlight">503</i>&nbsp;        //Check that all the influences returned back to their original state
+<b class="fc"><i class="no-highlight">504</i>&nbsp;        for (int i = 0; i &lt; 12; i++) {</b>
+<b class="fc"><i class="no-highlight">505</i>&nbsp;            if(gameState.getInfluence(List.of(i)).isPresent())</b>
+<b class="fc"><i class="no-highlight">506</i>&nbsp;                assertEquals(1,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">507</i>&nbsp;        }
+<i class="no-highlight">508</i>&nbsp;
+<i class="no-highlight">509</i>&nbsp;    }
+<i class="no-highlight">510</i>&nbsp;
+<i class="no-highlight">511</i>&nbsp;    //#9
+<i class="no-highlight">512</i>&nbsp;    @Test
+<i class="no-highlight">513</i>&nbsp;    public void playColorDoesntCount() throws GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException, MoveNotAvailableException {
+<b class="fc"><i class="no-highlight">514</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.COLOR_DOESNT_COUNT)));</b>
+<i class="no-highlight">515</i>&nbsp;
+<i class="no-highlight">516</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">517</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">518</i>&nbsp;            schoolBoard.payCharacter(-1000);</b>
+<b class="fc"><i class="no-highlight">519</i>&nbsp;        }</b>
+<i class="no-highlight">520</i>&nbsp;
+<i class="no-highlight">521</i>&nbsp;        //Add all the professors to the schoolBoard in order to be sure to have influence 1 on all archipelagos
+<b class="fc"><i class="no-highlight">522</i>&nbsp;        for (Color color: Color.values() ) {</b>
+<b class="fc"><i class="no-highlight">523</i>&nbsp;            gameState.getCurrentPlayerSchoolBoard().addProfessor(color);</b>
+<i class="no-highlight">524</i>&nbsp;        }
+<i class="no-highlight">525</i>&nbsp;
+<i class="no-highlight">526</i>&nbsp;        //add students to the archipelagos that are initially empyty
+<b class="fc"><i class="no-highlight">527</i>&nbsp;        gameState.archipelagos.get(0).addStudent(Color.RED);</b>
+<b class="fc"><i class="no-highlight">528</i>&nbsp;        gameState.archipelagos.get(6).addStudent(Color.RED);</b>
+<i class="no-highlight">529</i>&nbsp;
+<b class="fc"><i class="no-highlight">530</i>&nbsp;        for (int i = 0; i &lt; 12; i++) {</b>
+<b class="fc"><i class="no-highlight">531</i>&nbsp;            if(gameState.getInfluence(List.of(i)).isPresent() &amp;&amp; gameState.getArchipelagoFromSingleIslandCode(i).isPresent()){</b>
+<i class="no-highlight">532</i>&nbsp;                //Check that the influence is initially 1
+<b class="fc"><i class="no-highlight">533</i>&nbsp;                assertEquals(1,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">534</i>&nbsp;                //Play the character
+<b class="fc"><i class="no-highlight">535</i>&nbsp;                gameState.playColorDoesntCount(gameState.getArchipelagoFromSingleIslandCode(i).get().getStudents().get(0));</b>
+<i class="no-highlight">536</i>&nbsp;                //Check that the influence is modified according to the character
+<b class="fc"><i class="no-highlight">537</i>&nbsp;                assertEquals(0,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<i class="no-highlight">538</i>&nbsp;                //Reset the character
+<b class="fc"><i class="no-highlight">539</i>&nbsp;                gameState.resetColorThatDoesntCountForAllArchipelagos();</b>
+<i class="no-highlight">540</i>&nbsp;                //Verify that the influence returned back to its original value
+<b class="fc"><i class="no-highlight">541</i>&nbsp;                assertEquals(1,gameState.getInfluence(List.of(i)).get().get(gameState.getCurrentPlayerSchoolBoardId()).intValue());</b>
+<b class="nc"><i class="no-highlight">542</i>&nbsp;            }  else fail();</b>
+<i class="no-highlight">543</i>&nbsp;        }
+<i class="no-highlight">544</i>&nbsp;
+<i class="no-highlight">545</i>&nbsp;    }
+<i class="no-highlight">546</i>&nbsp;
+<i class="no-highlight">547</i>&nbsp;    //#10
+<i class="no-highlight">548</i>&nbsp;//    @Test
+<i class="no-highlight">549</i>&nbsp;//    public void playSwapTwoStudentsBetweenEntranceAndDiningRoom() throws GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException, StudentNotInTheEntranceException, InvalidStudentListsLengthException, MoveNotAvailableException, FullDiningRoomLaneException {
+<i class="no-highlight">550</i>&nbsp;//        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM)));
+<i class="no-highlight">551</i>&nbsp;//
+<i class="no-highlight">552</i>&nbsp;//        //Trick to have many coins to perform any kind of test
+<i class="no-highlight">553</i>&nbsp;//        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {
+<i class="no-highlight">554</i>&nbsp;//            schoolBoard.payCharacter(-100);
+<i class="no-highlight">555</i>&nbsp;//        }
+<i class="no-highlight">556</i>&nbsp;//
+<i class="no-highlight">557</i>&nbsp;//        //Prepare the students to get from the entrance
+<i class="no-highlight">558</i>&nbsp;//        List&lt;Color&gt; studentsFromEntrance = gameState.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().subList(0,2);
+<i class="no-highlight">559</i>&nbsp;//
+<i class="no-highlight">560</i>&nbsp;//        //Add some students to the diningRoom
+<i class="no-highlight">561</i>&nbsp;//        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);
+<i class="no-highlight">562</i>&nbsp;//        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);
+<i class="no-highlight">563</i>&nbsp;//        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.GREEN);
+<i class="no-highlight">564</i>&nbsp;//
+<i class="no-highlight">565</i>&nbsp;//        //Prepare the students to get from the diningRoom
+<i class="no-highlight">566</i>&nbsp;//        List&lt;Color&gt; studentsFromDining = new ArrayList&lt;&gt;(List.of(Color.RED, Color.GREEN));
+<i class="no-highlight">567</i>&nbsp;//
+<i class="no-highlight">568</i>&nbsp;//        //Play the character
+<i class="no-highlight">569</i>&nbsp;//        gameState.playSwapTwoStudentsBetweenEntranceAndDiningRoom(studentsFromDining,studentsFromEntrance);
+<i class="no-highlight">570</i>&nbsp;//
+<i class="no-highlight">571</i>&nbsp;//
+<i class="no-highlight">572</i>&nbsp;//        //Check if the students were correctly swapped
+<i class="no-highlight">573</i>&nbsp;//        assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentsFromDining));
+<i class="no-highlight">574</i>&nbsp;//        assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheDiningRoom(studentsFromEntrance));
+<i class="no-highlight">575</i>&nbsp;//        assertEquals(gameState.strategy.getNumberOfStudentsInTheEntrance(),gameState.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size());
+<i class="no-highlight">576</i>&nbsp;//        assertEquals(3, gameState.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().values().stream().reduce(0,Integer::sum).intValue());
+<i class="no-highlight">577</i>&nbsp;//
+<i class="no-highlight">578</i>&nbsp;//    }
+<i class="no-highlight">579</i>&nbsp;
+<i class="no-highlight">580</i>&nbsp;    @Test
+<i class="no-highlight">581</i>&nbsp;    public void playSwapTwoStudentsBetweenEntranceAndDiningRoomNoStudentsMoved() throws GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException, StudentsNotInTheDiningRoomException, StudentNotInTheEntranceException, InvalidStudentListsLengthException, MoveNotAvailableException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">582</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM)));</b>
+<i class="no-highlight">583</i>&nbsp;
+<i class="no-highlight">584</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">585</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">586</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">587</i>&nbsp;        }</b>
+<i class="no-highlight">588</i>&nbsp;
+<i class="no-highlight">589</i>&nbsp;        //Prepare the students to get from the entrance
+<b class="fc"><i class="no-highlight">590</i>&nbsp;        List&lt;Color&gt; studentsFromEntrance = new ArrayList&lt;&gt;(List.of());</b>
+<i class="no-highlight">591</i>&nbsp;
+<i class="no-highlight">592</i>&nbsp;        //Add some students to the diningRoom
+<b class="fc"><i class="no-highlight">593</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">594</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">595</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.GREEN);</b>
+<i class="no-highlight">596</i>&nbsp;
+<i class="no-highlight">597</i>&nbsp;        //Prepare the students to get from the diningRoom
+<b class="fc"><i class="no-highlight">598</i>&nbsp;        List&lt;Color&gt; studentsFromDining = new ArrayList&lt;&gt;(List.of());</b>
+<i class="no-highlight">599</i>&nbsp;
+<i class="no-highlight">600</i>&nbsp;        //Play the character
+<b class="fc"><i class="no-highlight">601</i>&nbsp;        gameState.playSwapTwoStudentsBetweenEntranceAndDiningRoom(studentsFromDining,studentsFromEntrance);</b>
+<i class="no-highlight">602</i>&nbsp;
+<i class="no-highlight">603</i>&nbsp;
+<i class="no-highlight">604</i>&nbsp;        //Check if the students were correctly swapped
+<b class="fc"><i class="no-highlight">605</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheEntrance(studentsFromDining));</b>
+<b class="fc"><i class="no-highlight">606</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheDiningRoom(studentsFromEntrance));</b>
+<b class="fc"><i class="no-highlight">607</i>&nbsp;        assertEquals(gameState.strategy.getNumberOfStudentsInTheEntrance(),gameState.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size());</b>
+<b class="fc"><i class="no-highlight">608</i>&nbsp;        assertEquals(3, gameState.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().values().stream().reduce(0,Integer::sum).intValue());</b>
+<i class="no-highlight">609</i>&nbsp;
+<i class="no-highlight">610</i>&nbsp;    }
+<i class="no-highlight">611</i>&nbsp;
+<i class="no-highlight">612</i>&nbsp;    //#11
+<i class="no-highlight">613</i>&nbsp;    @Test
+<i class="no-highlight">614</i>&nbsp;    public void playPutOneStudentFromCharacterToDiningRoom() throws GameStateInitializationFailureException, EmptyStudentSupplyException, NotEnoughCoinsException, StudentNotOnCharacterException, FullDiningRoomLaneException, MoveNotAvailableException {
+<b class="fc"><i class="no-highlight">615</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.PUT_ONE_STUDENT_FROM_CHARACTER_INTO_DINING_ROOM)));</b>
+<b class="fc"><i class="no-highlight">616</i>&nbsp;        List&lt;Color&gt; studentToBePutInTheDiningRoom = new ArrayList&lt;&gt;();</b>
+<i class="no-highlight">617</i>&nbsp;
+<i class="no-highlight">618</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">619</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">620</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">621</i>&nbsp;        }</b>
+<i class="no-highlight">622</i>&nbsp;
+<i class="no-highlight">623</i>&nbsp;        //Check that the diningRoom is initially empty
+<b class="fc"><i class="no-highlight">624</i>&nbsp;        assertEquals(0, gameState.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().values().stream().reduce(0,Integer::sum).intValue());</b>
+<i class="no-highlight">625</i>&nbsp;
+<b class="fc"><i class="no-highlight">626</i>&nbsp;        for (int i = 4; i &gt;= 1 ; i--) {</b>
+<i class="no-highlight">627</i>&nbsp;            //Check that the card initially contains the correct number of students
+<b class="fc"><i class="no-highlight">628</i>&nbsp;            assertEquals(i, gameState.getAvailableCharacters().get(0).getStudents().size());</b>
+<i class="no-highlight">629</i>&nbsp;            //Prepare the student to be put in the diningRoom
+<b class="fc"><i class="no-highlight">630</i>&nbsp;            studentToBePutInTheDiningRoom.add(gameState.getAvailableCharacters().get(0).getStudents().get(0));</b>
+<i class="no-highlight">631</i>&nbsp;            //Play the character
+<b class="fc"><i class="no-highlight">632</i>&nbsp;            gameState.playPutOneStudentFromCharacterToDiningRoom(studentToBePutInTheDiningRoom.get(4-i));</b>
+<i class="no-highlight">633</i>&nbsp;            //Check that the diningRoom contains the student taken from the character
+<b class="fc"><i class="no-highlight">634</i>&nbsp;            assertTrue(gameState.getCurrentPlayerSchoolBoard().containsAllStudentsInTheDiningRoom(studentToBePutInTheDiningRoom));</b>
+<i class="no-highlight">635</i>&nbsp;        }
+<i class="no-highlight">636</i>&nbsp;    }
+<i class="no-highlight">637</i>&nbsp;
+<i class="no-highlight">638</i>&nbsp;    //#12
+<i class="no-highlight">639</i>&nbsp;    @Test
+<i class="no-highlight">640</i>&nbsp;    public void playPutThreeStudentsInTheBag2() throws GameStateInitializationFailureException, EmptyStudentSupplyException, FullDiningRoomLaneException, NotEnoughCoinsException, MoveNotAvailableException, StudentsNotInTheDiningRoomException {
+<b class="fc"><i class="no-highlight">641</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.PUT_THREE_STUDENTS_IN_THE_BAG)));</b>
+<i class="no-highlight">642</i>&nbsp;
+<i class="no-highlight">643</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">644</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">645</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">646</i>&nbsp;        }</b>
+<i class="no-highlight">647</i>&nbsp;
+<b class="fc"><i class="no-highlight">648</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">649</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">650</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">651</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<i class="no-highlight">652</i>&nbsp;
+<b class="fc"><i class="no-highlight">653</i>&nbsp;        gameState.schoolBoards.get(1).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">654</i>&nbsp;        gameState.schoolBoards.get(1).addStudentToDiningRoom(Color.RED);</b>
+<i class="no-highlight">655</i>&nbsp;
+<b class="fc"><i class="no-highlight">656</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">657</i>&nbsp;        gameState.playPutThreeStudentsInTheBag(Color.RED);</b>
+<i class="no-highlight">658</i>&nbsp;
+<b class="fc"><i class="no-highlight">659</i>&nbsp;        assertEquals(1, gameState.schoolBoards.get(0).getDiningRoomLaneColorToNumberOfStudents().get(Color.RED).intValue());</b>
+<b class="fc"><i class="no-highlight">660</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(1).getDiningRoomLaneColorToNumberOfStudents().get(Color.RED).intValue());</b>
+<i class="no-highlight">661</i>&nbsp;    }
+<i class="no-highlight">662</i>&nbsp;
+<i class="no-highlight">663</i>&nbsp;    @Test
+<i class="no-highlight">664</i>&nbsp;    public void playPutThreeStudentsInTheBag3() throws GameStateInitializationFailureException, EmptyStudentSupplyException, FullDiningRoomLaneException, NotEnoughCoinsException, MoveNotAvailableException, StudentsNotInTheDiningRoomException {
+<b class="fc"><i class="no-highlight">665</i>&nbsp;        GameState gameState = new ExpertGameState(3, List.of(PlayableCharacter.createCharacter(Character.PUT_THREE_STUDENTS_IN_THE_BAG)));</b>
+<i class="no-highlight">666</i>&nbsp;
+<i class="no-highlight">667</i>&nbsp;        //Trick to have many coins to perform any kind of test
+<b class="fc"><i class="no-highlight">668</i>&nbsp;        for (SchoolBoard schoolBoard: gameState.schoolBoards ) {</b>
+<b class="fc"><i class="no-highlight">669</i>&nbsp;            schoolBoard.payCharacter(-100);</b>
+<b class="fc"><i class="no-highlight">670</i>&nbsp;        }</b>
+<i class="no-highlight">671</i>&nbsp;
+<b class="fc"><i class="no-highlight">672</i>&nbsp;        int initialNumberOfRedStudentsInTheBag = gameState.studentFactory.studentSupply.get(Color.RED);</b>
+<i class="no-highlight">673</i>&nbsp;
+<i class="no-highlight">674</i>&nbsp;        //Prepare schoolBoard 0
+<b class="fc"><i class="no-highlight">675</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">676</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">677</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">678</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">679</i>&nbsp;        gameState.schoolBoards.get(0).addStudentToDiningRoom(Color.CYAN);</b>
+<i class="no-highlight">680</i>&nbsp;
+<i class="no-highlight">681</i>&nbsp;        //Prepare schoolBoard 1
+<b class="fc"><i class="no-highlight">682</i>&nbsp;        gameState.schoolBoards.get(1).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">683</i>&nbsp;        gameState.schoolBoards.get(1).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">684</i>&nbsp;        gameState.schoolBoards.get(1).addStudentToDiningRoom(Color.YELLOW);</b>
+<i class="no-highlight">685</i>&nbsp;
+<i class="no-highlight">686</i>&nbsp;        //Prepare schoolBoard 2
+<b class="fc"><i class="no-highlight">687</i>&nbsp;        gameState.schoolBoards.get(2).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">688</i>&nbsp;        gameState.schoolBoards.get(2).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">689</i>&nbsp;        gameState.schoolBoards.get(2).addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">690</i>&nbsp;        gameState.schoolBoards.get(2).addStudentToDiningRoom(Color.GREEN);</b>
+<i class="no-highlight">691</i>&nbsp;
+<i class="no-highlight">692</i>&nbsp;
+<i class="no-highlight">693</i>&nbsp;        //Play the character
+<b class="fc"><i class="no-highlight">694</i>&nbsp;        gameState.playPutThreeStudentsInTheBag(Color.RED);</b>
+<i class="no-highlight">695</i>&nbsp;
+<i class="no-highlight">696</i>&nbsp;        //Verify that the number of students in the diningRoom is correct for each color and each player
+<b class="fc"><i class="no-highlight">697</i>&nbsp;        assertEquals(1, gameState.schoolBoards.get(0).getDiningRoomLaneColorToNumberOfStudents().get(Color.RED).intValue());</b>
+<b class="fc"><i class="no-highlight">698</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(0).getDiningRoomLaneColorToNumberOfStudents().get(Color.GREEN).intValue());</b>
+<b class="fc"><i class="no-highlight">699</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(0).getDiningRoomLaneColorToNumberOfStudents().get(Color.YELLOW).intValue());</b>
+<b class="fc"><i class="no-highlight">700</i>&nbsp;        assertEquals(1, gameState.schoolBoards.get(0).getDiningRoomLaneColorToNumberOfStudents().get(Color.CYAN).intValue());</b>
+<b class="fc"><i class="no-highlight">701</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(0).getDiningRoomLaneColorToNumberOfStudents().get(Color.PURPLE).intValue());</b>
+<i class="no-highlight">702</i>&nbsp;
+<b class="fc"><i class="no-highlight">703</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(1).getDiningRoomLaneColorToNumberOfStudents().get(Color.RED).intValue());</b>
+<b class="fc"><i class="no-highlight">704</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(1).getDiningRoomLaneColorToNumberOfStudents().get(Color.GREEN).intValue());</b>
+<b class="fc"><i class="no-highlight">705</i>&nbsp;        assertEquals(1, gameState.schoolBoards.get(1).getDiningRoomLaneColorToNumberOfStudents().get(Color.YELLOW).intValue());</b>
+<b class="fc"><i class="no-highlight">706</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(1).getDiningRoomLaneColorToNumberOfStudents().get(Color.CYAN).intValue());</b>
+<b class="fc"><i class="no-highlight">707</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(1).getDiningRoomLaneColorToNumberOfStudents().get(Color.PURPLE).intValue());</b>
+<i class="no-highlight">708</i>&nbsp;
+<b class="fc"><i class="no-highlight">709</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(2).getDiningRoomLaneColorToNumberOfStudents().get(Color.RED).intValue());</b>
+<b class="fc"><i class="no-highlight">710</i>&nbsp;        assertEquals(1, gameState.schoolBoards.get(2).getDiningRoomLaneColorToNumberOfStudents().get(Color.GREEN).intValue());</b>
+<b class="fc"><i class="no-highlight">711</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(2).getDiningRoomLaneColorToNumberOfStudents().get(Color.YELLOW).intValue());</b>
+<b class="fc"><i class="no-highlight">712</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(2).getDiningRoomLaneColorToNumberOfStudents().get(Color.CYAN).intValue());</b>
+<b class="fc"><i class="no-highlight">713</i>&nbsp;        assertEquals(0, gameState.schoolBoards.get(2).getDiningRoomLaneColorToNumberOfStudents().get(Color.PURPLE).intValue());</b>
+<i class="no-highlight">714</i>&nbsp;
+<i class="no-highlight">715</i>&nbsp;
+<i class="no-highlight">716</i>&nbsp;        //Verify that the students taken from the diningRooms of the different players were put in the bag
+<b class="fc"><i class="no-highlight">717</i>&nbsp;        assertEquals(8,gameState.studentFactory.studentSupply.get(Color.RED) - initialNumberOfRedStudentsInTheBag);</b>
+<i class="no-highlight">718</i>&nbsp;
+<i class="no-highlight">719</i>&nbsp;
+<i class="no-highlight">720</i>&nbsp;    }
+<i class="no-highlight">721</i>&nbsp;
+<i class="no-highlight">722</i>&nbsp;    //Coin logic tests
+<i class="no-highlight">723</i>&nbsp;    @Test
+<i class="no-highlight">724</i>&nbsp;    public void coinsTest1() throws GameStateInitializationFailureException, EmptyStudentSupplyException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">725</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.PUT_THREE_STUDENTS_IN_THE_BAG)));</b>
+<i class="no-highlight">726</i>&nbsp;
+<i class="no-highlight">727</i>&nbsp;        //Check that the initial number of coins is 1
+<b class="fc"><i class="no-highlight">728</i>&nbsp;        assertEquals(1, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<i class="no-highlight">729</i>&nbsp;
+<i class="no-highlight">730</i>&nbsp;        //Check that the number of coins is increased every 3 students put in the same diningRoomLane
+<b class="fc"><i class="no-highlight">731</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">732</i>&nbsp;        assertEquals(1, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">733</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">734</i>&nbsp;        assertEquals(1, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">735</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">736</i>&nbsp;        assertEquals(2, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">737</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">738</i>&nbsp;        assertEquals(2, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<i class="no-highlight">739</i>&nbsp;    }
+<i class="no-highlight">740</i>&nbsp;
+<i class="no-highlight">741</i>&nbsp;    @Test
+<i class="no-highlight">742</i>&nbsp;    public void coinsTest2() throws GameStateInitializationFailureException, EmptyStudentSupplyException, FullDiningRoomLaneException, NotEnoughCoinsException, MoveNotAvailableException, StudentsNotInTheDiningRoomException {
+<b class="fc"><i class="no-highlight">743</i>&nbsp;        GameState gameState = new ExpertGameState(2, List.of(PlayableCharacter.createCharacter(Character.PUT_THREE_STUDENTS_IN_THE_BAG)));</b>
+<i class="no-highlight">744</i>&nbsp;
+<i class="no-highlight">745</i>&nbsp;        //Check that the initial number of coins is 1
+<b class="fc"><i class="no-highlight">746</i>&nbsp;        assertEquals(1, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<i class="no-highlight">747</i>&nbsp;
+<i class="no-highlight">748</i>&nbsp;        //Check that the number of coins is increased every 3 students put in the same diningRoomLane
+<b class="fc"><i class="no-highlight">749</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">750</i>&nbsp;        assertEquals(1, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">751</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">752</i>&nbsp;        assertEquals(1, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">753</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">754</i>&nbsp;        assertEquals(2, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<i class="no-highlight">755</i>&nbsp;
+<b class="fc"><i class="no-highlight">756</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">757</i>&nbsp;        assertEquals(2, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">758</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">759</i>&nbsp;        assertEquals(2, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">760</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.RED);</b>
+<b class="fc"><i class="no-highlight">761</i>&nbsp;        assertEquals(3, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<i class="no-highlight">762</i>&nbsp;
+<i class="no-highlight">763</i>&nbsp;        //Play character
+<b class="fc"><i class="no-highlight">764</i>&nbsp;        gameState.playPutThreeStudentsInTheBag(Color.RED);</b>
+<i class="no-highlight">765</i>&nbsp;        //Check that the coins are spent to pay for the character
+<b class="fc"><i class="no-highlight">766</i>&nbsp;        assertEquals(0, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<i class="no-highlight">767</i>&nbsp;
+<b class="fc"><i class="no-highlight">768</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">769</i>&nbsp;        assertEquals(0, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">770</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">771</i>&nbsp;        assertEquals(0, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<b class="fc"><i class="no-highlight">772</i>&nbsp;        gameState.getCurrentPlayerSchoolBoard().addStudentToDiningRoom(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">773</i>&nbsp;        assertEquals(1, gameState.getCurrentPlayerSchoolBoard().getCoins());</b>
+<i class="no-highlight">774</i>&nbsp;    }
+<i class="no-highlight">775</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

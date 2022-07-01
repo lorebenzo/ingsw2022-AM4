@@ -1,0 +1,1115 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > GameState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic</a>
+</div>
+
+<h1>Coverage Summary for Class: GameState (it.polimi.ingsw.server.model.game_logic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    95.3%
+  </span>
+  <span class="absValue">
+    (81/85)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    89.7%
+  </span>
+  <span class="absValue">
+    (341/380)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.CardIsNotInTheDeckException;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidCardPlayedException;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidNumberOfStepsException;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.server.event_sourcing.Aggregate;
+<i class="no-highlight">8</i>&nbsp;import it.polimi.ingsw.server.event_sourcing.Event;
+<i class="no-highlight">9</i>&nbsp;import it.polimi.ingsw.server.event_sourcing.exceptions.EventSourcingException;
+<i class="no-highlight">10</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.*;
+<i class="no-highlight">11</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.events.*;
+<i class="no-highlight">12</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+<i class="no-highlight">13</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy;
+<i class="no-highlight">14</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory;
+<i class="no-highlight">15</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.utils.Randomizer;
+<i class="no-highlight">16</i>&nbsp;import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
+<i class="no-highlight">17</i>&nbsp;
+<i class="no-highlight">18</i>&nbsp;import java.lang.reflect.InvocationTargetException;
+<i class="no-highlight">19</i>&nbsp;import java.lang.reflect.Method;
+<i class="no-highlight">20</i>&nbsp;import java.sql.SQLException;
+<i class="no-highlight">21</i>&nbsp;import java.util.*;
+<i class="no-highlight">22</i>&nbsp;import java.util.function.Function;
+<i class="no-highlight">23</i>&nbsp;import java.util.stream.Collectors;
+<i class="no-highlight">24</i>&nbsp;
+<i class="no-highlight">25</i>&nbsp;public class GameState extends Aggregate implements GameStateCommonInterface {
+<i class="no-highlight">26</i>&nbsp;    protected int numberOfPlayers;
+<i class="no-highlight">27</i>&nbsp;    protected NumberOfPlayersStrategy strategy;
+<i class="no-highlight">28</i>&nbsp;
+<i class="no-highlight">29</i>&nbsp;    private int numberOfStudentsInEachCloud;
+<i class="no-highlight">30</i>&nbsp;    private int numberOfStudentsInTheEntrance;
+<i class="no-highlight">31</i>&nbsp;
+<i class="no-highlight">32</i>&nbsp;    // Game flow attributes
+<i class="no-highlight">33</i>&nbsp;    protected Round round;
+<i class="no-highlight">34</i>&nbsp;
+<i class="no-highlight">35</i>&nbsp;    protected Map&lt;Integer, Card&gt; schoolBoardIdsToCardPlayedThisRound;
+<i class="no-highlight">36</i>&nbsp;    protected Map&lt;Integer, Card&gt; schoolBoardIdsToLastCardPlayed;
+<i class="no-highlight">37</i>&nbsp;
+<i class="no-highlight">38</i>&nbsp;    protected List&lt;Archipelago&gt; archipelagos;
+<i class="no-highlight">39</i>&nbsp;    protected List&lt;SchoolBoard&gt; schoolBoards;
+<i class="no-highlight">40</i>&nbsp;    protected List&lt;List&lt;Color&gt;&gt; clouds;
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;    public StudentFactory studentFactory;
+<i class="no-highlight">43</i>&nbsp;    protected Archipelago motherNaturePosition;
+<i class="no-highlight">44</i>&nbsp;
+<i class="no-highlight">45</i>&nbsp;    protected int currentPlayerSchoolBoardId;
+<i class="no-highlight">46</i>&nbsp;
+<i class="no-highlight">47</i>&nbsp;
+<b class="nc"><i class="no-highlight">48</i>&nbsp;    public GameState(UUID uuid) {</b>
+<b class="nc"><i class="no-highlight">49</i>&nbsp;        this.id = uuid;</b>
+<i class="no-highlight">50</i>&nbsp;    }
+<i class="no-highlight">51</i>&nbsp;
+<i class="no-highlight">52</i>&nbsp;    /**
+<i class="no-highlight">53</i>&nbsp;     * @throws IllegalArgumentException if the argument representing the number of players is not between 2 and 4
+<i class="no-highlight">54</i>&nbsp;     * @throws GameStateInitializationFailureException if there is a problem in the initialization of the archipelagos
+<i class="no-highlight">55</i>&nbsp;     *                                                                                             or the schoolBoards,
+<i class="no-highlight">56</i>&nbsp;     *                                                                                             or the clouds.
+<i class="no-highlight">57</i>&nbsp;     * @param numberOfPlayers number of players in the game, must be between 2 (inclusive) and 4 (inclusive)
+<i class="no-highlight">58</i>&nbsp;     */
+<b class="fc"><i class="no-highlight">59</i>&nbsp;    public GameState(int numberOfPlayers) throws GameStateInitializationFailureException {</b>
+<b class="fc"><i class="no-highlight">60</i>&nbsp;        UUID parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">61</i>&nbsp;
+<i class="no-highlight">62</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">63</i>&nbsp;            if(repository!= null)</b>
+<b class="fc"><i class="no-highlight">64</i>&nbsp;                repository.storeAggregate(this.id, this.getClass().getName());</b>
+<b class="nc"><i class="no-highlight">65</i>&nbsp;        } catch (SQLException e) {</b>
+<b class="nc"><i class="no-highlight">66</i>&nbsp;            e.printStackTrace();</b>
+<b class="fc"><i class="no-highlight">67</i>&nbsp;        }</b>
+<i class="no-highlight">68</i>&nbsp;
+<b class="fc"><i class="no-highlight">69</i>&nbsp;        var event = new InitGameStateEvent(parentUuid, numberOfPlayers);</b>
+<i class="no-highlight">70</i>&nbsp;
+<b class="fc"><i class="no-highlight">71</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        this.initGameState(event);</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">74</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">75</i>&nbsp;            this.fillClouds();</b>
+<i class="no-highlight">76</i>&nbsp;
+<b class="fc"><i class="no-highlight">77</i>&nbsp;            this.createSnapshot();</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;        } catch(Exception ignored) {}</b>
+<i class="no-highlight">79</i>&nbsp;    }
+<i class="no-highlight">80</i>&nbsp;
+<i class="no-highlight">81</i>&nbsp;    /**
+<i class="no-highlight">82</i>&nbsp;     * This method initializes the gameState in all its parts according to the game&#39;s rules
+<i class="no-highlight">83</i>&nbsp;     * @param event is the event linked the initialization
+<i class="no-highlight">84</i>&nbsp;     * @throws GameStateInitializationFailureException if an error occurs during the initialization
+<i class="no-highlight">85</i>&nbsp;     */
+<i class="no-highlight">86</i>&nbsp;    public void initGameState(InitGameStateEvent event) throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">87</i>&nbsp;        var numberOfPlayers = event.numberOfPlayers;</b>
+<b class="fc"><i class="no-highlight">88</i>&nbsp;        var parentUUID = event.parentEvent;</b>
+<b class="fc"><i class="no-highlight">89</i>&nbsp;        if(</b>
+<i class="no-highlight">90</i>&nbsp;                numberOfPlayers &lt; GameConstants.MIN_NUMBER_OF_PLAYERS.value ||
+<i class="no-highlight">91</i>&nbsp;                numberOfPlayers &gt; GameConstants.MAX_NUMBER_OF_PLAYERS.value
+<b class="nc"><i class="no-highlight">92</i>&nbsp;        ) throw new IllegalArgumentException();</b>
+<i class="no-highlight">93</i>&nbsp;
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        this.numberOfPlayers = numberOfPlayers;</b>
+<b class="fc"><i class="no-highlight">95</i>&nbsp;        this.chooseStrategy();</b>
+<i class="no-highlight">96</i>&nbsp;
+<b class="fc"><i class="no-highlight">97</i>&nbsp;        this.numberOfStudentsInEachCloud = this.strategy.getNumberOfStudentsInEachCloud();</b>
+<b class="fc"><i class="no-highlight">98</i>&nbsp;        this.numberOfStudentsInTheEntrance = this.strategy.getNumberOfStudentsInTheEntrance();</b>
+<i class="no-highlight">99</i>&nbsp;
+<b class="fc"><i class="no-highlight">100</i>&nbsp;        this.schoolBoardIdsToCardPlayedThisRound = new HashMap&lt;&gt;();</b>
+<b class="fc"><i class="no-highlight">101</i>&nbsp;        this.schoolBoardIdsToLastCardPlayed = new HashMap&lt;&gt;();</b>
+<b class="fc"><i class="no-highlight">102</i>&nbsp;        this.studentFactory = new StudentFactory();</b>
+<i class="no-highlight">103</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">104</i>&nbsp;            this.archipelagos = this.initializeArchipelagos();</b>
+<b class="fc"><i class="no-highlight">105</i>&nbsp;            this.schoolBoards = this.initializeSchoolBoards();</b>
+<b class="fc"><i class="no-highlight">106</i>&nbsp;            this.clouds = this.initializeClouds();</b>
+<b class="nc"><i class="no-highlight">107</i>&nbsp;        } catch (EmptyStudentSupplyException e) {</b>
+<b class="nc"><i class="no-highlight">108</i>&nbsp;            throw new GameStateInitializationFailureException();</b>
+<b class="fc"><i class="no-highlight">109</i>&nbsp;        }</b>
+<i class="no-highlight">110</i>&nbsp;
+<i class="no-highlight">111</i>&nbsp;        //Preparation of the roundOrder that will support the turns
+<b class="fc"><i class="no-highlight">112</i>&nbsp;        this.round = new Round(this.schoolBoards.stream().map(SchoolBoard::getId).toList());</b>
+<b class="fc"><i class="no-highlight">113</i>&nbsp;        this.currentPlayerSchoolBoardId = this.round.next();</b>
+<i class="no-highlight">114</i>&nbsp;
+<i class="no-highlight">115</i>&nbsp;    }
+<i class="no-highlight">116</i>&nbsp;
+<i class="no-highlight">117</i>&nbsp;    /**
+<i class="no-highlight">118</i>&nbsp;     * This method is used to select the correct strategy according to the number of players
+<i class="no-highlight">119</i>&nbsp;     */
+<i class="no-highlight">120</i>&nbsp;    protected void chooseStrategy(){
+<b class="fc"><i class="no-highlight">121</i>&nbsp;        this.strategy = NumberOfPlayersStrategyFactory.getCorrectStrategy(numberOfPlayers);</b>
+<i class="no-highlight">122</i>&nbsp;    }
+<i class="no-highlight">123</i>&nbsp;
+<i class="no-highlight">124</i>&nbsp;    /**
+<i class="no-highlight">125</i>&nbsp;     * This method initializes the List of Lists of Color representing the clouds
+<i class="no-highlight">126</i>&nbsp;     */
+<i class="no-highlight">127</i>&nbsp;    private List&lt;List&lt;Color&gt;&gt; initializeClouds() {
+<b class="fc"><i class="no-highlight">128</i>&nbsp;        List&lt;List&lt;Color&gt;&gt; clouds = new ArrayList&lt;&gt;(this.numberOfPlayers);</b>
+<i class="no-highlight">129</i>&nbsp;
+<i class="no-highlight">130</i>&nbsp;        // Create a cloud for each player
+<b class="fc"><i class="no-highlight">131</i>&nbsp;        for(int i = 0; i &lt; this.numberOfPlayers; i++) {</b>
+<b class="fc"><i class="no-highlight">132</i>&nbsp;            List&lt;Color&gt; cloud = new ArrayList&lt;&gt;(this.numberOfStudentsInEachCloud);</b>
+<b class="fc"><i class="no-highlight">133</i>&nbsp;            clouds.add(cloud);</b>
+<i class="no-highlight">134</i>&nbsp;        }
+<i class="no-highlight">135</i>&nbsp;
+<b class="fc"><i class="no-highlight">136</i>&nbsp;        return clouds;</b>
+<i class="no-highlight">137</i>&nbsp;    }
+<i class="no-highlight">138</i>&nbsp;
+<i class="no-highlight">139</i>&nbsp;    /**
+<i class="no-highlight">140</i>&nbsp;     * This method initializes all the archipelagos adding motherNature and the students as the rulebook commands
+<i class="no-highlight">141</i>&nbsp;     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty
+<i class="no-highlight">142</i>&nbsp;     * @return a List of Archipelago containing all the already initialized and ready to use archipelagos of the game
+<i class="no-highlight">143</i>&nbsp;     */
+<i class="no-highlight">144</i>&nbsp;    private List&lt;Archipelago&gt; initializeArchipelagos() throws EmptyStudentSupplyException {
+<i class="no-highlight">145</i>&nbsp;        Archipelago newArchipelago;
+<b class="fc"><i class="no-highlight">146</i>&nbsp;        int motherNatureIndex = 0;</b>
+<i class="no-highlight">147</i>&nbsp;
+<i class="no-highlight">148</i>&nbsp;        // lambda to get, given an island index, the index of the opposite island
+<b class="fc"><i class="no-highlight">149</i>&nbsp;        Function&lt;Integer, Integer&gt; getOppositeIslandIndex =</b>
+<b class="fc"><i class="no-highlight">150</i>&nbsp;                (islandIndex) -&gt; (islandIndex + GameConstants.NUMBER_OF_ISLANDS.value / 2) % GameConstants.NUMBER_OF_ISLANDS.value;</b>
+<i class="no-highlight">151</i>&nbsp;
+<b class="fc"><i class="no-highlight">152</i>&nbsp;        List&lt;Archipelago&gt; archipelagos = new LinkedList&lt;&gt;();</b>
+<i class="no-highlight">153</i>&nbsp;
+<b class="fc"><i class="no-highlight">154</i>&nbsp;        List&lt;Color&gt; studentsForArchipelagos = new LinkedList&lt;&gt;();</b>
+<i class="no-highlight">155</i>&nbsp;
+<b class="fc"><i class="no-highlight">156</i>&nbsp;        for (Color color: Color.values()) {</b>
+<b class="fc"><i class="no-highlight">157</i>&nbsp;            studentsForArchipelagos.add(color);</b>
+<b class="fc"><i class="no-highlight">158</i>&nbsp;            studentsForArchipelagos.add(color);</b>
+<i class="no-highlight">159</i>&nbsp;        }
+<i class="no-highlight">160</i>&nbsp;
+<b class="fc"><i class="no-highlight">161</i>&nbsp;        Collections.shuffle(studentsForArchipelagos);</b>
+<b class="fc"><i class="no-highlight">162</i>&nbsp;        ListIterator&lt;Color&gt; studentsForArchipelagosIterator = studentsForArchipelagos.listIterator();</b>
+<i class="no-highlight">163</i>&nbsp;
+<b class="fc"><i class="no-highlight">164</i>&nbsp;        for(int i = 0; i &lt; GameConstants.NUMBER_OF_ISLANDS.value; i++) {</b>
+<b class="fc"><i class="no-highlight">165</i>&nbsp;            newArchipelago = this.createArchipelago(i);</b>
+<b class="fc"><i class="no-highlight">166</i>&nbsp;            if(i != motherNatureIndex &amp;&amp; i != getOppositeIslandIndex.apply(motherNatureIndex))</b>
+<i class="no-highlight">167</i>&nbsp;                // Put a student into each island except for mother nature&#39;s island and mother nature&#39;s opposite island
+<b class="fc"><i class="no-highlight">168</i>&nbsp;                newArchipelago.addStudent(this.studentFactory.getStudent(studentsForArchipelagosIterator.next()));</b>
+<b class="fc"><i class="no-highlight">169</i>&nbsp;            archipelagos.add(newArchipelago);</b>
+<i class="no-highlight">170</i>&nbsp;        }
+<i class="no-highlight">171</i>&nbsp;
+<b class="fc"><i class="no-highlight">172</i>&nbsp;        this.motherNaturePosition = archipelagos.get(motherNatureIndex);</b>
+<i class="no-highlight">173</i>&nbsp;
+<b class="fc"><i class="no-highlight">174</i>&nbsp;        return archipelagos;</b>
+<i class="no-highlight">175</i>&nbsp;    }
+<i class="no-highlight">176</i>&nbsp;
+<i class="no-highlight">177</i>&nbsp;    /**
+<i class="no-highlight">178</i>&nbsp;     * This method creates an archipelago with the inputted code
+<i class="no-highlight">179</i>&nbsp;     * @param code is the starting islandCode of the archipelago
+<i class="no-highlight">180</i>&nbsp;     * @return the newly created archipelago
+<i class="no-highlight">181</i>&nbsp;     */
+<i class="no-highlight">182</i>&nbsp;    protected Archipelago createArchipelago(int code){
+<b class="fc"><i class="no-highlight">183</i>&nbsp;        return new Archipelago(code);</b>
+<i class="no-highlight">184</i>&nbsp;    }
+<i class="no-highlight">185</i>&nbsp;
+<i class="no-highlight">186</i>&nbsp;    /**
+<i class="no-highlight">187</i>&nbsp;     * This method initializes the schoolBoards according to the appropriate strategy depending on the number of players.
+<i class="no-highlight">188</i>&nbsp;     * @throws EmptyStudentSupplyException if the studentSupply representing the bag is empty and cannot fulfill the initialization process
+<i class="no-highlight">189</i>&nbsp;     * @return a List of SchoolBoard containing the already initialized schoolBoards, students in the entrance included.
+<i class="no-highlight">190</i>&nbsp;     */
+<i class="no-highlight">191</i>&nbsp;    protected List&lt;SchoolBoard&gt; initializeSchoolBoards() throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">192</i>&nbsp;        return this.strategy.initializeSchoolBoards(this.studentFactory);</b>
+<i class="no-highlight">193</i>&nbsp;    }
+<i class="no-highlight">194</i>&nbsp;
+<i class="no-highlight">195</i>&nbsp;    // Game flow methods
+<i class="no-highlight">196</i>&nbsp;
+<i class="no-highlight">197</i>&nbsp;    /**
+<i class="no-highlight">198</i>&nbsp;     * The current player plays the given card
+<i class="no-highlight">199</i>&nbsp;     * @requires Card to be played
+<i class="no-highlight">200</i>&nbsp;     * @throws CardIsNotInTheDeckException if the current player does not actually own the card to be played.
+<i class="no-highlight">201</i>&nbsp;     * @throws InvalidCardPlayedException if another player already played the same card in this round, and it is not the final round.
+<i class="no-highlight">202</i>&nbsp;     * @param card the card to be played by the current player
+<i class="no-highlight">203</i>&nbsp;     */
+<i class="no-highlight">204</i>&nbsp;    public void playCard(Card card) throws InvalidCardPlayedException, CardIsNotInTheDeckException {
+<b class="fc"><i class="no-highlight">205</i>&nbsp;        if(card == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">206</i>&nbsp;
+<b class="fc"><i class="no-highlight">207</i>&nbsp;        UUID parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">208</i>&nbsp;
+<b class="fc"><i class="no-highlight">209</i>&nbsp;        var event = new PlayCardEvent(parentUuid, card);</b>
+<i class="no-highlight">210</i>&nbsp;
+<b class="fc"><i class="no-highlight">211</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">212</i>&nbsp;        this.playCardHandler(event);</b>
+<b class="fc"><i class="no-highlight">213</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">214</i>&nbsp;    }
+<i class="no-highlight">215</i>&nbsp;
+<i class="no-highlight">216</i>&nbsp;    public void playCardHandler(PlayCardEvent event) throws CardIsNotInTheDeckException, InvalidCardPlayedException {
+<b class="fc"><i class="no-highlight">217</i>&nbsp;        var card = event.card;</b>
+<b class="fc"><i class="no-highlight">218</i>&nbsp;        if(this.getSchoolBoardIdsToCardPlayedThisRound().containsValue(card) &amp;&amp; this.getCurrentPlayerSchoolBoard().getDeck().size() &gt; 1) throw new InvalidCardPlayedException();</b>
+<i class="no-highlight">219</i>&nbsp;
+<i class="no-highlight">220</i>&nbsp;
+<i class="no-highlight">221</i>&nbsp;        //If no other player already played the same card as the one in input in this round, or if the card in input is the last available
+<b class="fc"><i class="no-highlight">222</i>&nbsp;        this.getCurrentPlayerSchoolBoard().playCard(card);</b>
+<b class="fc"><i class="no-highlight">223</i>&nbsp;        this.schoolBoardIdsToCardPlayedThisRound.put(this.currentPlayerSchoolBoardId, card);</b>
+<b class="fc"><i class="no-highlight">224</i>&nbsp;        this.schoolBoardIdsToLastCardPlayed.put(this.currentPlayerSchoolBoardId,card);</b>
+<i class="no-highlight">225</i>&nbsp;
+<i class="no-highlight">226</i>&nbsp;    }
+<i class="no-highlight">227</i>&nbsp;
+<i class="no-highlight">228</i>&nbsp;    public void apply(Event event) throws EventSourcingException {
+<b class="fc"><i class="no-highlight">229</i>&nbsp;        if(this.studentFactory != null)</b>
+<b class="fc"><i class="no-highlight">230</i>&nbsp;            Randomizer.setSeed(event.id.getLeastSignificantBits());</b>
+<i class="no-highlight">231</i>&nbsp;
+<i class="no-highlight">232</i>&nbsp;        try {
+<i class="no-highlight">233</i>&nbsp;            // Invoke the correct handler based on the event.handlerName
+<b class="fc"><i class="no-highlight">234</i>&nbsp;            Method handler = this.getClass().getMethod(event.handlerName, event.getClass());</b>
+<b class="fc"><i class="no-highlight">235</i>&nbsp;            handler.invoke(this, event);</b>
+<b class="fc"><i class="no-highlight">236</i>&nbsp;        } catch (Exception e) {</b>
+<b class="fc"><i class="no-highlight">237</i>&nbsp;            throw new EventSourcingException(e.getMessage(), e);</b>
+<b class="fc"><i class="no-highlight">238</i>&nbsp;        }</b>
+<i class="no-highlight">239</i>&nbsp;    }
+<i class="no-highlight">240</i>&nbsp;
+<i class="no-highlight">241</i>&nbsp;    /**
+<i class="no-highlight">242</i>&nbsp;     * This method gets int cloudIndex in input identifying a cloud and fills the cloud with students taken from the studentSupply
+<i class="no-highlight">243</i>&nbsp;     * @throws IllegalArgumentException if the cloudIndex parameter is not valid
+<i class="no-highlight">244</i>&nbsp;     * @throws EmptyStudentSupplyException if the student supply representing the bag cannot fulfill the request for students
+<i class="no-highlight">245</i>&nbsp;     * @param cloudIndex is the index of the cloud to fill with students
+<i class="no-highlight">246</i>&nbsp;     */
+<i class="no-highlight">247</i>&nbsp;    public void fillCloud(int cloudIndex) throws EmptyStudentSupplyException, IllegalArgumentException {
+<b class="fc"><i class="no-highlight">248</i>&nbsp;        UUID parentUuid = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">249</i>&nbsp;        var event = new FillCloudEvent(parentUuid, cloudIndex);</b>
+<i class="no-highlight">250</i>&nbsp;
+<b class="fc"><i class="no-highlight">251</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">252</i>&nbsp;        this.fillCloudHandler(event);</b>
+<b class="fc"><i class="no-highlight">253</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">254</i>&nbsp;    }
+<i class="no-highlight">255</i>&nbsp;
+<i class="no-highlight">256</i>&nbsp;    public void fillCloudHandler(FillCloudEvent event) throws EmptyStudentSupplyException, IllegalArgumentException {
+<b class="fc"><i class="no-highlight">257</i>&nbsp;        var cloudIndex = event.cloudIndex;</b>
+<i class="no-highlight">258</i>&nbsp;
+<b class="fc"><i class="no-highlight">259</i>&nbsp;        if(cloudIndex &gt;= this.numberOfPlayers || cloudIndex &lt; 0) throw new IllegalArgumentException();</b>
+<b class="fc"><i class="no-highlight">260</i>&nbsp;        List&lt;Color&gt; chosenCloud = this.clouds.get(cloudIndex);</b>
+<b class="fc"><i class="no-highlight">261</i>&nbsp;        if(!chosenCloud.isEmpty()) throw new FullCloudException();</b>
+<b class="fc"><i class="no-highlight">262</i>&nbsp;        chosenCloud.addAll(this.studentFactory.getNStudents(this.numberOfStudentsInEachCloud));</b>
+<i class="no-highlight">263</i>&nbsp;    }
+<i class="no-highlight">264</i>&nbsp;
+<i class="no-highlight">265</i>&nbsp;    private void addEvent(Event event) {
+<i class="no-highlight">266</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">267</i>&nbsp;            if(repository!= null)</b>
+<b class="fc"><i class="no-highlight">268</i>&nbsp;                repository.addEvent(this.id, event, ++this.version);</b>
+<b class="nc"><i class="no-highlight">269</i>&nbsp;        } catch (DBQueryException e) {</b>
+<b class="nc"><i class="no-highlight">270</i>&nbsp;            e.printStackTrace();</b>
+<b class="fc"><i class="no-highlight">271</i>&nbsp;        }</b>
+<i class="no-highlight">272</i>&nbsp;    }
+<i class="no-highlight">273</i>&nbsp;
+<i class="no-highlight">274</i>&nbsp;    private void updateSeed(Event event) {
+<b class="fc"><i class="no-highlight">275</i>&nbsp;        Randomizer.setSeed(event.id.getLeastSignificantBits());</b>
+<i class="no-highlight">276</i>&nbsp;    }
+<i class="no-highlight">277</i>&nbsp;
+<i class="no-highlight">278</i>&nbsp;    /**
+<i class="no-highlight">279</i>&nbsp;     * Fills every cloud with students
+<i class="no-highlight">280</i>&nbsp;     * //@throws FullCloudException if one or more of the clouds are not completely empty before being refilled
+<i class="no-highlight">281</i>&nbsp;     * @throws EmptyStudentSupplyException if the studentSupply cannot fulfill the demand for students to refill all the clouds
+<i class="no-highlight">282</i>&nbsp;     */
+<i class="no-highlight">283</i>&nbsp;    public void fillClouds() throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">284</i>&nbsp;        for(int cloudIndex = 0; cloudIndex &lt; this.numberOfPlayers; cloudIndex++)</b>
+<b class="fc"><i class="no-highlight">285</i>&nbsp;            fillCloud(cloudIndex);</b>
+<i class="no-highlight">286</i>&nbsp;    }
+<i class="no-highlight">287</i>&nbsp;
+<i class="no-highlight">288</i>&nbsp;    /**
+<i class="no-highlight">289</i>&nbsp;     * The current player grabs all the students from a cloud and puts them in the entrance
+<i class="no-highlight">290</i>&nbsp;     * @param cloudIndex is the index of the cloud to pick the students from
+<i class="no-highlight">291</i>&nbsp;     * @throws EmptyCloudException if the cloud is empty
+<i class="no-highlight">292</i>&nbsp;     */
+<i class="no-highlight">293</i>&nbsp;    public void grabStudentsFromCloud(int cloudIndex) throws EmptyCloudException {
+<b class="fc"><i class="no-highlight">294</i>&nbsp;        UUID parentUuid = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">295</i>&nbsp;        var event = new GrabStudentsFromCloudEvent(parentUuid, cloudIndex);</b>
+<i class="no-highlight">296</i>&nbsp;
+<b class="fc"><i class="no-highlight">297</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">298</i>&nbsp;        this.grabStudentsFromCloudHandler(event);</b>
+<b class="fc"><i class="no-highlight">299</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">300</i>&nbsp;    }
+<i class="no-highlight">301</i>&nbsp;
+<i class="no-highlight">302</i>&nbsp;    public void grabStudentsFromCloudHandler(GrabStudentsFromCloudEvent event) throws EmptyCloudException {
+<b class="fc"><i class="no-highlight">303</i>&nbsp;        var cloudIndex = event.cloudIndex;</b>
+<i class="no-highlight">304</i>&nbsp;
+<b class="fc"><i class="no-highlight">305</i>&nbsp;        if(cloudIndex &lt; 0 || cloudIndex &gt;= this.numberOfPlayers) throw new IllegalArgumentException();</b>
+<i class="no-highlight">306</i>&nbsp;
+<b class="fc"><i class="no-highlight">307</i>&nbsp;        if(this.clouds.get(cloudIndex).isEmpty()) throw new EmptyCloudException();</b>
+<i class="no-highlight">308</i>&nbsp;
+<b class="fc"><i class="no-highlight">309</i>&nbsp;        SchoolBoard currentPlayerSchoolBoard = this.getCurrentPlayerSchoolBoard();</b>
+<b class="fc"><i class="no-highlight">310</i>&nbsp;        List&lt;Color&gt; studentsGrabbed = new LinkedList&lt;&gt;(this.clouds.get(cloudIndex));</b>
+<b class="fc"><i class="no-highlight">311</i>&nbsp;        this.clouds.get(cloudIndex).clear(); // Reset the cloud</b>
+<b class="fc"><i class="no-highlight">312</i>&nbsp;        currentPlayerSchoolBoard.grabStudentsFromCloud(studentsGrabbed);</b>
+<i class="no-highlight">313</i>&nbsp;    }
+<i class="no-highlight">314</i>&nbsp;
+<i class="no-highlight">315</i>&nbsp;
+<i class="no-highlight">316</i>&nbsp;    /**
+<i class="no-highlight">317</i>&nbsp;     * The current player moves a student from the entrance to the dining room
+<i class="no-highlight">318</i>&nbsp;     * @throws IllegalArgumentException if(student == null)
+<i class="no-highlight">319</i>&nbsp;     * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
+<i class="no-highlight">320</i>&nbsp;     * @param student represents a student that the player wants to move from the entrance to the diningRoom
+<i class="no-highlight">321</i>&nbsp;     */
+<i class="no-highlight">322</i>&nbsp;    public void moveStudentFromEntranceToDiningRoom(Color student) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">323</i>&nbsp;        if(student == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">324</i>&nbsp;
+<b class="fc"><i class="no-highlight">325</i>&nbsp;        UUID parentUuid = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">326</i>&nbsp;        var event = new MoveStudentsFromEntranceToDiningEvent(parentUuid, student);</b>
+<i class="no-highlight">327</i>&nbsp;
+<b class="fc"><i class="no-highlight">328</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">329</i>&nbsp;        this.moveStudentFromEntranceToDiningHandler(event);</b>
+<b class="fc"><i class="no-highlight">330</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">331</i>&nbsp;    }
+<i class="no-highlight">332</i>&nbsp;
+<i class="no-highlight">333</i>&nbsp;    public void moveStudentFromEntranceToDiningHandler(MoveStudentsFromEntranceToDiningEvent event) throws StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">334</i>&nbsp;        var student = event.student;</b>
+<i class="no-highlight">335</i>&nbsp;
+<b class="fc"><i class="no-highlight">336</i>&nbsp;        this.getCurrentPlayerSchoolBoard().moveFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">337</i>&nbsp;    }
+<i class="no-highlight">338</i>&nbsp;
+<i class="no-highlight">339</i>&nbsp;    /**
+<i class="no-highlight">340</i>&nbsp;     * The method gets a color in input and checks if the current player should get the professor corresponding to the inputted color and if another player should lose the corresponding professor
+<i class="no-highlight">341</i>&nbsp;     * @param professor indicates the color of the professor the player should get and/or remove from another player
+<i class="no-highlight">342</i>&nbsp;     */
+<i class="no-highlight">343</i>&nbsp;    public Map&lt;Color, Integer&gt; assignProfessor(Color professor) /*throws InvalidSchoolBoardIdException*/ {
+<b class="fc"><i class="no-highlight">344</i>&nbsp;        UUID parentUuid = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">345</i>&nbsp;        var event = new AssignProfessorEvent(parentUuid, professor);</b>
+<i class="no-highlight">346</i>&nbsp;
+<b class="fc"><i class="no-highlight">347</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">348</i>&nbsp;        var handlerReturn = this.assignProfessorHandler(event);</b>
+<b class="fc"><i class="no-highlight">349</i>&nbsp;        this.addEvent(event);</b>
+<b class="fc"><i class="no-highlight">350</i>&nbsp;        return handlerReturn;</b>
+<i class="no-highlight">351</i>&nbsp;    }
+<i class="no-highlight">352</i>&nbsp;
+<i class="no-highlight">353</i>&nbsp;    public Map&lt;Color, Integer&gt; assignProfessorHandler(AssignProfessorEvent event) {
+<b class="fc"><i class="no-highlight">354</i>&nbsp;        var professor = event.professor;</b>
+<b class="fc"><i class="no-highlight">355</i>&nbsp;        Map&lt;Color, Integer&gt; professorToPreviousOwnerMap = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">356</i>&nbsp;
+<b class="fc"><i class="no-highlight">357</i>&nbsp;        if(professor == null) throw new IllegalArgumentException();</b>
+<i class="no-highlight">358</i>&nbsp;
+<i class="no-highlight">359</i>&nbsp;        //If the current player doesn&#39;t have the imputed professor in his professorsTable
+<b class="fc"><i class="no-highlight">360</i>&nbsp;        if(!this.getCurrentPlayerSchoolBoard().getProfessors().contains(professor)){</b>
+<i class="no-highlight">361</i>&nbsp;
+<i class="no-highlight">362</i>&nbsp;            //Get another schoolBoard from schoolBoards that isn&#39;t the currentPlayerSchoolbard
+<b class="fc"><i class="no-highlight">363</i>&nbsp;            Optional&lt;SchoolBoard&gt; otherSchoolBoardMaxOptional = this.schoolBoards.stream().filter(schoolBoard -&gt; schoolBoard.getId() != this.currentPlayerSchoolBoardId).findFirst();</b>
+<i class="no-highlight">364</i>&nbsp;
+<i class="no-highlight">365</i>&nbsp;
+<b class="fc"><i class="no-highlight">366</i>&nbsp;            if(otherSchoolBoardMaxOptional.isPresent()){</b>
+<b class="fc"><i class="no-highlight">367</i>&nbsp;                SchoolBoard otherSchoolBoardMax = otherSchoolBoardMaxOptional.get();</b>
+<i class="no-highlight">368</i>&nbsp;                //Find the schoolBoard that has the max number of students in the diningRoomLane corresponding to the inputted professor, apart from the currentPlayerSchoolBoard
+<b class="fc"><i class="no-highlight">369</i>&nbsp;                for (SchoolBoard schoolBoard : schoolBoards) {</b>
+<b class="fc"><i class="no-highlight">370</i>&nbsp;                    if (!this.getCurrentPlayerSchoolBoard().equals(schoolBoard)) {</b>
+<b class="fc"><i class="no-highlight">371</i>&nbsp;                        if(schoolBoard.getDiningRoomLaneColorToNumberOfStudents().get(professor) &gt; otherSchoolBoardMax.getDiningRoomLaneColorToNumberOfStudents().get(professor))</b>
+<b class="fc"><i class="no-highlight">372</i>&nbsp;                            otherSchoolBoardMax = schoolBoard;</b>
+<i class="no-highlight">373</i>&nbsp;                    }
+<b class="fc"><i class="no-highlight">374</i>&nbsp;                }</b>
+<i class="no-highlight">375</i>&nbsp;
+<b class="fc"><i class="no-highlight">376</i>&nbsp;                int currentPlayerNumberOfStudentsInDiningRoomLane = this.getCurrentPlayerSchoolBoard().getDiningRoomLaneColorToNumberOfStudents().get(professor);</b>
+<b class="fc"><i class="no-highlight">377</i>&nbsp;                int otherSchoolBoardsMaxStudentsInDiningRoomLane = otherSchoolBoardMax.getDiningRoomLaneColorToNumberOfStudents().get(professor);</b>
+<i class="no-highlight">378</i>&nbsp;
+<i class="no-highlight">379</i>&nbsp;                //Compare the current player&#39;s number of students in the dining room lane corresponding to the inputted professor&#39;s color with the other schoolBoard&#39;s max number of students in the dining room lane
+<i class="no-highlight">380</i>&nbsp;                //If the current player has more students in the dining room lane, then he will get the professor.
+<i class="no-highlight">381</i>&nbsp;                //If the current player has the same number of students in the dining room lane as the other&#39;s schoolBoard&#39;s max, then the professor will be removed from the other&#39;s schoolBoard&#39;s max.
+<b class="fc"><i class="no-highlight">382</i>&nbsp;                if(this.compareCurrentPlayersStudentsNumberWithOthersMax(currentPlayerNumberOfStudentsInDiningRoomLane,otherSchoolBoardsMaxStudentsInDiningRoomLane)){</b>
+<b class="fc"><i class="no-highlight">383</i>&nbsp;                    this.getCurrentPlayerSchoolBoard().addProfessor(professor);</b>
+<b class="fc"><i class="no-highlight">384</i>&nbsp;                    otherSchoolBoardMax.removeProfessor(professor);</b>
+<b class="fc"><i class="no-highlight">385</i>&nbsp;                    professorToPreviousOwnerMap.put(professor, otherSchoolBoardMax.getId());</b>
+<i class="no-highlight">386</i>&nbsp;                }
+<i class="no-highlight">387</i>&nbsp;            }
+<i class="no-highlight">388</i>&nbsp;
+<i class="no-highlight">389</i>&nbsp;        }
+<i class="no-highlight">390</i>&nbsp;
+<b class="fc"><i class="no-highlight">391</i>&nbsp;        return professorToPreviousOwnerMap;</b>
+<i class="no-highlight">392</i>&nbsp;    }
+<i class="no-highlight">393</i>&nbsp;
+<i class="no-highlight">394</i>&nbsp;    protected boolean compareCurrentPlayersStudentsNumberWithOthersMax(int currentPlayerNumberOfStudentsInDiningRoomLane, int otherSchoolBoardsMaxStudentsInDiningRoomLane){
+<b class="fc"><i class="no-highlight">395</i>&nbsp;        return currentPlayerNumberOfStudentsInDiningRoomLane &gt; otherSchoolBoardsMaxStudentsInDiningRoomLane;</b>
+<i class="no-highlight">396</i>&nbsp;    }
+<i class="no-highlight">397</i>&nbsp;
+<i class="no-highlight">398</i>&nbsp;    /**
+<i class="no-highlight">399</i>&nbsp;     * The current player moves a student from the entrance to an archipelago
+<i class="no-highlight">400</i>&nbsp;     * @throws IllegalArgumentException if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes contains null || archipelagoIslandCodes is not an identifier of an actual archipelago)
+<i class="no-highlight">401</i>&nbsp;     * @throws StudentNotInTheEntranceException if the student that the player is trying to move is not actually in the entrance
+<i class="no-highlight">402</i>&nbsp;     * @param student represents a student of a certain color that the player wants to move from the entrance to an archipelago
+<i class="no-highlight">403</i>&nbsp;     * @param archipelagoIslandCodes represents the islandCodes of the archipelago into which the student is being moved
+<i class="no-highlight">404</i>&nbsp;     */
+<i class="no-highlight">405</i>&nbsp;    public void moveStudentFromEntranceToArchipelago(Color student, List&lt;Integer&gt; archipelagoIslandCodes) throws StudentNotInTheEntranceException {
+<b class="fc"><i class="no-highlight">406</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">407</i>&nbsp;
+<b class="fc"><i class="no-highlight">408</i>&nbsp;        var event = new MoveStudentFromEntranceToArchipelagoEvent(parentUuid, student, archipelagoIslandCodes);</b>
+<b class="fc"><i class="no-highlight">409</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">410</i>&nbsp;        this.moveStudentFromEntranceToArchipelagoHandler(event);</b>
+<b class="fc"><i class="no-highlight">411</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">412</i>&nbsp;    }
+<i class="no-highlight">413</i>&nbsp;
+<i class="no-highlight">414</i>&nbsp;    public void moveStudentFromEntranceToArchipelagoHandler(MoveStudentFromEntranceToArchipelagoEvent event) throws StudentNotInTheEntranceException {
+<b class="fc"><i class="no-highlight">415</i>&nbsp;        var student = event.student;</b>
+<b class="fc"><i class="no-highlight">416</i>&nbsp;        var archipelagoIslandCodes = event.archipelagoIslandCodes;</b>
+<i class="no-highlight">417</i>&nbsp;
+<b class="fc"><i class="no-highlight">418</i>&nbsp;        if(student == null || archipelagoIslandCodes == null || archipelagoIslandCodes.contains(null))</b>
+<b class="fc"><i class="no-highlight">419</i>&nbsp;            throw new IllegalArgumentException();</b>
+<i class="no-highlight">420</i>&nbsp;
+<b class="fc"><i class="no-highlight">421</i>&nbsp;        this.getCurrentPlayerSchoolBoard().removeStudentFromEntrance(student);</b>
+<b class="fc"><i class="no-highlight">422</i>&nbsp;        Optional&lt;Archipelago&gt; chosenArchipelago = getArchipelagoFromIslandCodes(archipelagoIslandCodes);</b>
+<b class="fc"><i class="no-highlight">423</i>&nbsp;        if(chosenArchipelago.isEmpty()) throw new IllegalArgumentException(&quot;Invalid archipelago island codes given&quot;);</b>
+<i class="no-highlight">424</i>&nbsp;
+<b class="fc"><i class="no-highlight">425</i>&nbsp;        chosenArchipelago.get().addStudent(student);</b>
+<i class="no-highlight">426</i>&nbsp;    }
+<i class="no-highlight">427</i>&nbsp;
+<i class="no-highlight">428</i>&nbsp;    /**
+<i class="no-highlight">429</i>&nbsp;     * Shifts mother nature&#39;s position one step clockwise
+<i class="no-highlight">430</i>&nbsp;     */
+<i class="no-highlight">431</i>&nbsp;    public void moveMotherNatureOneStepClockwise() {
+<b class="fc"><i class="no-highlight">432</i>&nbsp;        this.motherNaturePosition = this.getNextArchipelago();</b>
+<i class="no-highlight">433</i>&nbsp;    }
+<i class="no-highlight">434</i>&nbsp;
+<i class="no-highlight">435</i>&nbsp;    /**
+<i class="no-highlight">436</i>&nbsp;     * Shifts mother nature&#39;s position by the provided numberOfSteps
+<i class="no-highlight">437</i>&nbsp;     * @throws InvalidNumberOfStepsException if (numberOfSteps &lt;= 0 || numberOfSteps &gt; maxStepsAllowed) where maxStepsAllowed depends on the card played in the round
+<i class="no-highlight">438</i>&nbsp;     * @param numberOfSteps has to be a positive integer
+<i class="no-highlight">439</i>&nbsp;     */
+<i class="no-highlight">440</i>&nbsp;    public void moveMotherNatureNStepsClockwise(int numberOfSteps) throws InvalidNumberOfStepsException {
+<b class="fc"><i class="no-highlight">441</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">442</i>&nbsp;
+<b class="fc"><i class="no-highlight">443</i>&nbsp;        var event = new MoveMotherNatureNStepsClockwiseEvent(parentUuid, numberOfSteps);</b>
+<b class="fc"><i class="no-highlight">444</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">445</i>&nbsp;        this.moveMotherNatureNStepsClockwiseHandler(event);</b>
+<b class="fc"><i class="no-highlight">446</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">447</i>&nbsp;    }
+<i class="no-highlight">448</i>&nbsp;
+<i class="no-highlight">449</i>&nbsp;    public void moveMotherNatureNStepsClockwiseHandler(MoveMotherNatureNStepsClockwiseEvent event) throws InvalidNumberOfStepsException {
+<b class="fc"><i class="no-highlight">450</i>&nbsp;        var numberOfSteps = event.steps;</b>
+<i class="no-highlight">451</i>&nbsp;
+<b class="fc"><i class="no-highlight">452</i>&nbsp;        if(numberOfSteps &lt;= 0 || numberOfSteps &gt; this.getAllowedStepsNumber())</b>
+<b class="fc"><i class="no-highlight">453</i>&nbsp;            throw new InvalidNumberOfStepsException();</b>
+<b class="fc"><i class="no-highlight">454</i>&nbsp;        for (int i = 0; i &lt; numberOfSteps; i++)</b>
+<b class="fc"><i class="no-highlight">455</i>&nbsp;            this.moveMotherNatureOneStepClockwise();</b>
+<i class="no-highlight">456</i>&nbsp;    }
+<i class="no-highlight">457</i>&nbsp;
+<i class="no-highlight">458</i>&nbsp;    /**
+<i class="no-highlight">459</i>&nbsp;     * The current player conquers the archipelago mother nature is currently in, placing a tower of his own color
+<i class="no-highlight">460</i>&nbsp;     * and substituting any tower that was previously placed on that archipelago
+<i class="no-highlight">461</i>&nbsp;     */
+<i class="no-highlight">462</i>&nbsp;    public void conquerArchipelago(int schoolBoardId) {
+<b class="fc"><i class="no-highlight">463</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">464</i>&nbsp;
+<b class="fc"><i class="no-highlight">465</i>&nbsp;        var event = new ConquerArchipelagoEvent(parentUuid, schoolBoardId);</b>
+<b class="fc"><i class="no-highlight">466</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">467</i>&nbsp;        this.conquerArchipelagoHandler(event);</b>
+<b class="fc"><i class="no-highlight">468</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">469</i>&nbsp;    }
+<i class="no-highlight">470</i>&nbsp;
+<i class="no-highlight">471</i>&nbsp;    public void conquerArchipelagoHandler(ConquerArchipelagoEvent event) {
+<b class="fc"><i class="no-highlight">472</i>&nbsp;        var schoolBoardId = event.schoolBoardID;</b>
+<i class="no-highlight">473</i>&nbsp;
+<b class="fc"><i class="no-highlight">474</i>&nbsp;        TowerColor playerTowerColor = this.getSchoolBoardFromSchoolBoardId(schoolBoardId).getTowerColor();</b>
+<i class="no-highlight">475</i>&nbsp;
+<b class="fc"><i class="no-highlight">476</i>&nbsp;        this.motherNaturePosition.setTowerColor(playerTowerColor);</b>
+<i class="no-highlight">477</i>&nbsp;    }
+<i class="no-highlight">478</i>&nbsp;
+<i class="no-highlight">479</i>&nbsp;    /**
+<i class="no-highlight">480</i>&nbsp;     * Merges the archipelago mother nature is currently in with the archipelago on the left (one step counter-clockwise with respect to mother nature&#39;s position)
+<i class="no-highlight">481</i>&nbsp;     * @return true if the archipelagos merged, false otherwise.
+<i class="no-highlight">482</i>&nbsp;     */
+<i class="no-highlight">483</i>&nbsp;    public boolean mergeWithPrevious() {
+<b class="fc"><i class="no-highlight">484</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">485</i>&nbsp;
+<b class="fc"><i class="no-highlight">486</i>&nbsp;        var event = new MergeWithPreviousEvent(parentUuid);</b>
+<b class="fc"><i class="no-highlight">487</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">488</i>&nbsp;        var handlerReturn = this.mergeWithPreviousHandler(event);</b>
+<b class="fc"><i class="no-highlight">489</i>&nbsp;        this.addEvent(event);</b>
+<b class="fc"><i class="no-highlight">490</i>&nbsp;        return handlerReturn;</b>
+<i class="no-highlight">491</i>&nbsp;    }
+<i class="no-highlight">492</i>&nbsp;
+<i class="no-highlight">493</i>&nbsp;    public boolean mergeWithPreviousHandler(MergeWithPreviousEvent event) {
+<i class="no-highlight">494</i>&nbsp;        boolean mergePerformed;
+<b class="fc"><i class="no-highlight">495</i>&nbsp;        Archipelago previous = getPreviousArchipelago();</b>
+<i class="no-highlight">496</i>&nbsp;
+<i class="no-highlight">497</i>&nbsp;        // Substitute current archipelago with the merged archipelago
+<b class="fc"><i class="no-highlight">498</i>&nbsp;        mergePerformed = this.motherNaturePosition.merge(previous);</b>
+<i class="no-highlight">499</i>&nbsp;        // Remove previous archipelago from the list
+<b class="fc"><i class="no-highlight">500</i>&nbsp;        if(mergePerformed){</b>
+<b class="fc"><i class="no-highlight">501</i>&nbsp;            this.archipelagos.remove(previous);</b>
+<i class="no-highlight">502</i>&nbsp;        }
+<i class="no-highlight">503</i>&nbsp;
+<b class="fc"><i class="no-highlight">504</i>&nbsp;        return mergePerformed;</b>
+<i class="no-highlight">505</i>&nbsp;    }
+<i class="no-highlight">506</i>&nbsp;
+<i class="no-highlight">507</i>&nbsp;    /**
+<i class="no-highlight">508</i>&nbsp;     * Merges the archipelago mother nature is currently on with the archipelago on the right (one step clockwise with respect to mother nature&#39;s position)
+<i class="no-highlight">509</i>&nbsp;     * @return true if the archipelagos merged, false otherwise.
+<i class="no-highlight">510</i>&nbsp;     */
+<i class="no-highlight">511</i>&nbsp;    public boolean mergeWithNext() {
+<b class="fc"><i class="no-highlight">512</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">513</i>&nbsp;
+<b class="fc"><i class="no-highlight">514</i>&nbsp;        var event = new MergeWithNextEvent(parentUuid);</b>
+<b class="fc"><i class="no-highlight">515</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">516</i>&nbsp;        var handlerReturn = this.mergeWithNextHandler(event);</b>
+<b class="fc"><i class="no-highlight">517</i>&nbsp;        this.addEvent(event);</b>
+<b class="fc"><i class="no-highlight">518</i>&nbsp;        return handlerReturn;</b>
+<i class="no-highlight">519</i>&nbsp;    }
+<i class="no-highlight">520</i>&nbsp;
+<i class="no-highlight">521</i>&nbsp;    public boolean mergeWithNextHandler(MergeWithNextEvent event) {
+<i class="no-highlight">522</i>&nbsp;        boolean mergePerformed;
+<b class="fc"><i class="no-highlight">523</i>&nbsp;        Archipelago next = getNextArchipelago();</b>
+<i class="no-highlight">524</i>&nbsp;
+<i class="no-highlight">525</i>&nbsp;        // Substitute current archipelago with the merged archipelago
+<b class="fc"><i class="no-highlight">526</i>&nbsp;        mergePerformed = this.motherNaturePosition.merge(next);</b>
+<i class="no-highlight">527</i>&nbsp;        // Remove the next archipelago from the list
+<b class="fc"><i class="no-highlight">528</i>&nbsp;        if(mergePerformed)</b>
+<b class="fc"><i class="no-highlight">529</i>&nbsp;            this.archipelagos.remove(next);</b>
+<i class="no-highlight">530</i>&nbsp;
+<b class="fc"><i class="no-highlight">531</i>&nbsp;        return mergePerformed;</b>
+<i class="no-highlight">532</i>&nbsp;    }
+<i class="no-highlight">533</i>&nbsp;
+<i class="no-highlight">534</i>&nbsp;    /**
+<i class="no-highlight">535</i>&nbsp;     * This method checks the winning conditions and returns a map linking every schoolBord ID to a boolean indicating if the schoolBoard is a winner or not
+<i class="no-highlight">536</i>&nbsp;     * @return a map schoolBoardId -&gt; isWinner
+<i class="no-highlight">537</i>&nbsp;     */
+<i class="no-highlight">538</i>&nbsp;    public Map&lt;Integer, Boolean&gt; checkWinners(){
+<b class="fc"><i class="no-highlight">539</i>&nbsp;        Map&lt;Integer, Boolean&gt; schoolBoardIdToIsWinnerMap = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">540</i>&nbsp;        List&lt;SchoolBoard&gt; possibleWinningSchoolBoards;
+<i class="no-highlight">541</i>&nbsp;
+<i class="no-highlight">542</i>&nbsp;
+<b class="fc"><i class="no-highlight">543</i>&nbsp;        Map&lt;SchoolBoard, Integer&gt; schoolBoardToTowersPlaced = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">544</i>&nbsp;
+<i class="no-highlight">545</i>&nbsp;        //Initialize a map in which every schoolBoard is linked to how many towers of the corresponding color were placed
+<b class="fc"><i class="no-highlight">546</i>&nbsp;        for (SchoolBoard schoolBoard: this.schoolBoards) {</b>
+<b class="fc"><i class="no-highlight">547</i>&nbsp;            schoolBoardToTowersPlaced.put(schoolBoard, this.getNumberOfTowersPlaced(schoolBoard.getId()));</b>
+<b class="fc"><i class="no-highlight">548</i>&nbsp;        }</b>
+<i class="no-highlight">549</i>&nbsp;
+<i class="no-highlight">550</i>&nbsp;        //Find the maximum number of towers placed between all the players
+<b class="fc"><i class="no-highlight">551</i>&nbsp;        var maxTowersPlaced = schoolBoardToTowersPlaced.values()</b>
+<b class="fc"><i class="no-highlight">552</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">553</i>&nbsp;                .mapToInt(Integer::intValue)</b>
+<b class="fc"><i class="no-highlight">554</i>&nbsp;                .max();</b>
+<i class="no-highlight">555</i>&nbsp;
+<i class="no-highlight">556</i>&nbsp;        //Every player that placed the maximum number of towers could be a winner
+<b class="fc"><i class="no-highlight">557</i>&nbsp;        possibleWinningSchoolBoards = schoolBoardToTowersPlaced.entrySet()</b>
+<b class="fc"><i class="no-highlight">558</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">559</i>&nbsp;                .filter(entry -&gt; entry.getValue() == maxTowersPlaced.getAsInt())</b>
+<b class="fc"><i class="no-highlight">560</i>&nbsp;                .map(Map.Entry::getKey)</b>
+<b class="fc"><i class="no-highlight">561</i>&nbsp;                .toList();</b>
+<i class="no-highlight">562</i>&nbsp;
+<i class="no-highlight">563</i>&nbsp;
+<b class="fc"><i class="no-highlight">564</i>&nbsp;        if(maxTowersPlaced.isPresent() &amp;&amp; maxTowersPlaced.getAsInt() &gt;= this.strategy.getNumberOfTowers()){</b>
+<i class="no-highlight">565</i>&nbsp;            //If there is a winner for the number of towers placed, then prepare the winners map with it.
+<b class="fc"><i class="no-highlight">566</i>&nbsp;            for (var schoolBoard : this.schoolBoards)</b>
+<b class="fc"><i class="no-highlight">567</i>&nbsp;                schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), possibleWinningSchoolBoards.contains(schoolBoard));</b>
+<i class="no-highlight">568</i>&nbsp;
+<b class="fc"><i class="no-highlight">569</i>&nbsp;        } else if (this.onlyThreeArchipelagoLeft() || this.round.isLastRoundDone()) {</b>
+<b class="fc"><i class="no-highlight">570</i>&nbsp;            if (possibleWinningSchoolBoards.size() &gt; 1) {</b>
+<b class="fc"><i class="no-highlight">571</i>&nbsp;                if (this.numberOfPlayers &lt; GameConstants.MAX_NUMBER_OF_PLAYERS.value) {</b>
+<i class="no-highlight">572</i>&nbsp;                    // Filter by number of professors
+<b class="fc"><i class="no-highlight">573</i>&nbsp;                    var maxNumberOfProfessors = possibleWinningSchoolBoards</b>
+<b class="fc"><i class="no-highlight">574</i>&nbsp;                            .stream()</b>
+<b class="fc"><i class="no-highlight">575</i>&nbsp;                            .mapToInt(schoolBoard -&gt; schoolBoard.getProfessors().size())</b>
+<b class="fc"><i class="no-highlight">576</i>&nbsp;                            .max();</b>
+<i class="no-highlight">577</i>&nbsp;
+<i class="no-highlight">578</i>&nbsp;                    //possibleWinningSchoolBoards.removeIf(schoolBoard -&gt; schoolBoard.getProfessors().size() &lt; maxNumberOfProfessors.getAsInt());
+<i class="no-highlight">579</i>&nbsp;
+<b class="fc"><i class="no-highlight">580</i>&nbsp;                    possibleWinningSchoolBoards = possibleWinningSchoolBoards</b>
+<b class="fc"><i class="no-highlight">581</i>&nbsp;                            .stream()</b>
+<b class="fc"><i class="no-highlight">582</i>&nbsp;                            .filter(schoolBoard -&gt; schoolBoard.getProfessors().size() == maxNumberOfProfessors.getAsInt())</b>
+<b class="fc"><i class="no-highlight">583</i>&nbsp;                            .toList();</b>
+<i class="no-highlight">584</i>&nbsp;
+<b class="fc"><i class="no-highlight">585</i>&nbsp;                } else {</b>
+<b class="nc"><i class="no-highlight">586</i>&nbsp;                    var whiteSchoolBoards = possibleWinningSchoolBoards</b>
+<b class="nc"><i class="no-highlight">587</i>&nbsp;                            .stream()</b>
+<b class="nc"><i class="no-highlight">588</i>&nbsp;                            .filter(schoolBoard -&gt; schoolBoard.getTowerColor().equals(TowerColor.WHITE));</b>
+<i class="no-highlight">589</i>&nbsp;
+<b class="nc"><i class="no-highlight">590</i>&nbsp;                    var blackSchoolBoards = possibleWinningSchoolBoards</b>
+<b class="nc"><i class="no-highlight">591</i>&nbsp;                            .stream()</b>
+<b class="nc"><i class="no-highlight">592</i>&nbsp;                            .filter(schoolBoard -&gt; schoolBoard.getTowerColor().equals(TowerColor.BLACK));</b>
+<i class="no-highlight">593</i>&nbsp;
+<b class="nc"><i class="no-highlight">594</i>&nbsp;                    var whiteProfessors = whiteSchoolBoards</b>
+<b class="nc"><i class="no-highlight">595</i>&nbsp;                            .mapToInt(schoolBoard -&gt; schoolBoard.getProfessors().size())</b>
+<b class="nc"><i class="no-highlight">596</i>&nbsp;                            .sum();</b>
+<i class="no-highlight">597</i>&nbsp;
+<b class="nc"><i class="no-highlight">598</i>&nbsp;                    var blackProfessors = blackSchoolBoards</b>
+<b class="nc"><i class="no-highlight">599</i>&nbsp;                            .mapToInt(schoolBoard -&gt; schoolBoard.getProfessors().size())</b>
+<b class="nc"><i class="no-highlight">600</i>&nbsp;                            .sum();</b>
+<i class="no-highlight">601</i>&nbsp;
+<b class="nc"><i class="no-highlight">602</i>&nbsp;                    possibleWinningSchoolBoards = (whiteProfessors &gt; blackProfessors ? whiteSchoolBoards : blackSchoolBoards).toList();</b>
+<i class="no-highlight">603</i>&nbsp;                }
+<i class="no-highlight">604</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">605</i>&nbsp;            for (var schoolBoard : this.schoolBoards)</b>
+<b class="fc"><i class="no-highlight">606</i>&nbsp;                schoolBoardIdToIsWinnerMap.put(schoolBoard.getId(), possibleWinningSchoolBoards.contains(schoolBoard));</b>
+<i class="no-highlight">607</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">608</i>&nbsp;        return schoolBoardIdToIsWinnerMap;</b>
+<i class="no-highlight">609</i>&nbsp;    }
+<i class="no-highlight">610</i>&nbsp;
+<i class="no-highlight">611</i>&nbsp;    private boolean onlyThreeArchipelagoLeft(){
+<b class="fc"><i class="no-highlight">612</i>&nbsp;        return this.archipelagos.size() &lt;= 3;</b>
+<i class="no-highlight">613</i>&nbsp;    }
+<i class="no-highlight">614</i>&nbsp;
+<i class="no-highlight">615</i>&nbsp;    //Setters
+<i class="no-highlight">616</i>&nbsp;
+<i class="no-highlight">617</i>&nbsp;    public void setRoundOrder(List&lt;Integer&gt; roundOrder) {
+<b class="fc"><i class="no-highlight">618</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">619</i>&nbsp;
+<b class="fc"><i class="no-highlight">620</i>&nbsp;        var event = new SetRoundOrderEvent(parentUuid, roundOrder);</b>
+<b class="fc"><i class="no-highlight">621</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">622</i>&nbsp;        this.setRoundOrderHandler(event);</b>
+<b class="fc"><i class="no-highlight">623</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">624</i>&nbsp;    }
+<i class="no-highlight">625</i>&nbsp;
+<i class="no-highlight">626</i>&nbsp;    public void setRoundOrderHandler(SetRoundOrderEvent event) {
+<b class="fc"><i class="no-highlight">627</i>&nbsp;        var roundOrder = event.roundOrder;</b>
+<i class="no-highlight">628</i>&nbsp;
+<b class="fc"><i class="no-highlight">629</i>&nbsp;        this.round.setNewRoundOrder(roundOrder);</b>
+<i class="no-highlight">630</i>&nbsp;    }
+<i class="no-highlight">631</i>&nbsp;
+<i class="no-highlight">632</i>&nbsp;    public void resetRoundIterator() {
+<b class="fc"><i class="no-highlight">633</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">634</i>&nbsp;
+<b class="fc"><i class="no-highlight">635</i>&nbsp;        var event = new ResetRoundIteratorEvent(parentUuid);</b>
+<b class="fc"><i class="no-highlight">636</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">637</i>&nbsp;        this.resetRoundIteratorHandler(event);</b>
+<b class="fc"><i class="no-highlight">638</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">639</i>&nbsp;    }
+<i class="no-highlight">640</i>&nbsp;
+<i class="no-highlight">641</i>&nbsp;    public void resetRoundIteratorHandler(ResetRoundIteratorEvent event) {
+<b class="fc"><i class="no-highlight">642</i>&nbsp;        this.round.resetIterator();</b>
+<i class="no-highlight">643</i>&nbsp;    }
+<i class="no-highlight">644</i>&nbsp;
+<i class="no-highlight">645</i>&nbsp;    public void increaseRoundCount(){
+<b class="fc"><i class="no-highlight">646</i>&nbsp;        var parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">647</i>&nbsp;
+<b class="fc"><i class="no-highlight">648</i>&nbsp;        var event = new IncreaseRoundCountEvent(parentUuid);</b>
+<b class="fc"><i class="no-highlight">649</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">650</i>&nbsp;        this.increaseRoundCountHandler(event);</b>
+<b class="fc"><i class="no-highlight">651</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">652</i>&nbsp;    }
+<i class="no-highlight">653</i>&nbsp;
+<i class="no-highlight">654</i>&nbsp;    public void increaseRoundCountHandler(IncreaseRoundCountEvent event) {
+<b class="fc"><i class="no-highlight">655</i>&nbsp;        this.round.increaseRoundCount();</b>
+<i class="no-highlight">656</i>&nbsp;    }
+<i class="no-highlight">657</i>&nbsp;
+<i class="no-highlight">658</i>&nbsp;    public int getCurrentRound(){
+<b class="fc"><i class="no-highlight">659</i>&nbsp;        return this.round.getCurrentRound();</b>
+<i class="no-highlight">660</i>&nbsp;    }
+<i class="no-highlight">661</i>&nbsp;
+<i class="no-highlight">662</i>&nbsp;    /**
+<i class="no-highlight">663</i>&nbsp;     * This method sets the current phase of the turn
+<i class="no-highlight">664</i>&nbsp;     * @throws IllegalArgumentException if(currentPhase == null)
+<i class="no-highlight">665</i>&nbsp;     */
+<i class="no-highlight">666</i>&nbsp;    public void setCurrentPhase(Phase currentPhase) {
+<b class="fc"><i class="no-highlight">667</i>&nbsp;        UUID parentUuid = UUID.randomUUID();</b>
+<i class="no-highlight">668</i>&nbsp;
+<b class="fc"><i class="no-highlight">669</i>&nbsp;        var event = new SetCurrentPhaseEvent(parentUuid, currentPhase);</b>
+<i class="no-highlight">670</i>&nbsp;
+<b class="fc"><i class="no-highlight">671</i>&nbsp;        Randomizer.setSeed(event.id.getLeastSignificantBits());</b>
+<i class="no-highlight">672</i>&nbsp;
+<b class="fc"><i class="no-highlight">673</i>&nbsp;        this.setCurrentPhaseHandler(event);</b>
+<b class="fc"><i class="no-highlight">674</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">675</i>&nbsp;    }
+<i class="no-highlight">676</i>&nbsp;
+<i class="no-highlight">677</i>&nbsp;    public void setCurrentPhaseHandler(SetCurrentPhaseEvent event) {
+<b class="fc"><i class="no-highlight">678</i>&nbsp;        var currentPhase = event.phase;</b>
+<i class="no-highlight">679</i>&nbsp;
+<b class="fc"><i class="no-highlight">680</i>&nbsp;        if(currentPhase == null) throw new IllegalArgumentException();</b>
+<b class="fc"><i class="no-highlight">681</i>&nbsp;        this.round.setCurrentPhase(currentPhase);</b>
+<i class="no-highlight">682</i>&nbsp;    }
+<i class="no-highlight">683</i>&nbsp;
+<i class="no-highlight">684</i>&nbsp;    /**
+<i class="no-highlight">685</i>&nbsp;     * @param schoolBoardId has to be a valid id of an existing schoolBoard
+<i class="no-highlight">686</i>&nbsp;     */
+<i class="no-highlight">687</i>&nbsp;    public void setCurrentPlayerSchoolBoardId(int schoolBoardId) {
+<b class="fc"><i class="no-highlight">688</i>&nbsp;        var parentUUID = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">689</i>&nbsp;        var event = new SetCurrentPlayerSchoolBoardIDEvent(parentUUID, schoolBoardId);</b>
+<i class="no-highlight">690</i>&nbsp;
+<b class="fc"><i class="no-highlight">691</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">692</i>&nbsp;        this.setCurrentPlayerSchoolBoardIdHandler(event);</b>
+<b class="fc"><i class="no-highlight">693</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">694</i>&nbsp;    }
+<i class="no-highlight">695</i>&nbsp;
+<i class="no-highlight">696</i>&nbsp;    public void setCurrentPlayerSchoolBoardIdHandler(SetCurrentPlayerSchoolBoardIDEvent event) {
+<b class="fc"><i class="no-highlight">697</i>&nbsp;        var schoolBoardId = event.schoolBoardID;</b>
+<b class="fc"><i class="no-highlight">698</i>&nbsp;        if(!this.getSchoolBoardIds().contains(schoolBoardId)) throw new InvalidSchoolBoardIdException(&quot;Invalid schoolboardId in input.&quot;);</b>
+<i class="no-highlight">699</i>&nbsp;
+<b class="fc"><i class="no-highlight">700</i>&nbsp;        this.currentPlayerSchoolBoardId = schoolBoardId;</b>
+<i class="no-highlight">701</i>&nbsp;    }
+<i class="no-highlight">702</i>&nbsp;
+<i class="no-highlight">703</i>&nbsp;    /**
+<i class="no-highlight">704</i>&nbsp;     * This method sets the last round flag to true
+<i class="no-highlight">705</i>&nbsp;     */
+<i class="no-highlight">706</i>&nbsp;    public void setLastRoundTrue(){
+<b class="fc"><i class="no-highlight">707</i>&nbsp;        this.round.setIsLastRoundTrue();</b>
+<i class="no-highlight">708</i>&nbsp;    }
+<i class="no-highlight">709</i>&nbsp;
+<i class="no-highlight">710</i>&nbsp;    // Getters
+<i class="no-highlight">711</i>&nbsp;
+<i class="no-highlight">712</i>&nbsp;    /**
+<i class="no-highlight">713</i>&nbsp;     * This method returns the list of schoolBoards that have the inputted towerColor
+<i class="no-highlight">714</i>&nbsp;     * @param towerColor is the towerColor of interest
+<i class="no-highlight">715</i>&nbsp;     * @return a list of integer representing the list of schoolBoards that have the inputted towerColor
+<i class="no-highlight">716</i>&nbsp;     */
+<i class="no-highlight">717</i>&nbsp;    public List&lt;Integer&gt; getSchoolBoardIDFromTowerColor(TowerColor towerColor) {
+<b class="nc"><i class="no-highlight">718</i>&nbsp;        return this.schoolBoards.stream()</b>
+<b class="nc"><i class="no-highlight">719</i>&nbsp;                .filter(s -&gt; s.getTowerColor() == towerColor)</b>
+<b class="nc"><i class="no-highlight">720</i>&nbsp;                .map(SchoolBoard::getId)</b>
+<b class="nc"><i class="no-highlight">721</i>&nbsp;                .toList();</b>
+<i class="no-highlight">722</i>&nbsp;    }
+<i class="no-highlight">723</i>&nbsp;
+<i class="no-highlight">724</i>&nbsp;    private int getNumberOfTowersPlaced(int schoolBoardId){
+<b class="fc"><i class="no-highlight">725</i>&nbsp;        return this.archipelagos</b>
+<b class="fc"><i class="no-highlight">726</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">727</i>&nbsp;                .filter(archipelago -&gt; archipelago.getTowerColor().equals(this.getSchoolBoardFromSchoolBoardId(schoolBoardId).getTowerColor()))</b>
+<b class="fc"><i class="no-highlight">728</i>&nbsp;                .mapToInt(archipelagoWithThisTowerColor -&gt; archipelagoWithThisTowerColor.getIslandCodes().size())</b>
+<b class="fc"><i class="no-highlight">729</i>&nbsp;                .sum();</b>
+<i class="no-highlight">730</i>&nbsp;    }
+<i class="no-highlight">731</i>&nbsp;
+<i class="no-highlight">732</i>&nbsp;    protected int getAllowedStepsNumber(){
+<b class="fc"><i class="no-highlight">733</i>&nbsp;        return this.schoolBoardIdsToCardPlayedThisRound.get(this.currentPlayerSchoolBoardId).getSteps();</b>
+<i class="no-highlight">734</i>&nbsp;    }
+<i class="no-highlight">735</i>&nbsp;
+<i class="no-highlight">736</i>&nbsp;    /**
+<i class="no-highlight">737</i>&nbsp;     * This method returns the corresponding schoolBoard to the inputted schoolBoardId
+<i class="no-highlight">738</i>&nbsp;     * @param schoolBoardId has to be an existing schoolBoardId
+<i class="no-highlight">739</i>&nbsp;     * @return the reference to the schoolBoard corresponding to the inputted schoolBoardId
+<i class="no-highlight">740</i>&nbsp;     */
+<i class="no-highlight">741</i>&nbsp;    protected SchoolBoard getSchoolBoardFromSchoolBoardId(int schoolBoardId) /*throws InvalidSchoolBoardIdException */{
+<b class="fc"><i class="no-highlight">742</i>&nbsp;        Optional&lt;SchoolBoard&gt; requestedSchoolBoard =</b>
+<i class="no-highlight">743</i>&nbsp;                // get all school boards
+<b class="fc"><i class="no-highlight">744</i>&nbsp;                this.schoolBoards.stream()</b>
+<i class="no-highlight">745</i>&nbsp;                        // filter out the ones that don&#39;t match currentPlayerSchoolBoardId
+<b class="fc"><i class="no-highlight">746</i>&nbsp;                        .filter(schoolBoard -&gt; schoolBoard.getId() == schoolBoardId)</b>
+<i class="no-highlight">747</i>&nbsp;                        // get the first result
+<b class="fc"><i class="no-highlight">748</i>&nbsp;                        .findFirst();</b>
+<i class="no-highlight">749</i>&nbsp;
+<b class="fc"><i class="no-highlight">750</i>&nbsp;        if(requestedSchoolBoard.isEmpty())</b>
+<b class="nc"><i class="no-highlight">751</i>&nbsp;            throw new InvalidSchoolBoardIdException(&quot;Could not find a school board that matches the inputted player&#39;s schoolBoard ID&quot;);</b>
+<i class="no-highlight">752</i>&nbsp;
+<b class="fc"><i class="no-highlight">753</i>&nbsp;        return requestedSchoolBoard.get();</b>
+<i class="no-highlight">754</i>&nbsp;    }
+<i class="no-highlight">755</i>&nbsp;
+<i class="no-highlight">756</i>&nbsp;    protected Archipelago getPreviousArchipelago() {
+<b class="fc"><i class="no-highlight">757</i>&nbsp;        int pos =  this.archipelagos.indexOf(this.motherNaturePosition);</b>
+<b class="fc"><i class="no-highlight">758</i>&nbsp;        int previous = pos == 0 ? this.archipelagos.size() - 1 : pos - 1;</b>
+<i class="no-highlight">759</i>&nbsp;
+<b class="fc"><i class="no-highlight">760</i>&nbsp;        return this.archipelagos.get(previous);</b>
+<i class="no-highlight">761</i>&nbsp;    }
+<i class="no-highlight">762</i>&nbsp;
+<i class="no-highlight">763</i>&nbsp;    private Archipelago getNextArchipelago() {
+<b class="fc"><i class="no-highlight">764</i>&nbsp;        int next = (this.archipelagos.indexOf(this.motherNaturePosition) + 1) % this.archipelagos.size();</b>
+<b class="fc"><i class="no-highlight">765</i>&nbsp;        return this.archipelagos.get(next);</b>
+<i class="no-highlight">766</i>&nbsp;    }
+<i class="no-highlight">767</i>&nbsp;
+<i class="no-highlight">768</i>&nbsp;    protected Optional&lt;Archipelago&gt; getArchipelagoFromIslandCodes(List&lt;Integer&gt; archipelagoIslandCodes){
+<b class="fc"><i class="no-highlight">769</i>&nbsp;        return this.archipelagos.stream()</b>
+<i class="no-highlight">770</i>&nbsp;                // Filter out archipelagos that don&#39;t match archipelagoIslandCodes
+<b class="fc"><i class="no-highlight">771</i>&nbsp;                .filter(archipelago -&gt; archipelago.getIslandCodes().equals(archipelagoIslandCodes))</b>
+<b class="fc"><i class="no-highlight">772</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">773</i>&nbsp;    }
+<i class="no-highlight">774</i>&nbsp;
+<i class="no-highlight">775</i>&nbsp;    public Optional&lt;Archipelago&gt; getArchipelagoFromSingleIslandCode(int archipelagoIslandCode){
+<b class="fc"><i class="no-highlight">776</i>&nbsp;        return this.archipelagos.stream()</b>
+<i class="no-highlight">777</i>&nbsp;                // Filter out archipelagos that don&#39;t match archipelagoIslandCodes
+<b class="fc"><i class="no-highlight">778</i>&nbsp;                .filter(archipelago -&gt; archipelago.getIslandCodes().contains(archipelagoIslandCode))</b>
+<b class="fc"><i class="no-highlight">779</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">780</i>&nbsp;    }
+<i class="no-highlight">781</i>&nbsp;
+<i class="no-highlight">782</i>&nbsp;    protected SchoolBoard getCurrentPlayerSchoolBoard() {
+<b class="fc"><i class="no-highlight">783</i>&nbsp;        return this.getSchoolBoardFromSchoolBoardId(this.currentPlayerSchoolBoardId);</b>
+<i class="no-highlight">784</i>&nbsp;    }
+<i class="no-highlight">785</i>&nbsp;
+<i class="no-highlight">786</i>&nbsp;    /**
+<i class="no-highlight">787</i>&nbsp;     * This method gets an archipelago in input and returns a map where every entry links a schoolBoard with its influence on the inputted archipelago
+<i class="no-highlight">788</i>&nbsp;     * @param archipelagoIslandCodes is a List of Integer uniquely identifying an archipelago
+<i class="no-highlight">789</i>&nbsp;     * @return a Map Integer, Integer where the key is the schoolBoardId and the value is the influence on the inputted archipelago
+<i class="no-highlight">790</i>&nbsp;     */
+<i class="no-highlight">791</i>&nbsp;    public Optional&lt;Map&lt;Integer, Integer&gt;&gt; getInfluence(List&lt;Integer&gt; archipelagoIslandCodes){
+<b class="fc"><i class="no-highlight">792</i>&nbsp;        Optional&lt;Archipelago&gt; chosenArchipelago = this.getArchipelagoFromIslandCodes(archipelagoIslandCodes);</b>
+<b class="fc"><i class="no-highlight">793</i>&nbsp;        return chosenArchipelago.map(archipelago -&gt; this.strategy.getInfluence(this.schoolBoards, archipelago));</b>
+<i class="no-highlight">794</i>&nbsp;    }
+<i class="no-highlight">795</i>&nbsp;
+<i class="no-highlight">796</i>&nbsp;    public boolean isLastTurnInThisRound(){
+<b class="fc"><i class="no-highlight">797</i>&nbsp;        return this.round.isRoundDone();</b>
+<i class="no-highlight">798</i>&nbsp;    }
+<i class="no-highlight">799</i>&nbsp;
+<i class="no-highlight">800</i>&nbsp;    public int getNextTurn() {
+<b class="fc"><i class="no-highlight">801</i>&nbsp;        var parentUUID = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">802</i>&nbsp;        var event = new GetNextTurnEvent(parentUUID);</b>
+<i class="no-highlight">803</i>&nbsp;
+<b class="fc"><i class="no-highlight">804</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">805</i>&nbsp;        var handlerReturn = this.getNextTurnHandler(event);</b>
+<b class="fc"><i class="no-highlight">806</i>&nbsp;        this.addEvent(event);</b>
+<b class="fc"><i class="no-highlight">807</i>&nbsp;        return handlerReturn;</b>
+<i class="no-highlight">808</i>&nbsp;    }
+<i class="no-highlight">809</i>&nbsp;
+<b class="fc"><i class="no-highlight">810</i>&nbsp;    public int getNextTurnHandler(GetNextTurnEvent event) { return this.round.next(); }</b>
+<i class="no-highlight">811</i>&nbsp;
+<i class="no-highlight">812</i>&nbsp;    public int getNumberOfStudentsInTheEntrance(){
+<b class="fc"><i class="no-highlight">813</i>&nbsp;        return this.getCurrentPlayerSchoolBoard().getStudentsInTheEntrance().size();</b>
+<i class="no-highlight">814</i>&nbsp;    }
+<i class="no-highlight">815</i>&nbsp;
+<i class="no-highlight">816</i>&nbsp;    public int getInitialNumberOfStudentsInTheEntrance(){
+<b class="fc"><i class="no-highlight">817</i>&nbsp;        return this.numberOfStudentsInTheEntrance;</b>
+<i class="no-highlight">818</i>&nbsp;    }
+<i class="no-highlight">819</i>&nbsp;
+<i class="no-highlight">820</i>&nbsp;    public int getNumberOfMovableStudents() {
+<b class="fc"><i class="no-highlight">821</i>&nbsp;        return this.numberOfStudentsInEachCloud;</b>
+<i class="no-highlight">822</i>&nbsp;    }
+<i class="no-highlight">823</i>&nbsp;
+<i class="no-highlight">824</i>&nbsp;    public Phase getCurrentPhase() {
+<b class="fc"><i class="no-highlight">825</i>&nbsp;        return this.round.getCurrentPhase();</b>
+<i class="no-highlight">826</i>&nbsp;    }
+<i class="no-highlight">827</i>&nbsp;
+<i class="no-highlight">828</i>&nbsp;    public List&lt;Integer&gt; getMotherNaturePositionIslandCodes() {
+<b class="fc"><i class="no-highlight">829</i>&nbsp;        return this.motherNaturePosition.getIslandCodes();</b>
+<i class="no-highlight">830</i>&nbsp;    }
+<i class="no-highlight">831</i>&nbsp;
+<i class="no-highlight">832</i>&nbsp;    public List&lt;List&lt;Color&gt;&gt; getClouds() {
+<b class="fc"><i class="no-highlight">833</i>&nbsp;        return new LinkedList&lt;&gt;(this.clouds);</b>
+<i class="no-highlight">834</i>&nbsp;    }
+<i class="no-highlight">835</i>&nbsp;
+<i class="no-highlight">836</i>&nbsp;    public int getNumberOfPlayers() {
+<b class="fc"><i class="no-highlight">837</i>&nbsp;        return this.numberOfPlayers;</b>
+<i class="no-highlight">838</i>&nbsp;    }
+<i class="no-highlight">839</i>&nbsp;
+<i class="no-highlight">840</i>&nbsp;    /**
+<i class="no-highlight">841</i>&nbsp;     * This method returns a set containing all the schoolBoard IDs contained in this gameState
+<i class="no-highlight">842</i>&nbsp;     * @return a Set of Integer containing all the schoolBoard IDs contained in this gameState
+<i class="no-highlight">843</i>&nbsp;     */
+<i class="no-highlight">844</i>&nbsp;    public Set&lt;Integer&gt; getSchoolBoardIds() {
+<b class="fc"><i class="no-highlight">845</i>&nbsp;        return this.schoolBoards.stream()</b>
+<b class="fc"><i class="no-highlight">846</i>&nbsp;                .map(SchoolBoard::getId)</b>
+<b class="fc"><i class="no-highlight">847</i>&nbsp;                .collect(Collectors.toSet());</b>
+<i class="no-highlight">848</i>&nbsp;    }
+<i class="no-highlight">849</i>&nbsp;
+<i class="no-highlight">850</i>&nbsp;    /**
+<i class="no-highlight">851</i>&nbsp;     * This method returns a map that links every schoolBoard to the card it played in this round
+<i class="no-highlight">852</i>&nbsp;     * @return a map that links every schoolBoard to the card it played in this round
+<i class="no-highlight">853</i>&nbsp;     */
+<i class="no-highlight">854</i>&nbsp;    public Map&lt;Integer, Card&gt; getSchoolBoardIdsToCardPlayedThisRound() {
+<b class="fc"><i class="no-highlight">855</i>&nbsp;        return new HashMap&lt;&gt;(this.schoolBoardIdsToCardPlayedThisRound);</b>
+<i class="no-highlight">856</i>&nbsp;    }
+<i class="no-highlight">857</i>&nbsp;
+<i class="no-highlight">858</i>&nbsp;    public void resetSchoolBoardIdsToCardsPlayerThisRound(){
+<b class="fc"><i class="no-highlight">859</i>&nbsp;        var parentUUID = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">860</i>&nbsp;        var event = new ResetSchoolBoardIdsToCardsPlayerThisRoundEvent(parentUUID);</b>
+<i class="no-highlight">861</i>&nbsp;
+<b class="fc"><i class="no-highlight">862</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">863</i>&nbsp;        this.resetSchoolBoardIdsToCardsPlayerThisRoundHandler(event);</b>
+<b class="fc"><i class="no-highlight">864</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">865</i>&nbsp;    }
+<i class="no-highlight">866</i>&nbsp;
+<i class="no-highlight">867</i>&nbsp;    public void resetSchoolBoardIdsToCardsPlayerThisRoundHandler(ResetSchoolBoardIdsToCardsPlayerThisRoundEvent event) {
+<b class="fc"><i class="no-highlight">868</i>&nbsp;        this.schoolBoardIdsToCardPlayedThisRound.clear();</b>
+<i class="no-highlight">869</i>&nbsp;    }
+<i class="no-highlight">870</i>&nbsp;
+<i class="no-highlight">871</i>&nbsp;    /**
+<i class="no-highlight">872</i>&nbsp;     * This method returns the current player schoolBoardId
+<i class="no-highlight">873</i>&nbsp;     * @return an int representing the current player schoolBoard ID
+<i class="no-highlight">874</i>&nbsp;     */
+<i class="no-highlight">875</i>&nbsp;    public int getCurrentPlayerSchoolBoardId() {
+<b class="fc"><i class="no-highlight">876</i>&nbsp;        return this.currentPlayerSchoolBoardId;</b>
+<i class="no-highlight">877</i>&nbsp;    }
+<i class="no-highlight">878</i>&nbsp;
+<i class="no-highlight">879</i>&nbsp;    /**
+<i class="no-highlight">880</i>&nbsp;     * This method sets the ActionPhaseSubTurn to the inputted actionPhaseSubTurn
+<i class="no-highlight">881</i>&nbsp;     * @param actionPhaseSubTurn is the sub-turn the gameState will be changed to
+<i class="no-highlight">882</i>&nbsp;     */
+<i class="no-highlight">883</i>&nbsp;    public void setActionPhaseSubTurn(ActionPhaseSubTurn actionPhaseSubTurn) {
+<b class="fc"><i class="no-highlight">884</i>&nbsp;        var parentUUID = UUID.randomUUID();</b>
+<b class="fc"><i class="no-highlight">885</i>&nbsp;        var event = new SetActionPhaseSubTurnEvent(parentUUID, actionPhaseSubTurn);</b>
+<i class="no-highlight">886</i>&nbsp;
+<b class="fc"><i class="no-highlight">887</i>&nbsp;        this.updateSeed(event);</b>
+<b class="fc"><i class="no-highlight">888</i>&nbsp;        this.setActionPhaseSubTurnHandler(event);</b>
+<b class="fc"><i class="no-highlight">889</i>&nbsp;        this.addEvent(event);</b>
+<i class="no-highlight">890</i>&nbsp;    }
+<i class="no-highlight">891</i>&nbsp;
+<i class="no-highlight">892</i>&nbsp;    public void setActionPhaseSubTurnHandler(SetActionPhaseSubTurnEvent event) {
+<b class="fc"><i class="no-highlight">893</i>&nbsp;        var actionPhaseSubTurn = event.actionPhaseSubTurn;</b>
+<b class="fc"><i class="no-highlight">894</i>&nbsp;        this.round.setActionPhaseSubTurn(actionPhaseSubTurn);</b>
+<i class="no-highlight">895</i>&nbsp;    }
+<i class="no-highlight">896</i>&nbsp;
+<i class="no-highlight">897</i>&nbsp;    /**
+<i class="no-highlight">898</i>&nbsp;     * This method returns the current ActionPhaseSubTurn in which the gameState is currently in
+<i class="no-highlight">899</i>&nbsp;     * @return an ActionPhaseSubTurn representing the current ActionPhaseSubTurn in which the gameState is currently in
+<i class="no-highlight">900</i>&nbsp;     */
+<i class="no-highlight">901</i>&nbsp;    public ActionPhaseSubTurn getActionPhaseSubTurn() {
+<b class="fc"><i class="no-highlight">902</i>&nbsp;        return this.round.getActionPhaseSubTurn();</b>
+<i class="no-highlight">903</i>&nbsp;    }
+<i class="no-highlight">904</i>&nbsp;
+<i class="no-highlight">905</i>&nbsp;    /**
+<i class="no-highlight">906</i>&nbsp;     * This method returns an Optional wrapping the towerColor of the inputted schoolBoardId
+<i class="no-highlight">907</i>&nbsp;     * @param schoolBoardId is the ID that represents a schoolBoard
+<i class="no-highlight">908</i>&nbsp;     * @return the towerColor of the inputted schoolBoardId, if the schoolBoardId is valid, an empty Optional otherwise
+<i class="no-highlight">909</i>&nbsp;     */
+<i class="no-highlight">910</i>&nbsp;    public Optional&lt;TowerColor&gt; getTowerColorFromSchoolBoardId(Integer schoolBoardId) {
+<b class="nc"><i class="no-highlight">911</i>&nbsp;        return this.schoolBoards.stream()</b>
+<b class="nc"><i class="no-highlight">912</i>&nbsp;                .filter(s -&gt; s.getId() == schoolBoardId)</b>
+<b class="nc"><i class="no-highlight">913</i>&nbsp;                .map(SchoolBoard::getTowerColor)</b>
+<b class="nc"><i class="no-highlight">914</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">915</i>&nbsp;    }
+<i class="no-highlight">916</i>&nbsp;
+<i class="no-highlight">917</i>&nbsp;    /**
+<i class="no-highlight">918</i>&nbsp;     * This method returns true if this is the last round, false otherwise
+<i class="no-highlight">919</i>&nbsp;     * @return true if this is the last round, false otherwise
+<i class="no-highlight">920</i>&nbsp;     */
+<i class="no-highlight">921</i>&nbsp;    public boolean isLastRound(){
+<b class="fc"><i class="no-highlight">922</i>&nbsp;        return this.round.isLastRound();</b>
+<i class="no-highlight">923</i>&nbsp;    }
+<i class="no-highlight">924</i>&nbsp;
+<i class="no-highlight">925</i>&nbsp;    /**
+<i class="no-highlight">926</i>&nbsp;     * This method returns the light version of the GameState, with all the useful information to be sent over the network
+<i class="no-highlight">927</i>&nbsp;     * @return a LightGameState representing the light version of the GameState, with all the useful information to be sent over the network
+<i class="no-highlight">928</i>&nbsp;     */
+<i class="no-highlight">929</i>&nbsp;    public LightGameState lightify(){
+<b class="nc"><i class="no-highlight">930</i>&nbsp;        return new LightGameState(</b>
+<b class="nc"><i class="no-highlight">931</i>&nbsp;                this.archipelagos.stream().map(Archipelago::lightify).toList(),</b>
+<b class="nc"><i class="no-highlight">932</i>&nbsp;                this.schoolBoards.stream().map(SchoolBoard::lightify).toList(),</b>
+<i class="no-highlight">933</i>&nbsp;                this.clouds,
+<i class="no-highlight">934</i>&nbsp;                this.currentPlayerSchoolBoardId,
+<b class="nc"><i class="no-highlight">935</i>&nbsp;                this.round.getCurrentPhase(),</b>
+<b class="nc"><i class="no-highlight">936</i>&nbsp;                this.round.getRoundOrder(),</b>
+<b class="nc"><i class="no-highlight">937</i>&nbsp;                this.archipelagos.indexOf(motherNaturePosition),</b>
+<i class="no-highlight">938</i>&nbsp;                this.schoolBoardIdsToLastCardPlayed,
+<i class="no-highlight">939</i>&nbsp;                null,
+<i class="no-highlight">940</i>&nbsp;                null
+<i class="no-highlight">941</i>&nbsp;        );
+<i class="no-highlight">942</i>&nbsp;    }
+<i class="no-highlight">943</i>&nbsp;
+<i class="no-highlight">944</i>&nbsp;    /**
+<i class="no-highlight">945</i>&nbsp;     * This method verifies if there is a schoolBoard that is more influent than all the others on the archipelago on which motherNature is,
+<i class="no-highlight">946</i>&nbsp;     * and returns its schoolBoardId
+<i class="no-highlight">947</i>&nbsp;     * @return an integer representing the schoolBoardId of the most influent player on the archipelago on which motherNature is
+<i class="no-highlight">948</i>&nbsp;     */
+<i class="no-highlight">949</i>&nbsp;    public Optional&lt;Integer&gt; getMostInfluentSchoolBoardId(List&lt;Integer&gt; archipelagoIslandCodes){
+<b class="fc"><i class="no-highlight">950</i>&nbsp;        var influenceMap = this.getInfluence(archipelagoIslandCodes);</b>
+<i class="no-highlight">951</i>&nbsp;        List&lt;Map.Entry&lt;Integer, Integer&gt;&gt; orderedPlayersInfluences;
+<i class="no-highlight">952</i>&nbsp;
+<b class="fc"><i class="no-highlight">953</i>&nbsp;        if(influenceMap.isPresent()){</b>
+<b class="fc"><i class="no-highlight">954</i>&nbsp;            orderedPlayersInfluences = influenceMap.get().entrySet()</b>
+<b class="fc"><i class="no-highlight">955</i>&nbsp;                    .stream()</b>
+<b class="fc"><i class="no-highlight">956</i>&nbsp;                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) //sorts the map using the influences in descending order</b>
+<b class="fc"><i class="no-highlight">957</i>&nbsp;                    .collect(Collectors.toList());</b>
+<i class="no-highlight">958</i>&nbsp;        }
+<i class="no-highlight">959</i>&nbsp;        else
+<b class="nc"><i class="no-highlight">960</i>&nbsp;            return Optional.empty();</b>
+<i class="no-highlight">961</i>&nbsp;
+<i class="no-highlight">962</i>&nbsp;
+<i class="no-highlight">963</i>&nbsp;
+<i class="no-highlight">964</i>&nbsp;        //If the number of players is 2 or 3, the most influent is calculated between the most influent and the second most influent.
+<i class="no-highlight">965</i>&nbsp;
+<b class="fc"><i class="no-highlight">966</i>&nbsp;        if(this.getNumberOfPlayers() == 2 || this.getNumberOfPlayers() == 3){</b>
+<b class="fc"><i class="no-highlight">967</i>&nbsp;            if(orderedPlayersInfluences.get(0).getValue() &gt; orderedPlayersInfluences.get(1).getValue())</b>
+<b class="fc"><i class="no-highlight">968</i>&nbsp;                return Optional.of(orderedPlayersInfluences.get(0).getKey());</b>
+<i class="no-highlight">969</i>&nbsp;            else
+<b class="fc"><i class="no-highlight">970</i>&nbsp;                return Optional.empty();</b>
+<i class="no-highlight">971</i>&nbsp;        }
+<i class="no-highlight">972</i>&nbsp;        //if the number of players is 4, the most influent is calculated between the most influent and the third most influent, since the second most influent is certainly a teammate.
+<i class="no-highlight">973</i>&nbsp;        else {
+<b class="fc"><i class="no-highlight">974</i>&nbsp;            if(orderedPlayersInfluences.get(0).getValue() &gt; orderedPlayersInfluences.get(2).getValue())</b>
+<b class="fc"><i class="no-highlight">975</i>&nbsp;                return Optional.of(orderedPlayersInfluences.get(0).getKey());</b>
+<i class="no-highlight">976</i>&nbsp;            else
+<b class="fc"><i class="no-highlight">977</i>&nbsp;                return Optional.empty();</b>
+<i class="no-highlight">978</i>&nbsp;        }
+<i class="no-highlight">979</i>&nbsp;    }
+<i class="no-highlight">980</i>&nbsp;
+<i class="no-highlight">981</i>&nbsp;    //Methods for testing
+<i class="no-highlight">982</i>&nbsp;    public void setMotherNaturePositionForTesting(Archipelago motherNaturePosition) {
+<b class="fc"><i class="no-highlight">983</i>&nbsp;        this.motherNaturePosition = motherNaturePosition;</b>
+<i class="no-highlight">984</i>&nbsp;    }
+<i class="no-highlight">985</i>&nbsp;
+<i class="no-highlight">986</i>&nbsp;    public SchoolBoard getCurrentPlayerSchoolBoardForTesting() {
+<b class="fc"><i class="no-highlight">987</i>&nbsp;        SchoolBoard currentPlayerSchoolBoard =</b>
+<i class="no-highlight">988</i>&nbsp;                // get all school boards
+<b class="fc"><i class="no-highlight">989</i>&nbsp;                this.schoolBoards.stream()</b>
+<i class="no-highlight">990</i>&nbsp;                        // filter out the ones that don&#39;t match currentPlayerSchoolBoardId
+<b class="fc"><i class="no-highlight">991</i>&nbsp;                        .filter(schoolBoard -&gt; schoolBoard.getId() == this.currentPlayerSchoolBoardId)</b>
+<i class="no-highlight">992</i>&nbsp;                        // get the first result
+<b class="fc"><i class="no-highlight">993</i>&nbsp;                        .findFirst()</b>
+<i class="no-highlight">994</i>&nbsp;                        // if there is no result, set null
+<b class="fc"><i class="no-highlight">995</i>&nbsp;                        .orElse(null);</b>
+<i class="no-highlight">996</i>&nbsp;
+<b class="fc"><i class="no-highlight">997</i>&nbsp;        if(currentPlayerSchoolBoard == null)</b>
+<b class="nc"><i class="no-highlight">998</i>&nbsp;            throw new InvalidSchoolBoardIdException(&quot;Could not find a schoolboard that matches the current player&#39;s SchoolBoard ID&quot;);</b>
+<i class="no-highlight">999</i>&nbsp;
+<b class="fc"><i class="no-highlight">1000</i>&nbsp;        return currentPlayerSchoolBoard;</b>
+<i class="no-highlight">1001</i>&nbsp;    }
+<i class="no-highlight">1002</i>&nbsp;
+<i class="no-highlight">1003</i>&nbsp;    public List&lt;Archipelago&gt; getArchipelagosForTesting() {
+<b class="fc"><i class="no-highlight">1004</i>&nbsp;        return archipelagos;</b>
+<i class="no-highlight">1005</i>&nbsp;    }
+<i class="no-highlight">1006</i>&nbsp;
+<i class="no-highlight">1007</i>&nbsp;    public Map&lt;Integer, Card&gt; getSchoolBoardIdsToCardsPlayedThisRoundForTesting() {
+<b class="fc"><i class="no-highlight">1008</i>&nbsp;        return this.schoolBoardIdsToCardPlayedThisRound;</b>
+<i class="no-highlight">1009</i>&nbsp;    }
+<i class="no-highlight">1010</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

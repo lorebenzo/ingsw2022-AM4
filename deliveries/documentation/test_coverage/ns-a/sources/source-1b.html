@@ -1,0 +1,200 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > StudentFactory</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic</a>
+</div>
+
+<h1>Coverage Summary for Class: StudentFactory (it.polimi.ingsw.server.model.game_logic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">StudentFactory</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (6/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    93.1%
+  </span>
+  <span class="absValue">
+    (27/29)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Color;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.GameConstants;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.utils.Randomizer;
+<i class="no-highlight">7</i>&nbsp;
+<i class="no-highlight">8</i>&nbsp;import java.util.*;
+<i class="no-highlight">9</i>&nbsp;import java.util.stream.IntStream;
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;public class StudentFactory {
+<i class="no-highlight">12</i>&nbsp;    protected final Map&lt;Color, Integer&gt; studentSupply;
+<i class="no-highlight">13</i>&nbsp;
+<i class="no-highlight">14</i>&nbsp;
+<b class="fc"><i class="no-highlight">15</i>&nbsp;    public StudentFactory() {</b>
+<b class="fc"><i class="no-highlight">16</i>&nbsp;        this.studentSupply = new HashMap&lt;&gt;();</b>
+<b class="fc"><i class="no-highlight">17</i>&nbsp;        for(Color color : Color.values())</b>
+<b class="fc"><i class="no-highlight">18</i>&nbsp;            studentSupply.put(color, GameConstants.INITIAL_STUDENTS_PER_COLOR.value);</b>
+<i class="no-highlight">19</i>&nbsp;    }
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;    /**
+<i class="no-highlight">22</i>&nbsp;     * @throws EmptyStudentSupplyException if the student supply (representing the bag) is empty.
+<i class="no-highlight">23</i>&nbsp;     * @return a random student drawn from the supply, the student is finally removed from the supply.
+<i class="no-highlight">24</i>&nbsp;     */
+<i class="no-highlight">25</i>&nbsp;    public Color getStudent() throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">26</i>&nbsp;        int supplySize = studentSupply.keySet().stream()</b>
+<b class="fc"><i class="no-highlight">27</i>&nbsp;                .mapToInt(studentSupply::get)</b>
+<b class="fc"><i class="no-highlight">28</i>&nbsp;                .sum();</b>
+<b class="fc"><i class="no-highlight">29</i>&nbsp;        if(supplySize == 0) throw new EmptyStudentSupplyException();</b>
+<i class="no-highlight">30</i>&nbsp;
+<b class="fc"><i class="no-highlight">31</i>&nbsp;        List&lt;Color&gt; students = new ArrayList&lt;&gt;(supplySize);</b>
+<b class="fc"><i class="no-highlight">32</i>&nbsp;        studentSupply.keySet().forEach(color -&gt; {</b>
+<b class="fc"><i class="no-highlight">33</i>&nbsp;            for(int i = 0; i &lt; studentSupply.get(color); i++) students.add(color);</b>
+<i class="no-highlight">34</i>&nbsp;        });
+<i class="no-highlight">35</i>&nbsp;
+<b class="fc"><i class="no-highlight">36</i>&nbsp;        Color chosen = students.get(Randomizer.nextInt(students.size()));</b>
+<b class="fc"><i class="no-highlight">37</i>&nbsp;        studentSupply.put(chosen, studentSupply.get(chosen) - 1);</b>
+<b class="fc"><i class="no-highlight">38</i>&nbsp;        return chosen;</b>
+<i class="no-highlight">39</i>&nbsp;    }
+<i class="no-highlight">40</i>&nbsp;
+<i class="no-highlight">41</i>&nbsp;    /**
+<i class="no-highlight">42</i>&nbsp;     * This method returns the requested student color from the student supply and updates it accordingly
+<i class="no-highlight">43</i>&nbsp;     * @param student is the student to be drawn from the supply
+<i class="no-highlight">44</i>&nbsp;     * @return the student drawn from the supply
+<i class="no-highlight">45</i>&nbsp;     * @throws EmptyStudentSupplyException if the student supply doesn&#39;t contain any student of the inputted color
+<i class="no-highlight">46</i>&nbsp;     */
+<i class="no-highlight">47</i>&nbsp;    public Color getStudent(Color student) throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">48</i>&nbsp;        if(studentSupply.get(student) &lt;= 0) throw new EmptyStudentSupplyException();</b>
+<i class="no-highlight">49</i>&nbsp;
+<b class="fc"><i class="no-highlight">50</i>&nbsp;        studentSupply.put(student, studentSupply.get(student) - 1);</b>
+<b class="fc"><i class="no-highlight">51</i>&nbsp;        return student;</b>
+<i class="no-highlight">52</i>&nbsp;    }
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;    /**
+<i class="no-highlight">55</i>&nbsp;     * @return a random student, each color is equally likely to spawn, this method DOES NOT update the studentSupply
+<i class="no-highlight">56</i>&nbsp;     */
+<i class="no-highlight">57</i>&nbsp;    public Color generateStudent() {
+<b class="fc"><i class="no-highlight">58</i>&nbsp;        return Color.values()[Randomizer.nextInt(Color.values().length)];</b>
+<i class="no-highlight">59</i>&nbsp;    }
+<i class="no-highlight">60</i>&nbsp;
+<i class="no-highlight">61</i>&nbsp;    /**
+<i class="no-highlight">62</i>&nbsp;     * @throws IllegalArgumentException if(n &lt; 0)
+<i class="no-highlight">63</i>&nbsp;     * @throws EmptyStudentSupplyException if the student supply (representing the bag) is empty.
+<i class="no-highlight">64</i>&nbsp;     * @param n number of students to extract from the supply
+<i class="no-highlight">65</i>&nbsp;     * @return a list containing the n students that are randomly extracted from the supply
+<i class="no-highlight">66</i>&nbsp;     */
+<i class="no-highlight">67</i>&nbsp;    public List&lt;Color&gt; getNStudents(int n) throws EmptyStudentSupplyException {
+<b class="fc"><i class="no-highlight">68</i>&nbsp;        if(n &lt; 0) throw new IllegalArgumentException();</b>
+<b class="fc"><i class="no-highlight">69</i>&nbsp;        int supplySize = studentSupply.keySet().stream()</b>
+<b class="fc"><i class="no-highlight">70</i>&nbsp;                .mapToInt(studentSupply::get)</b>
+<b class="fc"><i class="no-highlight">71</i>&nbsp;                .sum();</b>
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        if(supplySize &lt; n) throw new EmptyStudentSupplyException();</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;        List&lt;Color&gt; result = new ArrayList&lt;&gt;(n);</b>
+<b class="fc"><i class="no-highlight">74</i>&nbsp;        for(int i = 0; i &lt; n; i++)</b>
+<b class="fc"><i class="no-highlight">75</i>&nbsp;            result.add(this.getStudent());</b>
+<b class="fc"><i class="no-highlight">76</i>&nbsp;        return result;</b>
+<i class="no-highlight">77</i>&nbsp;    }
+<i class="no-highlight">78</i>&nbsp;
+<i class="no-highlight">79</i>&nbsp;    /**
+<i class="no-highlight">80</i>&nbsp;     * This method returns true if the student supply is empty
+<i class="no-highlight">81</i>&nbsp;     * @return true if the supply is empty, false otherwise
+<i class="no-highlight">82</i>&nbsp;     */
+<i class="no-highlight">83</i>&nbsp;    public boolean isEmpty() {
+<i class="no-highlight">84</i>&nbsp;
+<b class="nc"><i class="no-highlight">85</i>&nbsp;        return this.numberOfStudentsLeft() == 0;</b>
+<i class="no-highlight">86</i>&nbsp;    }
+<i class="no-highlight">87</i>&nbsp;
+<i class="no-highlight">88</i>&nbsp;    /**
+<i class="no-highlight">89</i>&nbsp;     * This method returns the total number of students left in the supply
+<i class="no-highlight">90</i>&nbsp;     * @return an int representing the number of students left in the supply
+<i class="no-highlight">91</i>&nbsp;     */
+<i class="no-highlight">92</i>&nbsp;    public int numberOfStudentsLeft(){
+<b class="nc"><i class="no-highlight">93</i>&nbsp;        return this.studentSupply.values().stream().mapToInt(i -&gt; i).sum();</b>
+<i class="no-highlight">94</i>&nbsp;    }
+<i class="no-highlight">95</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1228 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > GameStateTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic</a>
+</div>
+
+<h1>Coverage Summary for Class: GameStateTest (it.polimi.ingsw.server.model.game_logic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameStateTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (44/44)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96.7%
+  </span>
+  <span class="absValue">
+    (585/605)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.CardIsNotInTheDeckException;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidCardPlayedException;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Card;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.enums.Color;
+<i class="no-highlight">8</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.*;
+<i class="no-highlight">9</i>&nbsp;import org.junit.jupiter.api.Test;
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;import java.util.*;
+<i class="no-highlight">12</i>&nbsp;import java.util.stream.Collectors;
+<i class="no-highlight">13</i>&nbsp;import java.util.stream.Stream;
+<i class="no-highlight">14</i>&nbsp;
+<i class="no-highlight">15</i>&nbsp;import static org.junit.jupiter.api.Assertions.*;
+<i class="no-highlight">16</i>&nbsp;
+<b class="fc"><i class="no-highlight">17</i>&nbsp;public class GameStateTest {</b>
+<i class="no-highlight">18</i>&nbsp;
+<i class="no-highlight">19</i>&nbsp;    @Test
+<i class="no-highlight">20</i>&nbsp;    public void grabStudentsFromCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">21</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">22</i>&nbsp;
+<b class="fc"><i class="no-highlight">23</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">24</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">25</i>&nbsp;
+<b class="fc"><i class="no-highlight">26</i>&nbsp;        gameState.grabStudentsFromCloud(1);</b>
+<b class="fc"><i class="no-highlight">27</i>&nbsp;        assertTrue(gameState.getClouds().get(1).isEmpty());</b>
+<i class="no-highlight">28</i>&nbsp;    }
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;    @Test
+<i class="no-highlight">31</i>&nbsp;    public void grabStudentsFromCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">32</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">33</i>&nbsp;
+<b class="fc"><i class="no-highlight">34</i>&nbsp;        gameState.grabStudentsFromCloud(1);</b>
+<b class="fc"><i class="no-highlight">35</i>&nbsp;        assertTrue(gameState.getClouds().get(1).isEmpty());</b>
+<i class="no-highlight">36</i>&nbsp;
+<b class="fc"><i class="no-highlight">37</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">38</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">39</i>&nbsp;    }
+<i class="no-highlight">40</i>&nbsp;
+<i class="no-highlight">41</i>&nbsp;    @Test
+<i class="no-highlight">42</i>&nbsp;    public void grabStudentsFromCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">43</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<i class="no-highlight">44</i>&nbsp;
+<b class="fc"><i class="no-highlight">45</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">46</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">47</i>&nbsp;
+<b class="fc"><i class="no-highlight">48</i>&nbsp;        gameState.grabStudentsFromCloud(1);</b>
+<b class="fc"><i class="no-highlight">49</i>&nbsp;        assertTrue(gameState.getClouds().get(1).isEmpty());</b>
+<i class="no-highlight">50</i>&nbsp;
+<b class="fc"><i class="no-highlight">51</i>&nbsp;        gameState.grabStudentsFromCloud(2);</b>
+<b class="fc"><i class="no-highlight">52</i>&nbsp;        assertTrue(gameState.getClouds().get(2).isEmpty());</b>
+<i class="no-highlight">53</i>&nbsp;    }
+<i class="no-highlight">54</i>&nbsp;
+<i class="no-highlight">55</i>&nbsp;    @Test
+<i class="no-highlight">56</i>&nbsp;    public void grabStudentsFromCloud4() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">57</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<i class="no-highlight">58</i>&nbsp;
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        gameState.grabStudentsFromCloud(2);</b>
+<b class="fc"><i class="no-highlight">60</i>&nbsp;        assertTrue(gameState.getClouds().get(2).isEmpty());</b>
+<i class="no-highlight">61</i>&nbsp;
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">63</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">64</i>&nbsp;
+<b class="fc"><i class="no-highlight">65</i>&nbsp;        gameState.grabStudentsFromCloud(1);</b>
+<b class="fc"><i class="no-highlight">66</i>&nbsp;        assertTrue(gameState.getClouds().get(1).isEmpty());</b>
+<i class="no-highlight">67</i>&nbsp;
+<i class="no-highlight">68</i>&nbsp;    }
+<i class="no-highlight">69</i>&nbsp;
+<i class="no-highlight">70</i>&nbsp;    @Test
+<i class="no-highlight">71</i>&nbsp;    public void grabStudentsFromCloud5() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<i class="no-highlight">73</i>&nbsp;
+<b class="fc"><i class="no-highlight">74</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">75</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">76</i>&nbsp;
+<b class="fc"><i class="no-highlight">77</i>&nbsp;        gameState.grabStudentsFromCloud(1);</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;        assertTrue(gameState.getClouds().get(1).isEmpty());</b>
+<i class="no-highlight">79</i>&nbsp;
+<b class="fc"><i class="no-highlight">80</i>&nbsp;        gameState.grabStudentsFromCloud(2);</b>
+<b class="fc"><i class="no-highlight">81</i>&nbsp;        assertTrue(gameState.getClouds().get(2).isEmpty());</b>
+<i class="no-highlight">82</i>&nbsp;
+<b class="fc"><i class="no-highlight">83</i>&nbsp;        gameState.grabStudentsFromCloud(3);</b>
+<b class="fc"><i class="no-highlight">84</i>&nbsp;        assertTrue(gameState.getClouds().get(3).isEmpty());</b>
+<i class="no-highlight">85</i>&nbsp;    }
+<i class="no-highlight">86</i>&nbsp;
+<i class="no-highlight">87</i>&nbsp;    @Test
+<i class="no-highlight">88</i>&nbsp;    public void grabStudentsFromCloud6() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">89</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<i class="no-highlight">90</i>&nbsp;
+<b class="fc"><i class="no-highlight">91</i>&nbsp;        gameState.grabStudentsFromCloud(2);</b>
+<b class="fc"><i class="no-highlight">92</i>&nbsp;        assertTrue(gameState.getClouds().get(2).isEmpty());</b>
+<i class="no-highlight">93</i>&nbsp;
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        gameState.grabStudentsFromCloud(1);</b>
+<b class="fc"><i class="no-highlight">95</i>&nbsp;        assertTrue(gameState.getClouds().get(1).isEmpty());</b>
+<i class="no-highlight">96</i>&nbsp;
+<b class="fc"><i class="no-highlight">97</i>&nbsp;        gameState.grabStudentsFromCloud(3);</b>
+<b class="fc"><i class="no-highlight">98</i>&nbsp;        assertTrue(gameState.getClouds().get(3).isEmpty());</b>
+<i class="no-highlight">99</i>&nbsp;
+<b class="fc"><i class="no-highlight">100</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">101</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">102</i>&nbsp;
+<i class="no-highlight">103</i>&nbsp;
+<i class="no-highlight">104</i>&nbsp;    }
+<i class="no-highlight">105</i>&nbsp;
+<i class="no-highlight">106</i>&nbsp;    //THIS TEST SHOULD THROW AN EXCEPTION
+<i class="no-highlight">107</i>&nbsp;    @Test
+<i class="no-highlight">108</i>&nbsp;    public void grabStudentsFromCloudEmptyCloud1() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">109</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">110</i>&nbsp;
+<b class="fc"><i class="no-highlight">111</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">112</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">113</i>&nbsp;
+<i class="no-highlight">114</i>&nbsp;
+<b class="fc"><i class="no-highlight">115</i>&nbsp;        assertThrows(EmptyCloudException.class, () -&gt; gameState.grabStudentsFromCloud(0));</b>
+<i class="no-highlight">116</i>&nbsp;
+<i class="no-highlight">117</i>&nbsp;    }
+<i class="no-highlight">118</i>&nbsp;
+<i class="no-highlight">119</i>&nbsp;    //THIS TEST SHOULD THROW AN EXCEPTION
+<i class="no-highlight">120</i>&nbsp;    @Test
+<i class="no-highlight">121</i>&nbsp;    public void grabStudentsFromCloudEmptyCloud2() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">122</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<i class="no-highlight">123</i>&nbsp;
+<b class="fc"><i class="no-highlight">124</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">125</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">126</i>&nbsp;
+<b class="fc"><i class="no-highlight">127</i>&nbsp;        gameState.grabStudentsFromCloud(2);</b>
+<b class="fc"><i class="no-highlight">128</i>&nbsp;        assertTrue(gameState.getClouds().get(2).isEmpty());</b>
+<i class="no-highlight">129</i>&nbsp;
+<i class="no-highlight">130</i>&nbsp;
+<b class="fc"><i class="no-highlight">131</i>&nbsp;        assertThrows(EmptyCloudException.class, () -&gt; gameState.grabStudentsFromCloud(0));</b>
+<i class="no-highlight">132</i>&nbsp;    }
+<i class="no-highlight">133</i>&nbsp;
+<i class="no-highlight">134</i>&nbsp;    //THIS TEST SHOULD THROW AN EXCEPTION
+<i class="no-highlight">135</i>&nbsp;    @Test
+<i class="no-highlight">136</i>&nbsp;    public void grabStudentsFromCloudEmptyCloud3() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">137</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<i class="no-highlight">138</i>&nbsp;
+<b class="fc"><i class="no-highlight">139</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">140</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">141</i>&nbsp;
+<b class="fc"><i class="no-highlight">142</i>&nbsp;        gameState.grabStudentsFromCloud(2);</b>
+<b class="fc"><i class="no-highlight">143</i>&nbsp;        assertTrue(gameState.getClouds().get(2).isEmpty());</b>
+<i class="no-highlight">144</i>&nbsp;
+<b class="fc"><i class="no-highlight">145</i>&nbsp;        gameState.grabStudentsFromCloud(3);</b>
+<b class="fc"><i class="no-highlight">146</i>&nbsp;        assertTrue(gameState.getClouds().get(3).isEmpty());</b>
+<i class="no-highlight">147</i>&nbsp;
+<b class="fc"><i class="no-highlight">148</i>&nbsp;        assertThrows(EmptyCloudException.class, () -&gt; gameState.grabStudentsFromCloud(0));</b>
+<i class="no-highlight">149</i>&nbsp;
+<i class="no-highlight">150</i>&nbsp;    }
+<i class="no-highlight">151</i>&nbsp;
+<i class="no-highlight">152</i>&nbsp;    //THIS TEST SHOULD THROW AN EXCEPTION
+<i class="no-highlight">153</i>&nbsp;    @Test
+<i class="no-highlight">154</i>&nbsp;    public void grabStudentsFromCloudIllegalArgument() throws GameStateInitializationFailureException, FullCloudException, EmptyCloudException {
+<b class="fc"><i class="no-highlight">155</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">156</i>&nbsp;
+<b class="fc"><i class="no-highlight">157</i>&nbsp;        gameState.grabStudentsFromCloud(0);</b>
+<b class="fc"><i class="no-highlight">158</i>&nbsp;        assertTrue(gameState.getClouds().get(0).isEmpty());</b>
+<i class="no-highlight">159</i>&nbsp;
+<b class="fc"><i class="no-highlight">160</i>&nbsp;        assertThrows(IllegalArgumentException.class ,() -&gt; gameState.grabStudentsFromCloud(2));</b>
+<i class="no-highlight">161</i>&nbsp;
+<i class="no-highlight">162</i>&nbsp;    }
+<i class="no-highlight">163</i>&nbsp;
+<i class="no-highlight">164</i>&nbsp;    @Test
+<i class="no-highlight">165</i>&nbsp;    public void playCard() throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">166</i>&nbsp;        List&lt;GameState&gt; gameStates = Stream.of(new GameState(2), new GameState(3), new GameState(4)).collect(Collectors.toList());</b>
+<i class="no-highlight">167</i>&nbsp;
+<b class="fc"><i class="no-highlight">168</i>&nbsp;        for(GameState g : gameStates) {</b>
+<b class="fc"><i class="no-highlight">169</i>&nbsp;            for(int id : g.getSchoolBoardIds()) {</b>
+<b class="fc"><i class="no-highlight">170</i>&nbsp;                g.setCurrentPlayerSchoolBoardId(id);</b>
+<b class="fc"><i class="no-highlight">171</i>&nbsp;                for(Card card : Card.values()) {</b>
+<i class="no-highlight">172</i>&nbsp;                    try {
+<b class="fc"><i class="no-highlight">173</i>&nbsp;                        g.playCard(card);</b>
+<b class="fc"><i class="no-highlight">174</i>&nbsp;                        assertEquals(card, g.getSchoolBoardIdsToCardPlayedThisRound().get(id));</b>
+<b class="nc"><i class="no-highlight">175</i>&nbsp;                    } catch (CardIsNotInTheDeckException | InvalidCardPlayedException e) {</b>
+<b class="nc"><i class="no-highlight">176</i>&nbsp;                        fail();</b>
+<b class="fc"><i class="no-highlight">177</i>&nbsp;                    }</b>
+<i class="no-highlight">178</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">179</i>&nbsp;            }</b>
+<b class="fc"><i class="no-highlight">180</i>&nbsp;        }</b>
+<i class="no-highlight">181</i>&nbsp;    }
+<i class="no-highlight">182</i>&nbsp;
+<i class="no-highlight">183</i>&nbsp;    //2 PLAYERS
+<i class="no-highlight">184</i>&nbsp;    @Test
+<i class="no-highlight">185</i>&nbsp;    public void moveStudentFromEntranceToArchipelago1() throws GameStateInitializationFailureException{
+<b class="fc"><i class="no-highlight">186</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">187</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">188</i>&nbsp;
+<i class="no-highlight">189</i>&nbsp;
+<b class="fc"><i class="no-highlight">190</i>&nbsp;        List&lt;Integer&gt; islandCodes = Stream.of(0).collect(Collectors.toList());</b>
+<i class="no-highlight">191</i>&nbsp;
+<b class="fc"><i class="no-highlight">192</i>&nbsp;        List&lt;Color&gt; entrance = new LinkedList&lt;&gt;(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());</b>
+<i class="no-highlight">193</i>&nbsp;
+<b class="fc"><i class="no-highlight">194</i>&nbsp;        int movedStudentsCount = 0;</b>
+<i class="no-highlight">195</i>&nbsp;
+<b class="fc"><i class="no-highlight">196</i>&nbsp;        for (Color c:Color.values()) {</b>
+<i class="no-highlight">197</i>&nbsp;            try{
+<b class="fc"><i class="no-highlight">198</i>&nbsp;                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){</b>
+<b class="fc"><i class="no-highlight">199</i>&nbsp;                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);</b>
+<b class="fc"><i class="no-highlight">200</i>&nbsp;                    movedStudentsCount++;</b>
+<i class="no-highlight">201</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">202</i>&nbsp;                assertTrue(entrance.containsAll(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()));</b>
+<i class="no-highlight">203</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">204</i>&nbsp;            catch(StudentNotInTheEntranceException e){</b>
+<b class="nc"><i class="no-highlight">205</i>&nbsp;                fail();</b>
+<b class="fc"><i class="no-highlight">206</i>&nbsp;            }</b>
+<i class="no-highlight">207</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">208</i>&nbsp;        assertEquals(entrance.size(), gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().size() + movedStudentsCount);</b>
+<i class="no-highlight">209</i>&nbsp;    }
+<i class="no-highlight">210</i>&nbsp;
+<i class="no-highlight">211</i>&nbsp;    //3 PLAYERS
+<i class="no-highlight">212</i>&nbsp;    @Test
+<i class="no-highlight">213</i>&nbsp;    public void moveStudentFromEntranceToArchipelago2() throws GameStateInitializationFailureException{
+<b class="fc"><i class="no-highlight">214</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<b class="fc"><i class="no-highlight">215</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">216</i>&nbsp;
+<i class="no-highlight">217</i>&nbsp;
+<b class="fc"><i class="no-highlight">218</i>&nbsp;        List&lt;Integer&gt; islandCodes = Stream.of(0).collect(Collectors.toList());</b>
+<i class="no-highlight">219</i>&nbsp;
+<b class="fc"><i class="no-highlight">220</i>&nbsp;        List&lt;Color&gt; entrance = new LinkedList&lt;&gt;(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());</b>
+<i class="no-highlight">221</i>&nbsp;
+<b class="fc"><i class="no-highlight">222</i>&nbsp;        int movedStudentsCount = 0;</b>
+<i class="no-highlight">223</i>&nbsp;
+<b class="fc"><i class="no-highlight">224</i>&nbsp;        for (Color c:Color.values()) {</b>
+<i class="no-highlight">225</i>&nbsp;            try{
+<b class="fc"><i class="no-highlight">226</i>&nbsp;                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){</b>
+<b class="fc"><i class="no-highlight">227</i>&nbsp;                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);</b>
+<b class="fc"><i class="no-highlight">228</i>&nbsp;                    movedStudentsCount++;</b>
+<i class="no-highlight">229</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">230</i>&nbsp;                assertTrue(entrance.containsAll(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()));</b>
+<i class="no-highlight">231</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">232</i>&nbsp;            catch(StudentNotInTheEntranceException e){</b>
+<b class="nc"><i class="no-highlight">233</i>&nbsp;                fail();</b>
+<b class="fc"><i class="no-highlight">234</i>&nbsp;            }</b>
+<i class="no-highlight">235</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">236</i>&nbsp;        assertEquals(entrance.size(), gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().size() + movedStudentsCount);</b>
+<i class="no-highlight">237</i>&nbsp;    }
+<i class="no-highlight">238</i>&nbsp;
+<i class="no-highlight">239</i>&nbsp;    //4 PLAYERS
+<i class="no-highlight">240</i>&nbsp;    @Test
+<i class="no-highlight">241</i>&nbsp;    public void moveStudentFromEntranceToArchipelago3() throws GameStateInitializationFailureException{
+<b class="fc"><i class="no-highlight">242</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<b class="fc"><i class="no-highlight">243</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">244</i>&nbsp;
+<i class="no-highlight">245</i>&nbsp;
+<b class="fc"><i class="no-highlight">246</i>&nbsp;        List&lt;Integer&gt; islandCodes = Stream.of(0).collect(Collectors.toList());</b>
+<i class="no-highlight">247</i>&nbsp;
+<b class="fc"><i class="no-highlight">248</i>&nbsp;        List&lt;Color&gt; entrance = new LinkedList&lt;&gt;(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());</b>
+<i class="no-highlight">249</i>&nbsp;
+<b class="fc"><i class="no-highlight">250</i>&nbsp;        int movedStudentsCount = 0;</b>
+<i class="no-highlight">251</i>&nbsp;
+<b class="fc"><i class="no-highlight">252</i>&nbsp;        for (Color c:Color.values()) {</b>
+<i class="no-highlight">253</i>&nbsp;            try{
+<b class="fc"><i class="no-highlight">254</i>&nbsp;                if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){</b>
+<b class="fc"><i class="no-highlight">255</i>&nbsp;                    gameState.moveStudentFromEntranceToArchipelago(c,islandCodes);</b>
+<b class="fc"><i class="no-highlight">256</i>&nbsp;                    movedStudentsCount++;</b>
+<i class="no-highlight">257</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">258</i>&nbsp;                assertTrue(entrance.containsAll(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()));</b>
+<i class="no-highlight">259</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">260</i>&nbsp;            catch(StudentNotInTheEntranceException e){</b>
+<b class="nc"><i class="no-highlight">261</i>&nbsp;                fail();</b>
+<b class="fc"><i class="no-highlight">262</i>&nbsp;            }</b>
+<i class="no-highlight">263</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">264</i>&nbsp;        assertEquals(entrance.size(), gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().size() + movedStudentsCount);</b>
+<i class="no-highlight">265</i>&nbsp;    }
+<i class="no-highlight">266</i>&nbsp;
+<i class="no-highlight">267</i>&nbsp;    //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES PROVIDED IS NOT VALID
+<i class="no-highlight">268</i>&nbsp;    @Test
+<i class="no-highlight">269</i>&nbsp;    public void moveStudentFromEntranceToArchipelago4() throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">270</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">271</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">272</i>&nbsp;
+<i class="no-highlight">273</i>&nbsp;
+<b class="fc"><i class="no-highlight">274</i>&nbsp;        List&lt;Integer&gt; islandCodes = Stream.of(13).collect(Collectors.toList());</b>
+<i class="no-highlight">275</i>&nbsp;
+<b class="fc"><i class="no-highlight">276</i>&nbsp;        List&lt;Color&gt; entrance = new LinkedList&lt;&gt;(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());</b>
+<i class="no-highlight">277</i>&nbsp;
+<b class="fc"><i class="no-highlight">278</i>&nbsp;        for (Color c:Color.values()) {</b>
+<b class="fc"><i class="no-highlight">279</i>&nbsp;            if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){</b>
+<b class="fc"><i class="no-highlight">280</i>&nbsp;                assertThrows(IllegalArgumentException.class, () -&gt; gameState.moveStudentFromEntranceToArchipelago(c,islandCodes));</b>
+<i class="no-highlight">281</i>&nbsp;            }
+<i class="no-highlight">282</i>&nbsp;        }
+<i class="no-highlight">283</i>&nbsp;    }
+<i class="no-highlight">284</i>&nbsp;
+<i class="no-highlight">285</i>&nbsp;    //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES CONTAINS NULL ARGUMENT
+<i class="no-highlight">286</i>&nbsp;    @Test
+<i class="no-highlight">287</i>&nbsp;    public void moveStudentFromEntranceToArchipelago5() throws GameStateInitializationFailureException{
+<b class="fc"><i class="no-highlight">288</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">289</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">290</i>&nbsp;
+<b class="fc"><i class="no-highlight">291</i>&nbsp;        List&lt;Integer&gt; islandCodes = Stream.of((Integer)null).collect(Collectors.toList());</b>
+<i class="no-highlight">292</i>&nbsp;
+<b class="fc"><i class="no-highlight">293</i>&nbsp;        List&lt;Color&gt; entrance = new LinkedList&lt;&gt;(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());</b>
+<i class="no-highlight">294</i>&nbsp;
+<b class="fc"><i class="no-highlight">295</i>&nbsp;        for (Color c:Color.values()) {</b>
+<b class="fc"><i class="no-highlight">296</i>&nbsp;            if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){</b>
+<b class="fc"><i class="no-highlight">297</i>&nbsp;                assertThrows(IllegalArgumentException.class, () -&gt; gameState.moveStudentFromEntranceToArchipelago(c,islandCodes));</b>
+<i class="no-highlight">298</i>&nbsp;            }
+<i class="no-highlight">299</i>&nbsp;        }
+<i class="no-highlight">300</i>&nbsp;    }
+<i class="no-highlight">301</i>&nbsp;
+<i class="no-highlight">302</i>&nbsp;    //THIS METHOD SHOULD THROW AN EXCEPTION - ISLANDCODES REFERENCE IS NULL
+<i class="no-highlight">303</i>&nbsp;    @Test
+<i class="no-highlight">304</i>&nbsp;    public void moveStudentFromEntranceToArchipelago6() throws GameStateInitializationFailureException{
+<b class="fc"><i class="no-highlight">305</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">306</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">307</i>&nbsp;
+<b class="fc"><i class="no-highlight">308</i>&nbsp;        List&lt;Integer&gt; islandCodes = null;</b>
+<i class="no-highlight">309</i>&nbsp;
+<b class="fc"><i class="no-highlight">310</i>&nbsp;        List&lt;Color&gt; entrance = new LinkedList&lt;&gt;(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());</b>
+<i class="no-highlight">311</i>&nbsp;
+<b class="fc"><i class="no-highlight">312</i>&nbsp;        for (Color c:Color.values()) {</b>
+<b class="fc"><i class="no-highlight">313</i>&nbsp;            if(gameState.getCurrentPlayerSchoolBoardForTesting().isInTheEntrance(c)){</b>
+<b class="fc"><i class="no-highlight">314</i>&nbsp;                assertThrows(IllegalArgumentException.class, () -&gt; gameState.moveStudentFromEntranceToArchipelago(c,islandCodes));</b>
+<i class="no-highlight">315</i>&nbsp;            }
+<i class="no-highlight">316</i>&nbsp;        }
+<i class="no-highlight">317</i>&nbsp;    }
+<i class="no-highlight">318</i>&nbsp;
+<i class="no-highlight">319</i>&nbsp;    //THIS METHOD SHOULD THROW AN EXCEPTION - STUDENT ARGUMENT IS NULL
+<i class="no-highlight">320</i>&nbsp;    @Test
+<i class="no-highlight">321</i>&nbsp;    public void moveStudentFromEntranceToArchipelago7() throws GameStateInitializationFailureException{
+<b class="fc"><i class="no-highlight">322</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">323</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">324</i>&nbsp;
+<b class="fc"><i class="no-highlight">325</i>&nbsp;        List&lt;Integer&gt; islandCodes = Stream.of((Integer)null).collect(Collectors.toList());</b>
+<i class="no-highlight">326</i>&nbsp;
+<b class="fc"><i class="no-highlight">327</i>&nbsp;        List&lt;Color&gt; entrance = new LinkedList&lt;&gt;(gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance());</b>
+<i class="no-highlight">328</i>&nbsp;
+<b class="fc"><i class="no-highlight">329</i>&nbsp;        assertThrows(IllegalArgumentException.class, () -&gt; gameState.moveStudentFromEntranceToArchipelago(null,islandCodes));</b>
+<i class="no-highlight">330</i>&nbsp;    }
+<i class="no-highlight">331</i>&nbsp;
+<i class="no-highlight">332</i>&nbsp;    @Test
+<i class="no-highlight">333</i>&nbsp;    public void assignProfessor0() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">334</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">335</i>&nbsp;        Color studentToBeMoved;
+<i class="no-highlight">336</i>&nbsp;
+<b class="fc"><i class="no-highlight">337</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">338</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">339</i>&nbsp;
+<i class="no-highlight">340</i>&nbsp;
+<b class="fc"><i class="no-highlight">341</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">342</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<i class="no-highlight">343</i>&nbsp;
+<b class="fc"><i class="no-highlight">344</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">345</i>&nbsp;
+<i class="no-highlight">346</i>&nbsp;    }
+<i class="no-highlight">347</i>&nbsp;
+<i class="no-highlight">348</i>&nbsp;    @Test
+<i class="no-highlight">349</i>&nbsp;    public void assignProfessor1() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">350</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">351</i>&nbsp;        Color studentToBeMoved;
+<i class="no-highlight">352</i>&nbsp;
+<b class="fc"><i class="no-highlight">353</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">354</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(1);</b>
+<i class="no-highlight">355</i>&nbsp;
+<i class="no-highlight">356</i>&nbsp;
+<b class="fc"><i class="no-highlight">357</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">358</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<i class="no-highlight">359</i>&nbsp;
+<b class="fc"><i class="no-highlight">360</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">361</i>&nbsp;    }
+<i class="no-highlight">362</i>&nbsp;
+<i class="no-highlight">363</i>&nbsp;    @Test
+<i class="no-highlight">364</i>&nbsp;    public void assignProfessor2() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">365</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">366</i>&nbsp;        Color studentToBeMoved;
+<i class="no-highlight">367</i>&nbsp;
+<b class="fc"><i class="no-highlight">368</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">369</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">370</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">371</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">372</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">373</i>&nbsp;
+<b class="fc"><i class="no-highlight">374</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">375</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">376</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">377</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">378</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">379</i>&nbsp;
+<b class="fc"><i class="no-highlight">380</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">381</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">382</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">383</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">384</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">385</i>&nbsp;
+<b class="fc"><i class="no-highlight">386</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">387</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">388</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">389</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">390</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">391</i>&nbsp;
+<b class="fc"><i class="no-highlight">392</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">393</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">394</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">395</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">396</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">397</i>&nbsp;
+<b class="fc"><i class="no-highlight">398</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">399</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">400</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">401</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">402</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">403</i>&nbsp;
+<b class="fc"><i class="no-highlight">404</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">405</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">406</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">407</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">408</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">409</i>&nbsp;    }
+<i class="no-highlight">410</i>&nbsp;
+<i class="no-highlight">411</i>&nbsp;    @Test
+<i class="no-highlight">412</i>&nbsp;    public void assignProfessor3() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">413</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<i class="no-highlight">414</i>&nbsp;        Color studentToBeMoved;
+<i class="no-highlight">415</i>&nbsp;
+<b class="fc"><i class="no-highlight">416</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">417</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">418</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">419</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">420</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">421</i>&nbsp;
+<b class="fc"><i class="no-highlight">422</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">423</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">424</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">425</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">426</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">427</i>&nbsp;
+<b class="fc"><i class="no-highlight">428</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">429</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">430</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">431</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">432</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">433</i>&nbsp;
+<b class="fc"><i class="no-highlight">434</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">435</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">436</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">437</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">438</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">439</i>&nbsp;
+<b class="fc"><i class="no-highlight">440</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">441</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">442</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">443</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">444</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">445</i>&nbsp;
+<b class="fc"><i class="no-highlight">446</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">447</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">448</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">449</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">450</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">451</i>&nbsp;
+<b class="fc"><i class="no-highlight">452</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">453</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">454</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">455</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">456</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">457</i>&nbsp;
+<b class="fc"><i class="no-highlight">458</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">459</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">460</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">461</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">462</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">463</i>&nbsp;
+<b class="fc"><i class="no-highlight">464</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">465</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">466</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">467</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">468</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">469</i>&nbsp;    }
+<i class="no-highlight">470</i>&nbsp;
+<i class="no-highlight">471</i>&nbsp;    @Test
+<i class="no-highlight">472</i>&nbsp;    public void assignProfessor4() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">473</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<i class="no-highlight">474</i>&nbsp;        Color studentToBeMoved;
+<i class="no-highlight">475</i>&nbsp;
+<b class="fc"><i class="no-highlight">476</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">477</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">478</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">479</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">480</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">481</i>&nbsp;
+<b class="fc"><i class="no-highlight">482</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">483</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">484</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">485</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">486</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">487</i>&nbsp;
+<b class="fc"><i class="no-highlight">488</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">489</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">490</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">491</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">492</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">493</i>&nbsp;
+<b class="fc"><i class="no-highlight">494</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">495</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">496</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">497</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">498</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">499</i>&nbsp;
+<b class="fc"><i class="no-highlight">500</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">501</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">502</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">503</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">504</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">505</i>&nbsp;
+<b class="fc"><i class="no-highlight">506</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">507</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">508</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">509</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">510</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">511</i>&nbsp;
+<b class="fc"><i class="no-highlight">512</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">513</i>&nbsp;        studentToBeMoved = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">514</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">515</i>&nbsp;        gameState.assignProfessor(studentToBeMoved);</b>
+<b class="fc"><i class="no-highlight">516</i>&nbsp;        assertTrue(gameState.getCurrentPlayerSchoolBoardForTesting().getProfessors().contains(studentToBeMoved));</b>
+<i class="no-highlight">517</i>&nbsp;    }
+<i class="no-highlight">518</i>&nbsp;
+<i class="no-highlight">519</i>&nbsp;    //2 PLAYERS
+<i class="no-highlight">520</i>&nbsp;    @Test
+<i class="no-highlight">521</i>&nbsp;    public void getInfluence1() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<i class="no-highlight">522</i>&nbsp;
+<b class="fc"><i class="no-highlight">523</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">524</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">525</i>&nbsp;        Color student;
+<i class="no-highlight">526</i>&nbsp;
+<b class="fc"><i class="no-highlight">527</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">528</i>&nbsp;        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">529</i>&nbsp;
+<i class="no-highlight">530</i>&nbsp;
+<b class="fc"><i class="no-highlight">531</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">532</i>&nbsp;
+<b class="fc"><i class="no-highlight">533</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">534</i>&nbsp;
+<b class="fc"><i class="no-highlight">535</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">536</i>&nbsp;
+<b class="fc"><i class="no-highlight">537</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<i class="no-highlight">538</i>&nbsp;
+<b class="fc"><i class="no-highlight">539</i>&nbsp;        assertEquals(1,gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">540</i>&nbsp;        assertEquals(0,gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<i class="no-highlight">541</i>&nbsp;    }
+<i class="no-highlight">542</i>&nbsp;
+<i class="no-highlight">543</i>&nbsp;    @Test
+<i class="no-highlight">544</i>&nbsp;    public void getInfluence2() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<i class="no-highlight">545</i>&nbsp;
+<b class="fc"><i class="no-highlight">546</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">547</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">548</i>&nbsp;        Color student;
+<i class="no-highlight">549</i>&nbsp;
+<b class="fc"><i class="no-highlight">550</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">551</i>&nbsp;
+<i class="no-highlight">552</i>&nbsp;
+<b class="fc"><i class="no-highlight">553</i>&nbsp;        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">554</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<b class="fc"><i class="no-highlight">555</i>&nbsp;        gameState.assignProfessor(student);</b>
+<b class="fc"><i class="no-highlight">556</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<b class="fc"><i class="no-highlight">557</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">558</i>&nbsp;
+<b class="fc"><i class="no-highlight">559</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<i class="no-highlight">560</i>&nbsp;
+<b class="fc"><i class="no-highlight">561</i>&nbsp;        assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">562</i>&nbsp;        assertEquals(0,gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<i class="no-highlight">563</i>&nbsp;
+<i class="no-highlight">564</i>&nbsp;    }
+<i class="no-highlight">565</i>&nbsp;
+<i class="no-highlight">566</i>&nbsp;    @Test
+<i class="no-highlight">567</i>&nbsp;    public void getInfluence3() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">568</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">569</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">570</i>&nbsp;
+<b class="fc"><i class="no-highlight">571</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">572</i>&nbsp;
+<b class="fc"><i class="no-highlight">573</i>&nbsp;        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">574</i>&nbsp;        Optional&lt;Color&gt; student2;
+<i class="no-highlight">575</i>&nbsp;
+<b class="fc"><i class="no-highlight">576</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">577</i>&nbsp;
+<b class="fc"><i class="no-highlight">578</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">579</i>&nbsp;
+<b class="fc"><i class="no-highlight">580</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">581</i>&nbsp;
+<b class="fc"><i class="no-highlight">582</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<i class="no-highlight">583</i>&nbsp;
+<b class="fc"><i class="no-highlight">584</i>&nbsp;        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()</b>
+<b class="fc"><i class="no-highlight">585</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">586</i>&nbsp;                .filter(s -&gt; !s.equals(student))</b>
+<b class="fc"><i class="no-highlight">587</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">588</i>&nbsp;
+<i class="no-highlight">589</i>&nbsp;
+<b class="fc"><i class="no-highlight">590</i>&nbsp;        if(student2.isPresent()){</b>
+<b class="fc"><i class="no-highlight">591</i>&nbsp;            gameState.moveStudentFromEntranceToDiningRoom(student2.get());</b>
+<i class="no-highlight">592</i>&nbsp;
+<b class="fc"><i class="no-highlight">593</i>&nbsp;            gameState.assignProfessor(student2.get());</b>
+<i class="no-highlight">594</i>&nbsp;
+<b class="fc"><i class="no-highlight">595</i>&nbsp;            motherNaturePosition.addStudent(student2.get());</b>
+<b class="fc"><i class="no-highlight">596</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">597</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<i class="no-highlight">598</i>&nbsp;        }
+<i class="no-highlight">599</i>&nbsp;
+<b class="fc"><i class="no-highlight">600</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">601</i>&nbsp;        assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<i class="no-highlight">602</i>&nbsp;
+<i class="no-highlight">603</i>&nbsp;    }
+<i class="no-highlight">604</i>&nbsp;
+<i class="no-highlight">605</i>&nbsp;    @Test
+<i class="no-highlight">606</i>&nbsp;    public void getInfluence4() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">607</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<b class="fc"><i class="no-highlight">608</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">609</i>&nbsp;
+<b class="fc"><i class="no-highlight">610</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">611</i>&nbsp;
+<b class="fc"><i class="no-highlight">612</i>&nbsp;        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">613</i>&nbsp;        Optional&lt;Color&gt; student2;
+<i class="no-highlight">614</i>&nbsp;
+<b class="fc"><i class="no-highlight">615</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">616</i>&nbsp;
+<b class="fc"><i class="no-highlight">617</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">618</i>&nbsp;
+<b class="fc"><i class="no-highlight">619</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">620</i>&nbsp;
+<b class="fc"><i class="no-highlight">621</i>&nbsp;        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()</b>
+<b class="fc"><i class="no-highlight">622</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">623</i>&nbsp;                .filter(s -&gt; !s.equals(student))</b>
+<b class="fc"><i class="no-highlight">624</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">625</i>&nbsp;
+<i class="no-highlight">626</i>&nbsp;
+<b class="fc"><i class="no-highlight">627</i>&nbsp;        if(student2.isPresent()){</b>
+<b class="fc"><i class="no-highlight">628</i>&nbsp;            gameState.moveStudentFromEntranceToDiningRoom(student2.get());</b>
+<i class="no-highlight">629</i>&nbsp;
+<b class="fc"><i class="no-highlight">630</i>&nbsp;            gameState.assignProfessor(student2.get());</b>
+<i class="no-highlight">631</i>&nbsp;
+<b class="fc"><i class="no-highlight">632</i>&nbsp;            motherNaturePosition.addStudent(student2.get());</b>
+<b class="fc"><i class="no-highlight">633</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">634</i>&nbsp;            assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<i class="no-highlight">635</i>&nbsp;        }
+<i class="no-highlight">636</i>&nbsp;        else{
+<b class="nc"><i class="no-highlight">637</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="nc"><i class="no-highlight">638</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<i class="no-highlight">639</i>&nbsp;        }
+<i class="no-highlight">640</i>&nbsp;
+<i class="no-highlight">641</i>&nbsp;
+<b class="fc"><i class="no-highlight">642</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<i class="no-highlight">643</i>&nbsp;
+<i class="no-highlight">644</i>&nbsp;    }
+<i class="no-highlight">645</i>&nbsp;
+<i class="no-highlight">646</i>&nbsp;    //3 PLAYERS
+<i class="no-highlight">647</i>&nbsp;    @Test
+<i class="no-highlight">648</i>&nbsp;    public void getInfluence5() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">649</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<b class="fc"><i class="no-highlight">650</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">651</i>&nbsp;        Color student;
+<i class="no-highlight">652</i>&nbsp;
+<b class="fc"><i class="no-highlight">653</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">654</i>&nbsp;        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">655</i>&nbsp;
+<i class="no-highlight">656</i>&nbsp;
+<b class="fc"><i class="no-highlight">657</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">658</i>&nbsp;
+<b class="fc"><i class="no-highlight">659</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">660</i>&nbsp;
+<b class="fc"><i class="no-highlight">661</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">662</i>&nbsp;
+<b class="fc"><i class="no-highlight">663</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<i class="no-highlight">664</i>&nbsp;
+<b class="fc"><i class="no-highlight">665</i>&nbsp;        assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">666</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">667</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">668</i>&nbsp;
+<i class="no-highlight">669</i>&nbsp;    }
+<i class="no-highlight">670</i>&nbsp;
+<i class="no-highlight">671</i>&nbsp;    @Test
+<i class="no-highlight">672</i>&nbsp;    public void getInfluence6() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<i class="no-highlight">673</i>&nbsp;
+<b class="fc"><i class="no-highlight">674</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<b class="fc"><i class="no-highlight">675</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">676</i>&nbsp;        Color student;
+<i class="no-highlight">677</i>&nbsp;
+<b class="fc"><i class="no-highlight">678</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">679</i>&nbsp;
+<i class="no-highlight">680</i>&nbsp;
+<b class="fc"><i class="no-highlight">681</i>&nbsp;        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">682</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<b class="fc"><i class="no-highlight">683</i>&nbsp;        gameState.assignProfessor(student);</b>
+<b class="fc"><i class="no-highlight">684</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<b class="fc"><i class="no-highlight">685</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">686</i>&nbsp;
+<b class="fc"><i class="no-highlight">687</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<i class="no-highlight">688</i>&nbsp;
+<b class="fc"><i class="no-highlight">689</i>&nbsp;        assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">690</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">691</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">692</i>&nbsp;
+<i class="no-highlight">693</i>&nbsp;    }
+<i class="no-highlight">694</i>&nbsp;
+<i class="no-highlight">695</i>&nbsp;    @Test
+<i class="no-highlight">696</i>&nbsp;    public void getInfluence7() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">697</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<b class="fc"><i class="no-highlight">698</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">699</i>&nbsp;
+<b class="fc"><i class="no-highlight">700</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">701</i>&nbsp;        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">702</i>&nbsp;
+<b class="fc"><i class="no-highlight">703</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">704</i>&nbsp;
+<b class="fc"><i class="no-highlight">705</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">706</i>&nbsp;
+<i class="no-highlight">707</i>&nbsp;
+<b class="fc"><i class="no-highlight">708</i>&nbsp;        Optional&lt;Color&gt; student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()</b>
+<b class="fc"><i class="no-highlight">709</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">710</i>&nbsp;                .filter(s -&gt; !s.equals(student))</b>
+<b class="fc"><i class="no-highlight">711</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">712</i>&nbsp;
+<b class="fc"><i class="no-highlight">713</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">714</i>&nbsp;
+<i class="no-highlight">715</i>&nbsp;
+<b class="fc"><i class="no-highlight">716</i>&nbsp;        if(student2.isPresent()){</b>
+<b class="fc"><i class="no-highlight">717</i>&nbsp;            gameState.moveStudentFromEntranceToDiningRoom(student2.get());</b>
+<i class="no-highlight">718</i>&nbsp;
+<b class="fc"><i class="no-highlight">719</i>&nbsp;            gameState.assignProfessor(student2.get());</b>
+<i class="no-highlight">720</i>&nbsp;
+<b class="fc"><i class="no-highlight">721</i>&nbsp;            motherNaturePosition.addStudent(student2.get());</b>
+<b class="fc"><i class="no-highlight">722</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">723</i>&nbsp;            assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<i class="no-highlight">724</i>&nbsp;        }
+<i class="no-highlight">725</i>&nbsp;        else{
+<b class="nc"><i class="no-highlight">726</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="nc"><i class="no-highlight">727</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<i class="no-highlight">728</i>&nbsp;        }
+<i class="no-highlight">729</i>&nbsp;
+<i class="no-highlight">730</i>&nbsp;
+<i class="no-highlight">731</i>&nbsp;
+<b class="fc"><i class="no-highlight">732</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">733</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">734</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">735</i>&nbsp;
+<i class="no-highlight">736</i>&nbsp;    }
+<i class="no-highlight">737</i>&nbsp;
+<i class="no-highlight">738</i>&nbsp;    @Test
+<i class="no-highlight">739</i>&nbsp;    public void getInfluence8() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">740</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<b class="fc"><i class="no-highlight">741</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">742</i>&nbsp;
+<b class="fc"><i class="no-highlight">743</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">744</i>&nbsp;
+<b class="fc"><i class="no-highlight">745</i>&nbsp;        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">746</i>&nbsp;        Optional&lt;Color&gt; student2;
+<i class="no-highlight">747</i>&nbsp;
+<b class="fc"><i class="no-highlight">748</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">749</i>&nbsp;
+<b class="fc"><i class="no-highlight">750</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">751</i>&nbsp;
+<b class="fc"><i class="no-highlight">752</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">753</i>&nbsp;
+<b class="fc"><i class="no-highlight">754</i>&nbsp;        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()</b>
+<b class="fc"><i class="no-highlight">755</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">756</i>&nbsp;                .filter(s -&gt; !s.equals(student))</b>
+<b class="fc"><i class="no-highlight">757</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">758</i>&nbsp;
+<i class="no-highlight">759</i>&nbsp;
+<b class="fc"><i class="no-highlight">760</i>&nbsp;        if(student2.isPresent()){</b>
+<b class="fc"><i class="no-highlight">761</i>&nbsp;            gameState.moveStudentFromEntranceToDiningRoom(student2.get());</b>
+<i class="no-highlight">762</i>&nbsp;
+<b class="fc"><i class="no-highlight">763</i>&nbsp;            gameState.assignProfessor(student2.get());</b>
+<i class="no-highlight">764</i>&nbsp;
+<b class="fc"><i class="no-highlight">765</i>&nbsp;            motherNaturePosition.addStudent(student2.get());</b>
+<b class="fc"><i class="no-highlight">766</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">767</i>&nbsp;            assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<i class="no-highlight">768</i>&nbsp;        }
+<i class="no-highlight">769</i>&nbsp;        else{
+<b class="nc"><i class="no-highlight">770</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="nc"><i class="no-highlight">771</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<i class="no-highlight">772</i>&nbsp;        }
+<i class="no-highlight">773</i>&nbsp;
+<b class="fc"><i class="no-highlight">774</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">775</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">776</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">777</i>&nbsp;    }
+<i class="no-highlight">778</i>&nbsp;
+<i class="no-highlight">779</i>&nbsp;    //4 PLAYERS
+<i class="no-highlight">780</i>&nbsp;    @Test
+<i class="no-highlight">781</i>&nbsp;    public void getInfluence9() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">782</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<b class="fc"><i class="no-highlight">783</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">784</i>&nbsp;        Color student;
+<i class="no-highlight">785</i>&nbsp;
+<b class="fc"><i class="no-highlight">786</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">787</i>&nbsp;        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">788</i>&nbsp;
+<i class="no-highlight">789</i>&nbsp;
+<b class="fc"><i class="no-highlight">790</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">791</i>&nbsp;
+<b class="fc"><i class="no-highlight">792</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">793</i>&nbsp;
+<b class="fc"><i class="no-highlight">794</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">795</i>&nbsp;
+<b class="fc"><i class="no-highlight">796</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<i class="no-highlight">797</i>&nbsp;
+<b class="fc"><i class="no-highlight">798</i>&nbsp;        assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">799</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">800</i>&nbsp;        assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<b class="fc"><i class="no-highlight">801</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3).intValue());</b>
+<i class="no-highlight">802</i>&nbsp;
+<i class="no-highlight">803</i>&nbsp;    }
+<i class="no-highlight">804</i>&nbsp;
+<i class="no-highlight">805</i>&nbsp;    @Test
+<i class="no-highlight">806</i>&nbsp;    public void getInfluence10() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">807</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<b class="fc"><i class="no-highlight">808</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">809</i>&nbsp;        Color student;
+<i class="no-highlight">810</i>&nbsp;
+<b class="fc"><i class="no-highlight">811</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">812</i>&nbsp;
+<i class="no-highlight">813</i>&nbsp;
+<b class="fc"><i class="no-highlight">814</i>&nbsp;        student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<b class="fc"><i class="no-highlight">815</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<b class="fc"><i class="no-highlight">816</i>&nbsp;        gameState.assignProfessor(student);</b>
+<b class="fc"><i class="no-highlight">817</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<b class="fc"><i class="no-highlight">818</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">819</i>&nbsp;
+<b class="fc"><i class="no-highlight">820</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<i class="no-highlight">821</i>&nbsp;
+<b class="fc"><i class="no-highlight">822</i>&nbsp;        assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">823</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">824</i>&nbsp;        assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<b class="fc"><i class="no-highlight">825</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3).intValue());</b>
+<i class="no-highlight">826</i>&nbsp;
+<i class="no-highlight">827</i>&nbsp;
+<i class="no-highlight">828</i>&nbsp;    }
+<i class="no-highlight">829</i>&nbsp;
+<i class="no-highlight">830</i>&nbsp;    @Test
+<i class="no-highlight">831</i>&nbsp;    public void getInfluence11() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">832</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<b class="fc"><i class="no-highlight">833</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">834</i>&nbsp;
+<b class="fc"><i class="no-highlight">835</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">836</i>&nbsp;        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">837</i>&nbsp;
+<b class="fc"><i class="no-highlight">838</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">839</i>&nbsp;
+<b class="fc"><i class="no-highlight">840</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">841</i>&nbsp;
+<i class="no-highlight">842</i>&nbsp;
+<b class="fc"><i class="no-highlight">843</i>&nbsp;        Optional&lt;Color&gt; student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()</b>
+<b class="fc"><i class="no-highlight">844</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">845</i>&nbsp;                .filter(s -&gt; !s.equals(student))</b>
+<b class="fc"><i class="no-highlight">846</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">847</i>&nbsp;
+<b class="fc"><i class="no-highlight">848</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">849</i>&nbsp;
+<i class="no-highlight">850</i>&nbsp;
+<b class="fc"><i class="no-highlight">851</i>&nbsp;        if(student2.isPresent()){</b>
+<b class="fc"><i class="no-highlight">852</i>&nbsp;            gameState.moveStudentFromEntranceToDiningRoom(student2.get());</b>
+<i class="no-highlight">853</i>&nbsp;
+<b class="fc"><i class="no-highlight">854</i>&nbsp;            gameState.assignProfessor(student2.get());</b>
+<i class="no-highlight">855</i>&nbsp;
+<b class="fc"><i class="no-highlight">856</i>&nbsp;            motherNaturePosition.addStudent(student2.get());</b>
+<b class="fc"><i class="no-highlight">857</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">858</i>&nbsp;            assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">859</i>&nbsp;            assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">860</i>&nbsp;        }
+<i class="no-highlight">861</i>&nbsp;        else
+<i class="no-highlight">862</i>&nbsp;        {
+<b class="nc"><i class="no-highlight">863</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="nc"><i class="no-highlight">864</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="nc"><i class="no-highlight">865</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">866</i>&nbsp;        }
+<i class="no-highlight">867</i>&nbsp;
+<i class="no-highlight">868</i>&nbsp;
+<b class="fc"><i class="no-highlight">869</i>&nbsp;        if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">870</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">871</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3).intValue());</b>
+<i class="no-highlight">872</i>&nbsp;
+<i class="no-highlight">873</i>&nbsp;
+<i class="no-highlight">874</i>&nbsp;    }
+<i class="no-highlight">875</i>&nbsp;
+<i class="no-highlight">876</i>&nbsp;    @Test
+<i class="no-highlight">877</i>&nbsp;    public void getInfluence12() throws GameStateInitializationFailureException, StudentNotInTheEntranceException, FullDiningRoomLaneException {
+<b class="fc"><i class="no-highlight">878</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<b class="fc"><i class="no-highlight">879</i>&nbsp;        Archipelago motherNaturePosition = gameState.getArchipelagosForTesting().get(0);</b>
+<i class="no-highlight">880</i>&nbsp;
+<b class="fc"><i class="no-highlight">881</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<i class="no-highlight">882</i>&nbsp;
+<b class="fc"><i class="no-highlight">883</i>&nbsp;        final Color student = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance().get(0);</b>
+<i class="no-highlight">884</i>&nbsp;        Optional&lt;Color&gt; student2;
+<i class="no-highlight">885</i>&nbsp;
+<b class="fc"><i class="no-highlight">886</i>&nbsp;        gameState.moveStudentFromEntranceToDiningRoom(student);</b>
+<i class="no-highlight">887</i>&nbsp;
+<b class="fc"><i class="no-highlight">888</i>&nbsp;        gameState.assignProfessor(student);</b>
+<i class="no-highlight">889</i>&nbsp;
+<b class="fc"><i class="no-highlight">890</i>&nbsp;        motherNaturePosition.addStudent(student);</b>
+<i class="no-highlight">891</i>&nbsp;
+<b class="fc"><i class="no-highlight">892</i>&nbsp;        student2 = gameState.getCurrentPlayerSchoolBoardForTesting().getStudentsInTheEntrance()</b>
+<b class="fc"><i class="no-highlight">893</i>&nbsp;                .stream()</b>
+<b class="fc"><i class="no-highlight">894</i>&nbsp;                .filter(s -&gt; !s.equals(student))</b>
+<b class="fc"><i class="no-highlight">895</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">896</i>&nbsp;
+<i class="no-highlight">897</i>&nbsp;
+<b class="fc"><i class="no-highlight">898</i>&nbsp;        if(student2.isPresent()){</b>
+<b class="fc"><i class="no-highlight">899</i>&nbsp;            gameState.moveStudentFromEntranceToDiningRoom(student2.get());</b>
+<i class="no-highlight">900</i>&nbsp;
+<b class="fc"><i class="no-highlight">901</i>&nbsp;            gameState.assignProfessor(student2.get());</b>
+<i class="no-highlight">902</i>&nbsp;
+<b class="fc"><i class="no-highlight">903</i>&nbsp;            motherNaturePosition.addStudent(student2.get());</b>
+<b class="fc"><i class="no-highlight">904</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="fc"><i class="no-highlight">905</i>&nbsp;            assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="fc"><i class="no-highlight">906</i>&nbsp;            assertEquals(2, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">907</i>&nbsp;        }
+<i class="no-highlight">908</i>&nbsp;        else{
+<b class="nc"><i class="no-highlight">909</i>&nbsp;            if(gameState.getInfluence(motherNaturePosition.getIslandCodes()).isEmpty()) fail();</b>
+<b class="nc"><i class="no-highlight">910</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(0).intValue());</b>
+<b class="nc"><i class="no-highlight">911</i>&nbsp;            assertEquals(1, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(2).intValue());</b>
+<i class="no-highlight">912</i>&nbsp;        }
+<i class="no-highlight">913</i>&nbsp;
+<i class="no-highlight">914</i>&nbsp;
+<b class="fc"><i class="no-highlight">915</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(1).intValue());</b>
+<b class="fc"><i class="no-highlight">916</i>&nbsp;        assertEquals(0, gameState.getInfluence(motherNaturePosition.getIslandCodes()).get().get(3).intValue());</b>
+<i class="no-highlight">917</i>&nbsp;
+<i class="no-highlight">918</i>&nbsp;    }
+<i class="no-highlight">919</i>&nbsp;
+<i class="no-highlight">920</i>&nbsp;    @Test
+<i class="no-highlight">921</i>&nbsp;    public void mergeWithPrevious1() throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">922</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">923</i>&nbsp;
+<b class="fc"><i class="no-highlight">924</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(0).isEmpty() || gameState.getArchipelagoFromSingleIslandCode(1).isEmpty()) fail();</b>
+<i class="no-highlight">925</i>&nbsp;
+<i class="no-highlight">926</i>&nbsp;
+<b class="fc"><i class="no-highlight">927</i>&nbsp;        gameState.getArchipelagoFromSingleIslandCode(0).get().addStudent(Color.RED);</b>
+<b class="fc"><i class="no-highlight">928</i>&nbsp;        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagoFromSingleIslandCode(0).get());</b>
+<b class="fc"><i class="no-highlight">929</i>&nbsp;        gameState.conquerArchipelago(0);</b>
+<i class="no-highlight">930</i>&nbsp;
+<b class="fc"><i class="no-highlight">931</i>&nbsp;        gameState.getArchipelagoFromSingleIslandCode(0).get().addStudent(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">932</i>&nbsp;        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagoFromSingleIslandCode(1).get());</b>
+<b class="fc"><i class="no-highlight">933</i>&nbsp;        gameState.conquerArchipelago(0);</b>
+<i class="no-highlight">934</i>&nbsp;
+<b class="fc"><i class="no-highlight">935</i>&nbsp;        assertTrue(gameState.mergeWithPrevious());</b>
+<i class="no-highlight">936</i>&nbsp;
+<b class="fc"><i class="no-highlight">937</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getIslandCodes().contains(0));</b>
+<b class="fc"><i class="no-highlight">938</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getIslandCodes().contains(0));</b>
+<b class="fc"><i class="no-highlight">939</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getIslandCodes().contains(1));</b>
+<b class="fc"><i class="no-highlight">940</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getIslandCodes().contains(1));</b>
+<b class="fc"><i class="no-highlight">941</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getStudents().contains(Color.RED));</b>
+<b class="fc"><i class="no-highlight">942</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getStudents().contains(Color.RED));</b>
+<b class="fc"><i class="no-highlight">943</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getStudents().contains(Color.GREEN));</b>
+<b class="fc"><i class="no-highlight">944</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getStudents().contains(Color.GREEN));</b>
+<i class="no-highlight">945</i>&nbsp;    }
+<i class="no-highlight">946</i>&nbsp;
+<i class="no-highlight">947</i>&nbsp;    @Test
+<i class="no-highlight">948</i>&nbsp;    public void mergeWithNext1() throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">949</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">950</i>&nbsp;
+<b class="fc"><i class="no-highlight">951</i>&nbsp;        if(gameState.getArchipelagoFromSingleIslandCode(0).isEmpty() || gameState.getArchipelagoFromSingleIslandCode(1).isEmpty()) fail();</b>
+<i class="no-highlight">952</i>&nbsp;
+<i class="no-highlight">953</i>&nbsp;
+<b class="fc"><i class="no-highlight">954</i>&nbsp;        gameState.getArchipelagoFromSingleIslandCode(1).get().addStudent(Color.RED);</b>
+<b class="fc"><i class="no-highlight">955</i>&nbsp;        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagoFromSingleIslandCode(1).get());</b>
+<b class="fc"><i class="no-highlight">956</i>&nbsp;        gameState.conquerArchipelago(0);</b>
+<i class="no-highlight">957</i>&nbsp;
+<b class="fc"><i class="no-highlight">958</i>&nbsp;        gameState.getArchipelagoFromSingleIslandCode(0).get().addStudent(Color.GREEN);</b>
+<b class="fc"><i class="no-highlight">959</i>&nbsp;        gameState.setMotherNaturePositionForTesting(gameState.getArchipelagoFromSingleIslandCode(0).get());</b>
+<b class="fc"><i class="no-highlight">960</i>&nbsp;        gameState.conquerArchipelago(0);</b>
+<i class="no-highlight">961</i>&nbsp;
+<b class="fc"><i class="no-highlight">962</i>&nbsp;        assertTrue(gameState.mergeWithNext());</b>
+<i class="no-highlight">963</i>&nbsp;
+<b class="fc"><i class="no-highlight">964</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getIslandCodes().contains(0));</b>
+<b class="fc"><i class="no-highlight">965</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getIslandCodes().contains(0));</b>
+<b class="fc"><i class="no-highlight">966</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getIslandCodes().contains(1));</b>
+<b class="fc"><i class="no-highlight">967</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getIslandCodes().contains(1));</b>
+<b class="fc"><i class="no-highlight">968</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getStudents().contains(Color.RED));</b>
+<b class="fc"><i class="no-highlight">969</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getStudents().contains(Color.RED));</b>
+<b class="fc"><i class="no-highlight">970</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(0).get().getStudents().contains(Color.GREEN));</b>
+<b class="fc"><i class="no-highlight">971</i>&nbsp;        assertTrue(gameState.getArchipelagoFromSingleIslandCode(1).get().getStudents().contains(Color.GREEN));</b>
+<i class="no-highlight">972</i>&nbsp;    }
+<i class="no-highlight">973</i>&nbsp;
+<i class="no-highlight">974</i>&nbsp;    @Test
+<i class="no-highlight">975</i>&nbsp;    public void checkWinnersTowers2() throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">976</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">977</i>&nbsp;
+<b class="fc"><i class="no-highlight">978</i>&nbsp;        for (int i = 0; i &lt; gameState.strategy.getNumberOfTowers(); i++) {</b>
+<b class="fc"><i class="no-highlight">979</i>&nbsp;            assertFalse(gameState.checkWinners().containsValue(true));</b>
+<b class="fc"><i class="no-highlight">980</i>&nbsp;            gameState.archipelagos.get(i).setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());</b>
+<i class="no-highlight">981</i>&nbsp;        }
+<i class="no-highlight">982</i>&nbsp;
+<b class="fc"><i class="no-highlight">983</i>&nbsp;        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<b class="fc"><i class="no-highlight">984</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">985</i>&nbsp;        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<i class="no-highlight">986</i>&nbsp;    }
+<i class="no-highlight">987</i>&nbsp;
+<i class="no-highlight">988</i>&nbsp;    @Test
+<i class="no-highlight">989</i>&nbsp;    public void checkWinnersTowers3() throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">990</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<i class="no-highlight">991</i>&nbsp;
+<b class="fc"><i class="no-highlight">992</i>&nbsp;        for (int i = 0; i &lt; gameState.strategy.getNumberOfTowers(); i++) {</b>
+<b class="fc"><i class="no-highlight">993</i>&nbsp;            assertFalse(gameState.checkWinners().containsValue(true));</b>
+<b class="fc"><i class="no-highlight">994</i>&nbsp;            gameState.archipelagos.get(i).setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());</b>
+<i class="no-highlight">995</i>&nbsp;        }
+<i class="no-highlight">996</i>&nbsp;
+<b class="fc"><i class="no-highlight">997</i>&nbsp;        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<b class="fc"><i class="no-highlight">998</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">999</i>&nbsp;        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<b class="fc"><i class="no-highlight">1000</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">1001</i>&nbsp;        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<i class="no-highlight">1002</i>&nbsp;    }
+<i class="no-highlight">1003</i>&nbsp;
+<i class="no-highlight">1004</i>&nbsp;    @Test
+<i class="no-highlight">1005</i>&nbsp;    public void checkWinnersTowers4() throws GameStateInitializationFailureException {
+<b class="fc"><i class="no-highlight">1006</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<i class="no-highlight">1007</i>&nbsp;
+<b class="fc"><i class="no-highlight">1008</i>&nbsp;        for (int i = 0; i &lt; gameState.strategy.getNumberOfTowers(); i++) {</b>
+<b class="fc"><i class="no-highlight">1009</i>&nbsp;            assertFalse(gameState.checkWinners().containsValue(true));</b>
+<b class="fc"><i class="no-highlight">1010</i>&nbsp;            gameState.archipelagos.get(i).setTowerColor(gameState.getCurrentPlayerSchoolBoard().getTowerColor());</b>
+<i class="no-highlight">1011</i>&nbsp;        }
+<i class="no-highlight">1012</i>&nbsp;
+<b class="fc"><i class="no-highlight">1013</i>&nbsp;        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<b class="fc"><i class="no-highlight">1014</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">1015</i>&nbsp;        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<b class="fc"><i class="no-highlight">1016</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">1017</i>&nbsp;        assertTrue(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<b class="fc"><i class="no-highlight">1018</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(3);</b>
+<b class="fc"><i class="no-highlight">1019</i>&nbsp;        assertFalse(gameState.checkWinners().get(gameState.getCurrentPlayerSchoolBoardId()));</b>
+<i class="no-highlight">1020</i>&nbsp;    }
+<i class="no-highlight">1021</i>&nbsp;
+<i class="no-highlight">1022</i>&nbsp;    @Test
+<i class="no-highlight">1023</i>&nbsp;    public void lastCardPlayed2() throws GameStateInitializationFailureException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+<b class="fc"><i class="no-highlight">1024</i>&nbsp;        GameState gameState = new GameState(2);</b>
+<i class="no-highlight">1025</i>&nbsp;
+<b class="fc"><i class="no-highlight">1026</i>&nbsp;        assertEquals(Map.of(), gameState.schoolBoardIdsToLastCardPlayed);</b>
+<i class="no-highlight">1027</i>&nbsp;
+<b class="fc"><i class="no-highlight">1028</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">1029</i>&nbsp;        gameState.playCard(Card.DOG);</b>
+<b class="fc"><i class="no-highlight">1030</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<i class="no-highlight">1031</i>&nbsp;
+<b class="fc"><i class="no-highlight">1032</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">1033</i>&nbsp;        gameState.playCard(Card.GOOSE);</b>
+<b class="fc"><i class="no-highlight">1034</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1035</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<i class="no-highlight">1036</i>&nbsp;
+<b class="fc"><i class="no-highlight">1037</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">1038</i>&nbsp;        gameState.playCard(Card.CAT);</b>
+<b class="fc"><i class="no-highlight">1039</i>&nbsp;        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1040</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<i class="no-highlight">1041</i>&nbsp;
+<i class="no-highlight">1042</i>&nbsp;    }
+<i class="no-highlight">1043</i>&nbsp;
+<i class="no-highlight">1044</i>&nbsp;    @Test
+<i class="no-highlight">1045</i>&nbsp;    public void lastCardPlayed3() throws GameStateInitializationFailureException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+<b class="fc"><i class="no-highlight">1046</i>&nbsp;        GameState gameState = new GameState(3);</b>
+<i class="no-highlight">1047</i>&nbsp;
+<b class="fc"><i class="no-highlight">1048</i>&nbsp;        assertEquals(Map.of(), gameState.schoolBoardIdsToLastCardPlayed);</b>
+<i class="no-highlight">1049</i>&nbsp;
+<b class="fc"><i class="no-highlight">1050</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">1051</i>&nbsp;        gameState.playCard(Card.DOG);</b>
+<b class="fc"><i class="no-highlight">1052</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<i class="no-highlight">1053</i>&nbsp;
+<b class="fc"><i class="no-highlight">1054</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">1055</i>&nbsp;        gameState.playCard(Card.GOOSE);</b>
+<b class="fc"><i class="no-highlight">1056</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1057</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<i class="no-highlight">1058</i>&nbsp;
+<b class="fc"><i class="no-highlight">1059</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">1060</i>&nbsp;        gameState.playCard(Card.OCTOPUS);</b>
+<b class="fc"><i class="no-highlight">1061</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1062</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<b class="fc"><i class="no-highlight">1063</i>&nbsp;        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));</b>
+<i class="no-highlight">1064</i>&nbsp;
+<b class="fc"><i class="no-highlight">1065</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">1066</i>&nbsp;        gameState.playCard(Card.CAT);</b>
+<b class="fc"><i class="no-highlight">1067</i>&nbsp;        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1068</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<b class="fc"><i class="no-highlight">1069</i>&nbsp;        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));</b>
+<i class="no-highlight">1070</i>&nbsp;
+<b class="fc"><i class="no-highlight">1071</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">1072</i>&nbsp;        gameState.playCard(Card.DOG);</b>
+<b class="fc"><i class="no-highlight">1073</i>&nbsp;        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1074</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<b class="fc"><i class="no-highlight">1075</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(2));</b>
+<i class="no-highlight">1076</i>&nbsp;
+<i class="no-highlight">1077</i>&nbsp;    }
+<i class="no-highlight">1078</i>&nbsp;
+<i class="no-highlight">1079</i>&nbsp;    @Test
+<i class="no-highlight">1080</i>&nbsp;    public void lastCardPlayed4() throws GameStateInitializationFailureException, InvalidCardPlayedException, CardIsNotInTheDeckException {
+<b class="fc"><i class="no-highlight">1081</i>&nbsp;        GameState gameState = new GameState(4);</b>
+<i class="no-highlight">1082</i>&nbsp;
+<b class="fc"><i class="no-highlight">1083</i>&nbsp;        assertEquals(Map.of(), gameState.schoolBoardIdsToLastCardPlayed);</b>
+<i class="no-highlight">1084</i>&nbsp;
+<b class="fc"><i class="no-highlight">1085</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">1086</i>&nbsp;        gameState.playCard(Card.DOG);</b>
+<b class="fc"><i class="no-highlight">1087</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<i class="no-highlight">1088</i>&nbsp;
+<b class="fc"><i class="no-highlight">1089</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(1);</b>
+<b class="fc"><i class="no-highlight">1090</i>&nbsp;        gameState.playCard(Card.GOOSE);</b>
+<b class="fc"><i class="no-highlight">1091</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1092</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<i class="no-highlight">1093</i>&nbsp;
+<b class="fc"><i class="no-highlight">1094</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">1095</i>&nbsp;        gameState.playCard(Card.OCTOPUS);</b>
+<b class="fc"><i class="no-highlight">1096</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1097</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<b class="fc"><i class="no-highlight">1098</i>&nbsp;        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));</b>
+<i class="no-highlight">1099</i>&nbsp;
+<b class="fc"><i class="no-highlight">1100</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(3);</b>
+<b class="fc"><i class="no-highlight">1101</i>&nbsp;        gameState.playCard(Card.TURTLE);</b>
+<b class="fc"><i class="no-highlight">1102</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1103</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<b class="fc"><i class="no-highlight">1104</i>&nbsp;        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));</b>
+<b class="fc"><i class="no-highlight">1105</i>&nbsp;        assertEquals(Card.TURTLE, gameState.schoolBoardIdsToLastCardPlayed.get(3));</b>
+<i class="no-highlight">1106</i>&nbsp;
+<b class="fc"><i class="no-highlight">1107</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(0);</b>
+<b class="fc"><i class="no-highlight">1108</i>&nbsp;        gameState.playCard(Card.CAT);</b>
+<b class="fc"><i class="no-highlight">1109</i>&nbsp;        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1110</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<b class="fc"><i class="no-highlight">1111</i>&nbsp;        assertEquals(Card.OCTOPUS, gameState.schoolBoardIdsToLastCardPlayed.get(2));</b>
+<b class="fc"><i class="no-highlight">1112</i>&nbsp;        assertEquals(Card.TURTLE, gameState.schoolBoardIdsToLastCardPlayed.get(3));</b>
+<i class="no-highlight">1113</i>&nbsp;
+<b class="fc"><i class="no-highlight">1114</i>&nbsp;        gameState.setCurrentPlayerSchoolBoardId(2);</b>
+<b class="fc"><i class="no-highlight">1115</i>&nbsp;        gameState.playCard(Card.DOG);</b>
+<b class="fc"><i class="no-highlight">1116</i>&nbsp;        assertEquals(Card.CAT, gameState.schoolBoardIdsToLastCardPlayed.get(0));</b>
+<b class="fc"><i class="no-highlight">1117</i>&nbsp;        assertEquals(Card.GOOSE, gameState.schoolBoardIdsToLastCardPlayed.get(1));</b>
+<b class="fc"><i class="no-highlight">1118</i>&nbsp;        assertEquals(Card.DOG, gameState.schoolBoardIdsToLastCardPlayed.get(2));</b>
+<b class="fc"><i class="no-highlight">1119</i>&nbsp;        assertEquals(Card.TURTLE, gameState.schoolBoardIdsToLastCardPlayed.get(3));</b>
+<i class="no-highlight">1120</i>&nbsp;
+<i class="no-highlight">1121</i>&nbsp;    }
+<i class="no-highlight">1122</i>&nbsp;}
+<i class="no-highlight">1123</i>&nbsp;
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

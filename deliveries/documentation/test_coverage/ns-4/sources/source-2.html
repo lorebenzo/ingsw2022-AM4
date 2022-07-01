@@ -1,0 +1,193 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > GameControllerTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.controller.game_controller</a>
+</div>
+
+<h1>Coverage Summary for Class: GameControllerTest (it.polimi.ingsw.server.controller.game_controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameControllerTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.3%
+  </span>
+  <span class="absValue">
+    (33/35)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.controller.game_controller;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.Peer;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.entities.Player;
+<i class="no-highlight">5</i>&nbsp;import org.junit.jupiter.api.Test;
+<i class="no-highlight">6</i>&nbsp;
+<i class="no-highlight">7</i>&nbsp;import java.net.Socket;
+<i class="no-highlight">8</i>&nbsp;import static org.junit.jupiter.api.Assertions.*;
+<i class="no-highlight">9</i>&nbsp;import java.util.UUID;
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;
+<b class="fc"><i class="no-highlight">12</i>&nbsp;public class GameControllerTest {</b>
+<i class="no-highlight">13</i>&nbsp;
+<i class="no-highlight">14</i>&nbsp;    @Test
+<i class="no-highlight">15</i>&nbsp;    public void testActivePlayers() {
+<i class="no-highlight">16</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">17</i>&nbsp;            GameController gameController = new GameController(UUID.randomUUID(), false);</b>
+<i class="no-highlight">18</i>&nbsp;
+<b class="fc"><i class="no-highlight">19</i>&nbsp;            var firstPlayerPeer = new Peer(new Socket());</b>
+<b class="fc"><i class="no-highlight">20</i>&nbsp;            gameController.addPlayer(new Player(firstPlayerPeer, &quot;user1&quot;));</b>
+<b class="fc"><i class="no-highlight">21</i>&nbsp;            gameController.addPlayer(new Player(new Peer(new Socket()), &quot;user2&quot;));</b>
+<i class="no-highlight">22</i>&nbsp;
+<i class="no-highlight">23</i>&nbsp;            // It contains user1, and the relative peer
+<b class="fc"><i class="no-highlight">24</i>&nbsp;            assertTrue(gameController.containsPlayer(&quot;user1&quot;));</b>
+<b class="fc"><i class="no-highlight">25</i>&nbsp;            assertTrue(gameController.containsPeer(firstPlayerPeer));</b>
+<i class="no-highlight">26</i>&nbsp;
+<b class="fc"><i class="no-highlight">27</i>&nbsp;            assertFalse(gameController.containsPlayer(&quot;user4&quot;));</b>
+<b class="fc"><i class="no-highlight">28</i>&nbsp;            assertFalse(gameController.containsPeer(null));</b>
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;            // Get the peer from the username
+<b class="fc"><i class="no-highlight">31</i>&nbsp;            assertEquals(gameController.getPeerFromPlayer(&quot;user1&quot;).get(), firstPlayerPeer);</b>
+<b class="fc"><i class="no-highlight">32</i>&nbsp;            assertNotEquals(gameController.getPeerFromPlayer(&quot;user2&quot;).get(), firstPlayerPeer);</b>
+<b class="fc"><i class="no-highlight">33</i>&nbsp;            assertTrue(gameController.getPeerFromPlayer(&quot;nouser&quot;).isEmpty());</b>
+<i class="no-highlight">34</i>&nbsp;
+<i class="no-highlight">35</i>&nbsp;            // Assert the active players be 2
+<b class="fc"><i class="no-highlight">36</i>&nbsp;            assertEquals(gameController.activePlayers(), 2);</b>
+<i class="no-highlight">37</i>&nbsp;
+<i class="no-highlight">38</i>&nbsp;            // Remove one player, active players decreased to 1
+<b class="fc"><i class="no-highlight">39</i>&nbsp;            gameController.setInactivePlayer(firstPlayerPeer);</b>
+<b class="fc"><i class="no-highlight">40</i>&nbsp;            assertEquals(gameController.activePlayers(), 1);</b>
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;            // Remove the player that I have already removed, it should not impact che active players
+<b class="fc"><i class="no-highlight">43</i>&nbsp;            gameController.setInactivePlayer(firstPlayerPeer);</b>
+<b class="fc"><i class="no-highlight">44</i>&nbsp;            assertEquals(gameController.activePlayers(), 1);</b>
+<i class="no-highlight">45</i>&nbsp;
+<i class="no-highlight">46</i>&nbsp;
+<i class="no-highlight">47</i>&nbsp;            // The players size remains unchanged
+<b class="fc"><i class="no-highlight">48</i>&nbsp;            assertEquals(gameController.getPlayers().size(), 2);</b>
+<i class="no-highlight">49</i>&nbsp;
+<i class="no-highlight">50</i>&nbsp;
+<i class="no-highlight">51</i>&nbsp;            // The players contained are user1 and user2
+<b class="fc"><i class="no-highlight">52</i>&nbsp;            assertTrue(gameController.getPlayers().stream()</b>
+<b class="fc"><i class="no-highlight">53</i>&nbsp;                    .anyMatch(player -&gt; player.username.equals(&quot;user1&quot;))</b>
+<i class="no-highlight">54</i>&nbsp;            );
+<i class="no-highlight">55</i>&nbsp;
+<b class="fc"><i class="no-highlight">56</i>&nbsp;            assertTrue(gameController.getPlayers().stream()</b>
+<b class="fc"><i class="no-highlight">57</i>&nbsp;                    .anyMatch(player -&gt; player.username.equals(&quot;user2&quot;))</b>
+<i class="no-highlight">58</i>&nbsp;            );
+<i class="no-highlight">59</i>&nbsp;
+<b class="fc"><i class="no-highlight">60</i>&nbsp;            gameController.removePlayer(&quot;user1&quot;);</b>
+<i class="no-highlight">61</i>&nbsp;            // Players size is now 1
+<b class="fc"><i class="no-highlight">62</i>&nbsp;            assertEquals(gameController.getPlayers().size(), 1);</b>
+<i class="no-highlight">63</i>&nbsp;            // Active players is now 1
+<b class="fc"><i class="no-highlight">64</i>&nbsp;            assertEquals(gameController.activePlayers(), 1);</b>
+<i class="no-highlight">65</i>&nbsp;
+<b class="nc"><i class="no-highlight">66</i>&nbsp;        } catch (Exception e) {</b>
+<b class="nc"><i class="no-highlight">67</i>&nbsp;            fail();</b>
+<b class="fc"><i class="no-highlight">68</i>&nbsp;        }</b>
+<i class="no-highlight">69</i>&nbsp;    }
+<i class="no-highlight">70</i>&nbsp;
+<i class="no-highlight">71</i>&nbsp;
+<i class="no-highlight">72</i>&nbsp;    @Test
+<i class="no-highlight">73</i>&nbsp;    public void testUpdatePeerIfOlder() {
+<b class="fc"><i class="no-highlight">74</i>&nbsp;        GameController gameController = new GameController(UUID.randomUUID(), false);</b>
+<i class="no-highlight">75</i>&nbsp;
+<b class="fc"><i class="no-highlight">76</i>&nbsp;        gameController.addPlayer(new Player(new Peer(new Socket()), &quot;user1&quot;));</b>
+<b class="fc"><i class="no-highlight">77</i>&nbsp;        gameController.addPlayer(new Player(new Peer(new Socket()), &quot;user2&quot;));</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;        var changedPeer = new Peer(new Socket());</b>
+<i class="no-highlight">79</i>&nbsp;
+<i class="no-highlight">80</i>&nbsp;        // Tries to update the old peer
+<b class="fc"><i class="no-highlight">81</i>&nbsp;        gameController.updatePeerIfOlder(&quot;user1&quot;, changedPeer);</b>
+<i class="no-highlight">82</i>&nbsp;
+<i class="no-highlight">83</i>&nbsp;
+<b class="fc"><i class="no-highlight">84</i>&nbsp;        assertEquals(gameController.getPeerFromPlayer(&quot;user1&quot;).get(), changedPeer);</b>
+<i class="no-highlight">85</i>&nbsp;
+<b class="fc"><i class="no-highlight">86</i>&nbsp;        assertThrows(IllegalArgumentException.class, () -&gt; gameController.updatePeerIfOlder(null, null));</b>
+<i class="no-highlight">87</i>&nbsp;    }
+<i class="no-highlight">88</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

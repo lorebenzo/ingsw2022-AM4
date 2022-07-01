@@ -1,0 +1,196 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Character</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.model.game_logic.enums</a>
+</div>
+
+<h1>Coverage Summary for Class: Character (it.polimi.ingsw.server.model.game_logic.enums)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Character</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (3/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    86.4%
+  </span>
+  <span class="absValue">
+    (19/22)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.model.game_logic.enums;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import java.util.Arrays;
+<i class="no-highlight">4</i>&nbsp;import java.util.Optional;
+<i class="no-highlight">5</i>&nbsp;
+<b class="fc"><i class="no-highlight">6</i>&nbsp;public enum Character {</b>
+<b class="fc"><i class="no-highlight">7</i>&nbsp;    NONE(</b>
+<i class="no-highlight">8</i>&nbsp;            0,
+<i class="no-highlight">9</i>&nbsp;            0,
+<i class="no-highlight">10</i>&nbsp;            &quot;&quot;,
+<i class="no-highlight">11</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">12</i>&nbsp;    PUT_ONE_STUDENT_FROM_CHARACTER_TO_ARCHIPELAGO(</b>
+<i class="no-highlight">13</i>&nbsp;            1,
+<i class="no-highlight">14</i>&nbsp;            1,
+<i class="no-highlight">15</i>&nbsp;            &quot;Take 1 Student from this card and place it on an Island of your choice. Then, a new Student will be drawn from the Bag and will be placed on this card.&quot;,
+<i class="no-highlight">16</i>&nbsp;            4),
+<b class="fc"><i class="no-highlight">17</i>&nbsp;    GET_PROFESSORS_WITH_SAME_STUDENTS(</b>
+<i class="no-highlight">18</i>&nbsp;            2,
+<i class="no-highlight">19</i>&nbsp;            2,
+<i class="no-highlight">20</i>&nbsp;            &quot;During this turn, you take control of any number of Professors even if you have the same number of Students in your dining room as the player who currently controls them.&quot;,
+<i class="no-highlight">21</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">22</i>&nbsp;    MOVE_MOTHER_NATURE_TO_ANY_ARCHIPELAGO(</b>
+<i class="no-highlight">23</i>&nbsp;            3,
+<i class="no-highlight">24</i>&nbsp;            3,
+<i class="no-highlight">25</i>&nbsp;            &quot;Choose an Island and resolve the Island as if Mother Nature had ended her movement there. Mother Nature will still move and the Island where she ends her movement will also be resolved.&quot;,
+<i class="no-highlight">26</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">27</i>&nbsp;    TWO_ADDITIONAL_STEPS(</b>
+<i class="no-highlight">28</i>&nbsp;            4,
+<i class="no-highlight">29</i>&nbsp;            1,
+<i class="no-highlight">30</i>&nbsp;            &quot;You may move Mother Nature up to 2 additional Islands than is indicated by the Assistant card you&#39;ve played.&quot;,
+<i class="no-highlight">31</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">32</i>&nbsp;    LOCK_ARCHIPELAGO(</b>
+<i class="no-highlight">33</i>&nbsp;            5,
+<i class="no-highlight">34</i>&nbsp;            2,
+<i class="no-highlight">35</i>&nbsp;            &quot;Place a No Entry tile on an Island of your choice. The first time Mother Nature ends her movement there, the No Entry tile will return onto this card. No influences will be calculated on that Island and no Towers will be placed.&quot;,
+<i class="no-highlight">36</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">37</i>&nbsp;    TOWERS_DONT_COUNT(</b>
+<i class="no-highlight">38</i>&nbsp;            6,
+<i class="no-highlight">39</i>&nbsp;            3,
+<i class="no-highlight">40</i>&nbsp;            &quot;When resolving a Conquering on an Island, Towers do not count towards influence.&quot;,
+<i class="no-highlight">41</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">42</i>&nbsp;    SWAP_THREE_STUDENTS_BETWEEN_CHARACTER_AND_ENTRANCE(</b>
+<i class="no-highlight">43</i>&nbsp;            7,
+<i class="no-highlight">44</i>&nbsp;            1,
+<i class="no-highlight">45</i>&nbsp;            &quot;You may take up to 3 Students from this card and replace them with the same number of Students from your Entrance.&quot;,
+<i class="no-highlight">46</i>&nbsp;            6),
+<b class="fc"><i class="no-highlight">47</i>&nbsp;    TWO_ADDITIONAL_INFLUENCE(</b>
+<i class="no-highlight">48</i>&nbsp;            8,
+<i class="no-highlight">49</i>&nbsp;            2,
+<i class="no-highlight">50</i>&nbsp;            &quot;During the influence calculation this turn, you count as having 2 more influence.&quot;,
+<i class="no-highlight">51</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">52</i>&nbsp;    COLOR_DOESNT_COUNT(</b>
+<i class="no-highlight">53</i>&nbsp;            9,
+<i class="no-highlight">54</i>&nbsp;            3,
+<i class="no-highlight">55</i>&nbsp;            &quot;Choose a color of Student: during the influence calculation this turn, that color adds no influence.&quot;,
+<i class="no-highlight">56</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">57</i>&nbsp;    SWAP_TWO_STUDENTS_BETWEEN_ENTRANCE_AND_DINING_ROOM(</b>
+<i class="no-highlight">58</i>&nbsp;            10,
+<i class="no-highlight">59</i>&nbsp;            1,
+<i class="no-highlight">60</i>&nbsp;            &quot;You may exchange up to 2 Students between your Entrance and your Dining Room.&quot;,
+<i class="no-highlight">61</i>&nbsp;            0),
+<b class="fc"><i class="no-highlight">62</i>&nbsp;    PUT_ONE_STUDENT_FROM_CHARACTER_INTO_DINING_ROOM(</b>
+<i class="no-highlight">63</i>&nbsp;            11,
+<i class="no-highlight">64</i>&nbsp;            2,
+<i class="no-highlight">65</i>&nbsp;            &quot;Take 1 Student from this card and place it in your Dining Room. Then, draw a new Student from the Bag and place it on this card.&quot;,
+<i class="no-highlight">66</i>&nbsp;            4),
+<b class="fc"><i class="no-highlight">67</i>&nbsp;    PUT_THREE_STUDENTS_IN_THE_BAG(</b>
+<i class="no-highlight">68</i>&nbsp;            12,
+<i class="no-highlight">69</i>&nbsp;            3,
+<i class="no-highlight">70</i>&nbsp;            &quot;Choose a type of Student: every player (including yourself) must return 3 Students of that type from their Dining Room to the bag.&quot; +
+<i class="no-highlight">71</i>&nbsp;                    &quot;If any player has fewer than 3 Student of that type, they return as many Students as they have.&quot;,
+<i class="no-highlight">72</i>&nbsp;            0);
+<i class="no-highlight">73</i>&nbsp;
+<i class="no-highlight">74</i>&nbsp;    public final int characterId;
+<i class="no-highlight">75</i>&nbsp;    public final int initialCost;
+<i class="no-highlight">76</i>&nbsp;    public final String effect;
+<i class="no-highlight">77</i>&nbsp;    public final int studentsNumberOnCharacter;
+<i class="no-highlight">78</i>&nbsp;
+<b class="fc"><i class="no-highlight">79</i>&nbsp;    Character(int characterId, int initialCost, String effect, int studentsNumberOnCharacter) {</b>
+<b class="fc"><i class="no-highlight">80</i>&nbsp;        this.characterId = characterId;</b>
+<b class="fc"><i class="no-highlight">81</i>&nbsp;        this.initialCost = initialCost;</b>
+<b class="fc"><i class="no-highlight">82</i>&nbsp;        this.effect = effect;</b>
+<b class="fc"><i class="no-highlight">83</i>&nbsp;        this.studentsNumberOnCharacter = studentsNumberOnCharacter;</b>
+<i class="no-highlight">84</i>&nbsp;    }
+<i class="no-highlight">85</i>&nbsp;
+<i class="no-highlight">86</i>&nbsp;    public static Optional&lt;Character&gt; fromId(int i) {
+<b class="nc"><i class="no-highlight">87</i>&nbsp;        return Arrays.stream(Character.values())</b>
+<b class="nc"><i class="no-highlight">88</i>&nbsp;                .filter(character -&gt; character.characterId == i)</b>
+<b class="nc"><i class="no-highlight">89</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">90</i>&nbsp;    }
+<i class="no-highlight">91</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>

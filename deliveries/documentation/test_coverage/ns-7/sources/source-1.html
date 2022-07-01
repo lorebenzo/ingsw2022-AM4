@@ -1,0 +1,429 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > GamesManager</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.server.controller.games_manager</a>
+</div>
+
+<h1>Coverage Summary for Class: GamesManager (it.polimi.ingsw.server.controller.games_manager)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GamesManager</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    9.5%
+  </span>
+  <span class="absValue">
+    (2/21)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    6.6%
+  </span>
+  <span class="absValue">
+    (8/122)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package it.polimi.ingsw.server.controller.games_manager;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.Peer;
+<i class="no-highlight">4</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.SugarServer;
+<i class="no-highlight">5</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.exceptions.RoomNotFoundException;
+<i class="no-highlight">6</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageFromLowerLayersHandler;
+<i class="no-highlight">7</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler;
+<i class="no-highlight">8</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor;
+<i class="no-highlight">9</i>&nbsp;import it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage;
+<i class="no-highlight">10</i>&nbsp;import it.polimi.ingsw.server.controller.auth_controller.AuthController;
+<i class="no-highlight">11</i>&nbsp;import it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg;
+<i class="no-highlight">12</i>&nbsp;import it.polimi.ingsw.server.controller.game_state_controller.messages.*;
+<i class="no-highlight">13</i>&nbsp;import it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg;
+<i class="no-highlight">14</i>&nbsp;import it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg;
+<i class="no-highlight">15</i>&nbsp;import it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg;
+<i class="no-highlight">16</i>&nbsp;import it.polimi.ingsw.server.controller.games_manager.messages.enums.ReturnMessage;
+<i class="no-highlight">17</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.entities.Player;
+<i class="no-highlight">18</i>&nbsp;import it.polimi.ingsw.server.controller.game_controller.GameController;
+<i class="no-highlight">19</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException;
+<i class="no-highlight">20</i>&nbsp;import it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException;
+<i class="no-highlight">21</i>&nbsp;import it.polimi.ingsw.server.repository.GamesRepository;
+<i class="no-highlight">22</i>&nbsp;import it.polimi.ingsw.utils.multilist.MultiList;
+<i class="no-highlight">23</i>&nbsp;import org.jetbrains.annotations.NotNull;
+<i class="no-highlight">24</i>&nbsp;
+<i class="no-highlight">25</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">26</i>&nbsp;import java.util.*;
+<i class="no-highlight">27</i>&nbsp;import java.util.concurrent.ScheduledThreadPoolExecutor;
+<i class="no-highlight">28</i>&nbsp;import java.util.concurrent.TimeUnit;
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;public class GamesManager extends SugarMessageProcessor {
+<b class="fc"><i class="no-highlight">31</i>&nbsp;    private final List&lt;GameController&gt; games = new LinkedList&lt;&gt;();</b>
+<i class="no-highlight">32</i>&nbsp;    private final SugarServer server;
+<b class="fc"><i class="no-highlight">33</i>&nbsp;    private final MultiList&lt;Player, Integer, Boolean&gt; matchMakingList = new MultiList&lt;&gt;();</b>
+<b class="fc"><i class="no-highlight">34</i>&nbsp;    private final GamesRepository gamesRepository = GamesRepository.getInstance();</b>
+<b class="fc"><i class="no-highlight">35</i>&nbsp;    ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(4);</b>
+<i class="no-highlight">36</i>&nbsp;
+<i class="no-highlight">37</i>&nbsp;
+<b class="fc"><i class="no-highlight">38</i>&nbsp;    public GamesManager(SugarServer server) {</b>
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        this.server = server;</b>
+<i class="no-highlight">40</i>&nbsp;    }
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;    /**
+<i class="no-highlight">43</i>&nbsp;     * Returns the games where the user is playing
+<i class="no-highlight">44</i>&nbsp;     * @param message
+<i class="no-highlight">45</i>&nbsp;     * @param peer
+<i class="no-highlight">46</i>&nbsp;     * @return a GamesUpdateMsg
+<i class="no-highlight">47</i>&nbsp;     */
+<i class="no-highlight">48</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">49</i>&nbsp;    public SugarMessage getGamesMsg(SugarMessage message, Peer peer) {
+<b class="nc"><i class="no-highlight">50</i>&nbsp;        var msg = (GetGamesMsg) message;</b>
+<b class="nc"><i class="no-highlight">51</i>&nbsp;        var username = AuthController.getUsernameFromJWT(msg.jwt);</b>
+<i class="no-highlight">52</i>&nbsp;
+<b class="nc"><i class="no-highlight">53</i>&nbsp;        var gameController = this.games.stream()</b>
+<b class="nc"><i class="no-highlight">54</i>&nbsp;            .filter(gc -&gt; gc.containsPlayer(username))</b>
+<b class="nc"><i class="no-highlight">55</i>&nbsp;            .findFirst();</b>
+<i class="no-highlight">56</i>&nbsp;
+<i class="no-highlight">57</i>&nbsp;        // Game controller UUID if present, or else is null
+<b class="nc"><i class="no-highlight">58</i>&nbsp;        var gameControllerUUID = gameController</b>
+<b class="nc"><i class="no-highlight">59</i>&nbsp;                .map(controller -&gt; controller.roomId)</b>
+<b class="nc"><i class="no-highlight">60</i>&nbsp;                .orElse(null);</b>
+<i class="no-highlight">61</i>&nbsp;
+<b class="nc"><i class="no-highlight">62</i>&nbsp;        return new GamesUpdateMsg(gameControllerUUID);</b>
+<i class="no-highlight">63</i>&nbsp;    }
+<i class="no-highlight">64</i>&nbsp;
+<i class="no-highlight">65</i>&nbsp;    /**
+<i class="no-highlight">66</i>&nbsp;     * Join MatchMaking Controller
+<i class="no-highlight">67</i>&nbsp;     * If a user is not in the matchmaking, it&#39;ll be added to the matchmaking list
+<i class="no-highlight">68</i>&nbsp;     * it does nothing if a user is already in the matchmaking, it will be added to the matchmaking with the newest configuration otherwise
+<i class="no-highlight">69</i>&nbsp;     * @param message
+<i class="no-highlight">70</i>&nbsp;     * @param peer
+<i class="no-highlight">71</i>&nbsp;     * @return an OKMsg
+<i class="no-highlight">72</i>&nbsp;     */
+<i class="no-highlight">73</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">74</i>&nbsp;    public SugarMessage joinMatchMakingMsg(SugarMessage message, Peer peer) {
+<b class="nc"><i class="no-highlight">75</i>&nbsp;        var msg = (JoinMatchMakingMsg) message;</b>
+<b class="nc"><i class="no-highlight">76</i>&nbsp;        var username = AuthController.getUsernameFromJWT(msg.jwt);</b>
+<i class="no-highlight">77</i>&nbsp;
+<i class="no-highlight">78</i>&nbsp;        // if there is already the player in the matchmaking list, it removes him
+<b class="nc"><i class="no-highlight">79</i>&nbsp;        matchMakingList.remove(new Player(peer, username));</b>
+<i class="no-highlight">80</i>&nbsp;
+<i class="no-highlight">81</i>&nbsp;        // If player was already in another game, it removes it from the game
+<b class="nc"><i class="no-highlight">82</i>&nbsp;        this.games.stream()</b>
+<b class="nc"><i class="no-highlight">83</i>&nbsp;                .filter(gc -&gt; gc.containsPlayer(username))</b>
+<b class="nc"><i class="no-highlight">84</i>&nbsp;                .findFirst()</b>
+<b class="nc"><i class="no-highlight">85</i>&nbsp;                .ifPresent((gameController) -&gt; gameController.removePlayer(username));</b>
+<i class="no-highlight">86</i>&nbsp;
+<i class="no-highlight">87</i>&nbsp;        // Add the peer to the matchmaking room
+<b class="nc"><i class="no-highlight">88</i>&nbsp;        this.matchMakingList.add(new Player(peer, username), msg.numberOfPlayers, msg.expertMode);</b>
+<i class="no-highlight">89</i>&nbsp;
+<i class="no-highlight">90</i>&nbsp;        // Check if a game can be created
+<b class="nc"><i class="no-highlight">91</i>&nbsp;        this.createMatchIfPossible(msg.numberOfPlayers, msg.expertMode);</b>
+<i class="no-highlight">92</i>&nbsp;
+<b class="nc"><i class="no-highlight">93</i>&nbsp;        return new OKMsg(ReturnMessage.JOIN_MATCHMAKING_SUCCESS.text);</b>
+<i class="no-highlight">94</i>&nbsp;    }
+<i class="no-highlight">95</i>&nbsp;
+<i class="no-highlight">96</i>&nbsp;    /**
+<i class="no-highlight">97</i>&nbsp;     * Recovers all the matches from the repository
+<i class="no-highlight">98</i>&nbsp;     */
+<i class="no-highlight">99</i>&nbsp;    public void recoverCurrentGames() {
+<i class="no-highlight">100</i>&nbsp;        // Current game from repository
+<b class="fc"><i class="no-highlight">101</i>&nbsp;        var currentGames = this.gamesRepository.getCurrentGames();</b>
+<i class="no-highlight">102</i>&nbsp;
+<i class="no-highlight">103</i>&nbsp;        // Foreach game
+<b class="fc"><i class="no-highlight">104</i>&nbsp;        for(var game : currentGames.keySet()) {</b>
+<i class="no-highlight">105</i>&nbsp;            // Get players from the game
+<b class="nc"><i class="no-highlight">106</i>&nbsp;            var players = currentGames.get(game);</b>
+<i class="no-highlight">107</i>&nbsp;
+<b class="nc"><i class="no-highlight">108</i>&nbsp;            GameController gameController = null;</b>
+<b class="nc"><i class="no-highlight">109</i>&nbsp;            var gameUUID = game.getValue0();</b>
+<b class="nc"><i class="no-highlight">110</i>&nbsp;            var expertMode = game.getValue1();</b>
+<i class="no-highlight">111</i>&nbsp;
+<i class="no-highlight">112</i>&nbsp;            try {
+<b class="nc"><i class="no-highlight">113</i>&nbsp;                gameController = new GameController(UUID.fromString(gameUUID), players, expertMode);</b>
+<b class="nc"><i class="no-highlight">114</i>&nbsp;            } catch (GameStateInitializationFailureException e) {</b>
+<i class="no-highlight">115</i>&nbsp;                // Problem while reconstruction of the match
+<b class="nc"><i class="no-highlight">116</i>&nbsp;                System.err.println(&quot;Problem with the reconstruction of the &quot; + gameUUID + &quot; game.&quot;);</b>
+<b class="nc"><i class="no-highlight">117</i>&nbsp;            }</b>
+<i class="no-highlight">118</i>&nbsp;
+<b class="nc"><i class="no-highlight">119</i>&nbsp;            if(gameController != null) this.games.add(gameController);</b>
+<b class="nc"><i class="no-highlight">120</i>&nbsp;        }</b>
+<i class="no-highlight">121</i>&nbsp;    }
+<i class="no-highlight">122</i>&nbsp;
+<i class="no-highlight">123</i>&nbsp;    /**
+<i class="no-highlight">124</i>&nbsp;     * Creates a match if there are players in the matchmaking list that satisfies the constraints
+<i class="no-highlight">125</i>&nbsp;     * @param numberOfPlayers of the match
+<i class="no-highlight">126</i>&nbsp;     * @param expertMode of the match
+<i class="no-highlight">127</i>&nbsp;     */
+<i class="no-highlight">128</i>&nbsp;    private void createMatchIfPossible(int numberOfPlayers, boolean expertMode) {
+<i class="no-highlight">129</i>&nbsp;        // Remove all the inactive peers from the matchmaking list
+<b class="nc"><i class="no-highlight">130</i>&nbsp;        Set&lt;Player&gt; playersToRemove = new HashSet&lt;&gt;();</b>
+<b class="nc"><i class="no-highlight">131</i>&nbsp;        this.matchMakingList.forEach((player, numOfPlayers, expMode) -&gt; {</b>
+<b class="nc"><i class="no-highlight">132</i>&nbsp;            if(player.associatedPeer.peerSocket.isClosed()) playersToRemove.add(player);</b>
+<i class="no-highlight">133</i>&nbsp;        });
+<b class="nc"><i class="no-highlight">134</i>&nbsp;        playersToRemove.forEach(this.matchMakingList::remove);</b>
+<i class="no-highlight">135</i>&nbsp;
+<i class="no-highlight">136</i>&nbsp;        // Filter the peers that are waiting in the matchmaking room, and they have the same match preferences as the
+<i class="no-highlight">137</i>&nbsp;        // peer that just joined the room
+<b class="nc"><i class="no-highlight">138</i>&nbsp;        var filteredMatchMakingList = this.matchMakingList.filter(</b>
+<b class="nc"><i class="no-highlight">139</i>&nbsp;                (peer, numPlayers, expMode) -&gt; numPlayers == numberOfPlayers &amp;&amp; expMode == expertMode</b>
+<i class="no-highlight">140</i>&nbsp;        );
+<b class="nc"><i class="no-highlight">141</i>&nbsp;        if( filteredMatchMakingList.size() == numberOfPlayers ) {</b>
+<i class="no-highlight">142</i>&nbsp;            // Start match
+<b class="nc"><i class="no-highlight">143</i>&nbsp;            var gameRoomId = this.server.createRoom();</b>
+<b class="nc"><i class="no-highlight">144</i>&nbsp;            var gameController = new GameController(gameRoomId, expertMode);</b>
+<i class="no-highlight">145</i>&nbsp;            // Add players to the game controller
+<b class="nc"><i class="no-highlight">146</i>&nbsp;            filteredMatchMakingList.forEach((player, numPlayers, expMode) -&gt; gameController.addPlayer(player));</b>
+<i class="no-highlight">147</i>&nbsp;
+<i class="no-highlight">148</i>&nbsp;            try {
+<b class="nc"><i class="no-highlight">149</i>&nbsp;                filteredMatchMakingList.forEach((player, nPlayers, expMode) -&gt; this.server.getRoom(gameRoomId).addPeer(player.associatedPeer));</b>
+<i class="no-highlight">150</i>&nbsp;
+<b class="nc"><i class="no-highlight">151</i>&nbsp;                gameController.startGame();</b>
+<b class="nc"><i class="no-highlight">152</i>&nbsp;                this.gameLogicMulticast(gameController, new OKMsg(ReturnMessage.JOIN_GAME_SUCCESS.text));</b>
+<b class="nc"><i class="no-highlight">153</i>&nbsp;                this.gameLogicMulticast(gameController, new UpdateClientMsg(gameController.getLightGameState()));</b>
+<i class="no-highlight">154</i>&nbsp;
+<b class="nc"><i class="no-highlight">155</i>&nbsp;                this.games.add(gameController);</b>
+<i class="no-highlight">156</i>&nbsp;
+<i class="no-highlight">157</i>&nbsp;                // Remove from the matchmaking peers that joined the game
+<b class="nc"><i class="no-highlight">158</i>&nbsp;                filteredMatchMakingList.forEach((peer, nPlayers, expMode) -&gt; this.matchMakingList.remove(peer));</b>
+<b class="nc"><i class="no-highlight">159</i>&nbsp;            } catch (GameStateInitializationFailureException e) {</b>
+<i class="no-highlight">160</i>&nbsp;                try {
+<b class="nc"><i class="no-highlight">161</i>&nbsp;                    this.server.multicastToRoom(gameRoomId, new KOMsg(ReturnMessage.DELETING_GAME.text));</b>
+<b class="nc"><i class="no-highlight">162</i>&nbsp;                } catch (IOException | RoomNotFoundException ignored) { }</b>
+<b class="nc"><i class="no-highlight">163</i>&nbsp;            } catch (EmptyStudentSupplyException e) {</b>
+<b class="nc"><i class="no-highlight">164</i>&nbsp;                e.printStackTrace();</b>
+<b class="nc"><i class="no-highlight">165</i>&nbsp;            }</b>
+<i class="no-highlight">166</i>&nbsp;        }
+<i class="no-highlight">167</i>&nbsp;    }
+<i class="no-highlight">168</i>&nbsp;
+<i class="no-highlight">169</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">170</i>&nbsp;    public SugarMessage reJoinMsg(SugarMessage sugarMessage, Peer peer) {
+<b class="nc"><i class="no-highlight">171</i>&nbsp;        var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);</b>
+<b class="nc"><i class="no-highlight">172</i>&nbsp;        var gameInvolvingPlayer = findGameInvolvingPlayer(username);</b>
+<i class="no-highlight">173</i>&nbsp;
+<b class="nc"><i class="no-highlight">174</i>&nbsp;        if(gameInvolvingPlayer.isPresent()) {</b>
+<b class="nc"><i class="no-highlight">175</i>&nbsp;            gameInvolvingPlayer.get().updatePeerIfOlder(username, peer);</b>
+<b class="nc"><i class="no-highlight">176</i>&nbsp;            return  new UpdateClientMsg(gameInvolvingPlayer.get().getLightGameState());</b>
+<i class="no-highlight">177</i>&nbsp;        }
+<i class="no-highlight">178</i>&nbsp;
+<b class="nc"><i class="no-highlight">179</i>&nbsp;        return new KOMsg(&quot;No game found&quot;);</b>
+<i class="no-highlight">180</i>&nbsp;    }
+<i class="no-highlight">181</i>&nbsp;
+<i class="no-highlight">182</i>&nbsp;    private Optional&lt;GameController&gt; findGameInvolvingPeer(Peer peer) {
+<b class="nc"><i class="no-highlight">183</i>&nbsp;        return this.games</b>
+<b class="nc"><i class="no-highlight">184</i>&nbsp;                .stream()</b>
+<b class="nc"><i class="no-highlight">185</i>&nbsp;                .filter(gameController -&gt; gameController.containsPeer(peer))</b>
+<b class="nc"><i class="no-highlight">186</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">187</i>&nbsp;    }
+<i class="no-highlight">188</i>&nbsp;
+<i class="no-highlight">189</i>&nbsp;    private Optional&lt;GameController&gt; findGameInvolvingPlayer(String player) {
+<b class="nc"><i class="no-highlight">190</i>&nbsp;        return this.games</b>
+<b class="nc"><i class="no-highlight">191</i>&nbsp;                .stream()</b>
+<b class="nc"><i class="no-highlight">192</i>&nbsp;                .filter(gameController -&gt; gameController.containsPlayer(player))</b>
+<b class="nc"><i class="no-highlight">193</i>&nbsp;                .findFirst();</b>
+<i class="no-highlight">194</i>&nbsp;    }
+<i class="no-highlight">195</i>&nbsp;
+<i class="no-highlight">196</i>&nbsp;    /**
+<i class="no-highlight">197</i>&nbsp;     * Sends a chat message to other players
+<i class="no-highlight">198</i>&nbsp;     * It can send to another player in the same game, otherwise can multicast
+<i class="no-highlight">199</i>&nbsp;     * the message to the team, or to all the game&#39;s participants
+<i class="no-highlight">200</i>&nbsp;     * @param message
+<i class="no-highlight">201</i>&nbsp;     * @param peer
+<i class="no-highlight">202</i>&nbsp;     */
+<i class="no-highlight">203</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">204</i>&nbsp;    public void chatMsg(SugarMessage message, Peer peer) {
+<b class="nc"><i class="no-highlight">205</i>&nbsp;        var msg = (ChatMsg) message;</b>
+<b class="nc"><i class="no-highlight">206</i>&nbsp;        var username = AuthController.getUsernameFromJWT(msg.jwt);</b>
+<b class="nc"><i class="no-highlight">207</i>&nbsp;        var gameController = findGameInvolvingPlayer(username);</b>
+<b class="nc"><i class="no-highlight">208</i>&nbsp;        @NotNull var textMessage = msg.message;</b>
+<i class="no-highlight">209</i>&nbsp;
+<b class="nc"><i class="no-highlight">210</i>&nbsp;        if(gameController.isPresent()) {</b>
+<i class="no-highlight">211</i>&nbsp;            // Send the message to all the players in the room
+<b class="nc"><i class="no-highlight">212</i>&nbsp;            if(msg.to.equals(&quot;all&quot;)) {</b>
+<b class="nc"><i class="no-highlight">213</i>&nbsp;                this.gameLogicMulticast(gameController.get(), new ChatMsg(username, &quot;all&quot;, textMessage));</b>
+<i class="no-highlight">214</i>&nbsp;            // Send the message only to my teammates
+<b class="nc"><i class="no-highlight">215</i>&nbsp;            } else if(msg.to.equals(&quot;team&quot;)) {</b>
+<b class="nc"><i class="no-highlight">216</i>&nbsp;                gameController.get()</b>
+<b class="nc"><i class="no-highlight">217</i>&nbsp;                        .getTeamPeers(username)</b>
+<b class="nc"><i class="no-highlight">218</i>&nbsp;                        .forEach(pr -&gt; this.send(new ChatMsg(username, &quot;team&quot;, textMessage), pr));</b>
+<i class="no-highlight">219</i>&nbsp;            // Send the message to a player
+<i class="no-highlight">220</i>&nbsp;            } else {
+<i class="no-highlight">221</i>&nbsp;                // Getting the peer from the username given, for sending the message
+<b class="nc"><i class="no-highlight">222</i>&nbsp;                var peerFromPlayer = gameController.get()</b>
+<b class="nc"><i class="no-highlight">223</i>&nbsp;                        .getPeerFromPlayer(msg.to);</b>
+<i class="no-highlight">224</i>&nbsp;
+<i class="no-highlight">225</i>&nbsp;                // Check if the user is present in the game or not
+<b class="nc"><i class="no-highlight">226</i>&nbsp;                peerFromPlayer.ifPresentOrElse(</b>
+<i class="no-highlight">227</i>&nbsp;                        pr -&gt; {
+<b class="nc"><i class="no-highlight">228</i>&nbsp;                            this.send(new ChatMsg(username, msg.to, textMessage), pr);</b>
+<b class="nc"><i class="no-highlight">229</i>&nbsp;                            this.send(new ChatMsg(username, username, textMessage), peer);</b>
+<i class="no-highlight">230</i>&nbsp;                        },
+<b class="nc"><i class="no-highlight">231</i>&nbsp;                        () -&gt;   this.send(new KOMsg(&quot;No user found in this game with the username given&quot;), peer))</b>
+<i class="no-highlight">232</i>&nbsp;                ;
+<b class="nc"><i class="no-highlight">233</i>&nbsp;            }</b>
+<i class="no-highlight">234</i>&nbsp;        // The game is not present, the user have probably provided a fake JWT token
+<i class="no-highlight">235</i>&nbsp;        } else {
+<b class="nc"><i class="no-highlight">236</i>&nbsp;            this.send(new KOMsg(&quot;No game found&quot;), peer);</b>
+<i class="no-highlight">237</i>&nbsp;        }
+<i class="no-highlight">238</i>&nbsp;    }
+<i class="no-highlight">239</i>&nbsp;
+<i class="no-highlight">240</i>&nbsp;    private void send(SugarMessage message, Peer peer) {
+<i class="no-highlight">241</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">242</i>&nbsp;            this.server.send(message, peer);</b>
+<i class="no-highlight">243</i>&nbsp;            // Socket error, ignored
+<b class="nc"><i class="no-highlight">244</i>&nbsp;        } catch (IOException ignored) {}</b>
+<i class="no-highlight">245</i>&nbsp;    }
+<i class="no-highlight">246</i>&nbsp;
+<i class="no-highlight">247</i>&nbsp;    /**
+<i class="no-highlight">248</i>&nbsp;     * Multicast the message to all the players connected to the game
+<i class="no-highlight">249</i>&nbsp;     * @param gameController of the game
+<i class="no-highlight">250</i>&nbsp;     * @param message to send
+<i class="no-highlight">251</i>&nbsp;     */
+<i class="no-highlight">252</i>&nbsp;    private void gameLogicMulticast(GameController gameController, SugarMessage message) {
+<i class="no-highlight">253</i>&nbsp;        // Take players from the gameController
+<b class="nc"><i class="no-highlight">254</i>&nbsp;        var players = gameController.getPlayers();</b>
+<i class="no-highlight">255</i>&nbsp;
+<i class="no-highlight">256</i>&nbsp;        // Foreach player
+<b class="nc"><i class="no-highlight">257</i>&nbsp;        for(var player: players) {</b>
+<i class="no-highlight">258</i>&nbsp;            // If there is a peer associated, it will send the message
+<b class="nc"><i class="no-highlight">259</i>&nbsp;            if(player.associatedPeer != null)</b>
+<i class="no-highlight">260</i>&nbsp;                try {
+<b class="nc"><i class="no-highlight">261</i>&nbsp;                    this.server.send(message, player.associatedPeer);</b>
+<b class="nc"><i class="no-highlight">262</i>&nbsp;                } catch (Exception ignored) {}</b>
+<b class="nc"><i class="no-highlight">263</i>&nbsp;        }</b>
+<i class="no-highlight">264</i>&nbsp;    }
+<i class="no-highlight">265</i>&nbsp;
+<i class="no-highlight">266</i>&nbsp;    /**
+<i class="no-highlight">267</i>&nbsp;     * If the users disconnects, it waits 30 seconds
+<i class="no-highlight">268</i>&nbsp;     * If the user reconnects to the server, the game will not be closed, will be closed otherwise
+<i class="no-highlight">269</i>&nbsp;     * @param message
+<i class="no-highlight">270</i>&nbsp;     * @param peer
+<i class="no-highlight">271</i>&nbsp;     */
+<i class="no-highlight">272</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">273</i>&nbsp;    public void peerDisconnectedFromGameMsg(SugarMessage message, Peer peer) {
+<b class="nc"><i class="no-highlight">274</i>&nbsp;        var gameController = findGameInvolvingPeer(peer);</b>
+<b class="nc"><i class="no-highlight">275</i>&nbsp;        gameController.ifPresent(controller -&gt; {</b>
+<b class="nc"><i class="no-highlight">276</i>&nbsp;                controller.setInactivePlayer(peer);</b>
+<b class="nc"><i class="no-highlight">277</i>&nbsp;                executorService.schedule(() -&gt; {</b>
+<b class="nc"><i class="no-highlight">278</i>&nbsp;                    if (controller.activePlayers() &lt; controller.getPlayers().size()) {</b>
+<b class="nc"><i class="no-highlight">279</i>&nbsp;                        this.gameLogicMulticast(controller, new OKMsg(&quot;User left the game, game closed.&quot;));</b>
+<b class="nc"><i class="no-highlight">280</i>&nbsp;                        this.gamesRepository.removeFromCurrentGames(controller.getGameUUID());</b>
+<b class="nc"><i class="no-highlight">281</i>&nbsp;                        this.games.remove(controller);</b>
+<i class="no-highlight">282</i>&nbsp;                    }
+<i class="no-highlight">283</i>&nbsp;                }, 30, TimeUnit.SECONDS);
+<i class="no-highlight">284</i>&nbsp;        });
+<i class="no-highlight">285</i>&nbsp;    }
+<i class="no-highlight">286</i>&nbsp;
+<i class="no-highlight">287</i>&nbsp;
+<i class="no-highlight">288</i>&nbsp;    @SugarMessageFromLowerLayersHandler
+<i class="no-highlight">289</i>&nbsp;    public void okAndUpdateMsg(SugarMessage message, Peer receiver) {
+<b class="nc"><i class="no-highlight">290</i>&nbsp;        var msg = (OKAndUpdateMsg) message;</b>
+<i class="no-highlight">291</i>&nbsp;
+<i class="no-highlight">292</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">293</i>&nbsp;            this.server.send(msg.okMsg.serialize(), receiver.peerSocket);</b>
+<i class="no-highlight">294</i>&nbsp;
+<b class="nc"><i class="no-highlight">295</i>&nbsp;            var gameInvolvingReceiver = findGameInvolvingPeer(receiver);</b>
+<b class="nc"><i class="no-highlight">296</i>&nbsp;            gameInvolvingReceiver.ifPresent(gameController -&gt; this.gameLogicMulticast(gameController, msg.updateClientMsg));</b>
+<b class="nc"><i class="no-highlight">297</i>&nbsp;        } catch (IOException ignored) { }</b>
+<i class="no-highlight">298</i>&nbsp;    }
+<i class="no-highlight">299</i>&nbsp;
+<i class="no-highlight">300</i>&nbsp;    @SugarMessageFromLowerLayersHandler
+<i class="no-highlight">301</i>&nbsp;    public void baseLowerLayers(SugarMessage message, Peer receiver) {
+<i class="no-highlight">302</i>&nbsp;        // Games manager had nothing to do with message coming from lower layers, so it will just forward the message to
+<i class="no-highlight">303</i>&nbsp;        // the peer
+<i class="no-highlight">304</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">305</i>&nbsp;            this.server.send(message.serialize(), receiver.peerSocket);</b>
+<b class="nc"><i class="no-highlight">306</i>&nbsp;        } catch (IOException ignored) { }</b>
+<i class="no-highlight">307</i>&nbsp;    }
+<i class="no-highlight">308</i>&nbsp;
+<i class="no-highlight">309</i>&nbsp;    @SugarMessageHandler
+<i class="no-highlight">310</i>&nbsp;    public SugarMessage base (SugarMessage sugarMessage, Peer peer) {
+<b class="nc"><i class="no-highlight">311</i>&nbsp;        var username = AuthController.getUsernameFromJWT(sugarMessage.jwt);</b>
+<b class="nc"><i class="no-highlight">312</i>&nbsp;        var gameInvolvingPlayer = findGameInvolvingPlayer(username);</b>
+<i class="no-highlight">313</i>&nbsp;
+<b class="nc"><i class="no-highlight">314</i>&nbsp;        if(gameInvolvingPlayer.isPresent()) {</b>
+<b class="nc"><i class="no-highlight">315</i>&nbsp;            gameInvolvingPlayer.get().updatePeerIfOlder(username, peer);</b>
+<b class="nc"><i class="no-highlight">316</i>&nbsp;            var ret = gameInvolvingPlayer.get().process(sugarMessage, peer);</b>
+<i class="no-highlight">317</i>&nbsp;
+<i class="no-highlight">318</i>&nbsp;            // Process the message coming from the lower layers
+<b class="nc"><i class="no-highlight">319</i>&nbsp;            this.processFromLowerLayers(ret, peer);</b>
+<i class="no-highlight">320</i>&nbsp;        }
+<i class="no-highlight">321</i>&nbsp;
+<b class="nc"><i class="no-highlight">322</i>&nbsp;        return null;</b>
+<i class="no-highlight">323</i>&nbsp;    }
+<i class="no-highlight">324</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-07-01 20:02</div>
+</div>
+</body>
+</html>
