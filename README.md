@@ -42,6 +42,8 @@ Installation wiki is available [here](https://github.com/lorebenzo/ingsw2022-AM4
 
 Compile wiki is available [here](https://github.com/lorebenzo/ingsw2022-AM4/wiki/Compiling)
 
+You can find the jar's are already builded [here](https://polimi365-my.sharepoint.com/:f:/g/personal/10682645_polimi_it/Evt7ElE1nTlNnVcV8jTxLxYBcuDPpvpcKi6s8Vx1W0zFqg?e=eofcya)
+
 ### How to run [Server](https://github.com/lorebenzo/ingsw2022-AM4/wiki/How-to-Run#server)
 
 ### How to run [Client](https://github.com/lorebenzo/ingsw2022-AM4/wiki/How-to-Run#client)
