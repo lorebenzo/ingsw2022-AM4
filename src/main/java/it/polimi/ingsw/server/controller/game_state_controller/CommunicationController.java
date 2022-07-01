@@ -22,7 +22,7 @@ public class CommunicationController extends SugarMessageProcessor {
     protected GameStateController gameStateController;
     protected final Map<String, Integer> usernameToSchoolBoardId;
 
-    protected CommunicationController(List<Player> players) throws GameStateInitializationFailureException {
+    protected CommunicationController(List<Player> players, boolean isExpertMode) throws GameStateInitializationFailureException {
         this.gameStateController = initializeGameStateController(players.size());
         this.usernameToSchoolBoardId = new HashMap<>();
 
@@ -33,9 +33,12 @@ public class CommunicationController extends SugarMessageProcessor {
             this.usernameToSchoolBoardId.put(player.username, schoolBoardIdsSetIterator.next());
         }
 
-        var gameUUID = gameStateController.getGameUUID();
-        for (int i = 0; i < players.size(); i++) {
-            GamesRepository.getInstance().saveUserSchoolBoardMap(gameUUID, players.get(i).username, i);
+        // If is not expert mode, save the games in current run repository
+        if(!isExpertMode) {
+            var gameUUID = gameStateController.getGameUUID();
+            for (int i = 0; i < players.size(); i++) {
+                GamesRepository.getInstance().saveUserSchoolBoardMap(gameUUID, players.get(i).username, i);
+            }
         }
     }
 
@@ -54,7 +57,7 @@ public class CommunicationController extends SugarMessageProcessor {
         if(isExpertMode)
             return new ExpertCommunicationController(players);
         else
-            return new CommunicationController(players);
+            return new CommunicationController(players, false);
     }
 
     public static CommunicationController createCommunicationController(List<Pair<String, Integer>> players, boolean isExpertMode, UUID gameUUID) {

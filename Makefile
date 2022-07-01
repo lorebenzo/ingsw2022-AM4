@@ -13,3 +13,6 @@ test:
 
 up:
 		docker-compose up
+
+run-server:
+		java -jar ServerEriantys.jar

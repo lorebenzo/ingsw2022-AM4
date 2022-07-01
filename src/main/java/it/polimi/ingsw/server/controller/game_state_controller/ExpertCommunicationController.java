@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class ExpertCommunicationController extends CommunicationController {
     protected ExpertCommunicationController(List<Player> players) throws GameStateInitializationFailureException {
-        super(players);
+        super(players, true);
     }
 
     public ExpertCommunicationController(List<Pair<String, Integer>> players, UUID gameUUID) {
