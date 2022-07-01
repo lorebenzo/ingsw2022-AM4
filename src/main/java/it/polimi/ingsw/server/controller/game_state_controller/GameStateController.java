@@ -5,10 +5,7 @@ import it.polimi.ingsw.server.model.game_logic.GameState;
 import it.polimi.ingsw.server.model.game_logic.LightGameState;
 import it.polimi.ingsw.server.model.game_logic.enums.*;
 import it.polimi.ingsw.server.model.game_logic.exceptions.*;
-import it.polimi.ingsw.server.repository.exceptions.DBQueryException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 import java.util.*;
 
 public class GameStateController implements GameStateControllerCommonInterface {
@@ -30,10 +27,12 @@ public class GameStateController implements GameStateControllerCommonInterface {
         }
     }
 
-    public void rollback() {
-        this.gameState = (GameState) this.gameState.rollback();
-    }
-
+    /**
+     * This method initializes the correct gameState with its attributes
+     * @param playersNumber is the number of players
+     * @return the newly created GameState
+     * @throws GameStateInitializationFailureException if there was a failure in the initialization procedure
+     */
     protected GameState initializeGameState(int playersNumber) throws GameStateInitializationFailureException {
         return new GameState(playersNumber);
     }
@@ -83,7 +82,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.assignProfessor(student);
     }
 
-
     /**
      * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState moving the inputted student to the inputted archipelago.
      * @param student indicates the color of the player that has to be moved.
@@ -101,7 +99,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
         this.checkStudentsToBeMoved();
     }
-
 
     /**
      * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState moving motherNature.
@@ -136,7 +133,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
     }
 
-
     /**
      * This method performs all the checks required by the rules and then, if all of them are met, modifies the gameState grabbing the students from the chosen cloud.
      * @param cloudIndex indicates the index of the cloud from which the player wants to grab the students.
@@ -156,7 +152,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
 
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.TURN_TO_END);
     }
-
 
     /**
      * This method performs all the controls before ending the player's turn and starting the next player's turn
@@ -180,8 +175,14 @@ public class GameStateController implements GameStateControllerCommonInterface {
         return this.gameState.isLastRound();
     }
 
-    //Private methods
 
+    //TODO: remove cast
+    public void rollback() {
+        this.gameState = (GameState) this.gameState.rollback();
+    }
+
+
+    //Private methods
 
     public boolean cardPlayed(){
         return this.gameState.getSchoolBoardIdsToCardPlayedThisRound().containsKey(this.gameState.getCurrentPlayerSchoolBoardId());
@@ -229,7 +230,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
 
-
     protected void nextActionTurn() throws GameOverException {
         //If all the players played in this round, a new round will begin
         if(this.gameState.isLastTurnInThisRound()) {
@@ -261,14 +261,6 @@ public class GameStateController implements GameStateControllerCommonInterface {
         this.gameState.setActionPhaseSubTurn(ActionPhaseSubTurn.STUDENTS_TO_MOVE);
     }
 
-    int getCurrentPlayerSchoolBoardId(){
-        return this.gameState.getCurrentPlayerSchoolBoardId();
-    }
-
-    Set<Integer> getSchoolBoardIds(){
-        return this.gameState.getSchoolBoardIds();
-    }
-
     /**
      * This method verifies if there is a schoolBoard that is more influent than all the others on the archipelago on which motherNature is,
      * and returns its schoolBoardId
@@ -276,6 +268,14 @@ public class GameStateController implements GameStateControllerCommonInterface {
      */
     private Optional<Integer> getMostInfluentSchoolBoardIdOnMotherNaturesPosition(){
         return this.gameState.getMostInfluentSchoolBoardId(this.gameState.getMotherNaturePositionIslandCodes());
+    }
+
+    int getCurrentPlayerSchoolBoardId(){
+        return this.gameState.getCurrentPlayerSchoolBoardId();
+    }
+
+    protected Set<Integer> getSchoolBoardIds(){
+        return this.gameState.getSchoolBoardIds();
     }
 
     public List<Integer> getSchoolBoardIDFromTowerColor(TowerColor towerColor) {
@@ -291,21 +291,9 @@ public class GameStateController implements GameStateControllerCommonInterface {
      */
     public TowerColor getSchoolBoardTowerColorFromID(Integer schoolBoardID) {
         return this.gameState
-                .getTowerColorFromSchoolBoardID(schoolBoardID)
+                .getTowerColorFromSchoolBoardId(schoolBoardID)
                 .orElse(TowerColor.NONE);
     }
-
-    public boolean isGamesLastRound(){
-        return this.gameState.isLastRound();
-    }
-
-
-
-
-    /**
-     * This method tries to merge the archipelago on which motherNature is with its left and its right neighbour
-     * if the conditions to merge are met, the archipelagos will merge, if not, then nothing will happen
-     */
 
     LightGameState getLightGameState() {
         return this.gameState.lightify();

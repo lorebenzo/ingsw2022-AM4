@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>/Users/lorenzobenzoni/Documents/Poli/ingsw2022-AM4/src</OriginalElement>
+  <nodes>
+    <node x="5860.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.OKMsg</node>
+    <node x="5517.0" y="609.0">it.polimi.ingsw.server.model.game_logic.exceptions.StudentNotOnCharacterException</node>
+    <node x="5657.25" y="458.0">it.polimi.ingsw.server.repository.interfaces.UsersRepositoryInterface</node>
+    <node x="3887.0" y="755.0">it.polimi.ingsw.server.model.game_logic.exceptions.EmptyCloudException</node>
+    <node x="4782.0" y="609.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.MotherNatureToBeMovedException</node>
+    <node x="5966.0" y="755.0">it.polimi.ingsw.client.new_gui.views.player_view.PlayerViewRenderer</node>
+    <node x="0.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.SetCurrentPhaseEvent</node>
+    <node x="0.0" y="385.0">it.polimi.ingsw.server.controller.game_state_controller.ExpertCommunicationController</node>
+    <node x="1160.0" y="755.0">it.polimi.ingsw.server.model.game_logic.ExpertSchoolBoardTest</node>
+    <node x="2806.0" y="755.0">it.polimi.ingsw.client.new_gui.views.player_view.SwitchButtonRenderer</node>
+    <node x="3725.0" y="307.0">it.polimi.ingsw.server.model.game_logic.SchoolBoard</node>
+    <node x="2235.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.GrabStudentsFromCloudMsg</node>
+    <node x="6413.5" y="78.0">it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg</node>
+    <node x="5292.0" y="828.0">it.polimi.ingsw.client.new_gui.views.player_view.CardsRenderer</node>
+    <node x="2414.0" y="828.0">it.polimi.ingsw.client.new_gui.views.player_view.ButtonsRenderer</node>
+    <node x="1714.0" y="901.0">it.polimi.ingsw.client.new_gui.input_handler.InputEvent</node>
+    <node x="3079.5" y="229.0">it.polimi.ingsw.server.event_sourcing.Aggregate</node>
+    <node x="4565.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.RollbackMsg</node>
+    <node x="2965.0" y="307.0">it.polimi.ingsw.server.model.game_logic.GameState</node>
+    <node x="3406.0" y="901.0">it.polimi.ingsw.server.model.game_logic.enums.Card</node>
+    <node x="3098.0" y="828.0">it.polimi.ingsw.client.new_gui.views.player_view.PromptRenderer</node>
+    <node x="1990.0" y="755.0">it.polimi.ingsw.server.repository.exceptions.DBNotFoundException</node>
+    <node x="3660.0" y="609.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidStudentListsLengthException</node>
+    <node x="5543.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexArchipelagoMsg</node>
+    <node x="502.0" y="828.0">it.polimi.ingsw.client.new_gui.views.login_view.LoginViewRenderer</node>
+    <node x="4422.0" y="755.0">it.polimi.ingsw.server.model.game_logic.ExpertGameStateTest</node>
+    <node x="4059.0" y="307.0">it.polimi.ingsw.server.model.game_logic.Archipelago</node>
+    <node x="5200.0" y="755.0">it.polimi.ingsw.server.model.game_logic.enums.ActionPhaseSubTurn</node>
+    <node x="0.0" y="828.0">it.polimi.ingsw.client.new_gui.AlertNotifyRenderer</node>
+    <node x="3655.5" y="229.0">it.polimi.ingsw.server.model.game_logic.SchoolBoardCommonInterface</node>
+    <node x="692.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.ExpertGameStateControllerTest</node>
+    <node x="5152.0" y="609.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.TooManyStudentsMovedException</node>
+    <node x="295.49999999999994" y="307.0">it.polimi.ingsw.server.controller.game_controller.GameController</node>
+    <node x="2182.0" y="828.0">it.polimi.ingsw.server.repository.EventsRepository</node>
+    <node x="2094.5" y="78.0">it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg</node>
+    <node x="3004.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.MoveStudentFromEntranceToDiningRoomMsg</node>
+    <node x="748.0" y="828.0">it.polimi.ingsw.server.model.game_logic.exceptions.FullCloudException</node>
+    <node x="4205.5" y="78.0">it.polimi.ingsw.server.controller.games_manager.messages.ReJoinMsg</node>
+    <node x="2502.5" y="307.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy</node>
+    <node x="4424.0" y="828.0">it.polimi.ingsw.server.controller.games_manager.messages.enums.ReturnMessage</node>
+    <node x="1717.0" y="755.0">it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageHandler</node>
+    <node x="3077.0" y="755.0">it.polimi.ingsw.server.model.game_logic.ExpertArchipelagoTest</node>
+    <node x="3348.0" y="755.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacterTest</node>
+    <node x="1288.0" y="609.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertNumberOfPlayersStrategyFactory</node>
+    <node x="294.0" y="755.0">it.polimi.ingsw.server.controller.game_state_controller.GameStateControllerTest</node>
+    <node x="6224.0" y="536.0">it.polimi.ingsw.communication.sugar_framework.SugarClient</node>
+    <node x="6131.0" y="828.0">it.polimi.ingsw.client.new_gui.views.player_view.ChatRenderer</node>
+    <node x="1348.0" y="901.0">it.polimi.ingsw.server.model.game_logic.enums.TowerColor</node>
+    <node x="4803.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.IncreaseRoundCountEvent</node>
+    <node x="26.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg</node>
+    <node x="2511.0" y="609.0">it.polimi.ingsw.server.model.game_logic.exceptions.NonMergeableArchipelagosException</node>
+    <node x="1215.5" y="78.0">it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg</node>
+    <node x="973.0" y="901.0">it.polimi.ingsw.server.model.game_logic.utils.Randomizer</node>
+    <node x="876.0" y="609.0">it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageFromLowerLayersHandler</node>
+    <node x="3431.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexColorArchipelagoMsg</node>
+    <node x="3322.0" y="828.0">it.polimi.ingsw.client.new_gui.views.player_view.CloudsRenderer</node>
+    <node x="875.0" y="755.0">it.polimi.ingsw.communication.sugar_framework.exceptions.DisconnectionException</node>
+    <node x="6233.0" y="458.0">it.polimi.ingsw.communication.tcp_client.TcpClient</node>
+    <node x="3282.0" y="609.0">it.polimi.ingsw.client.new_gui.views.enemies_view.ChooseSchoolBoardButtonRenderer</node>
+    <node x="3326.0" y="307.0">it.polimi.ingsw.server.controller.game_state_controller.GameStateController</node>
+    <node x="950.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexColorMsg</node>
+    <node x="252.0" y="828.0">it.polimi.ingsw.server.controller.game_controller.GameControllerTest</node>
+    <node x="0.0" y="156.0">it.polimi.ingsw.server.controller.game_state_controller.messages.FatalErrorMsg</node>
+    <node x="2547.0" y="901.0">it.polimi.ingsw.client.new_gui.layout.Layout</node>
+    <node x="6335.0" y="828.0">it.polimi.ingsw.communication.sugar_framework.messages.SugarMethod</node>
+    <node x="2711.0" y="682.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidArchipelagoIdException</node>
+    <node x="6219.0" y="755.0">it.polimi.ingsw.client.new_gui.views.player_view.CharactersRenderer</node>
+    <node x="1893.0" y="901.0">it.polimi.ingsw.server.model.game_logic.enums.Character</node>
+    <node x="4685.0" y="755.0">it.polimi.ingsw.server.controller.games_manager.GamesManagerTests</node>
+    <node x="783.0" y="901.0">it.polimi.ingsw.client.new_gui.Coordinates</node>
+    <node x="5262.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.WrongArgumentsException</node>
+    <node x="3699.5" y="385.0">it.polimi.ingsw.server.model.game_logic.ExpertSchoolBoard</node>
+    <node x="2066.0" y="901.0">it.polimi.ingsw.client.game_client_and_cli.GUIProxy</node>
+    <node x="4897.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.UpdateClientMsg</node>
+    <node x="5571.0" y="682.0">it.polimi.ingsw.client.new_gui.views.player_view.CharacterPromptController</node>
+    <node x="6050.5" y="458.0">it.polimi.ingsw.client.game_client_and_cli.Logger</node>
+    <node x="2395.0" y="901.0">it.polimi.ingsw.communication.sugar_framework.SerDes</node>
+    <node x="2695.0" y="901.0">it.polimi.ingsw.server.model.game_logic.Round</node>
+    <node x="1053.5" y="385.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacterLock</node>
+    <node x="3544.0" y="828.0">it.polimi.ingsw.server.model.game_logic.LightGameState</node>
+    <node x="562.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.EndTurnMsg</node>
+    <node x="3679.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.PlayCardEvent</node>
+    <node x="5357.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg</node>
+    <node x="5103.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.MoveMotherNatureMsg</node>
+    <node x="1710.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.ProfessorNotPresentException</node>
+    <node x="0.0" y="901.0">it.polimi.ingsw.client.enums.CLICommand</node>
+    <node x="2642.0" y="828.0">it.polimi.ingsw.server.model.game_logic.SchoolBoardTest</node>
+    <node x="2045.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.CardIsNotInTheDeckException</node>
+    <node x="3803.0" y="901.0">it.polimi.ingsw.server.App</node>
+    <node x="443.0" y="609.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentsToBeGrabbedFromCloudException</node>
+    <node x="4155.0" y="755.0">it.polimi.ingsw.client.new_gui.views.player_view.SchoolBoardRenderer</node>
+    <node x="920.8888888888888" y="229.0">it.polimi.ingsw.client.game_client_and_cli.CLI</node>
+    <node x="4642.0" y="828.0">it.polimi.ingsw.server.controller.game_state_controller.messages.enums.ReturnMessage</node>
+    <node x="5717.0" y="828.0">it.polimi.ingsw.server.event_sourcing.EventsMapper</node>
+    <node x="3256.5" y="229.0">it.polimi.ingsw.server.controller.game_state_controller.GameStateControllerCommonInterface</node>
+    <node x="1034.0" y="682.0">it.polimi.ingsw.server.model.game_logic.exceptions.EmptyStudentSupplyException</node>
+    <node x="730.5" y="78.0">it.polimi.ingsw.communication.sugar_framework.messages.HeartBeatMessage</node>
+    <node x="867.5" y="307.0">it.polimi.ingsw.client.game_client_and_cli.GameClient</node>
+    <node x="1624.5" y="385.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacterProfessor</node>
+    <node x="4013.0" y="682.0">it.polimi.ingsw.communication.sugar_framework.GenericTypeAdapterFactory</node>
+    <node x="1937.5" y="385.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertTwoPlayerStrategy</node>
+    <node x="3930.0" y="901.0">it.polimi.ingsw.client.new_gui.GUI</node>
+    <node x="5505.0" y="828.0">it.polimi.ingsw.server.model.game_logic.GameStateTest</node>
+    <node x="3539.0" y="901.0">it.polimi.ingsw.client.Main</node>
+    <node x="1283.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.MoveStudentsFromEntranceToDiningEvent</node>
+    <node x="1396.5" y="229.0">it.polimi.ingsw.server.model.game_logic.Playable</node>
+    <node x="4952.0" y="682.0">it.polimi.ingsw.utils.multilist.MultiListPredicate</node>
+    <node x="4318.0" y="385.0">it.polimi.ingsw.server.server_logic.GameServer</node>
+    <node x="1304.5" y="385.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacterWithStudents</node>
+    <node x="5879.0" y="609.0">it.polimi.ingsw.communication.sugar_framework.exceptions.MessageDeserializationException</node>
+    <node x="5560.0" y="536.0">it.polimi.ingsw.server.controller.auth_controller.UsersRepositoryMock</node>
+    <node x="1430.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.OKAndUpdateMsg</node>
+    <node x="4327.0" y="229.0">it.polimi.ingsw.communication.tcp_server.TcpServer</node>
+    <node x="2106.0" y="609.0">it.polimi.ingsw.server.model.game_logic.exceptions.GameStateInitializationFailureException</node>
+    <node x="2900.0" y="609.0">it.polimi.ingsw.server.model.game_logic.exceptions.ArchipelagoAlreadyLockedException</node>
+    <node x="3300.5" y="385.0">it.polimi.ingsw.server.controller.game_state_controller.ExpertGameStateController</node>
+    <node x="3672.0" y="901.0">it.polimi.ingsw.communication.sugar_framework.Peer</node>
+    <node x="2321.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.ResetSchoolBoardIdsToCardsPlayerThisRoundEvent</node>
+    <node x="4411.0" y="609.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.MoreStudentsToBeMovedException</node>
+    <node x="1645.5" y="78.0">it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg</node>
+    <node x="6238.0" y="609.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategyFactory</node>
+    <node x="3964.5" y="78.0">it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg</node>
+    <node x="2262.0" y="755.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.WrongPhaseException</node>
+    <node x="4326.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidCardPlayedException</node>
+    <node x="4205.0" y="828.0">it.polimi.ingsw.client.new_gui.user_experience.UserExperience</node>
+    <node x="2378.0" y="682.0">it.polimi.ingsw.server.model.game_logic.exceptions.FullDiningRoomLaneException</node>
+    <node x="6028.0" y="536.0">it.polimi.ingsw.client.game_client_and_cli.GameLogger</node>
+    <node x="2795.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.ConquerArchipelagoEvent</node>
+    <node x="3070.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.GrabStudentsFromCloudEvent</node>
+    <node x="1532.0" y="901.0">it.polimi.ingsw.client.ClientTests</node>
+    <node x="1963.0" y="307.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy</node>
+    <node x="1792.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexColorListsMsg</node>
+    <node x="247.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.MergeWithNextEvent</node>
+    <node x="1920.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.MoveMotherNatureNStepsClockwiseEvent</node>
+    <node x="2985.0" y="901.0">it.polimi.ingsw.server.model.game_logic.enums.Phase</node>
+    <node x="489.49999999999994" y="307.0">it.polimi.ingsw.server.controller.auth_controller.AuthController</node>
+    <node x="482.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.MoveStudentFromEntranceToArchipelagoEvent</node>
+    <node x="5293.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.AssignProfessorEvent</node>
+    <node x="1161.0" y="901.0">it.polimi.ingsw.client.exceptions.SyntaxError</node>
+    <node x="2231.0" y="307.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy</node>
+    <node x="1478.0" y="828.0">it.polimi.ingsw.server.model.game_logic.LightSchoolBoard</node>
+    <node x="2841.0" y="901.0">it.polimi.ingsw.server.model.game_logic.entities.Player</node>
+    <node x="591.0" y="901.0">it.polimi.ingsw.client.new_gui.AssetHolder</node>
+    <node x="4033.5" y="385.0">it.polimi.ingsw.server.model.game_logic.ExpertArchipelago</node>
+    <node x="994.0" y="828.0">it.polimi.ingsw.server.repository.exceptions.DBQueryException</node>
+    <node x="3864.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.FillCloudEvent</node>
+    <node x="1372.0" y="682.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidSchoolBoardIdException</node>
+    <node x="2205.5" y="385.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertFourPlayerStrategy</node>
+    <node x="4037.0" y="609.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.StudentNotInTheEntranceException</node>
+    <node x="3125.0" y="0.0">it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage</node>
+    <node x="0.0" y="755.0">it.polimi.ingsw.communication.sugar_framework.exceptions.RoomNotFoundException</node>
+    <node x="3989.5" y="229.0">it.polimi.ingsw.server.model.game_logic.ArchipelagoCommonInterface</node>
+    <node x="3790.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.PlayCardMsg</node>
+    <node x="3378.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.SetActionPhaseSubTurnEvent</node>
+    <node x="3618.0" y="755.0">it.polimi.ingsw.client.new_gui.views.player_view.ArchipelagosRenderer</node>
+    <node x="3043.0" y="682.0">it.polimi.ingsw.client.new_gui.views.enemies_view.EnemySchoolBoardsRenderer</node>
+    <node x="585.0" y="755.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.CardNotPlayedException</node>
+    <node x="398.0" y="901.0">it.polimi.ingsw.client.new_gui.input_handler.InputParams</node>
+    <node x="919.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.SetCurrentPlayerSchoolBoardIDEvent</node>
+    <node x="5456.0" y="755.0">it.polimi.ingsw.communication.sugar_framework.GenericTypeAdapter</node>
+    <node x="1237.0" y="828.0">it.polimi.ingsw.server.controller.auth_controller.AuthControllerTest</node>
+    <node x="5924.0" y="828.0">it.polimi.ingsw.client.cli_graphics.UnicodeString</node>
+    <node x="2534.0" y="755.0">it.polimi.ingsw.client.new_gui.views.matchmaking_view.MatchMakingRenderer</node>
+    <node x="4578.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.InitGameStateEvent</node>
+    <node x="1357.5" y="307.0">it.polimi.ingsw.server.model.game_logic.PlayableCharacter</node>
+    <node x="0.0" y="609.0">it.polimi.ingsw.communication.sugar_framework.exceptions.UnhandledMessageAtLowestLayerException</node>
+    <node x="3765.0" y="828.0">it.polimi.ingsw.server.model.game_logic.enums.GameConstants</node>
+    <node x="2204.0" y="229.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy</node>
+    <node x="1698.0" y="609.0">it.polimi.ingsw.server.model.game_logic.exceptions.StudentsNotInTheDiningRoomException</node>
+    <node x="3128.0" y="901.0">it.polimi.ingsw.communication.sugar_framework.Room</node>
+    <node x="4046.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.ResetRoundIteratorEvent</node>
+    <node x="4736.5" y="78.0">it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg</node>
+    <node x="3371.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.MoveAlreadyPlayedException</node>
+    <node x="3268.0" y="901.0">it.polimi.ingsw.server.model.game_logic.enums.Color</node>
+    <node x="4860.0" y="828.0">it.polimi.ingsw.server.model.game_logic.StudentFactory</node>
+    <node x="3985.0" y="828.0">it.polimi.ingsw.server.model.game_logic.ArchipelagoTest</node>
+    <node x="1948.0" y="828.0">it.polimi.ingsw.server.repository.GamesRepository</node>
+    <node x="5803.0" y="536.0">it.polimi.ingsw.server.repository.UsersRepository</node>
+    <node x="674.5" y="307.0">it.polimi.ingsw.server.controller.games_manager.GamesManager</node>
+    <node x="2939.5" y="385.0">it.polimi.ingsw.server.model.game_logic.ExpertGameState</node>
+    <node x="5081.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.GetNextTurnEvent</node>
+    <node x="2870.0" y="828.0">it.polimi.ingsw.server.model.game_logic.LightArchipelago</node>
+    <node x="1439.0" y="755.0">it.polimi.ingsw.server.model.game_logic.LightPlayableCharacter</node>
+    <node x="349.0" y="682.0">it.polimi.ingsw.server.model.game_logic.exceptions.InvalidCharacterIndexException</node>
+    <node x="2672.5" y="78.0">it.polimi.ingsw.server.controller.games_manager.messages.PeerDisconnectedFromGameMsg</node>
+    <node x="2234.0" y="901.0">it.polimi.ingsw.client.cli_graphics.Terminal</node>
+    <node x="5878.0" y="682.0">it.polimi.ingsw.server.model.game_logic.exceptions.NotEnoughCoinsException</node>
+    <node x="25.5" y="307.0">it.polimi.ingsw.server.controller.game_state_controller.CommunicationController</node>
+    <node x="2783.5" y="229.0">it.polimi.ingsw.server.model.game_logic.GameStateCommonInterface</node>
+    <node x="4362.5" y="78.0">it.polimi.ingsw.communication.sugar_framework.messages.PeerUPIMessage</node>
+    <node x="153.5" y="78.0">it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg</node>
+    <node x="5711.0" y="755.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.GameOverException</node>
+    <node x="4312.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.MergeWithPreviousEvent</node>
+    <node x="0.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.InvalidNumberOfStepsException</node>
+    <node x="2533.5" y="78.0">it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg</node>
+    <node x="339.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexMsg</node>
+    <node x="4943.0" y="755.0">it.polimi.ingsw.client.new_gui.views.enemies_view.EnemyViewRenderer</node>
+    <node x="5076.0" y="828.0">it.polimi.ingsw.client.new_gui.input_handler.InputEventType</node>
+    <node x="4317.5" y="307.0">it.polimi.ingsw.communication.sugar_framework.SugarServer</node>
+    <node x="2477.5" y="385.0">it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertThreePlayerStrategy</node>
+    <node x="1685.0" y="536.0">it.polimi.ingsw.server.model.game_logic.events.SetRoundOrderEvent</node>
+    <node x="1713.0" y="828.0">it.polimi.ingsw.utils.multilist.MultiList</node>
+    <node x="3697.0" y="682.0">it.polimi.ingsw.utils.multilist.MultiListProcedure</node>
+    <node x="449.49999999999994" y="229.0">it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor</node>
+    <node x="4639.0" y="682.0">it.polimi.ingsw.server.controller.game_state_controller.exceptions.MoveNotAvailableException</node>
+    <node x="6182.0" y="682.0">it.polimi.ingsw.server.model.game_logic.exceptions.NoAvailableLockException</node>
+    <node x="3167.0" y="458.0">it.polimi.ingsw.server.event_sourcing.Event</node>
+    <node x="5987.5" y="78.0">it.polimi.ingsw.server.controller.game_state_controller.messages.MoveStudentFromEntranceToArchipelagoMsg</node>
+    <node x="201.0" y="901.0">it.polimi.ingsw.client.new_gui.input_handler.InputHandler</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.GameStateController" target="it.polimi.ingsw.server.controller.game_state_controller.GameStateControllerCommonInterface" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.GameOverMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5440.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.messages.GamesUpdateMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1313.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_controller.GameController" target="it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="382.49999999999994" y="282.0" />
+      <point x="572.0" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.communication.sugar_framework.messages.PeerUPIMessage" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4454.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.MoveStudentFromEntranceToArchipelagoMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="6190.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.messages.ReJoinMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4274.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.Archipelago" target="it.polimi.ingsw.server.model.game_logic.ArchipelagoCommonInterface" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.messages.GetGamesMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="236.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.SetActionPhaseSubTurnEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3518.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.auth_controller.AuthController" target="it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.messages.ChatMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2155.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.FatalErrorMsg" target="it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertTwoPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.ConquerArchipelagoEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2922.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.ExpertGameState" target="it.polimi.ingsw.server.model.game_logic.GameState" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2608.0" y="282.0" />
+      <point x="2331.5" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.EndTurnMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="636.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacterLock" target="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1169.0" y="360.0" />
+      <point x="1454.5" y="360.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.MoveStudentFromEntranceToDiningRoomMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.communication.sugar_framework.messages.HeartBeatMessage" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="830.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" target="it.polimi.ingsw.server.model.game_logic.Playable" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.MoveMotherNatureNStepsClockwiseEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2110.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.PlayCardMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3867.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.PlayCardEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3761.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertFourPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.FourPlayerStrategy" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.repository.UsersRepository" target="it.polimi.ingsw.server.repository.interfaces.UsersRepositoryInterface" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5893.0" y="511.0" />
+      <point x="5782.25" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.SchoolBoard" target="it.polimi.ingsw.server.model.game_logic.SchoolBoardCommonInterface" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="441.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.IncreaseRoundCountEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4932.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.KOMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="80.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.communication.sugar_framework.SugarClient" target="it.polimi.ingsw.communication.tcp_client.TcpClient" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.client.game_client_and_cli.GameClient" target="it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor" relationship="GENERALIZATION">
+      <point x="-35.25" y="-14.0" />
+      <point x="902.75" y="282.0" />
+      <point x="572.0" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.CommunicationController" target="it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="150.5" y="282.0" />
+      <point x="572.0" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.ExpertGameStateController" target="it.polimi.ingsw.server.controller.game_state_controller.GameStateController" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.SetCurrentPlayerSchoolBoardIDEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1091.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.MoveStudentsFromEntranceToDiningEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1474.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.TwoPlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.NumberOfPlayersStrategy" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2061.5" y="282.0" />
+      <point x="2331.5" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.SetRoundOrderEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1792.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.communication.sugar_framework.SugarServer" target="it.polimi.ingsw.communication.tcp_server.TcpServer" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.OKMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5914.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacterWithStudents" target="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.OKAndUpdateMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1528.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.GetNextTurnEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5177.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.server_logic.GameServer" target="it.polimi.ingsw.communication.sugar_framework.SugarServer" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.ExpertArchipelago" target="it.polimi.ingsw.server.model.game_logic.Archipelago" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.SetCurrentPhaseEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="113.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.GrabStudentsFromCloudMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2374.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.MergeWithPreviousEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4435.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.auth_controller.messages.SignUpMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4807.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexColorArchipelagoMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3601.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.ExpertSchoolBoard" target="it.polimi.ingsw.server.model.game_logic.SchoolBoard" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexColorMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1073.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.client.game_client_and_cli.GameLogger" target="it.polimi.ingsw.client.game_client_and_cli.Logger" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.ResetRoundIteratorEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4169.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.GameState" target="it.polimi.ingsw.server.model.game_logic.GameStateCommonInterface" relationship="REALIZATION">
+      <point x="-34.25" y="-14.0" />
+      <point x="2999.25" y="282.0" />
+      <point x="2921.5" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.MoveStudentFromEntranceToArchipelagoEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="690.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.auth_controller.UsersRepositoryMock" target="it.polimi.ingsw.server.repository.interfaces.UsersRepositoryInterface" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5671.5" y="511.0" />
+      <point x="5782.25" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.FillCloudEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3945.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.messages.NotifyGameOverMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="6520.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.auth_controller.messages.JWTMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2593.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.AssignProfessorEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5404.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.auth_controller.messages.LoginMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1709.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.ResetSchoolBoardIdsToCardsPlayerThisRoundEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2548.0" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.ExpertCommunicationController" target="it.polimi.ingsw.server.controller.game_state_controller.CommunicationController" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.messages.JoinMatchMakingMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4075.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexArchipelagoMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5692.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.InitGameStateEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4680.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.PlayableCharacterProfessor" target="it.polimi.ingsw.server.model.game_logic.PlayableCharacter" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1758.5" y="360.0" />
+      <point x="1454.5" y="360.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.MergeWithNextEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="354.5" y="511.0" />
+      <point x="3214.0" y="511.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.client.game_client_and_cli.GameClient" target="it.polimi.ingsw.client.game_client_and_cli.CLI" relationship="REALIZATION">
+      <point x="35.25" y="-14.0" />
+      <point x="973.25" y="282.0" />
+      <point x="958.8888888888888" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.MoveMotherNatureMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="5220.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.messages.PeerDisconnectedFromGameMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2828.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.events.GrabStudentsFromCloudEvent" target="it.polimi.ingsw.server.event_sourcing.Event" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.GameState" target="it.polimi.ingsw.server.event_sourcing.Aggregate" relationship="GENERALIZATION">
+      <point x="34.25" y="-14.0" />
+      <point x="3067.75" y="282.0" />
+      <point x="3145.5" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.RollbackMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4641.0" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ExpertThreePlayerStrategy" target="it.polimi.ingsw.server.model.game_logic.number_of_player_strategy.ThreePlayerStrategy" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.games_manager.GamesManager" target="it.polimi.ingsw.communication.sugar_framework.message_processing.SugarMessageProcessor" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="761.0" y="282.0" />
+      <point x="572.0" y="282.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.UpdateClientMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4990.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.server.controller.game_state_controller.messages.CharacterIndexColorListsMsg" target="it.polimi.ingsw.communication.sugar_framework.messages.SugarMessage" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1933.5" y="53.0" />
+      <point x="3208.0" y="53.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.16892298435619735" showDependencies="false" x="3314.0" y="464.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
