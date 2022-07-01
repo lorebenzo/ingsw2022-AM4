@@ -3,6 +3,11 @@
 
 # Server
 
+Build the server and the client using
+```
+mvn package
+```
+
 ### Database
 
 For running the server, you need a **PostgreSQL** database.
@@ -46,4 +51,9 @@ DB_USER: user
 DB_PASSWORD: password
 ```
 
+# Client
 
+You can run the Client using
+```
+make run-client
+```
