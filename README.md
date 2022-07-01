@@ -42,11 +42,9 @@ Installation wiki is available [here](https://github.com/lorebenzo/ingsw2022-AM4
 
 Compile wiki is available [here](https://github.com/lorebenzo/ingsw2022-AM4/wiki/Compiling)
 
-### How to run Server
+### How to run [Server](https://github.com/lorebenzo/ingsw2022-AM4/wiki/How-to-Run#server)
 
-
-### How to run Client
-
+### How to run [Client](https://github.com/lorebenzo/ingsw2022-AM4/wiki/How-to-Run#client)
 
 ### Software/Technologies used
 
